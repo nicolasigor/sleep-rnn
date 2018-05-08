@@ -1,14 +1,15 @@
 %% Select register
 regName = 'ADGU101504';
+dir = ['ssdata_clean/' regName '/' ];
+channel = 1;
 
 %% Create new register file
 
-dir = ['ssdata_clean/' regName '/' ];
-
-[param1, eegData] = getSleepEEG( regName ); % Get eeg with valid marks and states, CH1 only
+[param1, eegData] = getSleepEEG( regName , channel); % Get eeg with valid marks and states, CH1
 %saveData( eegData.marks, [dir regName '_SS_marks.txt'] );
-[param2, bands] = getBands( eegData );      % Extract frequency bands from eeg
-tabData = getTabData( eegData, bands );     % Extract tabular format of register
+%[param2, bands] = getBands( eegData );      % Extract frequency bands from eeg
+%tabData = getTabData( eegData, bands );     % Extract tabular format of register
+tabData = getTabData( eegData );
 %saveData( tabData, [dir regName '_feats_label.txt'] );
 
 %% Extract segments of SQ2 from new files and normalize

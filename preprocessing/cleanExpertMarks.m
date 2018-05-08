@@ -1,10 +1,11 @@
-function newMarks = cleanExpertMarks(marks, fs, minT, maxT)
+function newMarks = cleanExpertMarks(regMarks, fs, minT, maxT)
 
 %% Remove invalid marks
-marks = marks( marks(:,5) ~= 0, : );
-valid = marks(:,5);
-marks = marks(:, [1 2]);
-marks = sortrows(marks, 'ascend');
+idx = regMarks(:,5) ~= 0;
+marks = regMarks(:, [1 2]);
+marks = marks( idx, : );
+valid = regMarks(idx,5);
+marks = sortrows(marks);
 
 n = length(marks);
 newMarks = marks(1,:);
@@ -46,3 +47,7 @@ end
 
 interval = diff(newMarks') / fs;
 newMarks = newMarks( interval<= maxT , : );
+
+%% Make them integer (step times)
+
+newMarks = int64(newMarks);

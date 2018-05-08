@@ -1,14 +1,19 @@
-function [p, eegData] = getSleepEEG( regName )
-% regName: Name of the register to be extracted
-% p: params used for extraction
-% eegData: register extracted
+function [p, eegData] = getSleepEEG( regName , channel)
+% Extraction of eeg recorded data from edf file
+%   INPUT
+%       regName: Name of the register to be extracted
+%   OUTPUT
+%       p: params used for extraction
+%       eegData: register extracted
 
 %% Set parameters for extraction
 
 if nargin > 0
     p.regName = regName;
-else
+    p.channel = channel;        % EEG Channel
+else % Default
     p.regName = 'ADGU101504';
+    p.channel = 1;              % EEG Channel
 end
 fprintf('Reading register %s...\n', p.regName);
 
@@ -17,7 +22,6 @@ p.regRecFile = [p.regContainer '/' p.regName '.rec'];
 p.regStatesFile = [p.regContainer '/' p.regName '/Sleep States/States_' p.regName '.txt'  ];
 p.regSpindlesFile = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_' p.regName '.txt'  ];
 
-p.channel = 1;              % EEG Channel
 p.minSSduration = 0.3;      % Min feasible SS duration
 p.maxSSduration = 3.0;      % Max feasible SS duration
 p.pageDuration = 30;        % Time of window page [s]
@@ -35,8 +39,8 @@ p.regDurationHrs = length(eegData.eegRecord)/(p.fs*3600);
 % Load Sleep States
 regStates = load(p.regStatesFile);
 regStates = regStates(:,8);
-eegData.regStates = regStates;
-p.nPages = length(regStates);
+eegData.regStates = regStates;      % Sleep Stages, 1:SQ4  2:SQ3  3:SQ2  4:SQ1  5:REM  6:WA
+p.nPages = length(regStates);       % Number of pages in record
 
 % Load Sleep Spindles marks
 regSpindles = load(p.regSpindlesFile);
