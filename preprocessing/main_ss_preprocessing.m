@@ -5,11 +5,10 @@ channel = 1;
 
 %% Create new register file
 
-[param1, eegData] = getSleepEEG( regName , channel); % Get eeg with valid marks and states, CH1
+eegData = getSleepEEG( regName , channel); % Get eeg with valid marks and states, one channel
 %saveData( eegData.marks, [dir regName '_SS_marks.txt'] );
-%[param2, bands] = getBands( eegData );      % Extract frequency bands from eeg
-%tabData = getTabData( eegData, bands );     % Extract tabular format of register
-tabData = getTabData( eegData );
+eegData = getFilteredEEG( eegData );      % Extract frequency bands from eeg
+tabData = getTabData( eegData );     % Extract tabular format of register
 %saveData( tabData, [dir regName '_feats_label.txt'] );
 
 %% Extract segments of SQ2 from new files and normalize
