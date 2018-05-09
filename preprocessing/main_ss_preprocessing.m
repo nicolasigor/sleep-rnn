@@ -5,18 +5,19 @@ channel = 1;
 
 %% Create new register file
 
-eegData = getSleepEEG( regName , channel); % Get eeg with valid marks and states, one channel
-%saveData( eegData.marks, [dir regName '_SS_marks.txt'] );
-eegData = getFilteredEEG( eegData );      % Extract frequency bands from eeg
-tabData = getTabData( eegData );     % Extract tabular format of register
-%saveData( tabData, [dir regName '_feats_label.txt'] );
+eegData = getSleepEEG( regName , channel);  % Get eeg with valid marks and states, one channel
+eegData = getFilteredEEG( eegData );        % Extract frequency bands from eeg
+tabData = getTabData( eegData );            % Extract tabular format of register
 
-%% Extract segments of SQ2 from new files and normalize
+%% Extract segments of N2 from new files and normalize
 
-% Cut normalized sq2 segments from eeg data
-sq2Data = getSegments( regName, 'SQ2');
+% Cut normalized N2 segments from eeg data
+downsampling = 1;       % 1 for True (i.e. do downsampling rate 2)
+state = 3;              % Sleep Stages, [1,2]:N3 3:N2  4:N1  5:R  6:W
+N2Data = getSegments( tabData, eegData , state, downsampling);
+
 % Save obtained segments as new database
-for k = 1:length(sq2Data)
-    %saveData( sq2Data(k).marks, [dir '/segments_sq2/expert_marks/' regName '_SS_marks_seg' num2str(k) '.txt'] );
-    %saveData( sq2Data(k).tabData, [dir '/segments_sq2/tabular_data/' regName '_feats_label_seg' num2str(k) '.txt'] );
+for k = 1:length(N2Data)
+    %saveData(N2Data(k).marks, [dir '/segments_N2/expert_marks/' regName '_SS_marks_seg' num2str(k) '.txt'] );
+    %saveData(N2Data(k).tabData, [dir '/segments_N2/tabular_data/' regName '_feats_label_seg' num2str(k) '.txt'] );
 end

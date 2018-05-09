@@ -1,13 +1,14 @@
 function eegData = getFilteredEEG( eegData )
 % Get medical frequency bands, and band-passed eeg record
 
+fprintf('Filtering EEG data and extracting frequency bands...\n');
+
 fs = eegData.params.fs;
+
+% Frequency ranges to be extracted
+fRange.delta = [0.5, 4];
+fRange.theta = [3.5, 7];
 fRange.sigma = [10, 16];
-%fRange.alfa = [ 8, 15 ]; % ejemplo sin sentido para rangos
-%fRange.beta = [10,15]; 
-% param.frecRange=[10,16];
-% [B,A]=butter(3,[param.frecRange(1)/(param.Fs/2) param.frecRange(2)/(param.Fs/2)] ,'bandpass');
-% data(n).butter=filtfilt(B,A,data(n).record);
 
 bandNames = fieldnames(fRange);
 b = numel(bandNames);
@@ -20,6 +21,7 @@ end
 eegData.eegBands = bands;
 
 %% Band-passed EEG Record, to cut 0Hz and high-frequency noise
+
 fRange.cut = [0.5, 40];
 [B, A] = butter(3, fRange.cut/(fs/2) , 'bandpass');
 eegRecord_filtered = filtfilt( B, A, eegData.eegRecord);
@@ -27,3 +29,5 @@ eegData.eegRecordFiltered = eegRecord_filtered;
 
 %% Save parameters
 eegData.bandsFreqRanges = fRange;
+
+fprintf('Filtering finished\n');

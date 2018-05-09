@@ -22,10 +22,10 @@ p.regStatesFile = [p.regContainer '/' p.regName '/Sleep States/States_' p.regNam
 p.regSpindlesFile = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_' p.regName '.txt'  ];
 
 % According to literature, SS durations are most commonly encountered
-% between 0.5–1.5 seconds, but here we consider a broader range for 
+% between 0.5 and 1.5 seconds, but here we consider a broader range for 
 % completeness.
 
-p.minSSduration = 0.5;      % Min feasible SS duration
+p.minSSduration = 0.3;      % Min feasible SS duration
 p.maxSSduration = 3.0;      % Max feasible SS duration
 
 p.pageDuration = 30;        % Time of window page [s]
@@ -43,7 +43,7 @@ p.regDurationHrs = length(eegData.eegRecord)/(p.fs*3600);
 % Load Sleep States
 regStates = load(p.regStatesFile);
 regStates = regStates(:,8);
-eegData.regStates = regStates;      % Sleep Stages, 1:SQ4  2:SQ3  3:SQ2  4:SQ1  5:REM  6:WA
+eegData.regStates = regStates;      % Sleep Stages, [1,2]:N3 3:N2  4:N1  5:R  6:W
 p.nPages = length(regStates);       % Number of pages in record
 
 % Load Sleep Spindles marks
@@ -52,7 +52,7 @@ regSpindles = load(p.regSpindlesFile);
 %% Extract and clean marks from selected channel
 
 marks = regSpindles( regSpindles(:,6) == p.channel, : );
-marks = cleanExpertMarks( marks, p.fs, p.minSSduration, p.maxSSduration );
+marks = cleanExpertMarks( marks, eegData.regStates, p.pageDuration , p.fs, p.minSSduration, p.maxSSduration );
 eegData.marks = marks;
 p.nMarks = length(marks);
 p.marksDurationHrs = sum( diff(marks') / p.fs )/3600;
@@ -60,3 +60,5 @@ p.marksDurationHrs = sum( diff(marks') / p.fs )/3600;
 %% Output params as well
 
 eegData.params = p;
+
+fprintf('Reading finished\n');
