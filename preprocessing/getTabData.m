@@ -12,7 +12,7 @@ tabData(:,2) = eegData.eegRecordFiltered;           % Insert Record
 tabData(:,3:(b+2)) = eegData.eegBands;              % Insert Bands
 
 %% Insert stages labels
-width = eegData.params.fs*eegData.params.pageDuration;
+width = eegData.params.fs*eegData.params.epochDuration;
 for k = 1:(length(eegData.regStates)-1)
     interval = ((k-1)*width + 1) : (k*width);
     tabData( interval, b+3 ) = eegData.regStates(k);

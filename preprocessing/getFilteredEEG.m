@@ -24,8 +24,8 @@ eegData.eegBands = bands;
 
 fRange.cut = [0.5, 40];
 [B, A] = butter(3, fRange.cut/(fs/2) , 'bandpass');
-eegRecord_filtered = filtfilt( B, A, eegData.eegRecord);
-eegData.eegRecordFiltered = eegRecord_filtered;
+eegRecordFiltered = filtfilt( B, A, eegData.eegRecord);
+eegData.eegRecordFiltered = eegRecordFiltered;
 
 %% Save parameters
 eegData.bandsFreqRanges = fRange;

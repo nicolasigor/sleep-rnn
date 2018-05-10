@@ -28,13 +28,13 @@ p.regSpindlesFile = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_' p.regNa
 p.minSSduration = 0.3;      % Min feasible SS duration
 p.maxSSduration = 3.0;      % Max feasible SS duration
 
-p.pageDuration = 30;        % Time of window page [s]
+p.epochDuration = 30;        % Time of window page [s]
 
 %% Extract channel record
 
 % Read .rec file and obtain specified channel
 [eegData.header, record] = edfread(p.regRecFile);
-p.fs = eegData.header.frequency(1); % Sampling Frequency [Hz]
+p.fs = eegData.header.frequency(p.channel); % Sampling Frequency [Hz]
 eegData.eegRecord = record(p.channel, :)';
 p.regDurationHrs = length(eegData.eegRecord)/(p.fs*3600);
 
@@ -44,7 +44,7 @@ p.regDurationHrs = length(eegData.eegRecord)/(p.fs*3600);
 regStates = load(p.regStatesFile);
 regStates = regStates(:,8);
 eegData.regStates = regStates;      % Sleep Stages, [1,2]:N3 3:N2  4:N1  5:R  6:W
-p.nPages = length(regStates);       % Number of pages in record
+p.nEpochs = length(regStates);       % Number of pages in record
 
 % Load Sleep Spindles marks
 regSpindles = load(p.regSpindlesFile);
@@ -52,10 +52,10 @@ regSpindles = load(p.regSpindlesFile);
 %% Extract and clean marks from selected channel
 
 marks = regSpindles( regSpindles(:,6) == p.channel, : );
-marks = cleanExpertMarks( marks, eegData.regStates, p.pageDuration , p.fs, p.minSSduration, p.maxSSduration );
+marks = cleanExpertMarks( marks, eegData.regStates, p.epochDuration , p.fs, p.minSSduration, p.maxSSduration );
 eegData.marks = marks;
 p.nMarks = length(marks);
-p.marksDurationHrs = sum( diff(marks') / p.fs )/3600;
+p.marksDurationHrs = sum( diff(marks') ) /(p.fs*3600);
 
 %% Output params as well
 
