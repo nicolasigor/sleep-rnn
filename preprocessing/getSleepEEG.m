@@ -50,8 +50,10 @@ p.nEpochs = length(regStates);       % Number of pages in record
 regSpindles = load(p.regSpindlesFile);
 
 %% Extract and clean marks from selected channel
-
+fprintf('Total marks in file %d\n',length(regSpindles));
 marks = regSpindles( regSpindles(:,6) == p.channel, : );
+fprintf('Total marks in CH%d %d\n',p.channel, length(marks));
+
 marks = cleanExpertMarks( marks, eegData.regStates, p.epochDuration , p.fs, p.minSSduration, p.maxSSduration );
 eegData.marks = marks;
 p.nMarks = length(marks);

@@ -1,6 +1,21 @@
 %% Select register
-regName = 'ADGU101504';
-dir = ['ssdata_clean/' regName '/' ];
+
+% Names
+allNames = {'ADGU101504', 
+    'ALUR012904', 
+    'BECA011405', 
+    'BRCA062405', 
+    'BRLO041102', 
+    'BTOL083105', 
+    'BTOL090105', 
+    'CAPO092605', 
+    'CRCA020205', 
+    'ESCI031905', 
+    'TAGO061203'}; 
+
+regName = allNames{3};
+
+clean_dir = ['ssdata_clean/' regName '/' ];
 channel = 1;
 
 %% Create new register file
