@@ -12,8 +12,8 @@ local.properties
 .recommenders
 .idea
 
-preprocessing/ssdata/
-preprocessing/ssdata_clean/
+preprocessing/ssdata/register
+preprocessing/ssdata/old_label
 
 # External tool builders
 .externalToolBuilders/
