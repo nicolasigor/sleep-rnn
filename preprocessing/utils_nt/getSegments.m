@@ -25,8 +25,8 @@ segments.n_epoch_in_segments = (intervals(:,2)-intervals(:,1)+1);
 %% Obtain epochs of marks
 marks_epoch = timestep2epoch( marks, params );
 
-segments.marks = cell(length(intervals),1);
-for i = 1:length(intervals)
+segments.marks = cell(size(intervals,1),1);
+for i = 1:size(intervals,1)
     beginning_inside = marks_epoch(:,1) >= intervals(i,1);
     ending_inside = marks_epoch(:,2) <= intervals(i,2);
     inside = beginning_inside & ending_inside;
@@ -39,14 +39,14 @@ if flag_save_segments_label
     p.regStatesSegmentFile = [p.regContainer '/' p.regName '/Sleep States/SegmentsN2_' p.regName '.txt'  ];
     fid=fopen(p.regStatesSegmentFile,'w');
     % ID EPOCH_START EPOCH_FINISH
-    fprintf(fid, '%d %d %d\n', [ (1:length(intervals))' , intervals]');
+    fprintf(fid, '%d %d %d\n', [ (1:size(intervals,1))' , intervals]');
     fclose(fid);
     
     % Save marks
     p.regSpindlesSegmentFile = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_SegmentsN2_' p.regName '.txt'  ];
     fid=fopen(p.regSpindlesSegmentFile,'w');
-    for i = 1:length(intervals)
-        fprintf(fid, '%d %d %d\n',[i*ones(length(segments.marks{i}),1) , segments.marks{i}]');
+    for i = 1:size(intervals,1)
+        fprintf(fid, '%d %d %d\n',[i*ones(size(segments.marks{i},1),1) , segments.marks{i}]');
     end
     fclose(fid);
 end
