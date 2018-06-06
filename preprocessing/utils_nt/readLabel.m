@@ -1,66 +1,40 @@
-function eegLabel = readLabel( regName, fs, flag_save_fix)
+function eegLabel = readLabel(marks_filename, states_filename, channel)
 % Extraction of eeg labels: hipnogram and sleep spindle marks
 %   INPUT
-%       regName: Name of the register to be extracted
-%       flag_save_fix: 1 to save fixed marks in a file
+%       marks_filename: Name of the file containing expert marks of SS
+%       states_filename: Name of the file containing expert marks of sleep
+%       states.
+%       channel: Channel to be considered for SS marks
 %   OUTPUT
 %       eegLabel: reading results and parameters
 
 %% Set parameters for extraction
-
-p.regName = regName;
-fprintf('Reading labels for %s...\n', p.regName);
-
-p.regContainer = 'ssdata/label';
-p.regStatesFile = [p.regContainer '/' p.regName '/Sleep States/StagesOnly_' p.regName '.txt'  ];
-p.regSpindlesFile = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_' p.regName '.txt'  ];
-
-p.epochDuration = 30;        % Time of window page [s]
-
-% According to literature, SS durations are most commonly encountered
-% between 0.5 and 1.5 seconds, but here we consider a broader range for 
-% completeness.
-p.minSSduration = 0.3;      % Min SS duration [s]
-p.maxSSduration = 3.0;      % Max SS duration [s]
-
-p.channel = 1;              % EEG Channel
-p.fs = fs;                  % Sampling Frequency [Hz]
+p.statesFile = states_filename;
+p.spindlesFile = marks_filename;
+p.channel = channel;
 
 %% Load hipnogram
-% Sleep Stages, [1,2]:N3 3:N2  4:N1  5:R  6:W
-states = load(p.regStatesFile);
-% Upgrade Stages by combining old SQ3 and SQ4 stages
+
+fprintf('Reading states at %s...\n', p.statesFile);
+% Sleep Stages, 1:SQ4  2:SQ3  3:SQ2  4:SQ1  5:REM  6:WA
+states = load(p.statesFile);
+% Upgrade old notation by combining old SQ3 and SQ4 into N3
 states(states == 1) = 2; 
 % Now  2:N3  3:N2  4:N1  5:R  6:W
 eegLabel.states = states;
 
 %% Load Sleep Spindles marks
-marks = load(p.regSpindlesFile);
-n_marks_file = length(marks);
+
+fprintf('Reading marks at %s...\n', p.spindlesFile);
+marks = load(p.spindlesFile);
+stats.n_marks_all = size(marks, 1);
 
 % Only one channel
-marks = marks( marks(:,6) == p.channel, : );
-n_marks_ch1 = length(marks);
+eegLabel.marks = marks( marks(:,end) == p.channel, : );
+stats.n_marks_channel = size(eegLabel.marks,1);
 
-% Fix marks
-[marks, valid, stats] = cleanExpertMarks( marks, states, p.epochDuration, p.fs, p.minSSduration, p.maxSSduration );
-eegLabel.marks = marks;
-eegLabel.marks_validity = valid;
-
-% Save stats of fixing marks
-eegLabel.marks_stats = stats;
-eegLabel.marks_stats.n_marks_file = n_marks_file;
-eegLabel.marks_stats.n_marks_ch1 = n_marks_ch1;
-
-% Save new marks
-if flag_save_fix
-    p.regSpindlesFileFixed = [p.regContainer '/' p.regName '/Sleep Spindles/SS1_' p.regName '_ch1_fixed.txt'  ];
-    fid=fopen(p.regSpindlesFileFixed,'w');
-    fprintf(fid, '%d %d %d\n', [eegLabel.marks, eegLabel.marks_validity]');
-    fclose(fid);
-end
-
-%% Output params as well
+%% Output params and stats as well
+eegLabel.stats = stats;
 eegLabel.params = p;
 
 fprintf('Reading finished\n');

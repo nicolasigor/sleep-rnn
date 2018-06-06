@@ -1,6 +1,10 @@
 %% Definitions
+
+% Path of functions
 addpath('utils_nt');
-allNames = {'ADGU101504' 
+
+% Files to be read
+all_names = {'ADGU101504' 
     'ALUR012904' 
     'BECA011405' 
     'BRCA062405' 
@@ -11,25 +15,95 @@ allNames = {'ADGU101504'
     'CRCA020205' 
     'ESCI031905' 
     'TAGO061203'};
-m = length(allNames);
+rec_folder = 'ssdata/register';
+spindles_folder = 'ssdata/label/marks';
+states_folder = 'ssdata/label/states';
+
+% Indexes
+m = length(all_names);
 work_index = 1:m;
+show_index = 1:m;
+
+% Settings
+set.channel = 1;
+set.dur_epoch = 30;        % Time of window page [s]
+set.dur_min_ss = 0.3;      % Min SS duration [s]
+set.dur_max_ss = 3.0;      % Max SS duration [s]
+% According to literature, SS durations are most commonly encountered
+% between 0.5 and 2 seconds, but here we consider a broader range
+
+% Handler for histogram function (due to issues of retro-compatibility when
+% using the newer 'histogram' function
+use_hist = 1;
+if use_hist
+   my_histogram = @hist; 
+else
+   my_histogram = @histogram;
+end
 
 %% Reader of registers
 eegData = cell(1,m);
 for k = work_index
-    eegData{k} = readEEG( allNames{k} );
+    rec_filename = [rec_folder '/' all_names{k} '.rec'];
+    eegData{k} = readEEG( rec_filename , set.channel);
+end
+% Save sampling frequency (they all have the same one);
+set.fs = eegData{1}.params.fs;
+
+%% OPTIONAL: Cleaning of Marks
+clean_stats = cell(1,m);
+for k = work_index
+    marks_filename = [spindles_folder '/SS_' all_names{k} '.txt'];
+    marks_filename_new = [spindles_folder '/FixedSS_' all_names{k} '.txt'];
+    clean_stats{k} = cleanExpertMarks( marks_filename, marks_filename_new, set);
 end
 
 %% Reader of labels
-save_newmarks = 1;
 for k = work_index
-    eegData{k}.label = readLabel( allNames{k} ,eegData{k}.params.fs, save_newmarks);
+    %marks_filename = [spindles_folder '/SS_' all_names{k} '.txt'];
+    marks_filename = [spindles_folder '/FixedSS_' all_names{k} '.txt'];
+    states_filename = [states_folder '/StagesOnly_' all_names{k} '.txt']; 
+    eegData{k}.label = readLabel( marks_filename, states_filename, set.channel);
 end
 
-%% Segmentation of labels
-save_segments_label = 1;
+%% Segmentation of epochs
+% Only N2 epochs will be selected.
+% A small context is considered before and after the epoch (3s)
+
+% in a epoch, save id (reg, seg, ep), eeg, marks in that epoch.
+eegSegmentation = cell(1,m);
 for k = work_index
-    eegData{k}.segments = getSegments( allNames{k}, save_segments_label, eegData{k}.label.params);
+
+end
+
+
+%% Normalization of epochs
+% Z-score by-individual, mean and std computed considering percentile 99
+
+
+
+%% Selection of epochs
+% Epochs without outliers values and with marks will be selected
+% Count number of removed epochs and available
+% epochs for training.
+
+
+%% Spectrogram of selected epochs
+% Compute a single spectrogram for each epoch. Start with one epoch to
+% experiment with.
+
+
+
+%% Generate database for machine learning model
+% Generate a simple matrix DB for the non-context case
+% Generate something else for the context case
+
+
+
+%% Segmentation of labels
+save_segments_label = 0;
+for k = work_index
+    eegData{k}.segments = getSegments( all_names{k}, save_segments_label, params);
 end
 
 %% Computation of features for each time-step
@@ -84,7 +158,6 @@ fprintf('Finish database creation\n')
 
 %% Print Stats
 
-show_index = 1:m;
 %%
 % Print stats of marks
 
@@ -94,7 +167,7 @@ for k = show_index
     st = eegData{k}.label.marks_stats;
     total_n2_marks = total_n2_marks + st.n_marks_statecontrol_n2only;
     fprintf('%2.1d %s %7.d %7.d %7.d %7.d %7.d %7.d (%4.d) %7.d (%5.4f) %7.d(%3.1d,%3.1d) %7.d (%5.1d,%5.1d,%5.1d)\n',...
-        k,allNames{k},st.n_marks_file, st.n_marks_ch1,st.n_marks_no_val0, st.n_marks_no_dur0, st.n_marks_no_rep,...
+        k,all_names{k},st.n_marks_file, st.n_marks_ch1,st.n_marks_no_val0, st.n_marks_no_dur0, st.n_marks_no_rep,...
         st.n_marks_valid, st.n_marks_valid_included, st.n_marks_aftercomb,st.n_marks_aftercomb_minDist,st.n_marks_durationcontrol,...
         st.n_marks_durationcontrol_too_short,st.n_marks_durationcontrol_too_long,...
         st.n_marks_statecontrol_n2n3,st.n_marks_statecontrol_n2only,st.n_marks_statecontrol_n3only,...
@@ -115,7 +188,7 @@ for k = show_index
     ns(4) = sum( eegData{k}.label.states == 5 );
     ns(5) = sum( eegData{k}.label.states == 6 );
     fprintf('%2.1d %s %7.d %7.d %7.d %7.d %7.d %7.d\n',...
-        k,allNames{k},sum(ns),ns(1),ns(2),ns(3),ns(4),ns(5));
+        k,all_names{k},sum(ns),ns(1),ns(2),ns(3),ns(4),ns(5));
     total_n2_epochs = total_n2_epochs + ns(2);
 end
 fprintf('Total number of N2 epochs: %d, i.e. %1.2f hrs\n',total_n2_epochs,total_n2_epochs*Twin/3600);
@@ -128,7 +201,8 @@ global_segments = [];
 global_segments_marks = [];
 warning_zero_marks = {};
 
-show_individual_figure = 1;
+show_individual_figure = 0;
+
 for k = show_index    
     global_segments = cat(1, global_segments, eegData{k}.segments.intervals);
     n_marks = cellfun(@length, eegData{k}.segments.marks);
@@ -136,17 +210,17 @@ for k = show_index
     for i = 1:length(n_marks)
         if n_marks(i) == 0
             warning_zero_marks{end+1} = sprintf('Warning! segment %d with %3.d epochs and 0 marks in %s\n',...
-                i, eegData{k}.segments.n_epoch_in_segments(i),allNames{k}); 
+                i, eegData{k}.segments.n_epoch_in_segments(i),all_names{k}); 
         end
     end
     fprintf('%2.d segments found in %s with %5.d marks and %4.d epochs\n',...
-        length(n_marks),allNames{k},sum(n_marks),sum(eegData{k}.segments.n_epoch_in_segments));
+        length(n_marks),all_names{k},sum(n_marks),sum(eegData{k}.segments.n_epoch_in_segments));
     
     if show_individual_figure
         figure
         
         subplot(3,1,1), area(eegData{1}.label.states==3),
-        xlabel('Epoch'),title(sprintf('%s N2 segments',allNames{k}))
+        xlabel('Epoch'),title(sprintf('%s N2 segments',all_names{k}))
         subplot(3,1,2), bar(eegData{k}.segments.n_epoch_in_segments')
         xlabel('Segment ID'), ylabel('Epochs')
         subplot(3,1,3), bar((n_marks./eegData{k}.segments.n_epoch_in_segments)')
@@ -172,10 +246,11 @@ xlabel('Segment ID'), ylabel('Marks per Epoch')
 % Histogram of length of segments and marks per epoch
 
 figure
-histogram(n_epochs_in_segment',20)
+my_histogram(n_epochs_in_segment',20)
 title('Length of N2 segment'), xlabel('Epochs'), ylabel('Count')
 figure
-histogram(global_segments_marks./n_epochs_in_segment,20)
+my_histogram(global_segments_marks./n_epochs_in_segment,20)
+
 title('Marks per epoch in N2 segment'), xlabel('Marks per Epoch'), ylabel('Count')
 
 useful = global_segments_marks > 0;
@@ -195,26 +270,29 @@ for ind = show_index
     individual_features_clip(individual_features<-outlier_thr) = - outlier_thr;
     individual_features_clip_norm = (individual_features_clip - mean(individual_features_clip))/std(individual_features_clip);
     subplot(3,1,1)
-    histogram(individual_features,20),xlabel('Voltage [\muV]')
+    my_histogram(individual_features,20),xlabel('Voltage [\muV]')
     title(sprintf('EEG Register %d',ind));
     subplot(3,1,2)
-    histogram(individual_features_clip,20),xlabel('Voltage [\muV]')
+    my_histogram(individual_features_clip,20),xlabel('Voltage [\muV]')
     title(sprintf('EEG Register %d, Clipped percentil 99',ind));
     subplot(3,1,3)
-    histogram(individual_features_clip_norm,20),xlabel('Amplitude')
+    my_histogram(individual_features_clip_norm,20),xlabel('Amplitude')
     title(sprintf('EEG Register %d, Clipped percentil 99, Normalized',ind));
     pause;
 end
 
 %% Find outliers segments
 fprintf('REG  SEGM  MIN  MAX\n')
+outlier_thr = 400;
 for ind = 1:11
     available_segments = size(eegData{ind}.segments.intervals,1);
     for segment = 1:available_segments
         segment_features = database{ind}.features(database{ind}.features(:,1)==segment,2);
         min_value = min(segment_features);
         max_value = max(segment_features);
-        fprintf('%3.1d %3.1d %8.2f %8.2f\n',ind,segment,min_value,max_value);
+        if max(abs(min_value),abs(max_value)) > outlier_thr
+            fprintf('%3.1d %3.1d %8.2f %8.2f\n',ind,segment,min_value,max_value);
+        end
     end
 end
 
@@ -242,7 +320,7 @@ plot_eeg = 1;
 crop_plot = 1;
 normalization = 1;
 
-fprintf('Reading from register %s\n',allNames{ind});
+fprintf('Reading from register %s\n',all_names{ind});
 available_segments = length(eegData{ind}.segments.intervals);
 fprintf('Number of available segments: %d\n',available_segments);
 available_epochs = eegData{ind}.segments.n_epoch_in_segments(segment);
@@ -283,8 +361,7 @@ elseif crop_plot && normalization
 end
 
 if plot_eeg
-    figure('position', [0, 200, 1366, 300])
-    %for i =12
+    figure('position', [0, 200, 1366, 300]);
     for i = 1:available_epochs
         clf
         epoch = i;

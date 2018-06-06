@@ -1,27 +1,25 @@
-function eegData = readEEG( regName )
+function eegData = readEEG( filename, channel )
 
 % Extraction of eeg recorded data from edf file
 %   INPUT
-%       regName: Name of the register to be extracted
+%       filename: EDF Register to be read
+%       channel: integer indicating channel to be extracted
 %   OUTPUT
 %       eegData: reading results and parameters
 
 %% Set parameters for extraction
 
-p.regName = regName;
-fprintf('Reading register %s... \n', p.regName);
+p.recFile = filename;
+p.channel = channel; % EEG Channel
+fprintf('Reading register at %s... \n', p.recFile);
 
-p.regContainer = 'ssdata/register';
-p.regRecFile = [p.regContainer '/' p.regName '.rec'];
+%% Extract channel record from .rec file (EDF Format)
 
-p.channel = 1; % EEG Channel
-
-%% Extract channel record
-
-% Read .rec file and obtain specified channel
-[eegData.header, record] = edfread(p.regRecFile);
-p.fs = eegData.header.frequency(p.channel); % Sampling Frequency [Hz]
+[eegData.header, record] = edfread(p.recFile);
 eegData.eegRecord = record(p.channel, :)';
+
+% Sampling Frequency [Hz]
+p.fs = eegData.header.frequency(p.channel); 
 
 %% Output params as well
 

@@ -13,7 +13,7 @@ local.properties
 .idea
 
 preprocessing/ssdata/register
-preprocessing/ssdata/old_label
+preprocessing/old/old_label
 
 # External tool builders
 .externalToolBuilders/
