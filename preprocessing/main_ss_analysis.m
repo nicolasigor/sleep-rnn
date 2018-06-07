@@ -1,3 +1,21 @@
+%% Tasks
+
+% 1. Segmentation By Epochs
+
+% 2. Spectrograms
+
+% 3. Simple logistic regression with post-processing.
+
+% 4. Implementation of metric of performance
+
+% 5. Create a visualizer of the expert marks, with three subplots. For reviewing each epoch of a certain individual
+% The first subplot is the original EEG in that epoch
+% the second subplot are the messy marks, with a different height for marks with "1" and marks with "2"
+% ("0" zero duration, and repeated are removed beforehand)
+% The third subplot are the cleaned marks (again differentiating between marks with 1 and 2)
+% This will allow to check visually if the cleaning process makes senses.
+
+
 %% Definitions
 
 % Path of functions
