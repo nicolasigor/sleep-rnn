@@ -20,6 +20,7 @@
 
 % Path of functions
 addpath('utils_nt');
+addpath('published_models')
 
 % Files to be read
 all_names = {'ADGU101504' 
@@ -52,7 +53,7 @@ set.dur_max_ss = 3.0;      % Max SS duration [s]
 
 % Handler for histogram function (due to issues of retro-compatibility when
 % using the newer 'histogram' function
-use_hist = 1;
+use_hist = 0;
 if use_hist
    my_histogram = @hist; 
 else
@@ -415,18 +416,18 @@ end
 
 %% Stats per epoch on a register
 
-ind = 9;
+ind = 1;
 
 states = eegData{ind}.label.states;
 marks = eegData{ind}.label.marks;
-marks_epoch = timestep2epoch( marks, eegData{ind}.label.params );
+marks_epoch = timestep2epoch( marks, set );
 n_epoch = length(states);
 marks_per_epoch = cell(n_epoch,1);
 for i = 1:n_epoch
     marks_per_epoch{i} = marks( marks_epoch(:,1)==i , : );
 end
 n_marks_per_epoch = cellfun(@(x) size(x,1), marks_per_epoch);
-time_eeg = (1:length(eegData{ind}.eegRecord)) / (eegData{ind}.label.params.fs*3600);
+time_eeg = (1:length(eegData{ind}.eegRecord)) / (set.fs*3600);
 time_hypno = ((1:length(states))*30-15)/3600;
 
 % Plot entire register
@@ -434,7 +435,7 @@ figure
 subplot(3,1,1)
 plot(time_eeg, eegData{ind}.eegRecord)
 xlim([time_eeg(1),time_eeg(end)]) %, ylim([-400,400])
-title(sprintf('Sleep EEG Recording %d (%1.1f hrs)',ind,length(eegData{ind}.eegRecord)/(3600*eegData{ind}.label.params.fs)))
+title(sprintf('Sleep EEG Recording %d (%1.1f hrs)',ind,length(eegData{ind}.eegRecord)/(3600*set.fs)))
 ylabel('F4-C4 [\muV]')
 subplot(3,1,2)
 hold on 

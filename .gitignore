@@ -15,6 +15,8 @@ local.properties
 preprocessing/ssdata/register
 preprocessing/old/old_label
 
+preprocessing/eegData.mat
+
 # External tool builders
 .externalToolBuilders/
 

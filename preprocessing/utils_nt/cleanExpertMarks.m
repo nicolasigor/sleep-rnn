@@ -159,4 +159,4 @@ array_to_save = array_to_save';
 fid=fopen(marks_filename_new,'w');
 fprintf(fid, '%d %d %d %d %d %d\n', array_to_save);
 fclose(fid);
-fprintf('New marks saved at %s...\n', marks_filename_new);
+fprintf('New marks saved at %s\n', marks_filename_new);

@@ -30,7 +30,10 @@ marks = load(p.spindlesFile);
 stats.n_marks_all = size(marks, 1);
 
 % Only one channel
-eegLabel.marks = marks( marks(:,end) == p.channel, : );
+marks = marks( marks(:,end) == p.channel, : );
+% Keep only timesteps and validity
+eegLabel.marks = marks(:,[1,2]);
+eegLabel.marks_validity = marks(:,5);
 stats.n_marks_channel = size(eegLabel.marks,1);
 
 %% Output params and stats as well
