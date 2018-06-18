@@ -12,6 +12,8 @@ local.properties
 .recommenders
 .idea
 
+.asv
+
 preprocessing/ssdata/register
 preprocessing/old/old_label
 
