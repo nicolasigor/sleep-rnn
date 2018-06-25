@@ -34,7 +34,8 @@ detection_events = seq2inter( detection );
         
         Ltotal = 0;
         for k = 1:length(C3nrem2)
-            signal = C3nrem2{k}; L = length(signal);
+            signal = C3nrem2{k};
+            L = length(signal);
             %% Perform wavelet transformation
             EEGWave = cwt(signal,scale,['cmor' num2str(fb) '-' num2str(fc)]);
             EEGData = real(EEGWave.^2);

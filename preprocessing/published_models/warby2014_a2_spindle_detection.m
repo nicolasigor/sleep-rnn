@@ -12,13 +12,15 @@ function [detection_samples, detection_events] = ferrarelli_spindle_detection(C3
 % Adopted from Ferrarelli by Sabrina Lyngbye Wendt, July 2013
 
 %% Initialize and load data
-sleep = stage_file(:,2);
+%sleep = stage_file(:,2);
+sleep = stage_file;
 lower_thresh_ratio = 2;
 upper_thresh_ratio = 8;
 epochsize = 30;
 
 %% Redefine sleep stage numbers and get the nrem samples
-sleep(sleep==1)=-1;sleep(sleep==2)=-2;sleep(sleep==3)=-3;sleep(sleep==4)=-4;
+%sleep(sleep==1)=-1;sleep(sleep==2)=-2;sleep(sleep==3)=-3;sleep(sleep==4)=-4;
+sleep(sleep==4)=-1;sleep(sleep==3)=-2;sleep(sleep==2)=-3;sleep(sleep==1)=-4;
 sleepsamp = reshape(repmat(sleep,1,epochsize*fs)',1,length(sleep)*epochsize*fs)';
 sleepsamp = sleepsamp(1:length(C3));
 nremsamples = find(sleepsamp<=-2); % Use data from stage S2+S3+S4

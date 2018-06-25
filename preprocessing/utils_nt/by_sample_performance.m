@@ -23,8 +23,8 @@ details.FN = FN;
 metrics.precision = TP/(TP+FP);
 metrics.recall = TP/(TP+FN);
 metrics.f1_score = f_beta_score(metrics.precision,metrics.recall,1);
-metrics.f05_score = f_beta_score(metrics.precision,metrics.recall,0.5);
-metrics.f2_score = f_beta_score(metrics.precision,metrics.recall,2);
+% metrics.f05_score = f_beta_score(metrics.precision,metrics.recall,0.5);
+% metrics.f2_score = f_beta_score(metrics.precision,metrics.recall,2);
 
 end
 
