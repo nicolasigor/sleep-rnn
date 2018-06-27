@@ -9,7 +9,7 @@
 %% Settings
 
 n_reg = 11;
-n_models = 4;
+n_models = 3;
 
 % Index representing N2 and N3 stages in hypnograms
 n2_val = 3;
@@ -140,20 +140,19 @@ end
 clear detection_samples detection_events
 fprintf('%s evaluated.\n',publishedModels{model_index}.name)
 
-% Warby A5
-model_index = 4;
-publishedModels{model_index}.name = 'Warby A5';
-publishedModels{model_index}.detection_samples = cell(n_reg,1);
-publishedModels{model_index}.detection_events = cell(n_reg,1);
-for ind = 1:n_reg
-    fprintf('|');
-    [detection_samples, detection_events] = warby2014_a5_spindle_detection(newData{ind}.n2_norm, newData{ind}.whole_night_norm, set.fs);
-    publishedModels{model_index}.detection_samples{ind} = detection_samples;
-    publishedModels{model_index}.detection_events{ind} = detection_events;
-end
-clear detection_samples detection_events
-fprintf('%s evaluated.\n',publishedModels{model_index}.name)
-
+% % Warby A5
+% model_index = 4;
+% publishedModels{model_index}.name = 'Warby A5';
+% publishedModels{model_index}.detection_samples = cell(n_reg,1);
+% publishedModels{model_index}.detection_events = cell(n_reg,1);
+% for ind = 1:n_reg
+%     fprintf('|');
+%     [detection_samples, detection_events] = warby2014_a5_spindle_detection(newData{ind}.n2_norm, newData{ind}.whole_night_norm, set.fs);
+%     publishedModels{model_index}.detection_samples{ind} = detection_samples;
+%     publishedModels{model_index}.detection_events{ind} = detection_events;
+% end
+% clear detection_samples detection_events
+% fprintf('%s evaluated.\n',publishedModels{model_index}.name)
 
 %% Performance By-sample (N2 only)
 
@@ -274,7 +273,7 @@ hold off
 %% Performance By-Event (N2 only)
 % Set threshold
 thr = 0.2;
-show_models = [1,2,3,4];
+show_models = [1,2,3];
 
 for model_index = show_models
     
@@ -316,6 +315,7 @@ for model_index = show_models
     fprintf('%s by-event performance evaluated.\n',publishedModels{model_index}.name)
 end
 
+
 %% Show overlap histogram a single model, a single individual
 
 model_index = 1;
@@ -343,8 +343,34 @@ ylabel('TP Count')
 title(sprintf('Pairs:%d  UFN: %d, UFP: %d, mean(Ov!=0)=%1.2f',n_pairs,ufn,ufp,mean(ov_nonzero)));
 xticklabels({'0.0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9'})
 
+%% Show overlaps for FC-NN
+
+ind = 1;
+
+overlaps = winner.details_events.overlaps;
+ov_nonzero = overlaps(overlaps~=0);
+ov_zero = overlaps(overlaps==0);
+ufp =winner.metrics_events.UFP;
+ufn = winner.metrics_events.UFN;
+n_pairs = length(ov_nonzero);
+figure
+
+subplot(1,2,1)
+h = histogram(ov_nonzero,'BinEdges',0:0.1:1);
+ylim([0,n_pairs])
+title(sprintf('Pairs:%d UFN: %d, UFP: %d, mean(Ov!=0)=%1.2f',n_pairs,ufn,ufp,mean(ov_nonzero)));
+xlabel('Overlap');
+
+subplot(1,2,2)
+counts = h.Values;
+bar(fliplr(cumsum(fliplr(counts))))
+xlabel('Threshold')
+ylabel('TP Count')
+title(sprintf('Pairs:%d  UFN: %d, UFP: %d, mean(Ov!=0)=%1.2f',n_pairs,ufn,ufp,mean(ov_nonzero)));
+xticklabels({'0.0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9'})
+
 %% Show performance By-Event Precision Recall Curve
-show_models = [1,2,3,4];
+show_models = [1,2,3];
 figure
 
 % Each register separated
@@ -409,6 +435,105 @@ Z = 2*X.*Y./(X+Y);
 contour(X,Y,Z,'ShowText','on','TextList',[0.1,0.9],'Color',0.6*[1,1,1],'LineStyle','--','HandleVisibility','off')
 hold off
 
+
+
+%% Neural net performance by-event
+umbral_array = 0.1:0.05:0.9;
+thr = 0.2;
+ind = 1;
+states = eegData{1}.label.states;
+net_params.min_pred = (set.dur_min_ss - 0.1);
+net_params.max_pred = (set.dur_max_ss + 1);
+net_params.n_signal = size(eegData{1}.eegRecord,1);
+net_params.n2_val = n2_val;
+net_params.fs = set.fs;
+net_params.dur_min_ss = set.dur_min_ss;
+neural_net = cell(length(umbral_array) ,1);
+ground_truth = groundTruth.marks_events{1};
+for u = 1:length(umbral_array)
+    net_params.umbral = umbral_array(u);
+    neural_net{u}.operation = umbral_array(u);
+    detection = cleanNeuralPrediction(states, net_params);
+    neural_net{u}.detection_events = detection;
+    % We only need N2
+    gs_epochs = timestep2epoch( ground_truth, set );
+    ground_truth_n2 = [];
+    for i = 1:size(gs_epochs,1)
+        % If marks is completely inside N2 stage
+        state_start = newData{ind}.states(gs_epochs(i,1));
+        state_end = newData{ind}.states(gs_epochs(i,2)); 
+       if state_start==n2_val && state_end==n2_val
+           ground_truth_n2 = cat(1, ground_truth_n2, ground_truth(i,:));
+       end
+    end
+
+    det_epochs = timestep2epoch( detection, set );
+    detection_n2 = [];
+    for i = 1:size(det_epochs,1)
+        % If marks is completely inside N2 stage
+        state_start = newData{ind}.states(det_epochs(i,1));
+        state_end = newData{ind}.states(det_epochs(i,2)); 
+       if state_start==n2_val && state_end==n2_val
+           detection_n2 = cat(1, detection_n2, detection(i,:));
+       end
+    end
+
+    [metrics, details] = by_event_performance(ground_truth_n2, detection_n2, thr);
+    neural_net{u}.metrics_events = metrics;
+    neural_net{u}.details_events = details;
+end
+fprintf('Finished\n')
+
+%% Models with neural net
+
+figure
+axis square
+xlabel('Recall (1-FNR)'), ylabel('Precision (1-FDR)')
+xlim([0,1]),ylim([0,1])
+title('By-Event Performance')
+legend('Location','eastoutside');
+hold on
+fprintf('\nModel       Precision        Recall           F1-Score\n')
+show_models = [1,2,3];
+for model_index = show_models
+    model_name = publishedModels{model_index}.name;
+    TP_array = cellfun(@(c) c.TPthr, publishedModels{model_index}.details_events);
+    FP_array = cellfun(@(c) c.FPthr, publishedModels{model_index}.details_events);
+    FN_array = cellfun(@(c) c.FNthr, publishedModels{model_index}.details_events);
+    TP_all = sum(TP_array);
+    FP_all = sum(FP_array);
+    FN_all = sum(FN_array);
+    precision_all = TP_all/(TP_all+FP_all);
+    recall_all = TP_all/(TP_all+FN_all);
+    f1_score_all = 2*(precision_all*recall_all)/(precision_all + recall_all) ;
+    fprintf('%s %8.2f %16.2f %16.2f \n',...
+        model_name,100*precision_all,...
+        100*recall_all,...
+        100*f1_score_all)
+    scatter(recall_all,precision_all,25,'Fill','DisplayName',model_name);
+    text(recall_all+0.01,precision_all,sprintf('%1.2f',f1_score_all),'HorizontalAlignment','left')  
+end
+precision_nn = cellfun(@(x) x.metrics_events.precision, neural_net);
+recall_nn = cellfun(@(x) x.metrics_events.recall, neural_net);
+idx_umbral55 = 10;
+precision_5 = precision_nn(idx_umbral55);
+recall_5= recall_nn(idx_umbral55);
+f1_score = 2*(precision_5*recall_5)/(precision_5 + recall_5) ;
+fprintf('%s %8.2f %16.2f %16.2f \n',...
+        'NeuralN',100*precision_5,...
+        100*recall_5,...
+        100*f1_score)
+plot(recall_nn(5:end),precision_nn(5:end),'-*','LineWidth',1.5,'DisplayName','FC-NN');
+text(recall_5+0.01,precision_5,sprintf('%1.2f',f1_score),'HorizontalAlignment','left') 
+
+% Show F1_Score contour lines
+x = 0:0.01:1;
+y = 0:0.01:1;
+[X,Y] = meshgrid(x,y);
+Z = 2*X.*Y./(X+Y);
+contour(X,Y,Z,'ShowText','on','TextList',[0.1,0.9],'Color',0.6*[1,1,1],'LineStyle','--','HandleVisibility','off')
+hold off
+
 %% Statistics of by-event analysis
 
 % Precision Recall Curve cuando el threshold se va variando.
@@ -455,6 +580,29 @@ for model_index = show_models
     end
     plot([recall(1),recall(end)],[precision(1),precision(end)],'k--','HandleVisibility','off')
 end
+model_name = 'FC-NN';
+winner = neural_net{10};
+UFN = winner.metrics_events.UFN;
+UFP = winner.metrics_events.UFP;
+overlaps = winner.details_events.overlaps;
+overlaps_nz = overlaps(overlaps~=0);
+precision = zeros(length(thr),1);
+recall = zeros(length(thr),1);
+for i = 1:length(thr)
+    idx_tp = overlaps_nz>thr(i);
+    TP = sum(idx_tp);
+    FP = UFP + sum(~idx_tp);
+    FN = UFN + sum(~idx_tp);
+    precision(i) = TP/(TP+FP);
+    recall(i) = TP/(TP+FN);
+end
+f1_score = 2*(precision.*recall)./(precision + recall);
+scatter(recall,precision,50,'Fill','DisplayName',model_name);
+for i = 1:length(thr)
+    text(recall(i)+0.01,precision(i),sprintf('%1.2f',f1_score(i)),'HorizontalAlignment','left')
+end
+plot([recall(1),recall(end)],[precision(1),precision(end)],'k--','HandleVisibility','off')
+
 % Show F1_Score contour lines
 x = 0:0.01:1;
 y = 0:0.01:1;
@@ -498,7 +646,7 @@ title(sprintf('Expert Marks, all registers (min dur %1.2f [s])',min(gs_dur)));
 % Por construccion, "pairings" primero se llena de los ground_truth
 %model_index = 1;
 figure
-for model_index = [1,2,3,4]
+for model_index = [1,2,3]
 gs_dur = [];
 gs_ov = [];
 for ind = 1:n_reg
@@ -518,9 +666,27 @@ ylabel('Overlap'),ylim([0,1])
 title(sprintf('%s, all registers (%d pairs)',publishedModels{model_index}.name,sum(gs_ov~=0)))
 end
 
+gs_dur = [];
+gs_ov = [];
+gs = winner.details_events.ground_truth;
+n_gs = length(gs);
+ov = winner.details_events.overlaps;
+gs_dur = cat(2,gs_dur,diff(gs') / set.fs);
+gs_ov = cat(1, gs_ov, ov(1:n_gs));
+
+% Only the ones with nonzero overlap
+gs_dur = gs_dur(gs_ov~=0);
+gs_ov = gs_ov(gs_ov~=0);
+subplot(2,2,4)
+scatter(gs_dur,gs_ov,20,'Fill','LineWidth',1.5,'MarkerFaceAlpha',.2,'MarkerEdgeAlpha',.2)
+xlabel('Expert Mark Duration [s]')
+ylabel('Overlap'),ylim([0,1])
+title(sprintf('%s, all registers (%d pairs)','FC-NN',sum(gs_ov~=0)))
+
+
 %% Histograma de duracion para UFP y para UFN por separado
 
-model_index = 4;
+model_index = 1;
 
 % Find UFP, UFN, and their duration
 ufn_dur = []; %1767
@@ -580,5 +746,67 @@ subplot(3,1,3)
 histogram(ufp_dur,'BinEdges',0.2:0.2:max_dur);
 ylabel('Count')
 title(sprintf('%s, UFP (min dur %1.2f [s])',publishedModels{model_index}.name,min(ufp_dur)))
+
+xlabel('Duration[s]')
+
+%% Neural net
+
+% Find UFP, UFN, and their duration
+ufn_dur = []; %1767
+ufp_dur = []; %2
+ind=1;
+pairing = winner.details_events.pairing;
+n_pairing = length(pairing);
+for i = 1:n_pairing
+    if isempty(pairing{i}.gs)
+        % We have a UFP
+        ufp_dur = cat(1,ufp_dur, ( pairing{i}.det(2)-pairing{i}.det(1) ) / set.fs);
+    elseif isempty(pairing{i}.det)
+        % We have a UFN
+        ufn_dur = cat(1,ufn_dur, ( pairing{i}.gs(2)-pairing{i}.gs(1) ) / set.fs);
+    end
+end
+
+max_dur = max(max(ufn_dur),max(ufp_dur));
+if max_dur<4
+    max_dur = 4;
+else
+    max_dur = ceil(max_dur/0.2)*0.2;
+end
+
+figure
+% Plot Expert duration marks for comparison
+gs_dur = [];
+gs = groundTruth.marks_events{ind};
+gs_dur = cat(2,gs_dur,diff(gs') / set.fs);
+
+subplot(3,1,1)
+h1 = histogram(gs_dur,'BinEdges',0.2:0.2:max_dur);
+ylabel('Count')
+title(sprintf('Expert Marks (min dur %1.2f [s])',min(gs_dur)));
+
+subplot(3,1,2)
+h2 = histogram(ufn_dur,'BinEdges',0.2:0.2:max_dur);
+ylabel('Count')
+title(sprintf('%s, UFN (min dur %1.2f [s])','FC-NN',min(ufn_dur)))
+
+subplot(3,1,2)
+
+total = h1.Values;
+missed = h2.Values;
+fraction = zeros(length(total),1);
+for t = 1:length(total)
+    if total(t)>0
+        fraction(t) = 100*missed(t)/total(t);
+    end
+end
+histogram('BinEdges',0.2:0.2:max_dur,'BinCounts',fraction);
+ylabel('[%] from total'),ylim([0,100])
+title(sprintf('%s, UFN (min dur %1.2f [s])','FC-NN',min(ufn_dur)))
+
+subplot(3,1,3)
+histogram(ufp_dur,'BinEdges',0.2:0.2:max_dur);
+ylabel('Count')
+title(sprintf('%s, UFP (min dur %1.2f [s])','FC-NN',min(ufp_dur)))
 
 xlabel('Duration[s]')
