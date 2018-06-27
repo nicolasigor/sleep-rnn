@@ -6,8 +6,8 @@ import pandas as pd
 
 def main():
     # Load dataset
-    train_path = "pickle_data/n2fft_dataframe_full_train.pkl"
-    test_path = "pickle_data/n2fft_dataframe_full_test.pkl"
+    train_path = "pickle_data/n2fft_05_dataframe_full_train.pkl"
+    test_path = "pickle_data/n2fft_05_dataframe_full_test.pkl"
 
     # Training set
     train_df = pd.read_pickle(train_path)
@@ -44,7 +44,7 @@ def main():
                                             hidden_units=[256, 128],
                                             n_classes=2,
                                             model_dir="model_data/spindle_estimator",
-                                            optimizer=tf.train.AdamOptimizer(learning_rate=0.01),
+                                            optimizer=tf.train.AdamOptimizer(learning_rate=0.001),
                                             weight_column=weight_column,
                                             dropout=0.4)
 
@@ -52,13 +52,13 @@ def main():
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
         x={"x": train_features, "weight": train_weight},
         y=train_labels,
-        num_epochs=None,
+        num_epochs=10,
         shuffle=True,
         batch_size=64
     )
 
     # Train model
-    classifier.train(input_fn=train_input_fn, steps=100000)
+    classifier.train(input_fn=train_input_fn)
 
     # Define the test inputs
     test_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -69,7 +69,8 @@ def main():
 
     # Evaluate
     metrics = classifier.evaluate(input_fn=test_input_fn)
-    print(metrics)
+    print("Precision: ",100*metrics["precision"])
+    print("Recall: ", 100*metrics["recall"])
 
 
 if __name__ == "__main__":

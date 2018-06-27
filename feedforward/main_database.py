@@ -73,10 +73,10 @@ n2eeg_df = utils.transform.clip_normalize(n2eeg_df, 99)
 
 start = time.time()
 
-win_size = 0.3 # [s]
+win_size = 0.5 # [s]
 step_size = 10 # in samples
 min_freq = 0.1 #[hz]
-max_freq = 35 #[hz]
+max_freq = 40 #[hz]
 
 win_size = win_size*params['fs']
 time_step = 1/params['fs']
@@ -125,5 +125,5 @@ n2fft_df.loc[:, 'FFT_DATA'] = n2fft_df.loc[:, 'FFT_DATA'].map(to_fourier)
 print('FFT Ready, Total Time Elapsed: ', time.time() - start, ' s')
 
 #Saving
-# pd.to_pickle(n2fft_df, "n2fft_dataframe_full.pkl")  # n2fft_dataframe
-# print('Saved')
+pd.to_pickle(n2fft_df, "pickle_data/n2fft_05_dataframe_full.pkl")  # n2fft_dataframe
+print('Saved')
