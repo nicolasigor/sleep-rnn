@@ -41,12 +41,12 @@ def main():
 
     # Build 2 layer DNN with 128, 64, 1 units respectively
     classifier = tf.estimator.DNNClassifier(feature_columns=feature_columns,
-                                            hidden_units=[128, 64],
+                                            hidden_units=[256, 128],
                                             n_classes=2,
                                             model_dir="model_data/spindle_estimator",
                                             optimizer=tf.train.AdamOptimizer(learning_rate=0.01),
                                             weight_column=weight_column,
-                                            dropout=0.3)
+                                            dropout=0.4)
 
     # Define the training inputs
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -58,7 +58,7 @@ def main():
     )
 
     # Train model
-    classifier.train(input_fn=train_input_fn, steps=20000)
+    classifier.train(input_fn=train_input_fn, steps=100000)
 
     # Define the test inputs
     test_input_fn = tf.estimator.inputs.numpy_input_fn(
