@@ -52,13 +52,13 @@ def main():
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
         x={"x": train_features, "weight": train_weight},
         y=train_labels,
-        num_epochs=50,
+        num_epochs=None,
         shuffle=True,
-        batch_size=32
+        batch_size=64
     )
 
     # Train model
-    classifier.train(input_fn=train_input_fn)
+    classifier.train(input_fn=train_input_fn, steps=20000)
 
     # Define the test inputs
     test_input_fn = tf.estimator.inputs.numpy_input_fn(
