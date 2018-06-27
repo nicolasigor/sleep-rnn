@@ -33,7 +33,7 @@ def main():
     mean_train = np.mean(train_features, axis=0)
     std_train = np.std(train_features, axis=0)
     train_features = (train_features - mean_train)/std_train
-    train_features = (test_features - mean_train)/std_train
+    test_features = (test_features - mean_train)/std_train
 
     # Specify that all features have real-value data
     feature_columns = [tf.feature_column.numeric_column("x", shape=train_features.shape[1])]
