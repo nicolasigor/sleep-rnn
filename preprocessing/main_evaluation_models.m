@@ -139,7 +139,7 @@ for ind = 1:n_reg
 end
 clear detection_samples detection_events
 fprintf('%s evaluated.\n',publishedModels{model_index}.name)
-%%
+
 % Warby A5
 model_index = 4;
 publishedModels{model_index}.name = 'Warby A5';

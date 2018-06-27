@@ -55,14 +55,16 @@ def get_n2_epochs(signal_list, states_list, marks_list, params):
                 dict_tmp.update({'ID_SEG': seg})
                 dict_tmp.update({'ID_EPOCH': epoch})
                 # Now get EEG data
-                sample_start = (epoch * params['dur_epoch'] - params['context']) * params['fs']
-                sample_end = ((epoch + 1) * params['dur_epoch'] + params['context']) * params['fs']
+                sample_start = (epoch * params['dur_epoch'] -
+                                params['context'] - params['context_add']) * params['fs']
+                sample_end = ((epoch + 1) * params['dur_epoch'] +
+                              params['context'] + params['context_add']) * params['fs']
                 dict_tmp.update({'EEG_DATA': signal[sample_start:sample_end]})
                 # Now get marks
                 dict_tmp.update({'MARKS_DATA': marks[sample_start:sample_end]})
                 rows_list.append(dict_tmp)
-    df = pd.DataFrame(rows_list, columns=rows_list[0].keys())
-    return df
+    df = pd.DataFrame(rows_list)
+    return df[['ID_REG', 'ID_SEG', 'ID_EPOCH', 'EEG_DATA', 'MARKS_DATA']]
 
 
 def clip_normalize(df, percentile):
