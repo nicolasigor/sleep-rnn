@@ -15,6 +15,8 @@ def main():
     train_labels = train_df['MARK'].values.astype(int)
     del train_df
 
+    print('Loaded Train Data: features ', train_features.shape, ' labels', train_labels.shape)
+
     # Create weight for training
     train_weight = np.ones(train_features.shape[0])
     train_weight[train_labels == 1] = 4
@@ -24,6 +26,8 @@ def main():
     test_features = np.stack(test_df['FFT_DATA'].values)
     test_labels = test_df['MARK'].values.astype(int)
     del test_df
+
+    print('Loaded Test Data: features ', test_features.shape, ' labels', test_labels.shape)
 
     # Normalize data
     mean_train = np.mean(train_features, axis=0)
