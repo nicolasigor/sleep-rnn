@@ -20,6 +20,7 @@ preprocessing/old/old_label
 feedforward/ssdata/register
 feedforward/pickle_data
 feedforward/model_data
+feedforward/results
 
 preprocessing/eegData.mat
 
