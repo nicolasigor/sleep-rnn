@@ -38,8 +38,8 @@ class Detector(object):
 
         # Directories
         date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        model_name = 'ss_detector_fc_1'
-        self.model_path = 'results/' + model_name + ' ' + date + '/'
+        self.model_name = 'ss_detector_fc_1'
+        self.model_path = 'results/' + self.model_name + ' ' + date + '/'
         self.checkpoint_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summaries/'
 
@@ -62,24 +62,26 @@ class Detector(object):
         # Initialization of variables
         self.sess.run(tf.global_variables_initializer())
 
-    def train(self, train_path_list, val_path_list, max_it):
+    def train(self, train_path_list, val_path_list, max_it, stat_every=50, save_every=200):
+
         merged = tf.summary.merge_all()
 
         # Load data
+        print("Loading training set")
         data_train = self.load_data(train_path_list)
+        print("Loading validation set")
         data_val = self.load_data(val_path_list)
 
         start_time = time.time()
-        print("Beginning training")
-        print("Beginning training", file=open(self.model_path + 'train.log', 'w'))
+        print("Beginning training of " + self.model_name)
+        print("Beginning training of " + self.model_name, file=open(self.model_path + 'train.log', 'w'))
         it = 0
 
-        stat_every = np.max([int(max_it/100), 1])
-        save_every = np.max([int(max_it/5), 1])
+        # stat_every = np.max([int(max_it/100), 1])
+        # save_every = np.max([int(max_it/5), 1])
 
-        while it < max_it:
-            it += 1
-            features, labels = self.sample_minibatch(data_train, batch_size=16)
+        for it in range(1, max_it+1):
+            features, labels = self.sample_minibatch(data_train, batch_size=64)
             features, _ = self.get_cwt_minibatch(features)
             self.sess.run(self.train_step,
                           feed_dict={self.features_ph: features,
@@ -91,7 +93,7 @@ class Detector(object):
                                                             self.labels_ph: labels})
                 self.train_writer.add_summary(summ, it)
                 # Validation stat
-                features, labels = self.sample_minibatch(data_val, batch_size=16)
+                features, labels = self.sample_minibatch(data_val, batch_size=64)
                 features, _ = self.get_cwt_minibatch(features)
                 val_loss, summ = self.sess.run([self.loss, merged],
                                                feed_dict={self.features_ph: features,
@@ -239,69 +241,46 @@ class Detector(object):
     def _model_init(self):
         with tf.name_scope("model"):
             inputs = self.features_ph
-            # Central slice
-            s_t = self._slicing_init(inputs)
-            # Context vector
-            c_t = self._context_net_init(inputs)
-
+            s_t = self._slicing_init(inputs)  # Central slice
+            c_t = self._context_net_init(inputs)  # Context vector
             concat_inputs = tf.concat([s_t, c_t], 1)
-
-            # Fully Connected baseline
-            h_t = self._fc_net_init(concat_inputs)
+            h_t = self._fc_net_init(concat_inputs)  # Fully Connected baseline
 
             # Final Classification
-            with tf.name_scope("final_class"):
-                logits = tf.layers.dense(inputs=h_t,
-                                         units=1,
-                                         activation=None,
-                                         name="logits",
-                                         reuse=False)
+            with tf.variable_scope("output"):
+                logits = tf.layers.dense(inputs=h_t, units=1, activation=None, name="logits", reuse=False)
                 prob = tf.sigmoid(logits, name="prob")
         return logits, prob
 
     def _slicing_init(self, inputs, reuse=False):
-        with tf.name_scope("central_slice"):
+        with tf.variable_scope("slicing"):
             central_slice = inputs[:, :, int(self.context_size/2), :]
-            central_slice = tf.expand_dims(central_slice, 2)
-            s_t = tf.layers.conv2d(inputs=central_slice,
-                                   filters=1,
-                                   kernel_size=1,
-                                   strides=1,
-                                   activation=tf.nn.relu,
-                                   padding="same",
-                                   name="projection",
-                                   reuse=reuse)
+            central_slice = tf.expand_dims(central_slice, 2)  # Make it 4D tensor
+            s_t = tf.layers.conv2d(inputs=central_slice, filters=1, kernel_size=1, strides=1, activation=tf.nn.relu,
+                                   padding="same", name="proj", reuse=reuse)
             dim = np.prod(s_t.get_shape().as_list()[1:])
             s_t_flat = tf.reshape(s_t, shape=(-1, dim))
         return s_t_flat
 
     def _context_net_init(self, inputs, reuse=False):
-        # Implement basic CNN from my notes
-        with tf.name_scope("context_net"):
+        # Implement basic CNN from my notes (for now is just flattening spectrogram)
+        with tf.variable_scope("context_net"):
             dim = np.prod(inputs.get_shape().as_list()[1:])
             context_net = tf.reshape(inputs, shape=(-1, dim))
         return context_net
 
     def _fc_net_init(self, inputs, reuse=False):
-        with tf.name_scope("fc_net"):
-            fc_1 = tf.layers.dense(inputs=inputs,
-                                   units=256,
-                                   activation=tf.nn.relu,
-                                   name="fc_1",
-                                   reuse=reuse)
-            fc_2 = tf.layers.dense(inputs=fc_1,
-                                   units=256,
-                                   activation=tf.nn.relu,
-                                   name="fc_2",
-                                   reuse=reuse)
+        with tf.variable_scope("fc_net"):
+            fc_1 = tf.layers.dense(inputs=inputs, units=1024, activation=tf.nn.relu, name="fc_1", reuse=reuse)
+            fc_2 = tf.layers.dense(inputs=fc_1, units=512, activation=tf.nn.relu, name="fc_2", reuse=reuse)
         return fc_2
 
     def _loss_init(self):
         # We need to add L2 regularization and weights for balancing
         with tf.name_scope("loss"):
-            minibatch_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits,
+            byexample_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits,
                                                                      labels=self.labels_ph)
-            loss = tf.reduce_mean(minibatch_loss)
+            loss = tf.reduce_mean(byexample_loss)
         return loss
 
     def _optimizer_init(self):
