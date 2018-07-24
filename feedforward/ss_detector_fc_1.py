@@ -10,7 +10,7 @@ import transform
 
 
 class Detector(object):
-    def __init__(self, params):
+    def __init__(self, params, train_path_list, val_path_list):
 
         # General parameters
         self.channel = params['channel']
@@ -28,6 +28,12 @@ class Detector(object):
         self.n_scales = 32
         self.upper_freq = 40
         self.lower_freq = 2
+        # Generate initial and last scale
+        s_0 = self.fs / self.upper_freq
+        s_n = self.fs / self.lower_freq
+        # Generate the array of scales
+        base = np.power(s_n / s_0, 1 / (self.n_scales - 1))
+        self.scales = s_0 * np.power(base, range(self.n_scales))
 
         # Some static values
         self.epoch_size = self.dur_epoch * self.fs
@@ -43,11 +49,18 @@ class Detector(object):
         self.checkpoint_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summaries/'
 
+        # Load data
+        print("Loading training set")
+        self.data_train = self.load_data(train_path_list)
+        print("Loading validation set")
+        self.data_val = self.load_data(val_path_list)
+
         # Model initialization
-        with tf.name_scope("input"):
-            self.features_ph = tf.placeholder(shape=[None, self.n_scales, self.context_size, self.fb_array.shape[0]],
-                                              dtype=tf.float32, name="features")
-            self.labels_ph = tf.placeholder(shape=[None, 1], dtype=tf.float32, name="labels")
+        # with tf.name_scope("input"):
+        #     self.features_ph = tf.placeholder(shape=[None, self.n_scales, self.context_size, self.fb_array.shape[0]],
+        #                                       dtype=tf.float32, name="features")
+        #     self.labels_ph = tf.placeholder(shape=[None], dtype=tf.float32, name="labels")
+        self.features_q, self.labels_q, self.is_train_ph = self._input_init(batch_size=64)
         self.logits, self.prob = self._model_init()
         self.loss = self._loss_init()
         self.train_step = self._optimizer_init()
@@ -61,43 +74,38 @@ class Detector(object):
 
         # Initialization of variables
         self.sess.run(tf.global_variables_initializer())
+        tf.train.start_queue_runners(sess=self.sess)
 
-    def train(self, train_path_list, val_path_list, max_it, stat_every=50, save_every=200):
-
+    def train(self, max_it, stat_every=50, save_every=200):
         merged = tf.summary.merge_all()
-
-        # Load data
-        print("Loading training set")
-        data_train = self.load_data(train_path_list)
-        print("Loading validation set")
-        data_val = self.load_data(val_path_list)
 
         start_time = time.time()
         print("Beginning training of " + self.model_name)
         print("Beginning training of " + self.model_name, file=open(self.model_path + 'train.log', 'w'))
-        it = 0
-
-        # stat_every = np.max([int(max_it/100), 1])
-        # save_every = np.max([int(max_it/5), 1])
 
         for it in range(1, max_it+1):
-            features, labels = self.sample_minibatch(data_train, batch_size=64)
-            features, _ = self.get_cwt_minibatch(features)
-            self.sess.run(self.train_step,
-                          feed_dict={self.features_ph: features,
-                                     self.labels_ph: labels})
+            # features, labels = self.sample_minibatch(data_train, batch_size=32)
+            # features, _ = self.get_cwt_minibatch(features)
+            # self.sess.run(self.train_step,
+            #              feed_dict={self.features_ph: features,
+            #                         self.labels_ph: labels})
+            _, train_loss, summ = self.sess.run([self.train_step, self.loss, merged],
+                                                feed_dict={self.is_train_ph: True})
+
             if it % stat_every == 0:
                 # Training stat
-                train_loss, summ = self.sess.run([self.loss, merged],
-                                                 feed_dict={self.features_ph: features,
-                                                            self.labels_ph: labels})
+                # train_loss, summ = self.sess.run([self.loss, merged],
+                #                                 feed_dict={self.features_ph: features,
+                #                                            self.labels_ph: labels})
                 self.train_writer.add_summary(summ, it)
                 # Validation stat
-                features, labels = self.sample_minibatch(data_val, batch_size=64)
-                features, _ = self.get_cwt_minibatch(features)
+                # features, labels = self.sample_minibatch(data_val, batch_size=32)
+                # features, _ = self.get_cwt_minibatch(features)
+                # val_loss, summ = self.sess.run([self.loss, merged],
+                #                               feed_dict={self.features_ph: features,
+                #                                          self.labels_ph: labels})
                 val_loss, summ = self.sess.run([self.loss, merged],
-                                               feed_dict={self.features_ph: features,
-                                                          self.labels_ph: labels})
+                                               feed_dict={self.is_train_ph: False})
                 self.val_writer.add_summary(summ, it)
 
                 time_usage = time.time() - start_time
@@ -189,7 +197,7 @@ class Detector(object):
 
     def sample_minibatch(self, data_list, batch_size=32):
         features = np.zeros((batch_size, int(self.segment_size)))
-        labels = np.zeros((batch_size, 1))
+        labels = np.zeros(batch_size)
 
         n_data = len(data_list)
         ind_choice = np.random.choice(range(n_data), batch_size, replace=True)
@@ -209,7 +217,7 @@ class Detector(object):
             smooth_start = central_sample - int(np.floor(self.mark_smooth / 2))
             smooth_end = smooth_start + self.mark_smooth
             smooth_mark = np.mean(ind_dict['marks'][smooth_start:smooth_end])
-            labels[i, :] = smooth_mark
+            labels[i] = smooth_mark
 
         return features, labels
 
@@ -238,9 +246,75 @@ class Detector(object):
 
         return features_cwt, freqs
 
+    def sample_example(self, data_list):
+        # Choose a random register
+        n_data = len(data_list)
+        ind_choice = np.random.choice(range(n_data))
+        ind_dict = data_list[ind_choice]
+        # Choose a random epoch
+        epoch = np.random.choice(ind_dict['epochs'])
+        offset = epoch * self.epoch_size
+        # Choose a random timestep in that epoch
+        central_sample = np.random.choice(range(self.epoch_size))
+        central_sample = offset + central_sample
+        # Get signal segment
+        sample_start = central_sample - int(self.segment_size / 2)
+        sample_end = central_sample + int(self.segment_size / 2)
+        features = ind_dict['signal'][sample_start:sample_end]
+        # Get mark, with an optional smoothing
+        smooth_start = central_sample - int(np.floor(self.mark_smooth / 2))
+        smooth_end = smooth_start + self.mark_smooth
+        smooth_mark = np.mean(ind_dict['marks'][smooth_start:smooth_end])
+        label = smooth_mark
+        label = np.array(label, dtype=np.float32)
+        # Set wavelet
+        w = pywt.ContinuousWavelet('cmor')
+        w.center_frequency = self.fc
+        # Compute scalograms
+        features_cwt = np.zeros((self.n_scales, self.context_size, self.fb_array.shape[0]), dtype=np.float32)
+        for j in range(self.fb_array.shape[0]):
+            w.bandwidth_frequency = self.fb_array[j]
+            coef, freqs = pywt.cwt(features, self.scales, w, 1 / self.fs)
+            abs_coef = np.abs(coef[:, self.context_start:self.context_end])
+            # Spectrum flattening
+            abs_coef = abs_coef * freqs[:, np.newaxis]
+            features_cwt[:, :, j] = abs_coef
+        return features_cwt, label
+
+    def sample_example_train(self):
+        return self.sample_example(self.data_train)
+
+    def sample_example_val(self):
+        return self.sample_example(self.data_val)
+
+    def _input_init(self, batch_size=32):
+        with tf.name_scope("inputs"):
+            # Shapes
+            feat_shape = (self.n_scales, self.context_size, self.fb_array.shape[0])
+            label_shape = ()
+            # Train queue
+            feat_train, label_train = tf.py_func(self.sample_example_train, [], [tf.float32, tf.float32])
+            feats_train, labels_train = tf.train.batch([feat_train, label_train], batch_size=batch_size,
+                                                       shapes=[feat_shape, label_shape], capacity=2)
+            # Val queue
+            feat_val, label_val = tf.py_func(self.sample_example_val, [], [tf.float32, tf.float32])
+            feats_val, labels_val = tf.train.batch([feat_val, label_val], batch_size=batch_size,
+                                                   shapes=[feat_shape, label_shape], capacity=1)
+            # Switch between queues
+            is_train_ph = tf.placeholder(tf.bool, shape=())
+            features_q = tf.cond(pred=is_train_ph,
+                                 true_fn=lambda: feats_train,
+                                 false_fn=lambda: feats_val)
+            labels_q = tf.cond(pred=is_train_ph,
+                               true_fn=lambda: labels_train,
+                               false_fn=lambda: labels_val)
+
+        return features_q, labels_q, is_train_ph
+
     def _model_init(self):
         with tf.name_scope("model"):
-            inputs = self.features_ph
+            # inputs = self.features_ph
+            inputs = self.features_q
             s_t = self._slicing_init(inputs)  # Central slice
             c_t = self._context_net_init(inputs)  # Context vector
             concat_inputs = tf.concat([s_t, c_t], 1)
@@ -256,7 +330,7 @@ class Detector(object):
         with tf.variable_scope("slicing"):
             central_slice = inputs[:, :, int(self.context_size/2), :]
             central_slice = tf.expand_dims(central_slice, 2)  # Make it 4D tensor
-            s_t = tf.layers.conv2d(inputs=central_slice, filters=1, kernel_size=1, strides=1, activation=tf.nn.relu,
+            s_t = tf.layers.conv2d(inputs=central_slice, filters=1, kernel_size=1, activation=tf.nn.relu,
                                    padding="same", name="proj", reuse=reuse)
             dim = np.prod(s_t.get_shape().as_list()[1:])
             s_t_flat = tf.reshape(s_t, shape=(-1, dim))
@@ -265,22 +339,58 @@ class Detector(object):
     def _context_net_init(self, inputs, reuse=False):
         # Implement basic CNN from my notes (for now is just flattening spectrogram)
         with tf.variable_scope("context_net"):
-            dim = np.prod(inputs.get_shape().as_list()[1:])
-            context_net = tf.reshape(inputs, shape=(-1, dim))
-        return context_net
+            # Start by pooling the spectrogram
+            p_0 = tf.layers.max_pooling2d(inputs=inputs, pool_size=(1, 2), strides=(1, 2), name="p_0")
+
+            # First convolutional block
+            c_1 = tf.layers.conv2d(inputs=p_0, filters=32, kernel_size=3, activation=tf.nn.relu,
+                                   padding="same", name="c_1", reuse=reuse)
+            p_1 = tf.layers.max_pooling2d(inputs=c_1, pool_size=2, strides=2, name="p_1")
+
+            # Second convolutional block
+            c_2 = tf.layers.conv2d(inputs=p_1, filters=32, kernel_size=3, activation=tf.nn.relu,
+                                   padding="same", name="c_2", reuse=reuse)
+            p_2 = tf.layers.max_pooling2d(inputs=c_2, pool_size=2, strides=2, name="p_2")
+
+            # Third convolutional block
+            c_3a = tf.layers.conv2d(inputs=p_2, filters=64, kernel_size=3, activation=tf.nn.relu,
+                                    padding="same", name="c_3a", reuse=reuse)
+            c_3b = tf.layers.conv2d(inputs=c_3a, filters=64, kernel_size=3, activation=tf.nn.relu,
+                                    padding="same", name="c_3b", reuse=reuse)
+            p_3 = tf.layers.max_pooling2d(inputs=c_3b, pool_size=2, strides=2, name="p_3")
+
+            # Fourth convolutional block
+            c_4a = tf.layers.conv2d(inputs=p_3, filters=128, kernel_size=3, activation=tf.nn.relu,
+                                    padding="same", name="c_4a", reuse=reuse)
+            c_4b = tf.layers.conv2d(inputs=c_4a, filters=128, kernel_size=3, activation=tf.nn.relu,
+                                    padding="same", name="c_4b", reuse=reuse)
+            p_4 = tf.layers.average_pooling2d(inputs=c_4b, pool_size=4, strides=4, name="p_4")
+
+            # Flattening
+            dim = np.prod(p_4.get_shape().as_list()[1:])
+            c_t_flat = tf.reshape(p_4, shape=(-1, dim))
+        return c_t_flat
 
     def _fc_net_init(self, inputs, reuse=False):
         with tf.variable_scope("fc_net"):
-            fc_1 = tf.layers.dense(inputs=inputs, units=1024, activation=tf.nn.relu, name="fc_1", reuse=reuse)
-            fc_2 = tf.layers.dense(inputs=fc_1, units=512, activation=tf.nn.relu, name="fc_2", reuse=reuse)
+            fc_1 = tf.layers.dense(inputs=inputs, units=512, activation=tf.nn.relu, name="fc_1", reuse=reuse)
+            fc_2 = tf.layers.dense(inputs=fc_1, units=256, activation=tf.nn.relu, name="fc_2", reuse=reuse)
         return fc_2
 
     def _loss_init(self):
         # We need to add L2 regularization and weights for balancing
         with tf.name_scope("loss"):
+            # labels = tf.expand_dims(self.labels_ph, 1)  # Make it 2D tensor
+            labels = tf.expand_dims(self.labels_q, 1)  # Make it 2D tensor
             byexample_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits,
-                                                                     labels=self.labels_ph)
+                                                                     labels=labels)
             loss = tf.reduce_mean(byexample_loss)
+
+            # Esteban uses: (two output neurons)
+            # labels = self.input_label
+            # self.one_hot_labels = tf.one_hot(labels, 2, dtype=tf.float32)
+            # self.diff = tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.one_hot_labels)
+            # loss = tf.reduce_mean(self.diff)
         return loss
 
     def _optimizer_init(self):

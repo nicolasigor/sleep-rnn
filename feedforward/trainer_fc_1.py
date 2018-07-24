@@ -70,8 +70,8 @@ print('Validation set size:', len(val_path_list), '-- Records:', val_idx)
 print('Test set size:', len(test_path_list), '-- Records:', test_idx)
 
 # Train detector
-ss_detector = Detector(params)
-max_it = 500
+ss_detector = Detector(params, train_path_list, val_path_list)
+max_it = 100
 stat_every = 20
 save_every = 200
-ss_detector.train(train_path_list, val_path_list, max_it, stat_every, save_every)
+ss_detector.train(max_it, stat_every, save_every)
