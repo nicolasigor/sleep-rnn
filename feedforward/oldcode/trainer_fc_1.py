@@ -1,6 +1,5 @@
-from ss_detector_fc_2 import Detector
+from oldcode.ss_detector_fc_1 import Detector
 import time
-import numpy as np
 
 # Settings
 

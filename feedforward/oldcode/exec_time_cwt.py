@@ -147,9 +147,6 @@ def get_cwt_minibatch(signal_minibatch):
     return features_cwt, freqs
 
 
-# Original CWT for comparison
-single_signal = minibatch[0]
-
 print("Original CWT implementation")
 start_time = time.time()
 single_cwt, freqs = get_cwt_minibatch(minibatch)
@@ -195,10 +192,6 @@ for j in range(len(fb_array)):
         fb_kernels_morlet.append((this_kernel_real, this_kernel_imag))
     kernels_morlet.append(fb_kernels_morlet)
 
-signal_ph = tf.placeholder(shape=[None, minibatch.shape[1]], dtype=tf.float32)
-signal_ph_reshape = tf.expand_dims(signal_ph, 1)
-signal_ph_reshape = tf.expand_dims(signal_ph_reshape, -1)  # Make it 4D tensor
-
 
 # Apply kernels
 def apply_complex_kernel(kernel_tuple, input_signal, context_start, context_end):
@@ -215,6 +208,10 @@ def apply_complex_kernel(kernel_tuple, input_signal, context_start, context_end)
     return out_abs
 
 
+signal_ph = tf.placeholder(shape=[None, minibatch.shape[1]], dtype=tf.float32)
+signal_ph_reshape = tf.expand_dims(signal_ph, 1)
+signal_ph_reshape = tf.expand_dims(signal_ph_reshape, -1)  # Make it 4D tensor
+
 cwt_list = []
 for j in range(len(fb_array)):
     fb_cwt_list = []
@@ -229,19 +226,24 @@ for j in range(len(fb_array)):
 cwt_op = tf.concat(cwt_list, -1)
 
 start_time = time.time()
-with tf.Session() as sess:
+prev_time_usage = 0
+sess = tf.Session()
+for it in range(100):
     minibatch_cwt = sess.run(cwt_op, feed_dict={signal_ph: minibatch})
-time_usage = time.time() - start_time
-print("Time usage: " + str(time_usage) + " [s]")
+    if (it+1) % 10 == 0:
+        time_usage = time.time() - start_time
+        delta_time_usage = time_usage - prev_time_usage
+        prev_time_usage = time_usage
+        print("Time usage for 10 it: " + str(delta_time_usage) + " [s]")
 print("CWT", minibatch_cwt.shape)
 
 
 channel = 0
 plt.figure(figsize=(15, 3))
-plt.imshow(single_cwt[0,:,:,channel], interpolation='none', cmap=cm.inferno, aspect='auto')
+plt.imshow(single_cwt[0, :, :, channel], interpolation='none', cmap=cm.inferno, aspect='auto')
 plt.title("Pywavelet")
 plt.show()
 plt.figure(figsize=(15, 3))
-plt.imshow(minibatch_cwt[0,:,:,channel], interpolation='none', cmap=cm.inferno, aspect='auto')
+plt.imshow(minibatch_cwt[0, :, :, channel], interpolation='none', cmap=cm.inferno, aspect='auto')
 plt.title("TF")
 plt.show()
