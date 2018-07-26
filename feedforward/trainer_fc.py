@@ -1,6 +1,6 @@
 from sleep_data_inta import SleepDataINTA
 from detector_fc_v1 import DetectorFC
-from detector_fc_pywavelet import DetectorFCPy
+# from detector_fc_pywavelet import DetectorFCPy
 
 # Initialize database
 dataset = SleepDataINTA()
@@ -15,7 +15,7 @@ params = {
 ss_detector = DetectorFC(params)
 # ss_detector = DetectorFCPy(params)
 # Train detector
-max_it = 350000
+max_it = 250000
 stat_every = 100
-save_every = 3000
+save_every = 50000
 ss_detector.train(dataset, max_it, stat_every, save_every)

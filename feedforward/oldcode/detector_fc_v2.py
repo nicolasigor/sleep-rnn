@@ -68,111 +68,157 @@ class DetectorFC(object):
         self.checkpoint_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summaries/'
 
-        # Model initialization
-        with tf.name_scope("input"):
-            self.features_ph = tf.placeholder(shape=[None, 1, self.segment_size, 1],
-                                              dtype=tf.float32, name="features")
-            self.labels_ph = tf.placeholder(shape=[None], dtype=tf.float32, name="labels")
-            self.is_training = tf.placeholder(tf.bool, name="is_training")
+        # TF variables
+        self.is_training = None
+        self.features_q = None
+        self.labels_q = None
+        self.inputs_cwt = None
+        self.logits = None
+        self.prob = None
+        self.loss = None
+        self.train_step = None
+        self.sess = tf.Session()
+        self.saver = None
 
+    def train(self, dataset, max_it, stat_every=50, save_every=5000):
+        # Model initialization
+        self.is_training, self.features_q, self.labels_q = self._input_init(dataset)
         self.inputs_cwt, self.logits, self.prob = self._model_init()
         self.loss = self._loss_init()
         self.train_step = self._optimizer_init()
 
-        # Session
-        self.sess = tf.Session()
-        self.saver = tf.train.Saver(keep_checkpoint_every_n_hours=2)
-        self.train_writer = tf.summary.FileWriter(self.tb_path + 'train', self.sess.graph)
-        self.val_writer = tf.summary.FileWriter(self.tb_path + 'val')
-        tf.summary.scalar('loss', self.loss)
+        # Summaries
+        train_writer = tf.summary.FileWriter(self.tb_path + 'train', self.sess.graph)
+        val_writer = tf.summary.FileWriter(self.tb_path + 'val')
+        merged = tf.summary.merge_all()
 
         # Initialization of variables
+        self.saver = tf.train.Saver(keep_checkpoint_every_n_hours=2)
         self.sess.run(tf.global_variables_initializer())
-
-    def train(self, dataset, max_it, stat_every=50, save_every=5000):
-        merged = tf.summary.merge_all()
+        tf.train.start_queue_runners(sess=self.sess)
 
         start_time = time.time()
         print("Beginning training of " + self.model_name)
         print("Beginning training of " + self.model_name, file=open(self.model_path + 'train.log', 'w'))
 
-        # features, labels = dataset.next_batch(batch_size=64,
-        #                                       segment_size=self.segment_size,
-        #                                       mark_smooth=self.mark_smooth,
-        #                                       dataset="TRAIN")
-        # cwt_image = self.sess.run(self.inputs_cwt,
-        #                           feed_dict={self.features_ph: features,
-        #                                      self.labels_ph: labels})
-        # # show first 2 on the batch, only fb[0]
-        # for i in range(2):
-        #     plt.figure(figsize=(15, 3))
-        #     plt.imshow(cwt_image[i, :, :, 0], interpolation='none', cmap=cm.inferno, aspect='auto')
-        #     plt.title("TF")
-        #     plt.show()
-
         for it in range(1, max_it + 1):
-            features, labels = dataset.next_batch(batch_size=self.batch_size,
-                                                  segment_size=self.segment_size,
-                                                  mark_smooth=self.mark_smooth,
-                                                  dataset="TRAIN")
-            _, train_loss, summ = self.sess.run([self.train_step, self.loss, merged],
-                                                feed_dict={self.features_ph: features,
-                                                           self.labels_ph: labels,
-                                                           self.is_training: True})
+            # Train Step
+            feed_dict = {self.is_training: True}
+            _, train_loss, summ = self.sess.run([self.train_step, self.loss, merged], feed_dict=feed_dict)
 
             if it % stat_every == 0:
                 # Training stat
-                self.train_writer.add_summary(summ, it)
-                # cwt_image = self.sess.run(self.inputs_cwt,
-                #                           feed_dict={self.features_ph: features,
-                #                                      self.labels_ph: labels})
+                train_writer.add_summary(summ, it)
                 # Validation stat
-                features, labels = dataset.next_batch(batch_size=self.batch_size,
-                                                      segment_size=self.segment_size,
-                                                      mark_smooth=self.mark_smooth,
-                                                      dataset="VAL")
-                val_loss, summ = self.sess.run([self.loss, merged],
-                                               feed_dict={self.features_ph: features,
-                                                          self.labels_ph: labels,
-                                                          self.is_training: False})
-                self.val_writer.add_summary(summ, it)
-
+                feed_dict = {self.is_training: False}
+                val_loss, summ = self.sess.run([self.loss, merged], feed_dict=feed_dict)
+                val_writer.add_summary(summ, it)
                 time_usage = time.time() - start_time
                 print("Iteration %i/%i: train loss %f - val loss %f - time %f s"
                       % (it, max_it, train_loss, val_loss, time_usage), flush=True)
                 print("Iteration %i/%i: train loss %f - val loss %f - time %f s"
                       % (it, max_it, train_loss, val_loss, time_usage),
                       flush=True, file=open(self.model_path + 'train.log', 'a'))
-
-                # show first 2 on the batch, only fb[0]
-                # for i in range(2):
-                #     plt.figure(figsize=(15, 3))
-                #     plt.imshow(cwt_image[i, :, :, 0], interpolation='none', cmap=cm.inferno, aspect='auto')
-                #     plt.title("TF")
-                #     plt.show()
-
             if it % save_every == 0:
                 save_path = self.saver.save(self.sess, self.checkpoint_path, global_step=it)
                 print("Model saved to: %s" % save_path)
                 print("Model saved to: %s" % save_path, file=open(self.model_path + 'train.log', 'a'))
-
         save_path = self.saver.save(self.sess, self.checkpoint_path, global_step=max_it)
         print("Model saved to: %s" % save_path)
         print("Model saved to: %s" % save_path, file=open(self.model_path + 'train.log', 'a'))
-
         # Closing savers
-        self.train_writer.close()
-        self.val_writer.close()
-
+        train_writer.close()
+        val_writer.close()
         # Total time
         time_usage = time.time() - start_time
         print("Time usage: " + str(time_usage) + " [s]")
         print("Time usage: " + str(time_usage) + " [s]", file=open(self.model_path + 'train.log', 'a'))
 
+    def _input_init(self, dataset):
+        with tf.name_scope("inputs"):
+            with tf.device('/cpu:0'):
+                # PH for mode
+                is_training = tf.placeholder(tf.bool, name="is_training")
+
+                n_threads = 4
+                feat_shape = [self.batch_size, 1, self.segment_size, 1]
+                label_shape = [self.batch_size]
+                # Train queue
+                feat_train, label_train = tf.py_func(
+                        lambda: dataset.next_batch(
+                            batch_size=self.batch_size,
+                            segment_size=self.segment_size,
+                            mark_smooth=self.mark_smooth,
+                            dataset="TRAIN"),
+                        [],
+                        [tf.float32, tf.float32])
+                q_train = tf.FIFOQueue(capacity=2, dtypes=[tf.float32, tf.float32], shapes=[feat_shape, label_shape])
+                enqueue_op_train = q_train.enqueue([feat_train, label_train])
+                qr_train = tf.train.QueueRunner(q_train, [enqueue_op_train] * n_threads)
+                tf.train.add_queue_runner(qr_train)
+
+                # Val queue
+                feat_val, label_val = tf.py_func(
+                    lambda: dataset.next_batch(
+                        batch_size=self.batch_size,
+                        segment_size=self.segment_size,
+                        mark_smooth=self.mark_smooth,
+                        dataset="VAL"),
+                    [],
+                    [tf.float32, tf.float32])
+                q_val = tf.FIFOQueue(capacity=2, dtypes=[tf.float32, tf.float32], shapes=[feat_shape, label_shape])
+                enqueue_op_val = q_val.enqueue([feat_val, label_val])
+                qr_val = tf.train.QueueRunner(q_val, [enqueue_op_val] * n_threads)
+                tf.train.add_queue_runner(qr_val)
+
+                # # Shapes
+                # feat_shape = (1, self.segment_size, 1)
+                # label_shape = ()
+                #
+                # # Train queue
+                # feat_train, label_train = tf.py_func(
+                #     lambda: dataset.next_element(
+                #         segment_size=self.segment_size,
+                #         mark_smooth=self.mark_smooth,
+                #         dataset="TRAIN"),
+                #     [],
+                #     [tf.float32, tf.float32])
+                # feat_batch_train, label_batch_train = tf.train.shuffle_batch(
+                #     [feat_train, label_train],
+                #     batch_size=self.batch_size,
+                #     num_threads=4,
+                #     capacity=20*self.batch_size,
+                #     min_after_dequeue=self.batch_size,
+                #     shapes=[feat_shape, label_shape])
+                #
+                # # Val queue
+                # feat_val, label_val = tf.py_func(
+                #     lambda: dataset.next_element(
+                #         segment_size=self.segment_size,
+                #         mark_smooth=self.mark_smooth,
+                #         dataset="VAL"),
+                #     [],
+                #     [tf.float32, tf.float32])
+                # feat_batch_val, label_batch_val = tf.train.shuffle_batch(
+                #     [feat_val, label_val],
+                #     batch_size=self.batch_size,
+                #     num_threads=4,
+                #     capacity=5*self.batch_size,
+                #     min_after_dequeue=self.batch_size,
+                #     shapes=[feat_shape, label_shape])
+
+                # Switch between queues
+                features_q, labels_q = tf.cond(pred=is_training,
+                                               true_fn=lambda: q_train.dequeue(),
+                                               false_fn=lambda: q_val.dequeue())
+
+        return is_training, features_q, labels_q
+
     def _model_init(self):
         with tf.name_scope("model"):
             reuse = False
-            inputs = self.features_ph
+
+            inputs = self.features_q
             inputs_cwt = self._cwt_init(inputs)  # Convert signal into CWT
 
             inputs_cwt_bn = tf.layers.batch_normalization(inputs=inputs_cwt, training=self.is_training,
@@ -282,9 +328,8 @@ class DetectorFC(object):
         return fc_2
 
     def _loss_init(self):
-        # We need to add L2 regularization and weights for balancing
         with tf.name_scope("loss"):
-            labels = tf.expand_dims(self.labels_ph, 1)  # Make it 2D tensor
+            labels = tf.expand_dims(self.labels_q, 1)  # Make it 2D tensor
             # byexample_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits,
             #                                                          labels=labels)
             byexample_loss = tf.nn.weighted_cross_entropy_with_logits(
@@ -293,6 +338,7 @@ class DetectorFC(object):
                 pos_weight=self.pos_weight,
             )
             loss = tf.reduce_mean(byexample_loss)
+            tf.summary.scalar('loss', loss)
         return loss
 
     def _optimizer_init(self):

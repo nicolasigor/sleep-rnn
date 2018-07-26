@@ -20,7 +20,7 @@ class SleepDataINTA(object):
         # Useful
         self.epoch_size = self.dur_epoch * self.fs
         # Split in train, val and test
-        random_perm = [4, 7, 3, 8, 5, 6, 2, 0, 1, 9]
+        random_perm = [3, 7, 2, 8, 5, 6, 4, 0, 1, 9]
         test_idx = random_perm[0:2]
         val_idx = random_perm[2:4]
         train_idx = random_perm[4:]
@@ -29,7 +29,7 @@ class SleepDataINTA(object):
         self.all_names = [
             'ADGU101504',
             'ALUR012904',
-            # 'BECA011405',  we will skip this one for now
+            # 'BECA011405',  # we will skip this one for now
             'BRCA062405',
             'BRLO041102',
             'BTOL083105',
@@ -61,7 +61,7 @@ class SleepDataINTA(object):
                         'file_states': path_states_file,
                         'file_marks': path_marks_file}
             data_path_list.append(ind_dict)
-        print(len(data_path_list), ' records in INTA dataset.')
+        print(len(data_path_list), 'records in INTA dataset.')
 
         train_path_list = [data_path_list[i] for i in train_idx]
         val_path_list = [data_path_list[i] for i in val_idx]
@@ -70,14 +70,26 @@ class SleepDataINTA(object):
         print('Training set size:', len(train_path_list), '-- Records ID:', train_idx)
         print('Validation set size:', len(val_path_list), '-- Records ID:', val_idx)
         print('Test set size:', len(test_path_list), '-- Records ID:', test_idx)
-
-        # Load data
+        print("")
         print("Loading training set...")
         self.data_train = self.load_data(train_path_list)
+        n_epochs_train = [ind['epochs'].shape[0] for ind in self.data_train]
+        n_epochs_train = np.sum(n_epochs_train)
+        print(str(n_epochs_train) + " epochs in training set.")
+        print("")
         print("Loading validation set...")
         self.data_val = self.load_data(val_path_list)
+        n_epochs_val = [ind['epochs'].shape[0] for ind in self.data_val]
+        n_epochs_val = np.sum(n_epochs_val)
+        print(str(n_epochs_val) + " epochs in validation set.")
+        print("")
         print("Loading test set...")
         self.data_test = self.load_data(test_path_list)
+        n_epochs_test = [ind['epochs'].shape[0] for ind in self.data_test]
+        n_epochs_test = np.sum(n_epochs_test)
+        print(str(n_epochs_test) + " epochs in test set.")
+        print("")
+        print(str(n_epochs_train + n_epochs_val + n_epochs_test) + " epochs in INTA dataset")
 
     def load_data(self, data_path_list):
         data_list = []
@@ -129,9 +141,9 @@ class SleepDataINTA(object):
 
     def get_n2epochs(self, states):
         n2_epochs = np.where(states == self.n2_val)[0]
-        # Drop first and last epoch of the whole registers if they where selected
+        # Drop first, last epoch and second to last epoch of the whole registers if they where selected
         last_state = states.shape[0] - 1
-        n2_epochs = n2_epochs[(n2_epochs != 0) & (n2_epochs != last_state)]
+        n2_epochs = n2_epochs[(n2_epochs != 0) & (n2_epochs != last_state) & (n2_epochs != last_state-1)]
         return n2_epochs
 
     def preprocessing_eeg(self, signal, n2_epochs):
@@ -161,8 +173,8 @@ class SleepDataINTA(object):
         else:
             data_list = self.data_train
         # Initialize batch
-        features = np.zeros((batch_size, segment_size))
-        labels = np.zeros(batch_size)
+        features = np.zeros((batch_size, 1, segment_size, 1), dtype=np.float32)
+        labels = np.zeros(batch_size, dtype=np.float32)
 
         # FOR NOW THIS IS ALWAYS RANDOM
 
@@ -181,7 +193,7 @@ class SleepDataINTA(object):
             # Get signal segment
             sample_start = central_sample - int(segment_size / 2)
             sample_end = central_sample + int(segment_size / 2)
-            features[i, :] = ind_dict['signal'][sample_start:sample_end]
+            features[i, 0, :, 0] = ind_dict['signal'][sample_start:sample_end]
             # Get mark, with an optional smoothing
             smooth_start = central_sample - int(np.floor(mark_smooth / 2))
             smooth_end = smooth_start + mark_smooth
@@ -189,3 +201,43 @@ class SleepDataINTA(object):
             smooth_mark = np.mean(mark_array)
             labels[i] = smooth_mark
         return features, labels
+
+    def next_element(self, segment_size, mark_smooth, dataset="TRAIN"):
+        # Select dataset
+        if dataset == "VAL":
+            data_list = self.data_val
+        elif dataset == "TEST":
+            data_list = self.data_test
+        else:
+            data_list = self.data_train
+        # Initialize element
+        feature = np.zeros((1, segment_size, 1))
+
+        # FOR NOW THIS IS ALWAYS RANDOM
+
+        # Choose a register
+        n_data = len(data_list)
+        ind_choice = np.random.choice(np.arange(n_data))
+        # Select that register
+        ind_dict = data_list[ind_choice]
+        # Choose a random epoch
+        epoch = np.random.choice(ind_dict['epochs'])
+        offset = epoch * self.epoch_size
+        # Choose a random timestep in that epoch
+        central_sample = np.random.choice(np.arange(self.epoch_size))
+        central_sample = offset + central_sample
+        # Get signal segment
+        sample_start = central_sample - int(segment_size / 2)
+        sample_end = central_sample + int(segment_size / 2)
+        feature[0, :, 0] = ind_dict['signal'][sample_start:sample_end]
+        # Get mark, with an optional smoothing
+        smooth_start = central_sample - int(np.floor(mark_smooth / 2))
+        smooth_end = smooth_start + mark_smooth
+        mark_array = ind_dict['marks'][smooth_start:smooth_end]
+        smooth_mark = np.mean(mark_array)
+        label = smooth_mark
+
+        # Fix type
+        feature = np.array(feature, dtype=np.float32)
+        label = np.array(label, dtype=np.float32)
+        return feature, label
