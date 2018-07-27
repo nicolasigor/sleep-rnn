@@ -12,17 +12,17 @@ local.properties
 .recommenders
 .idea
 
+.ipynb_checkpoints
+__pychache__
+
 .asv
 
-preprocessing/ssdata/register
-preprocessing/old/old_label
+analysis/ssdata/register
+*.mat
 
-feedforward/ssdata/register
-feedforward/pickle_data
-feedforward/model_data
-feedforward/results
-
-preprocessing/eegData.mat
+neuralnet/ssdata_inta/register
+neuralnet/ssdata_mass/register
+neuralnet/results
 
 # External tool builders
 .externalToolBuilders/
