@@ -13,7 +13,6 @@ class SleepDataINTA(object):
         self.channel = 1           # Channel to be used
         self.dur_epoch = 30        # Time of window page [s]
         self.n2_val = 3            # N2 state coding value
-        self.context = 1.28        # Length of context for timestep, in [s]
         self.percentile = 99       # Percentil for clipping
         self.fs = 200              # Sampling frequency of the dataset
 
@@ -164,14 +163,25 @@ class SleepDataINTA(object):
         new_signal = (np.clip(signal, -thr, thr) - data_mean) / data_std
         return new_signal
 
-    def next_batch(self, batch_size, segment_size, mark_smooth, dataset="TRAIN"):
-        # Select dataset
-        if dataset == "VAL":
+    def get_sub_set(self, sub_set):
+        # Select subset
+        if sub_set == "VAL":
             data_list = self.data_val
-        elif dataset == "TEST":
+        elif sub_set == "TEST":
             data_list = self.data_test
         else:
             data_list = self.data_train
+        return data_list
+
+    def get_fs(self):
+        return self.fs
+
+    def get_epoch_size(self):
+        return self.epoch_size
+
+    def next_batch(self, batch_size, segment_size, mark_smooth, sub_set="TRAIN"):
+        # Select subset
+        data_list = self.get_sub_set(sub_set)
         # Initialize batch
         features = np.zeros((batch_size, 1, segment_size, 1), dtype=np.float32)
         labels = np.zeros(batch_size, dtype=np.float32)
@@ -202,14 +212,9 @@ class SleepDataINTA(object):
             labels[i] = smooth_mark
         return features, labels
 
-    def next_element(self, segment_size, mark_smooth, dataset="TRAIN"):
-        # Select dataset
-        if dataset == "VAL":
-            data_list = self.data_val
-        elif dataset == "TEST":
-            data_list = self.data_test
-        else:
-            data_list = self.data_train
+    def next_element(self, segment_size, mark_smooth, sub_set="TRAIN"):
+        # Select subset
+        data_list = self.get_sub_set(sub_set)
         # Initialize element
         feature = np.zeros((1, segment_size, 1))
 

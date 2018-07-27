@@ -21,7 +21,7 @@ analysis/ssdata/register
 *.mat
 
 neuralnet/ssdata_inta/register
-neuralnet/ssdata_mass/register
+neuralnet/ssdata_mass/
 neuralnet/results
 
 # External tool builders

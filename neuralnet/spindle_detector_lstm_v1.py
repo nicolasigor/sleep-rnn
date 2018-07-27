@@ -8,7 +8,7 @@ import datetime
 # import matplotlib.cm as cm
 
 
-class SpindleDetectorFC(object):
+class SpindleDetectorLSTM(object):
 
     def __init__(self, params):
         # Training parameters
@@ -19,12 +19,13 @@ class SpindleDetectorFC(object):
 
         # General parameters
         self.context = params['context']
-        self.factor_border = params['factor_border']
+        self.border = params['border']
         self.mark_smooth = params['mark_smooth']
         self.fs = params["fs"]
+        self.seq_stride = params["seq_stride"]
+        self.n_chunks = params['n_chunks']
 
         # CWT parameters
-        self.cwt_stride = 2
         self.fc = 1
         self.fb_array = np.array([0.5, 1, 1.5, 2])
         self.n_scales = 32
@@ -40,14 +41,15 @@ class SpindleDetectorFC(object):
         self.kernels_morlet = self._generate_kernels()
 
         # Some static values
-        self.segment_size = int((self.factor_border + 1) * self.context * self.fs)
-        self.context_size = int(self.context * self.fs / self.cwt_stride)
-        self.context_start = int(self.factor_border * self.context * self.fs / (2*self.cwt_stride))
-        self.context_end = self.context_start + self.context_size
+        self.segment_size = int((2*self.border + self.context) * self.fs)
+        self.sequence_size = int(self.context * self.fs / self.seq_stride)
+        self.chunk_size = int(self.sequence_size/self.n_chunks)
+        self.chunk_start = int(self.border * self.fs / self.seq_stride)
+        self.chunk_end = self.chunk_start + self.chunk_size
 
         # Directories
         date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.model_name = 'fc_v1'
+        self.model_name = 'lstm_v1'
         self.model_path = 'results/' + self.model_name + '_' + date + '/'
         self.checkpoint_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summaries/'
