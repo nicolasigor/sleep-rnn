@@ -1,6 +1,6 @@
 from sleep_data_inta import SleepDataINTA
 # from sleep_data_mass import SleepDataMASS
-from spindle_detector_fc_v1 import SpindleDetectorFC
+from oldcode.spindle_detector_fc_v1 import SpindleDetectorFC
 
 # Initialize database
 dataset = SleepDataINTA()

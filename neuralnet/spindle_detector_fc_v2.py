@@ -1,8 +1,12 @@
 from __future__ import division
+from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import time
 import datetime
+
+from cwt_layer import complex_morlet_layer
+from context_net import context_net
 
 # import matplotlib.pyplot as plt
 # import matplotlib.cm as cm
@@ -25,25 +29,18 @@ class SpindleDetectorFC(object):
 
         # CWT parameters
         self.cwt_stride = 2
-        self.fc = 1
+        self.fc_array = np.array([1, 1, 1, 1])
         self.fb_array = np.array([0.5, 1, 1.5, 2])
         self.n_scales = 32
         self.upper_freq = 40
         self.lower_freq = 2
-        # Generate initial and last scale
-        s_0 = self.fs / self.upper_freq
-        s_n = self.fs / self.lower_freq
-        # Generate the array of scales
-        base = np.power(s_n / s_0, 1 / (self.n_scales - 1))
-        self.scales = s_0 * np.power(base, range(self.n_scales))
-        # Generate kernels
-        self.kernels_morlet = self._generate_kernels()
 
         # Some static values
         self.segment_size = int((self.factor_border + 1) * self.context * self.fs)
         self.context_size = int(self.context * self.fs / self.cwt_stride)
         self.context_start = int(self.factor_border * self.context * self.fs / (2*self.cwt_stride))
         self.context_end = self.context_start + self.context_size
+        self.border_size = self.context_start*self.cwt_stride
 
         # Directories
         date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -58,8 +55,7 @@ class SpindleDetectorFC(object):
                                               dtype=tf.float32, name="features")
             self.labels_ph = tf.placeholder(shape=[None], dtype=tf.float32, name="labels")
             self.is_training = tf.placeholder(tf.bool, name="is_training")
-
-        self.inputs_cwt, self.logits, self.prediction = self._model_init()
+        self.logits, self.prediction = self._model_init()
         self.loss = self._loss_init()
         self.train_step = self._optimizer_init()
         self.metrics, self.metrics_upd, self.metrics_init = self._batch_metrics_init()
@@ -187,14 +183,17 @@ class SpindleDetectorFC(object):
         with tf.name_scope("model"):
             reuse = False
             inputs = self.features_ph
-            inputs_cwt = self._cwt_init(inputs)  # Convert signal into CWT
+            # Convert signal into CWT
+            inputs_cwt = complex_morlet_layer(inputs, self.fc_array, self.fb_array, self.fs,
+                                              self.lower_freq, self.upper_freq, self.n_scales,
+                                              border_crop=self.border_size, stride=self.cwt_stride)
 
             # Normalize CWT
             inputs_cwt_bn = tf.layers.batch_normalization(inputs=inputs_cwt, training=self.is_training,
                                                           reuse=reuse, name="bn_1")
 
             s_t = self._slicing_init(inputs_cwt_bn)  # Central slice
-            # c_t = self._context_net_init(inputs_cwt_bn)  # Context vector
+            # c_t = context_net(inputs_cwt_bn, training=self.is_training)  # Context vector
 
             # concat_inputs = tf.concat([s_t, c_t], 1)
             # h_t = self._fc_net_init(concat_inputs)  # Fully Connected baseline
@@ -205,58 +204,7 @@ class SpindleDetectorFC(object):
                 logits = tf.layers.dense(inputs=h_t, units=1, activation=None, name="logits", reuse=reuse)
                 prediction = tf.sigmoid(logits, name="prediction")
 
-        return inputs_cwt, logits, prediction
-
-    def _cwt_init(self, inputs):
-        with tf.name_scope("cwt"):
-            cwt_list = []
-            for j in range(self.fb_array.shape[0]):
-                with tf.name_scope("fb_"+str(j)):
-                    fb_cwt_list = []
-                    for i in range(self.n_scales):
-                        this_kernel_tuple = self.kernels_morlet[j][i]
-                        power = self._apply_complex_kernel(this_kernel_tuple, inputs)
-                        # Spectrum flattening
-                        power = power * (self.fs / self.scales[i])
-                        fb_cwt_list.append(power)
-                    single_scalogram = tf.concat(fb_cwt_list, 1)
-                    cwt_list.append(single_scalogram)
-            cwt_op = tf.concat(cwt_list, -1)
-        return cwt_op
-
-    def _apply_complex_kernel(self, kernel_tuple, input_signal):
-        kernel_real = tf.constant(kernel_tuple[0])
-        kernel_imag = tf.constant(kernel_tuple[1])
-        out_real = tf.nn.conv2d(input=input_signal, filter=kernel_real,
-                                strides=[1, 1, self.cwt_stride, 1], padding="SAME")
-        out_imag = tf.nn.conv2d(input=input_signal, filter=kernel_imag,
-                                strides=[1, 1, self.cwt_stride, 1], padding="SAME")
-        start = self.context_start
-        end = self.context_end
-        out_real_context = out_real[:, :, start:end, :]
-        out_imag_context = out_imag[:, :, start:end, :]
-        out_abs = tf.sqrt(tf.square(out_real_context) + tf.square(out_imag_context))
-        return out_abs
-
-    def _generate_kernels(self):
-        kernels_morlet = []
-        for j in range(self.fb_array.shape[0]):
-            fb = self.fb_array[j]
-            fb_kernels_morlet = []
-            for i in range(self.n_scales):
-                this_scale = self.scales[i]
-                one_side = int(this_scale * np.sqrt(10 * fb))
-                this_kernel_size = 2 * one_side + 1
-                this_k = np.arange(this_kernel_size, dtype=np.float32) - one_side
-                this_kernel = np.exp(-((this_k / this_scale) ** 2) / fb) / np.sqrt(np.pi * fb * this_scale)
-                this_kernel_real = this_kernel * np.cos(2 * np.pi * self.fc * this_k / this_scale)
-                this_kernel_imag = this_kernel * np.sin(2 * np.pi * self.fc * this_k / this_scale)
-                useful_shape = (1,) + this_kernel_real.shape + (1, 1)
-                this_kernel_real = np.reshape(this_kernel_real, useful_shape)
-                this_kernel_imag = np.reshape(this_kernel_imag, useful_shape)
-                fb_kernels_morlet.append((this_kernel_real, this_kernel_imag))
-            kernels_morlet.append(fb_kernels_morlet)
-        return kernels_morlet
+        return logits, prediction
 
     def _slicing_init(self, inputs, reuse=False):
         with tf.variable_scope("slicing"):
@@ -266,48 +214,6 @@ class SpindleDetectorFC(object):
                                    padding="same", name="c_1x1", reuse=reuse)
             s_t_flat = tf.squeeze(s_t, axis=[2, 3])
         return s_t_flat
-
-    def _context_net_init(self, inputs, reuse=False):
-        with tf.variable_scope("context_net"):
-            # First convolutional block
-            c_1 = tf.layers.conv2d(inputs=inputs, filters=32, kernel_size=3, activation=tf.nn.relu,
-                                   padding="same", name="c_1", reuse=reuse)
-            p_1 = tf.layers.max_pooling2d(inputs=c_1, pool_size=2, strides=2)
-
-            # Second convolutional block
-            p_1_bn = tf.layers.batch_normalization(inputs=p_1, training=self.is_training,
-                                                   name="bn_2", reuse=reuse)
-            c_2 = tf.layers.conv2d(inputs=p_1_bn, filters=32, kernel_size=3, activation=tf.nn.relu,
-                                   padding="same", name="c_2", reuse=reuse)
-            p_2 = tf.layers.max_pooling2d(inputs=c_2, pool_size=2, strides=2)
-
-            # Third convolutional block
-            p_2_bn = tf.layers.batch_normalization(inputs=p_2, training=self.is_training,
-                                                   name="bn_3a", reuse=reuse)
-            c_3a = tf.layers.conv2d(inputs=p_2_bn, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                    padding="same", name="c_3a", reuse=reuse)
-            c_3a_bn = tf.layers.batch_normalization(inputs=c_3a, training=self.is_training,
-                                                    name="bn_3b", reuse=reuse)
-            c_3b = tf.layers.conv2d(inputs=c_3a_bn, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                    padding="same", name="c_3b", reuse=reuse)
-            p_3 = tf.layers.max_pooling2d(inputs=c_3b, pool_size=2, strides=2)
-
-            # Fourth convolutional block
-            p_3_bn = tf.layers.batch_normalization(inputs=p_3, training=self.is_training,
-                                                   name="bn_4a", reuse=reuse)
-            c_4a = tf.layers.conv2d(inputs=p_3_bn, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                    padding="same", name="c_4a", reuse=reuse)
-            c_4a_bn = tf.layers.batch_normalization(inputs=c_4a, training=self.is_training,
-                                                    name="bn_4b", reuse=reuse)
-            c_4b = tf.layers.conv2d(inputs=c_4a_bn, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                    padding="same", name="c_4b", reuse=reuse)
-            # p_4 = tf.layers.average_pooling2d(inputs=c_4b, pool_size=4, strides=4)
-            p_4 = tf.layers.max_pooling2d(inputs=c_4b, pool_size=2, strides=2)
-
-            # Flattening
-            dim = np.prod(p_4.get_shape().as_list()[1:])
-            c_t_flat = tf.reshape(p_4, shape=(-1, dim))
-        return c_t_flat
 
     def _fc_net_init(self, inputs, reuse=False):
         with tf.variable_scope("fc_net"):
