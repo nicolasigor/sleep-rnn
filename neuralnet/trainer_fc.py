@@ -16,7 +16,7 @@ params = {
 # Initialize detector
 ss_detector = SpindleDetectorFC(params)
 # Train detector
-max_it = 100000
+max_it = 2
 stat_every = 100
 save_every = 50000
 ss_detector.train(dataset, max_it, stat_every, save_every)

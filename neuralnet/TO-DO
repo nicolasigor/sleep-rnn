@@ -1,0 +1,24 @@
+* exponential moving average para mostrar las metricas by-sample durante el entrenamiento. (aunque igual tensorboard hace eso).
+* implementar a mano las metricas (es una lata hacer lo del update ops).
+* predecir un registro completo y de ahi recien calcular la metrica del registro completo en python.
+
+1. Crear SleepDataMASS
+2. Implementar LSTM sin CNN (o sea, solo CWT -> LSTM).
+3. Entrenar por TBTT (hacer backprop cada h steps hasta h steps en el pasado (o hasta 2h?).
+
+* Mejorar implementacion CWT (usar menos capas). -> unificar en una sola capa la convolucion real de un mismo (fc,fb), y hacer lo mismo para la imaginaria (o sea, solo 2 capas para un cierto (fc,fb)).
+
+Planes:
+Una secuencia seran 20 segundos de N2 sleep. El paso se tiene pensado dejar en 50ms, asi que serian secuencias de 400 steps.
+Lo ideal seria resamplear las señales del MASS para pasar 256 -> 200 Hz y hacer un paso cada 10 muestras. O bien, hacer pasos cada 13 muestras a 256Hz y pasos cada 10 muestras a 200Hz. 400 pasos de tamaño 13 a 256 Hz son 20.3125 segundos de extension, lo cual es incomodo. Mejor resamplear.
+Una vez fijo el largo de una secuencia y el paso, la idea es considerar la secuencia con un segundo extra a cada lado para evitar efectos de borde. O sea que el input serian secuencias de 22 segundos, en donde solo los 20 centrales seran para etiquetar. 
+Para aumentar los datos, en la practica una epoca "canonica" va a estar determinada por su onset y su duracion de 20s, pero en realidad uno podria comenzar los 20s desde 10s antes hasta 10s despues del onset canonico. La estrategia seria:
+recortar segmentos de largo 1+10+20+10+1 = 42 segundos, donde solo los 20s centrales no van a estar overlapeados. De esta forma, la eleccion de la secuencia puede "moverse" al rededor del centro de la epoca. Con esta estrategia, el tamaño de la base de datos solo se duplica.
+Luego, a partir de una secuencia de 42 segundos, uno elige un numero al azar t entre (-10, 10), para tomar la secuencia desde 1+(t+10) hasta 1+(t+10)+20+1 (t=0 seria la secuencia canonica). Recordar que ese "+1" de los bordes se descarta luego de una CWT.
+La idea seria formar un batch de estas secuencias muestreadas ahora de largo 22s, y cortarlas en "chunks" para entrenar, por ejemplo 10 chunks de 2 segundos centrales cada uno. A un step de 50ms eso serian 40 steps por chunk.
+Asi, se pasarian chunks de largo 4 segundos (1s para bordes, 2s centrales), CWT con stride de 50ms, eliminando el borde y asi entregando los 40 steps para ingresarlo a la LSTM. 
+
+Plan a futuro:
+En lugar de resetear el estado al final de una pagina, resetearlo al final de epocas continuas N2
+
+
