@@ -1,4 +1,4 @@
-.metadata
+.metadatneuralnet/a
 bin/
 tmp/
 *.tmp
@@ -23,6 +23,10 @@ analysis/ssdata/register
 neuralnet/ssdata_inta/register
 neuralnet/ssdata_mass/
 neuralnet/results
+
+# checkpoints
+neuralnet/checkpoint_inta
+neuralnet/checkpoint_mass
 
 # External tool builders
 .externalToolBuilders/

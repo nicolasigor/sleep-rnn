@@ -3,19 +3,27 @@ from __future__ import print_function
 import numpy as np
 import pyedflib
 import time
+import pickle
+import os
 
 import utils
 
-
+# Arreglar paths del save y el load
 class SleepDataINTA(object):
 
-    def __init__(self):
+    def __init__(self, load_from_checkpoint=False):
+
         # Data params
         self.channel = 1           # Channel to be used
         self.dur_epoch = 30        # Time of window page [s]
         self.n2_val = 3            # N2 state coding value
         self.percentile = 99       # Percentil for clipping
         self.fs = 200              # Sampling frequency of the dataset
+
+        # Directories
+        self.check_train_path = "checkpoint_inta/inta_train.pickle"
+        self.check_val_path = "checkpoint_inta/inta_val.pickle"
+        self.check_test_path = "checkpoint_inta/inta_test.pickle"
 
         # Useful
         self.epoch_size = self.dur_epoch * self.fs
@@ -70,21 +78,45 @@ class SleepDataINTA(object):
         print('Training set size:', len(train_path_list), '-- Records ID:', train_idx)
         print('Validation set size:', len(val_path_list), '-- Records ID:', val_idx)
         print('Test set size:', len(test_path_list), '-- Records ID:', test_idx)
+
         print("")
         print("Loading training set...")
-        self.data_train = self.load_data(train_path_list)
+        if load_from_checkpoint:
+            path_to_checkpoint = "checkpoint_inta/"
+            filename = path_to_checkpoint + "inta_train.pickle"
+            with open(filename, 'rb') as handle:
+                self.data_train = pickle.load(handle)
+        else:
+            self.data_train = self.load_data(train_path_list)
+
         n_epochs_train = [ind['epochs'].shape[0] for ind in self.data_train]
         n_epochs_train = np.sum(n_epochs_train)
         print(str(n_epochs_train) + " epochs in training set.")
+
         print("")
         print("Loading validation set...")
-        self.data_val = self.load_data(val_path_list)
+        if load_from_checkpoint:
+            path_to_checkpoint = "checkpoint_inta/"
+            filename = path_to_checkpoint + "inta_val.pickle"
+            with open(filename, 'rb') as handle:
+                self.data_val = pickle.load(handle)
+        else:
+            self.data_val = self.load_data(val_path_list)
+
         n_epochs_val = [ind['epochs'].shape[0] for ind in self.data_val]
         n_epochs_val = np.sum(n_epochs_val)
         print(str(n_epochs_val) + " epochs in validation set.")
+
         print("")
         print("Loading test set...")
-        self.data_test = self.load_data(test_path_list)
+        if load_from_checkpoint:
+            path_to_checkpoint = "checkpoint_inta/"
+            filename = path_to_checkpoint + "inta_test.pickle"
+            with open(filename, 'rb') as handle:
+                self.data_test = pickle.load(handle)
+        else:
+            self.data_test = self.load_data(test_path_list)
+
         n_epochs_test = [ind['epochs'].shape[0] for ind in self.data_test]
         n_epochs_test = np.sum(n_epochs_test)
         print(str(n_epochs_test) + " epochs in test set.")
@@ -179,6 +211,21 @@ class SleepDataINTA(object):
 
     def get_epoch_size(self):
         return self.epoch_size
+
+    def save_checkpoint(self):
+        self.save_single_set(self.data_train, "checkpoint_inta/inta_train.pickle")
+        self.save_single_set(self.data_val, "checkpoint_inta/inta_val.pickle")
+        self.save_single_set(self.data_test, "checkpoint_inta/inta_test.pickle")
+
+    def save_single_set(self, data_list, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, 'wb') as handle:
+            pickle.dump(data_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def load_single_set(self, filename):
+        with open(filename, 'rb') as handle:
+            data_list = pickle.load(handle)
+        return data_list
 
     def next_batch(self, batch_size, segment_size, mark_smooth, sub_set="TRAIN"):
         # Select subset
