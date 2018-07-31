@@ -1,21 +1,18 @@
 from sleep_data_inta import SleepDataINTA
+from sleep_data_mass import SleepDataMASS
 
-# New object
-dataset = SleepDataINTA(load_from_checkpoint=True)
-
-# Show something
-dummy_feat, dummy_label = dataset.next_batch(64, 256, 1, sub_set="TRAIN")
-print(dummy_feat.shape, dummy_label.shape)
-
-# Save checkpoint
-# dataset.save_checkpoint()
-
-# Delete object
+# Create checkpoint INTA
+dataset = SleepDataINTA()
+dataset.save_checkpoint()
 del dataset
 
-# Load from checkpoint
-#dataset2 = SleepDataINTA(load_from_checkpoint=True)
+# Create checkpoint MASS
+dataset = SleepDataMASS()
+dataset.save_checkpoint()
+del dataset
 
-# Show something
-#dummy_feat, dummy_label = dataset2.next_batch(64, 256, 1, sub_set="TRAIN")
-#print(dummy_feat.shape, dummy_label.shape)
+# Test if checkpoints are useful
+dataset = SleepDataINTA(load_from_checkpoint=True)
+del dataset
+dataset = SleepDataMASS(load_from_checkpoint=True)
+del dataset

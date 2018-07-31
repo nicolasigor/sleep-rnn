@@ -2,7 +2,6 @@
 * implementar a mano las metricas (es una lata hacer lo del update ops).
 * predecir un registro completo y de ahi recien calcular la metrica del registro completo en python.
 
-1. Crear SleepDataMASS
 2. Implementar LSTM sin CNN (o sea, solo CWT -> LSTM).
 3. Entrenar por TBTT (hacer backprop cada h steps hasta h steps en el pasado (o hasta 2h?).
 

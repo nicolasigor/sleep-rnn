@@ -8,33 +8,41 @@ import os
 
 import utils
 
-# Arreglar paths del save y el load
+
 class SleepDataINTA(object):
 
     def __init__(self, load_from_checkpoint=False):
+        self.name = "INTA"
+        self.fs = 200               # Sampling frequency [Hz]
+        self.dur_page = 30          # Time of window page [s]
+        self.page_size = int(self.dur_page * self.fs)
 
-        # Data params
-        self.channel = 1           # Channel to be used
-        self.dur_epoch = 30        # Time of window page [s]
-        self.n2_val = 3            # N2 state coding value
-        self.percentile = 99       # Percentil for clipping
-        self.fs = 200              # Sampling frequency of the dataset
+        if load_from_checkpoint:
+            print("\nLoading " + self.name + " from checkpoint")
+            self.data_train = self.load_subset_checkpoint("train")
+            self.data_val = self.load_subset_checkpoint("val")
+            self.data_test = self.load_subset_checkpoint("test")
+        else:
+            # Get train, val and test files
+            data_path_list = self.get_file_paths()
+            train_path_list, val_path_list, test_path_list = self.random_split(data_path_list)
+            print("\nLoading train set...")
+            self.data_train = self.load_data(train_path_list)
+            print("\nLoading val set...")
+            self.data_val = self.load_data(val_path_list)
+            print("\nLoading test set...")
+            self.data_test = self.load_data(test_path_list)
 
-        # Directories
-        self.check_train_path = "checkpoint_inta/inta_train.pickle"
-        self.check_val_path = "checkpoint_inta/inta_val.pickle"
-        self.check_test_path = "checkpoint_inta/inta_test.pickle"
+        n_pages_train = np.sum([ind['pages'].shape[0] for ind in self.data_train])
+        print("\nPages in train set: " + str(n_pages_train))
+        n_pages_val = np.sum([ind['pages'].shape[0] for ind in self.data_val])
+        print("Pages in val set: " + str(n_pages_val))
+        n_pages_test = np.sum([ind['pages'].shape[0] for ind in self.data_test])
+        print("Pages in test set: " + str(n_pages_test))
+        print("\nPages in " + self.name + " dataset: " + str(n_pages_train + n_pages_val + n_pages_test))
 
-        # Useful
-        self.epoch_size = self.dur_epoch * self.fs
-        # Split in train, val and test
-        random_perm = [3, 7, 2, 8, 5, 6, 4, 0, 1, 9]
-        test_idx = random_perm[0:2]
-        val_idx = random_perm[2:4]
-        train_idx = random_perm[4:]
-
-        # Filenames params
-        self.all_names = [
+    def get_file_paths(self):
+        all_names = [
             'ADGU101504',
             'ALUR012904',
             # 'BECA011405',  # we will skip this one for now
@@ -60,68 +68,49 @@ class SleepDataINTA(object):
 
         # Build list of paths
         data_path_list = []
-        for i in range(len(self.all_names)):
-            path_edf_file = path_rec + self.all_names[i] + rec_postamble
-            path_states_file = path_states + states_preamble + self.all_names[i] + states_postamble
-            path_marks_file = path_marks + marks_preamble + self.all_names[i] + marks_postamble
+        for i in range(len(all_names)):
+            path_eeg_file = path_rec + all_names[i] + rec_postamble
+            path_states_file = path_states + states_preamble + all_names[i] + states_postamble
+            path_marks_file = path_marks + marks_preamble + all_names[i] + marks_postamble
             # Save data
-            ind_dict = {'file_edf': path_edf_file,
-                        'file_states': path_states_file,
-                        'file_marks': path_marks_file}
+            ind_dict = {'file_eeg': path_eeg_file, 'file_states': path_states_file, 'file_marks': path_marks_file,
+                        'reg_id': all_names[i]}
             data_path_list.append(ind_dict)
-        print(len(data_path_list), 'records in INTA dataset.')
+        print(len(data_path_list), 'records in ' + str(self.name) + ' dataset.')
+        return data_path_list
+
+    def random_split(self, data_path_list):
+        random_perm = [3, 7, 2, 8, 5, 6, 4, 0, 1, 9]
+        test_idx = random_perm[0:2]
+        val_idx = random_perm[2:4]
+        train_idx = random_perm[4:]
 
         train_path_list = [data_path_list[i] for i in train_idx]
         val_path_list = [data_path_list[i] for i in val_idx]
         test_path_list = [data_path_list[i] for i in test_idx]
 
-        print('Training set size:', len(train_path_list), '-- Records ID:', train_idx)
-        print('Validation set size:', len(val_path_list), '-- Records ID:', val_idx)
+        print('Train set size:', len(train_path_list), '-- Records ID:', train_idx)
+        print('Val set size:', len(val_path_list), '-- Records ID:', val_idx)
         print('Test set size:', len(test_path_list), '-- Records ID:', test_idx)
 
-        print("")
-        print("Loading training set...")
-        if load_from_checkpoint:
-            path_to_checkpoint = "checkpoint_inta/"
-            filename = path_to_checkpoint + "inta_train.pickle"
-            with open(filename, 'rb') as handle:
-                self.data_train = pickle.load(handle)
-        else:
-            self.data_train = self.load_data(train_path_list)
+        return train_path_list, val_path_list, test_path_list
 
-        n_epochs_train = [ind['epochs'].shape[0] for ind in self.data_train]
-        n_epochs_train = np.sum(n_epochs_train)
-        print(str(n_epochs_train) + " epochs in training set.")
+    def save_checkpoint(self):
+        self.save_subset_checkpoint(self.data_train, "train")
+        self.save_subset_checkpoint(self.data_val, "val")
+        self.save_subset_checkpoint(self.data_test, "test")
 
-        print("")
-        print("Loading validation set...")
-        if load_from_checkpoint:
-            path_to_checkpoint = "checkpoint_inta/"
-            filename = path_to_checkpoint + "inta_val.pickle"
-            with open(filename, 'rb') as handle:
-                self.data_val = pickle.load(handle)
-        else:
-            self.data_val = self.load_data(val_path_list)
+    def save_subset_checkpoint(self, data_list, subset_name):
+        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, 'wb') as handle:
+            pickle.dump(data_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        n_epochs_val = [ind['epochs'].shape[0] for ind in self.data_val]
-        n_epochs_val = np.sum(n_epochs_val)
-        print(str(n_epochs_val) + " epochs in validation set.")
-
-        print("")
-        print("Loading test set...")
-        if load_from_checkpoint:
-            path_to_checkpoint = "checkpoint_inta/"
-            filename = path_to_checkpoint + "inta_test.pickle"
-            with open(filename, 'rb') as handle:
-                self.data_test = pickle.load(handle)
-        else:
-            self.data_test = self.load_data(test_path_list)
-
-        n_epochs_test = [ind['epochs'].shape[0] for ind in self.data_test]
-        n_epochs_test = np.sum(n_epochs_test)
-        print(str(n_epochs_test) + " epochs in test set.")
-        print("")
-        print(str(n_epochs_train + n_epochs_val + n_epochs_test) + " epochs in INTA dataset")
+    def load_subset_checkpoint(self, subset_name):
+        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        with open(filename, 'rb') as handle:
+            data_list = pickle.load(handle)
+        return data_list
 
     def load_data(self, data_path_list):
         data_list = []
@@ -129,36 +118,35 @@ class SleepDataINTA(object):
         start = time.time()
         for i in range(n_data):
             # Read EEG Signal, States, and Marks
-            path_edf_file = data_path_list[i]['file_edf']
+            path_eeg_file = data_path_list[i]['file_eeg']
             path_states_file = data_path_list[i]['file_states']
             path_marks_file = data_path_list[i]['file_marks']
-            signal, _ = self.read_eeg(path_edf_file, self.channel)
-            states = self.read_states(path_states_file)
-            marks = self.read_marks(path_marks_file, self.channel)
-            # Find N2 epochs
-            n2_epochs = self.get_n2epochs(states)
+            signal = self.read_eeg(path_eeg_file)
+            n2_pages = self.read_states(path_states_file)
+            marks = self.read_marks(path_marks_file)
             # Clip-Normalize eeg signal
-            signal = self.preprocessing_eeg(signal, n2_epochs)
+            signal = self.preprocessing_eeg(signal, n2_pages)
             # Transform marks into 0_1 format
             marks = utils.inter2seq(marks, 0, signal.shape[0] - 1)
             # Save data
-            ind_dict = {'signal': signal,
-                        'epochs': n2_epochs,
-                        'marks': marks}
+            reg_id = data_path_list[i]['reg_id']
+            ind_dict = {'signal': signal, 'pages': n2_pages, 'marks': marks, 'reg_id': reg_id}
             data_list.append(ind_dict)
             print(str(i+1) + '/' + str(n_data) + ' ready, time elapsed: ' + str(time.time() - start) + ' [s]')
         print(len(data_list), ' records have been read.')
         return data_list
 
-    def read_eeg(self, path_edf_file, channel):
-        file = pyedflib.EdfReader(path_edf_file)
+    def read_eeg(self, path_eeg_file):
+        channel = 1
+        file = pyedflib.EdfReader(path_eeg_file)
         signal = file.readSignal(channel)
-        fs = file.getSampleFrequency(channel)
+        # fs = file.getSampleFrequency(channel)
         file._close()
         del file
-        return signal, fs
+        return signal
 
-    def read_marks(self, path_marks_file, channel):
+    def read_marks(self, path_marks_file):
+        channel = 1
         marks_file = np.loadtxt(path_marks_file, dtype='i', delimiter=' ')
         marks = marks_file[marks_file[:, 5] == channel][:, [0, 1]]
         return marks
@@ -166,29 +154,24 @@ class SleepDataINTA(object):
     def read_states(self, path_states_file):
         states = np.loadtxt(path_states_file, dtype='i', delimiter=' ')
         # Source format is 1:SQ4  2:SQ3  3:SQ2  4:SQ1  5:REM  6:WA
-        # We enforce the fusion of SQ3 and SQ4 in one single stage
-        # So now 2:N3  3:N2  4:N1  5:R  6:W
-        states[states == 1] = 2
-        return states
+        n2_val = 3
+        n2_pages = np.where(states == n2_val)[0]
+        # Drop first, last and second to last page of the whole registers if they where selected
+        last_page = states.shape[0] - 1
+        n2_pages = n2_pages[(n2_pages != 0) & (n2_pages != last_page) & (n2_pages != last_page - 1)]
+        return n2_pages
 
-    def get_n2epochs(self, states):
-        n2_epochs = np.where(states == self.n2_val)[0]
-        # Drop first, last epoch and second to last epoch of the whole registers if they where selected
-        last_state = states.shape[0] - 1
-        n2_epochs = n2_epochs[(n2_epochs != 0) & (n2_epochs != last_state) & (n2_epochs != last_state-1)]
-        return n2_epochs
-
-    def preprocessing_eeg(self, signal, n2_epochs):
-        # Concatenate every n2 epoch
+    def preprocessing_eeg(self, signal, n2_pages):
+        # Concatenate every n2 page
         n2_list = []
-        for epoch in n2_epochs:
-            sample_start = epoch * self.epoch_size
-            sample_end = (epoch + 1) * self.epoch_size
+        for page in n2_pages:
+            sample_start = page * self.page_size
+            sample_end = (page + 1) * self.page_size
             n2_signal = signal[sample_start:sample_end]
             n2_list.append(n2_signal)
         n2_signal = np.concatenate(n2_list, axis=0)
-        # Compute robust mean and std for n2 epochs
-        thr = np.percentile(np.abs(n2_signal), self.percentile)
+        # Compute robust mean and std for n2 pages
+        thr = np.percentile(np.abs(n2_signal), 99)
         n2_signal[np.abs(n2_signal) > thr] = float('nan')
         data_mean = np.nanmean(n2_signal)
         data_std = np.nanstd(n2_signal)
@@ -196,11 +179,11 @@ class SleepDataINTA(object):
         new_signal = (np.clip(signal, -thr, thr) - data_mean) / data_std
         return new_signal
 
-    def get_sub_set(self, sub_set):
+    def get_subset(self, subset_name):
         # Select subset
-        if sub_set == "VAL":
+        if subset_name == "val":
             data_list = self.data_val
-        elif sub_set == "TEST":
+        elif subset_name == "test":
             data_list = self.data_test
         else:
             data_list = self.data_train
@@ -209,87 +192,57 @@ class SleepDataINTA(object):
     def get_fs(self):
         return self.fs
 
-    def get_epoch_size(self):
-        return self.epoch_size
+    def get_page_size(self):
+        return self.page_size
 
-    def save_checkpoint(self):
-        self.save_single_set(self.data_train, "checkpoint_inta/inta_train.pickle")
-        self.save_single_set(self.data_val, "checkpoint_inta/inta_val.pickle")
-        self.save_single_set(self.data_test, "checkpoint_inta/inta_test.pickle")
-
-    def save_single_set(self, data_list, filename):
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'wb') as handle:
-            pickle.dump(data_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    def load_single_set(self, filename):
-        with open(filename, 'rb') as handle:
-            data_list = pickle.load(handle)
-        return data_list
-
-    def next_batch(self, batch_size, segment_size, mark_smooth, sub_set="TRAIN"):
+    def sample_batch(self, batch_size, segment_size, subset_name="train"):
         # Select subset
-        data_list = self.get_sub_set(sub_set)
+        data_list = self.get_subset(subset_name)
         # Initialize batch
         features = np.zeros((batch_size, 1, segment_size, 1), dtype=np.float32)
         labels = np.zeros(batch_size, dtype=np.float32)
-
-        # FOR NOW THIS IS ALWAYS RANDOM
-
         # Choose registers
         n_data = len(data_list)
         ind_choice = np.random.choice(np.arange(n_data), batch_size, replace=True)
         for i in range(batch_size):
             # Select that register
             ind_dict = data_list[ind_choice[i]]
-            # Choose a random epoch
-            epoch = np.random.choice(ind_dict['epochs'])
-            offset = epoch * self.epoch_size
-            # Choose a random timestep in that epoch
-            central_sample = np.random.choice(np.arange(self.epoch_size))
+            # Choose a random page
+            epoch = np.random.choice(ind_dict['pages'])
+            offset = epoch * self.page_size
+            # Choose a random timestep in that page
+            central_sample = np.random.choice(np.arange(self.page_size))
             central_sample = offset + central_sample
             # Get signal segment
             sample_start = central_sample - int(segment_size / 2)
             sample_end = central_sample + int(segment_size / 2)
             features[i, 0, :, 0] = ind_dict['signal'][sample_start:sample_end]
-            # Get mark, with an optional smoothing
-            smooth_start = central_sample - int(np.floor(mark_smooth / 2))
-            smooth_end = smooth_start + mark_smooth
-            mark_array = ind_dict['marks'][smooth_start:smooth_end]
-            smooth_mark = np.mean(mark_array)
-            labels[i] = smooth_mark
+            # Get mark
+            labels[i] = ind_dict['marks'][central_sample]
         return features, labels
 
-    def next_element(self, segment_size, mark_smooth, sub_set="TRAIN"):
+    def sample_element(self, segment_size, subset_name="train"):
         # Select subset
-        data_list = self.get_sub_set(sub_set)
+        data_list = self.get_subset(subset_name)
         # Initialize element
         feature = np.zeros((1, segment_size, 1))
-
-        # FOR NOW THIS IS ALWAYS RANDOM
-
         # Choose a register
         n_data = len(data_list)
         ind_choice = np.random.choice(np.arange(n_data))
         # Select that register
         ind_dict = data_list[ind_choice]
-        # Choose a random epoch
-        epoch = np.random.choice(ind_dict['epochs'])
-        offset = epoch * self.epoch_size
-        # Choose a random timestep in that epoch
-        central_sample = np.random.choice(np.arange(self.epoch_size))
+        # Choose a random page
+        epoch = np.random.choice(ind_dict['pages'])
+        offset = epoch * self.page_size
+        # Choose a random timestep in that page
+        central_sample = np.random.choice(np.arange(self.page_size))
         central_sample = offset + central_sample
         # Get signal segment
         sample_start = central_sample - int(segment_size / 2)
         sample_end = central_sample + int(segment_size / 2)
         feature[0, :, 0] = ind_dict['signal'][sample_start:sample_end]
-        # Get mark, with an optional smoothing
-        smooth_start = central_sample - int(np.floor(mark_smooth / 2))
-        smooth_end = smooth_start + mark_smooth
-        mark_array = ind_dict['marks'][smooth_start:smooth_end]
-        smooth_mark = np.mean(mark_array)
-        label = smooth_mark
-
+        # Get mark
+        label = ind_dict['marks'][central_sample]
         # Fix type
         feature = np.array(feature, dtype=np.float32)
         label = np.array(label, dtype=np.float32)

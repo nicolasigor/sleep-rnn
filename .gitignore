@@ -27,6 +27,8 @@ neuralnet/results
 # checkpoints
 neuralnet/checkpoint_inta
 neuralnet/checkpoint_mass
+neuralnet/checkpoint_INTA
+neuralnet/checkpoint_MASS
 
 # External tool builders
 .externalToolBuilders/
