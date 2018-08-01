@@ -152,6 +152,7 @@ class SleepDataMASS(object):
         up = int(self.fs / gcd_freqs)
         down = int(fs_old / gcd_freqs)
         signal = sp_signal.resample_poly(signal, up, down)
+        signal = np.array(signal, dtype=np.float32)
         return signal
 
     def read_marks(self, path_marks_file):
@@ -187,6 +188,7 @@ class SleepDataMASS(object):
         # Drop first, last and second to last page of the whole registers if they where selected
         last_page = total_pages - 1
         n2_pages = n2_pages[(n2_pages != 0) & (n2_pages != last_page) & (n2_pages != last_page - 1)]
+        n2_pages = np.array(n2_pages, dtype=np.int32)
         return n2_pages
 
     def preprocessing_eeg(self, signal, n2_pages):
@@ -214,8 +216,10 @@ class SleepDataMASS(object):
             data_list = self.data_val
         elif subset_name == "test":
             data_list = self.data_test
-        else:
+        elif subset_name == "train":
             data_list = self.data_train
+        else:
+            raise Exception("Invalid subset_name. Expected 'train', 'val', or 'test'.")
         return data_list
 
     def get_fs(self):
@@ -231,3 +235,34 @@ class SleepDataMASS(object):
     def sample_sequence(self):
         # should ask for which expert marks
         pass
+
+    def get_augmented_numpy_subset(self, subset_name, mark_mode, border_sec):
+        # Get augmented pages for random cropping.
+        # border_sec: Seconds to be added at both borders of the augmented page.
+        data_list = self.get_subset(subset_name)
+        border_size = border_sec * self.fs
+        features = []
+        labels = []
+        # Iterate over registers
+        for i in range(len(data_list)):
+            ind_dict = data_list[i]
+            signal = ind_dict['signal']
+            n2_pages = ind_dict['pages']
+            if mark_mode == 1:
+                marks = ind_dict['marks_1']
+            elif mark_mode == 2:
+                marks = ind_dict['marks_2']
+            else:
+                raise Exception("Invalid mark_mode. Expected 1 or 2.")
+            # Iterate over pages
+            for page in n2_pages:
+                offset = page * self.page_size
+                start_sample = int(offset - self.page_size - border_size)
+                end_sample = int(start_sample + 2*self.page_size + 2*border_size)
+                augmented_page_signal = signal[start_sample:end_sample]
+                augmented_page_labels = marks[start_sample:end_sample]
+                features.append(augmented_page_signal)
+                labels.append(augmented_page_labels)
+        features_np = np.stack(features, axis=0)
+        labels_np = np.stack(labels, axis=0)
+        return features_np, labels_np

@@ -24,7 +24,7 @@ def seq2inter(sequence):
 def inter2seq(inter, start, end):
     if (inter < start).sum() > 0 or (inter > end).sum() > 0:
         raise Exception('Values in inter matrix should be within start and end bounds')
-    sequence = np.zeros(end - start + 1).astype(int)
+    sequence = np.zeros(end - start + 1, dtype=np.int32)
     for i in range(len(inter)):
         start_sample = inter[i, 0] - start - 1
         end_sample = inter[i, 1] - start
