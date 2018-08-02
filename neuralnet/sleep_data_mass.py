@@ -121,10 +121,12 @@ class SleepDataMASS(object):
             path_states_file = data_path_list[i]['file_states']
             path_marks_1_file = data_path_list[i]['file_marks_1']
             path_marks_2_file = data_path_list[i]['file_marks_2']
-            signal = self.read_eeg(path_eeg_file)
+
+            signal, signal_duration = self.read_eeg(path_eeg_file)
             n2_pages = self.read_states(path_states_file, signal.shape[0])
-            marks_1 = self.read_marks(path_marks_1_file)
-            marks_2 = self.read_marks(path_marks_2_file)
+            marks_1 = self.read_marks(path_marks_1_file, signal.shape[0]/signal_duration)
+            marks_2 = self.read_marks(path_marks_2_file, signal.shape[0]/signal_duration)
+
             # Clip-Normalize eeg signal
             signal = self.preprocessing_eeg(signal, n2_pages)
             # Transform marks into 0_1 format
@@ -145,6 +147,7 @@ class SleepDataMASS(object):
         file = pyedflib.EdfReader(path_eeg_file)
         signal = file.readSignal(channel)
         fs_old = file.getSampleFrequency(channel)
+        signal_duration = file.file_duration
         file._close()
         del file
         # Resample
@@ -153,9 +156,9 @@ class SleepDataMASS(object):
         down = int(fs_old / gcd_freqs)
         signal = sp_signal.resample_poly(signal, up, down)
         signal = np.array(signal, dtype=np.float32)
-        return signal
+        return signal, signal_duration
 
-    def read_marks(self, path_marks_file):
+    def read_marks(self, path_marks_file, local_fs):
         file = pyedflib.EdfReader(path_marks_file)
         annotations = file.readAnnotations()
         file._close()
@@ -164,8 +167,8 @@ class SleepDataMASS(object):
         durations = np.array(annotations[1])
         offsets = onsets + durations
         # Translate to a sample step:
-        start_samples = np.array(np.round(onsets * self.fs), dtype=np.int32)
-        end_samples = np.array(np.round(offsets * self.fs), dtype=np.int32)
+        start_samples = np.array(np.round(onsets * local_fs), dtype=np.int32)
+        end_samples = np.array(np.round(offsets * local_fs), dtype=np.int32)
         marks = np.stack((start_samples, end_samples), axis=1)
         return marks
 
@@ -228,14 +231,6 @@ class SleepDataMASS(object):
     def get_page_size(self):
         return self.page_size
 
-    def sample_sequence_batch(self):
-        # should ask for which expert marks
-        pass
-
-    def sample_sequence(self):
-        # should ask for which expert marks
-        pass
-
     def get_augmented_numpy_subset(self, subset_name, mark_mode, border_sec):
         # Get augmented pages for random cropping.
         # border_sec: Seconds to be added at both borders of the augmented page.
@@ -257,7 +252,7 @@ class SleepDataMASS(object):
             # Iterate over pages
             for page in n2_pages:
                 offset = page * self.page_size
-                start_sample = int(offset - self.page_size - border_size)
+                start_sample = int(offset - self.page_size/2 - border_size)
                 end_sample = int(start_sample + 2*self.page_size + 2*border_size)
                 augmented_page_signal = signal[start_sample:end_sample]
                 augmented_page_labels = marks[start_sample:end_sample]
