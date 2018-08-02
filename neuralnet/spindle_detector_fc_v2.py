@@ -5,7 +5,7 @@ import numpy as np
 import time
 import datetime
 
-from cwt_layer import complex_morlet_layer
+from cwt_ops import complex_morlet_layer
 from context_net import context_net
 
 # import matplotlib.pyplot as plt

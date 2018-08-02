@@ -231,6 +231,9 @@ class SleepDataMASS(object):
     def get_page_size(self):
         return self.page_size
 
+    def get_page_duration(self):
+        return self.dur_page
+
     def get_augmented_numpy_subset(self, subset_name, mark_mode, border_sec):
         # Get augmented pages for random cropping.
         # border_sec: Seconds to be added at both borders of the augmented page.

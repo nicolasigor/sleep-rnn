@@ -30,4 +30,3 @@ def inter2seq(inter, start, end):
         end_sample = inter[i, 1] - start
         sequence[start_sample:end_sample] = 1
     return sequence
-
