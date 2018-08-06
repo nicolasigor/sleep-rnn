@@ -6,7 +6,7 @@ import time
 import pickle
 import os
 
-import utils
+from sleep_data import utils
 
 
 class SleepDataINTA(object):
@@ -55,14 +55,14 @@ class SleepDataINTA(object):
             'ESCI031905',
             'TAGO061203']
 
-        path_rec = "ssdata_inta/register/"
+        path_rec = "sleep_data/ssdata_inta/register/"
         rec_postamble = ".rec"
 
-        path_marks = "ssdata_inta/label/marks/"
+        path_marks = "sleep_data/ssdata_inta/label/marks/"
         marks_preamble = "FixedSS_"
         marks_postamble = ".txt"
 
-        path_states = "ssdata_inta/label/states/"
+        path_states = "sleep_data/ssdata_inta/label/states/"
         states_preamble = "StagesOnly_"
         states_postamble = ".txt"
 
@@ -101,13 +101,13 @@ class SleepDataINTA(object):
         self.save_subset_checkpoint(self.data_test, "test")
 
     def save_subset_checkpoint(self, data_list, subset_name):
-        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        filename = "sleep_data/checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'wb') as handle:
             pickle.dump(data_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_subset_checkpoint(self, subset_name):
-        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        filename = "sleep_data/checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
         with open(filename, 'rb') as handle:
             data_list = pickle.load(handle)
         return data_list

@@ -8,7 +8,7 @@ import os
 import scipy.signal as sp_signal
 import math
 
-import utils
+from sleep_data import utils
 
 
 class SleepDataMASS(object):
@@ -47,19 +47,19 @@ class SleepDataMASS(object):
         # Only those registers that have marks from two experts
         reg_ids = ['01', '02', '03', '05', '06', '07', '09', '10', '11', '12', '13', '14', '17', '18', '19']
 
-        path_rec = "ssdata_mass/register/"
+        path_rec = "sleep_data/ssdata_mass/register/"
         rec_preamble = "01-02-00"
         rec_postamble = " PSG.edf"
 
-        path_marks_1 = "ssdata_mass/label/marks/e1/"
+        path_marks_1 = "sleep_data/ssdata_mass/label/marks/e1/"
         marks_1_preamble = "01-02-00"
         marks_1_postamble = " SpindleE1.edf"
 
-        path_marks_2 = "ssdata_mass/label/marks/e2/"
+        path_marks_2 = "sleep_data/ssdata_mass/label/marks/e2/"
         marks_2_preamble = "01-02-00"
         marks_2_postamble = " SpindleE2.edf"
 
-        path_states = "ssdata_mass/label/states/"
+        path_states = "sleep_data/ssdata_mass/label/states/"
         states_preamble = "01-02-00"
         states_postamble = " Base.edf"
 
@@ -100,13 +100,13 @@ class SleepDataMASS(object):
         self.save_subset_checkpoint(self.data_test, "test")
 
     def save_subset_checkpoint(self, data_list, subset_name):
-        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        filename = "sleep_data/checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'wb') as handle:
             pickle.dump(data_list, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_subset_checkpoint(self, subset_name):
-        filename = "checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
+        filename = "sleep_data/checkpoint_" + self.name + "/" + self.name + "_" + subset_name + ".pickle"
         with open(filename, 'rb') as handle:
             data_list = pickle.load(handle)
         return data_list

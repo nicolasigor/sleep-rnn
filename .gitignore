@@ -20,15 +20,10 @@ __pychache__
 analysis/ssdata/register
 *.mat
 
-neuralnet/ssdata_inta/register
-neuralnet/ssdata_mass/
+neuralnet/sleep_data/ssdata*
+neuralnet/sleep_data/checkpoint*
 neuralnet/results
-
-# checkpoints
-neuralnet/checkpoint_inta
-neuralnet/checkpoint_mass
-neuralnet/checkpoint_INTA
-neuralnet/checkpoint_MASS
+neuralnet/checkpoint*
 
 # External tool builders
 .externalToolBuilders/
