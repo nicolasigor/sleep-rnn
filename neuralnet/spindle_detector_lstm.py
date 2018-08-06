@@ -50,7 +50,7 @@ class SpindleDetectorLSTM(object):
 
         # Build model graph
         loss, train_step, metrics = self._build_training_graph(
-            iterator, training_ph, train_params["learning_rate"])
+            iterator, training_ph, train_params["learning_rate"], train_params["class_weights"])
 
         # Session, savers and writers
         sess = tf.Session()
@@ -116,6 +116,8 @@ class SpindleDetectorLSTM(object):
             train_params["batch_size"] = 32
         if "learning_rate" not in train_params:
             train_params["learning_rate"] = 1e-3
+        if "class_weights" not in train_params:
+            train_params["class_weights"] = [0.1, 0.9]
         return train_params
 
     def _iter_training_init(self, feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, batch_size):
@@ -153,16 +155,14 @@ class SpindleDetectorLSTM(object):
         label = tf.cast(label_cast, dtype=tf.int32)
         return feat, label
 
-    def _build_training_graph(self, iterator, training_ph, lr):
-        # Model
+    def _build_training_graph(self, iterator, training_ph, lr, class_weights):
+        # Input
         feats, labels = iterator.get_next()
-        logits, predictions = model(feats, self.p, training=training_ph)
         tf.summary.histogram("labels", labels)
-        tf.summary.histogram("logits", logits)
-        tf.summary.histogram("predictions", predictions)
-
+        # Model
+        logits, predictions = model(feats, self.p, training=training_ph)
         # Optimization ops
-        loss = self._loss_init(logits, labels)
+        loss = self._loss_init(logits, labels, class_weights)
         train_step = self._optimizer_init(loss, lr)
         # Metrics
         metrics = self._batch_metrics_init(predictions, labels)
@@ -170,20 +170,19 @@ class SpindleDetectorLSTM(object):
 
     def _build_evaluation_graph(self):
         # TODO: evaluation graph
+
         pass
 
     def _build_prediction_graph(self):
         # TODO: prediction graph
         pass
 
-    def _loss_init(self, logits, labels):
-        # TODO: Fix for data imbalace. Idea: weighted loss, <1 for 0 labels
+    def _loss_init(self, logits, labels, class_weights):
         with tf.name_scope("loss"):
-            labels_onehot = tf.one_hot(labels, depth=2)
-            timestep_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
-                labels=labels_onehot,
-                logits=logits)
-            loss = tf.reduce_mean(timestep_loss)
+            # Shape of labels is [batch, timesteps]. Shape of logits is [batch, timesteps, 2]
+            class_weights = tf.constant(class_weights)
+            weights = tf.gather(class_weights, labels)
+            loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits, weights=weights)
             tf.summary.scalar('loss', loss)
         return loss
 

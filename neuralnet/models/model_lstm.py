@@ -2,7 +2,7 @@ from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 
-from models import cwt_ops
+from models import subnets_ops
 
 
 def dummy_model(
@@ -13,30 +13,13 @@ def dummy_model(
         name="model"):
 
     with tf.variable_scope(name):
-
-        wavelets, _ = cwt_ops.complex_morlet_wavelets(
-            fb_array=params["fb_array"],
-            fs=params["fs"],
-            lower_freq=params["lower_freq"],
-            upper_freq=params["upper_freq"],
-            n_scales=params["n_scales"],
-            flattening=True)
-
-        cwt_sequence = cwt_ops.cwt_layer(
-            inputs=input_sequence,
-            wavelets=wavelets,
-            border_crop=params["border_size"],
-            stride=params["time_stride"])
-
-        # Normalize CWT
-        inputs_cwt_bn = tf.layers.batch_normalization(
-            inputs=cwt_sequence, training=training, reuse=reuse, name="bn_1")
-
-        out_seq = tf.layers.conv2d(inputs=inputs_cwt_bn, filters=2, kernel_size=(32, 1),
-                                   padding="valid", reuse=reuse)  # out [batch, 1, 400, 2]
+        cwt_sequence = subnets_ops.cwt_time_stride_layer(input_sequence, params, name="cwt")
+        out_seq = subnets_ops.conv_layer(cwt_sequence, filters=2, kernel_size=(32, 1), padding="valid",
+                                         use_bn=True, training=training, reuse=reuse, name="conv_bn")
+        # out [batch, 1, 400, 2]
         logits = tf.squeeze(out_seq, axis=[1], name="squeeze")  # out [batch, 400, 2]
         predictions = tf.nn.softmax(logits, axis=-1, name="softmax")
-
+        tf.summary.histogram("predictions", predictions)
     return logits, predictions
 
 
@@ -48,20 +31,7 @@ def lstm_model(
         name="model"):
 
     with tf.variable_scope(name):
-
-        wavelets, _ = cwt_ops.complex_morlet_wavelets(
-            fb_array=params["fb_array"],
-            fs=params["fs"],
-            lower_freq=params["lower_freq"],
-            upper_freq=params["upper_freq"],
-            n_scales=params["n_scales"],
-            flattening=True)
-
-        cwt_sequence = cwt_ops.cwt_layer(
-            inputs=input_sequence,
-            wavelets=wavelets,
-            border_crop=params["border_size"],
-            stride=params["time_stride"])
+        cwt_sequence = subnets_ops.cwt_time_stride_layer(input_sequence, params, name="cwt")
 
         # Normalize CWT
         inputs_cwt_bn = tf.layers.batch_normalization(
@@ -83,20 +53,7 @@ def blstm_model(
         name="model"):
 
     with tf.variable_scope(name):
-
-        wavelets, _ = cwt_ops.complex_morlet_wavelets(
-            fb_array=params["fb_array"],
-            fs=params["fs"],
-            lower_freq=params["lower_freq"],
-            upper_freq=params["upper_freq"],
-            n_scales=params["n_scales"],
-            flattening=True)
-
-        cwt_sequence = cwt_ops.cwt_layer(
-            inputs=input_sequence,
-            wavelets=wavelets,
-            border_crop=params["border_size"],
-            stride=params["time_stride"])
+        cwt_sequence = subnets_ops.cwt_time_stride_layer(input_sequence, params, name="cwt")
 
         # Normalize CWT
         inputs_cwt_bn = tf.layers.batch_normalization(

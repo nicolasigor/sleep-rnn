@@ -13,9 +13,10 @@ if __name__ == "__main__":
 
     # Train detector
     train_params = {
-        "learning_rate": 1e-3,
-        "batch_size": 32
+        "learning_rate": 1e-4,
+        "batch_size": 32,
+        "class_weights": [0.25, 0.75]
     }
-    max_it = 100
-    stat_every = 10
+    max_it = 100000
+    stat_every = 500
     detector.train(dataset, max_it, stat_every, train_params)
