@@ -206,7 +206,9 @@ class SpindleDetectorLSTM(object):
             tp = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_one), "float"))
             fp = tf.reduce_sum(tf.cast(tf.logical_and(labels_zero, predictions_one), "float"))
             fn = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_zero), "float"))
-
+            tf.summary.scalar('bs_tp', tp)
+            tf.summary.scalar('bs_fp', fp)
+            tf.summary.scalar('bs_fn', fn)
             # Edge case: no detections -> precision 1
             bs_precision = tf.cond(
                 pred=tf.equal((tp+fp), 0),
