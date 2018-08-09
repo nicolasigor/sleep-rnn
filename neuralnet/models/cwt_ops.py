@@ -87,7 +87,7 @@ def cwt_layer(
         border_crop=0,
         stride=1,
         data_format="channel_last",
-        name="cwt"):
+        name=None):
     """
     CWT layer implementation in Tensorflow
 
@@ -95,7 +95,7 @@ def cwt_layer(
     It supports the computation of several scalograms. Different scalograms will be stacked along the channel dimension.
 
     Args:
-        inputs: A batch of 1D tensors of shape [batch_size, signal_size].
+        inputs: A batch of 1D tensors of shape [batch_size, time_len].
         wavelets: A list of computed wavelet banks.
         border_crop: (Optional) Int>=0 that specifies the number of samples to be removed at each border at the end.
          This parameter allows to input a longer signal than the final desired size to remove border effects of the CWT.
@@ -105,7 +105,7 @@ def cwt_layer(
          Specify the data format of the output data. With the default format "channel_last", the output has shape
          [batch, n_scales, signal_size, channels]. Alternatively, with the format "channel_first", the output has shape
          [batch, channels, n_scales, signal_size].
-        name: (Optional) A name for the operation. Default is "cwt".
+        name: (Optional) A name for the operation.
 
     Returns:
         Scalogram tensor.
@@ -122,6 +122,9 @@ def cwt_layer(
         end = None
     else:
         end = -border_crop
+
+    if name is None:
+        name = "cwt"
     with tf.variable_scope(name):
         # Reshape input
         inputs_expand = tf.expand_dims(inputs, axis=1)
@@ -137,7 +140,8 @@ def cwt_layer(
                 out_real_crop = out_real[:, :, start:end, :]
                 out_imag_crop = out_imag[:, :, start:end, :]
                 out_power = tf.sqrt(tf.square(out_real_crop) + tf.square(out_imag_crop))
-                single_scalogram = tf.transpose(out_power, perm=[0, 3, 2, 1])
+                # single_scalogram = tf.transpose(out_power, perm=[0, 3, 2, 1])
+                single_scalogram = tf.transpose(out_power, perm=[0, 2, 3, 1])  # shape [batch, time_len, n_scales, chn]
                 scalograms_list.append(single_scalogram)
         scalograms = tf.concat(scalograms_list, -1)
         if data_format == "channel_first":

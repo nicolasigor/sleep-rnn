@@ -8,7 +8,8 @@ from models import cwt_ops
 
 def cwt_time_stride_layer(input_sequence,
                           params,
-                          name="cwt"):
+                          name=None):
+    # Input sequence has shape [batch_size, time_len]
     wavelets, _ = cwt_ops.complex_morlet_wavelets(
         fb_array=params["fb_array"],
         fs=params["fs"],
@@ -22,7 +23,7 @@ def cwt_time_stride_layer(input_sequence,
         border_crop=params["border_size"],
         stride=params["time_stride"],
         name=name)
-    # tf.summary.histogram("cwt_out", cwt_sequence)
+    # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt_sequence
 
 
@@ -30,97 +31,114 @@ def conv_layer(inputs,
                filters,
                kernel_size,
                padding="same",
-               use_bn=False,
-               use_relu=False,
+               use_in_bn=False,
+               activation=None,
                use_maxpool=False,
                training=False,
                reuse=False,
                name=None):
+    # Input sequence has shape [batch_size, height, width, channels]
     with tf.variable_scope(name):
-        if use_bn:
+        if use_in_bn:
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse)
-        if use_relu:
-            activation = tf.nn.relu
-        else:
-            activation = None
-        outs = tf.layers.conv2d(inputs=inputs, filters=filters, kernel_size=kernel_size, activation=activation,
+
+        outputs = tf.layers.conv2d(inputs=inputs, filters=filters, kernel_size=kernel_size, activation=activation,
                                 padding=padding, name="conv", reuse=reuse)
+
         if use_maxpool:
-            outs = tf.layers.max_pooling2d(inputs=outs, pool_size=2, strides=2)
-        # tf.summary.histogram("outs", outs)
-    return outs
+            outputs = tf.layers.max_pooling2d(inputs=outputs, pool_size=2, strides=2)
+    # Ouput sequence has shape [batch_size, height, width, channels]
+    return outputs
 
 
-# TODO: unify bn and drop in a single layer for fc and lstm
-def fc_layer(inputs,
-             units,
-             use_pre_bn=False,
-             use_post_bn=False,
-             use_pre_drop=False,
-             training=False,
-             reuse=False,
-             name=None):
-    pass
+def flatten_layer(inputs, name=None):
+    with tf.name_scope(name):
+        # Input has shape [batch_size, d0, ..., dn]
+        dim = np.prod(inputs.get_shape().as_list()[1:])
+        outputs = tf.reshape(inputs, shape=(-1, dim))
+        # Output has shape [batch_size, d0*...*dn]
+    return outputs
 
 
-def lstm_layer(inputs,
-               units,
-               n_dir=1,
-               use_pre_bn=False,
-               use_post_bn=False,
-               use_pre_drop=False,
-               training=False,
-               reuse=False,
-               name=None):
-    # Support for bi and uni (n_dir)
-    pass
+def sequence_flatten_layer(inputs, name=None):
+    with tf.name_scope(name):
+        # Input has shape [batch_size, time_len, d0, ..., dn]
+        dims = inputs.get_shape().as_list()
+        outputs = tf.reshape(inputs, shape=(-1, dims[1], np.prod(dims[2:])))
+        # Output has shape [batch_size, time_len, d0*...*dn]
+    return outputs
 
 
-def flatten_layer(inputs):
-    dim = np.prod(inputs.get_shape().as_list()[1:])
-    outs = tf.reshape(inputs, shape=(-1, dim))
-    return outs
+def do_time_major_layer(inputs, name=None):
+    with tf.name_scope(name):
+        # Input shape: [batch_size, time_len, feats]
+        outputs = tf.transpose(inputs, (1, 0, 2))
+        # Output shape: [time_len, batch_size, feats]
+    return outputs
 
 
-# TODO: usar conv_pre_bn_layer and flatten layer
-def context_net(inputs, use_batchnorm=True, training=False, reuse=False, name="context_net"):
+def cudnn_lstm_layer(inputs,
+                     num_units,
+                     num_dirs=1,
+                     use_in_bn=False,
+                     use_in_drop=False,
+                     training=False,
+                     reuse=False,
+                     name=None):
+    # Input_sequence has shape [time_len, batch_size, feats]
+    if num_dirs not in [1, 2]:
+        raise Exception("Expected 1 or 2 for 'num_dir'")
+
     with tf.variable_scope(name):
+        if use_in_bn:
+            inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
+                                                   name="bn", reuse=reuse)
+        if use_in_drop:
+            inputs = tf.layers.dropout(inputs, training=training, name="drop")
+        if num_dirs == 2:
+            direction = 'bidirectional'
+            name = 'blstm'
+        else:
+            direction = 'unidirectional'
+            name = 'lstm'
 
-        # First convolutional block
-        c_1 = tf.layers.conv2d(inputs=inputs, filters=32, kernel_size=3, activation=tf.nn.relu,
-                               padding="same", name="c_1", reuse=reuse)
-        p_1 = tf.layers.max_pooling2d(inputs=c_1, pool_size=2, strides=2)
+        rnn_cell = tf.contrib.cudnn_rnn.CudnnLSTM(num_layers=1,
+                                                  num_units=num_units,
+                                                  direction=direction,
+                                                  name=name)
 
-        # Second convolutional block
-        if use_batchnorm:
-            p_1 = tf.layers.batch_normalization(inputs=p_1, training=training, name="bn_1", reuse=reuse)
-        c_2 = tf.layers.conv2d(inputs=p_1, filters=32, kernel_size=3, activation=tf.nn.relu,
-                               padding="same", name="c_2", reuse=reuse)
-        p_2 = tf.layers.max_pooling2d(inputs=c_2, pool_size=2, strides=2)
+        outputs, _ = rnn_cell(inputs)
+    # Output_sequence has shape [time_len, batch_size, num_dirs*feats]
+    return outputs
 
-        # Third convolutional block
-        if use_batchnorm:
-            p_2 = tf.layers.batch_normalization(inputs=p_2, training=training, name="bn_2", reuse=reuse)
-        c_3a = tf.layers.conv2d(inputs=p_2, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                padding="same", name="c_3a", reuse=reuse)
-        if use_batchnorm:
-            c_3a = tf.layers.batch_normalization(inputs=c_3a, training=training, name="bn_3", reuse=reuse)
-        c_3b = tf.layers.conv2d(inputs=c_3a, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                padding="same", name="c_3b", reuse=reuse)
-        p_3 = tf.layers.max_pooling2d(inputs=c_3b, pool_size=2, strides=2)
 
-        # Fourth convolutional block
-        if use_batchnorm:
-            p_3 = tf.layers.batch_normalization(inputs=p_3, training=training, name="bn_4", reuse=reuse)
-        c_4a = tf.layers.conv2d(inputs=p_3, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                padding="same", name="c_4a", reuse=reuse)
-        if use_batchnorm:
-            c_4a = tf.layers.batch_normalization(inputs=c_4a, training=training, name="bn_5", reuse=reuse)
-        c_4b = tf.layers.conv2d(inputs=c_4a, filters=64, kernel_size=3, activation=tf.nn.relu,
-                                padding="same", name="c_4b", reuse=reuse)
-        p_4 = tf.layers.max_pooling2d(inputs=c_4b, pool_size=2, strides=2)
+def undo_time_major_layer(inputs, name=None):
+    with tf.name_scope(name):
+        # Input shape: [time_len, batch_size, feats]
+        outputs = tf.transpose(inputs, (1, 0, 2))
+        # Output shape: [batch_size, time_len, feats]
+    return outputs
 
-        # Flattening
-        dim = np.prod(p_4.get_shape().as_list()[1:])
-        c_t_flat = tf.reshape(p_4, shape=(-1, dim))
-    return c_t_flat
+
+def sequence_fc_layer(inputs,
+                      num_units,
+                      use_in_bn=False,
+                      use_in_drop=False,
+                      activation=None,
+                      training=False,
+                      reuse=False,
+                      name=None):
+    # Input sequence has shape [batch_size, time_len, feats]
+    with tf.variable_scope(name):
+        inputs = tf.expand_dims(inputs, axis=2)  # shape [batch_size, time_len, 1, feats]
+        if use_in_bn:
+            inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse)
+        if use_in_drop:
+            inputs = tf.layers.dropout(inputs, training=training, name="drop")
+
+        outputs = tf.layers.conv2d(inputs=inputs, filters=num_units, kernel_size=1, activation=activation,
+                                   padding="same", name="conv1x1", reuse=reuse)
+
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    # Output sequence has shape [batch_size, time_len, num_units]
+    return outputs

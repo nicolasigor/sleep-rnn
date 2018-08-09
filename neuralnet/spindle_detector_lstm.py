@@ -5,30 +5,28 @@ import numpy as np
 import time
 import datetime
 
-from models import dummy_model as model
-
 
 class SpindleDetectorLSTM(object):
 
-    def __init__(self, model_params):
+    def __init__(self, model_params, model_fn, model_path=None):
         # Load params, and fill with defaults when applicable
         if "fs" not in model_params:
             raise Exception("Please provide 'fs' in params.")
+        self.model_fn = model_fn
         self.p = model_params
         self._default_model_params()
         # Directories
         self.name = 'lstm'
-        self.model_path = None
-        self.ckpt_path = None
-        self.tb_path = None
-
-    def train(self, dataset, max_it, stat_every, train_params):
+        if model_path is None:
+            date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            self.model_path = 'results/' + self.name + '_' + date + '/'
+        else:
+            self.model_path = model_path
         # Directories
-        date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        self.model_path = 'results/' + self.name + '_' + date + '/'
         self.ckpt_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summ/'
 
+    def train(self, dataset, max_it, stat_every, train_params):
         tf.reset_default_graph()
         train_params = self._default_train_params(train_params)
 
@@ -117,7 +115,7 @@ class SpindleDetectorLSTM(object):
         if "learning_rate" not in train_params:
             train_params["learning_rate"] = 1e-3
         if "class_weights" not in train_params:
-            train_params["class_weights"] = [0.1, 0.9]
+            train_params["class_weights"] = [0.3, 0.7]
         return train_params
 
     def _iter_training_init(self, feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, batch_size):
@@ -158,9 +156,9 @@ class SpindleDetectorLSTM(object):
     def _build_training_graph(self, iterator, training_ph, lr, class_weights):
         # Input
         feats, labels = iterator.get_next()
-        tf.summary.histogram("labels", labels)
+        # tf.summary.histogram("labels", labels)
         # Model
-        logits, predictions = model(feats, self.p, training=training_ph)
+        logits, predictions = self.model_fn(feats, self.p, training=training_ph)
         # Optimization ops
         loss = self._loss_init(logits, labels, class_weights)
         train_step = self._optimizer_init(loss, lr)
@@ -206,9 +204,9 @@ class SpindleDetectorLSTM(object):
             tp = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_one), "float"))
             fp = tf.reduce_sum(tf.cast(tf.logical_and(labels_zero, predictions_one), "float"))
             fn = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_zero), "float"))
-            tf.summary.scalar('bs_tp', tp)
-            tf.summary.scalar('bs_fp', fp)
-            tf.summary.scalar('bs_fn', fn)
+            # tf.summary.scalar('bs_tp', tp)
+            # tf.summary.scalar('bs_fp', fp)
+            # tf.summary.scalar('bs_fn', fn)
             # Edge case: no detections -> precision 1
             bs_precision = tf.cond(
                 pred=tf.equal((tp+fp), 0),
