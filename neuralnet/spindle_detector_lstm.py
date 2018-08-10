@@ -26,9 +26,11 @@ class SpindleDetectorLSTM(object):
         self.ckpt_path = self.model_path + 'checkpoints/model'
         self.tb_path = self.model_path + 'tb_summ/'
 
+    # TODO: combine train_params to self.p
     def train(self, dataset, max_it, stat_every, train_params):
         tf.reset_default_graph()
         train_params = self._default_train_params(train_params)
+        self.p["drop_rate"] = train_params["drop_rate"]
 
         # Read numpy data
         feats_train, labels_train = dataset.get_augmented_numpy_subset(
@@ -115,7 +117,9 @@ class SpindleDetectorLSTM(object):
         if "learning_rate" not in train_params:
             train_params["learning_rate"] = 1e-3
         if "class_weights" not in train_params:
-            train_params["class_weights"] = [0.3, 0.7]
+            train_params["class_weights"] = [0.5, 0.5]
+        if "drop_rate" not in train_params:
+            train_params["drop_rate"] = 0.0
         return train_params
 
     def _iter_training_init(self, feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, batch_size):

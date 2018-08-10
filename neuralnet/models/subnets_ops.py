@@ -8,6 +8,9 @@ from models import cwt_ops
 
 def cwt_time_stride_layer(input_sequence,
                           params,
+                          use_out_bn=False,
+                          training=False,
+                          reuse=False,
                           name=None):
     # Input sequence has shape [batch_size, time_len]
     wavelets, _ = cwt_ops.complex_morlet_wavelets(
@@ -23,6 +26,9 @@ def cwt_time_stride_layer(input_sequence,
         border_crop=params["border_size"],
         stride=params["time_stride"],
         name=name)
+    if use_out_bn:
+        cwt_sequence = tf.layers.batch_normalization(inputs=cwt_sequence, training=training,
+                                                     name=name+"bn", reuse=reuse)
     # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt_sequence
 
@@ -40,7 +46,8 @@ def conv_layer(inputs,
     # Input sequence has shape [batch_size, height, width, channels]
     with tf.variable_scope(name):
         if use_in_bn:
-            inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse)
+            inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
+                                                   name="bn", reuse=reuse)
 
         outputs = tf.layers.conv2d(inputs=inputs, filters=filters, kernel_size=kernel_size, activation=activation,
                                 padding=padding, name="conv", reuse=reuse)
@@ -82,6 +89,7 @@ def cudnn_lstm_layer(inputs,
                      num_dirs=1,
                      use_in_bn=False,
                      use_in_drop=False,
+                     drop_rate=0,
                      training=False,
                      reuse=False,
                      name=None):
@@ -94,7 +102,7 @@ def cudnn_lstm_layer(inputs,
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
                                                    name="bn", reuse=reuse)
         if use_in_drop:
-            inputs = tf.layers.dropout(inputs, training=training, name="drop")
+            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate, name="drop")
         if num_dirs == 2:
             direction = 'bidirectional'
             name = 'blstm'
@@ -124,6 +132,7 @@ def sequence_fc_layer(inputs,
                       num_units,
                       use_in_bn=False,
                       use_in_drop=False,
+                      drop_rate=0,
                       activation=None,
                       training=False,
                       reuse=False,
@@ -134,7 +143,7 @@ def sequence_fc_layer(inputs,
         if use_in_bn:
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse)
         if use_in_drop:
-            inputs = tf.layers.dropout(inputs, training=training, name="drop")
+            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate, name="drop")
 
         outputs = tf.layers.conv2d(inputs=inputs, filters=num_units, kernel_size=1, activation=activation,
                                    padding="same", name="conv1x1", reuse=reuse)
