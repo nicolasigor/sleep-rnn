@@ -17,8 +17,8 @@ if __name__ == "__main__":
         "learning_rate": 1e-4,
         "drop_rate": 0.2
     }
-    max_it = 100
-    stat_every = 100
+    max_it = 10
+    stat_every = 2
 
     # Unidirectional
     detector = SpindleDetectorLSTM(model_params, model_fn=lstm_model_v2)

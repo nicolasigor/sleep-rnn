@@ -18,6 +18,8 @@ class SleepDataMASS(object):
         self.fs = 200               # Sampling frequency [Hz]
         self.dur_page = 20          # Time of window page [s]
         self.page_size = int(self.dur_page * self.fs)
+        self.min_ss_dur = 0.3       # Minimum feasible duration of SS
+        self.max_ss_dur = 3         # Maximum feasible duration of SS
 
         if load_from_checkpoint:
             print("\nLoading " + self.name + " from checkpoint")
@@ -79,7 +81,7 @@ class SleepDataMASS(object):
         return data_path_list
 
     def random_split(self, data_path_list):
-        random_perm = [13,  1,  4,  9,  2,  8, 10,  5, 11,  6,  3, 14, 12,  0,  7]
+        random_perm = [10,  1,  4,  9,  2,  8, 13,  5, 11,  6,  3, 14, 12,  0,  7]
         test_idx = random_perm[0:4]
         val_idx = random_perm[4:7]
         train_idx = random_perm[7:]
@@ -88,9 +90,12 @@ class SleepDataMASS(object):
         val_path_list = [data_path_list[i] for i in val_idx]
         test_path_list = [data_path_list[i] for i in test_idx]
 
-        print('Train set size:', len(train_path_list), '-- Records ID:', train_idx)
-        print('Val set size:', len(val_path_list), '-- Records ID:', val_idx)
-        print('Test set size:', len(test_path_list), '-- Records ID:', test_idx)
+        train_reg_ids = [data_path_list[i]['reg_id'] for i in train_idx]
+        val_reg_ids = [data_path_list[i]['reg_id'] for i in val_idx]
+        test_reg_ids = [data_path_list[i]['reg_id'] for i in test_idx]
+        print('Train set size:', len(train_path_list), '-- Records ID:', train_reg_ids)
+        print('Val set size:', len(val_path_list), '-- Records ID:', val_reg_ids)
+        print('Test set size:', len(test_path_list), '-- Records ID:', test_reg_ids)
 
         return train_path_list, val_path_list, test_path_list
 
@@ -166,7 +171,12 @@ class SleepDataMASS(object):
         del file
         onsets = np.array(annotations[0])
         durations = np.array(annotations[1])
+        # Remove too short and too long marks
+        feasible_idx = np.where((durations >= self.min_ss_dur) & (durations <= self.max_ss_dur))
+        onsets = onsets[feasible_idx]
+        durations = durations[feasible_idx]
         offsets = onsets + durations
+        print("Marks:", onsets.shape[0])
         # Translate to a sample step:
         fs_new = fs_old * self.fs / np.round(fs_old)
         start_samples = np.array(np.round(onsets * fs_new), dtype=np.int32)

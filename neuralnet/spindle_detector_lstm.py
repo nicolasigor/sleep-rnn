@@ -15,22 +15,24 @@ class SpindleDetectorLSTM(object):
         self.model_fn = model_fn
         self.p = model_params
         self._default_model_params()
+
         # Directories
-        self.name = 'lstm'
+        self.name = 'sequential'
         if model_path is None:
             date = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             self.model_path = 'results/' + self.name + '_' + date + '/'
         else:
             self.model_path = model_path
-        # Directories
-        self.ckpt_path = self.model_path + 'checkpoints/model'
-        self.tb_path = self.model_path + 'tb_summ/'
+        self.ckpt_path = None
 
-    # TODO: combine train_params to self.p
-    def train(self, dataset, max_it, stat_every, train_params):
+    def train(self, dataset, max_it, stat_every, train_params=None):
+        # Reset everything
         tf.reset_default_graph()
-        train_params = self._default_train_params(train_params)
-        self.p["drop_rate"] = train_params["drop_rate"]
+
+        # Combine params
+        if train_params is not None:
+            self.p.update(train_params)
+        self._default_train_params()
 
         # Read numpy data
         feats_train, labels_train = dataset.get_augmented_numpy_subset(
@@ -46,17 +48,19 @@ class SpindleDetectorLSTM(object):
             labels_val_ph = tf.placeholder(dtype=tf.int32, shape=labels_val.shape, name="labels_val_ph")
             training_ph = tf.placeholder(tf.bool, name="training_ph")
         iterator, handle_ph, iter_train, iter_val = self._iter_training_init(
-            feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, train_params["batch_size"])
+            feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, self.p["batch_size"])
 
         # Build model graph
         loss, train_step, metrics = self._build_training_graph(
-            iterator, training_ph, train_params["learning_rate"], train_params["class_weights"])
+            iterator, training_ph, self.p["learning_rate"], self.p["class_weights"])
 
         # Session, savers and writers
+        self.ckpt_path = self.model_path + 'checkpoints/model'
+        tb_path = self.model_path + 'tb_summ/'
         sess = tf.Session()
         saver = tf.train.Saver(keep_checkpoint_every_n_hours=1)
-        train_writer = tf.summary.FileWriter(self.tb_path + 'train', sess.graph)
-        val_writer = tf.summary.FileWriter(self.tb_path + 'val')
+        train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
+        val_writer = tf.summary.FileWriter(tb_path + 'val')
 
         # Initialization of variables
         sess.run(tf.global_variables_initializer())
@@ -84,6 +88,11 @@ class SpindleDetectorLSTM(object):
         save_path = saver.save(sess, self.ckpt_path, global_step=max_it)
         print("Model saved to: %s" % save_path)
 
+        # TODO: evaluate on training set and validation conditioned on a flag
+
+        # Reset everything
+        tf.reset_default_graph()
+
     def _default_model_params(self):
         if "fb_array" not in self.p:
             self.p["fb_array"] = np.array([0.5, 1, 1.5, 2])
@@ -102,7 +111,7 @@ class SpindleDetectorLSTM(object):
             self.p["page_sec"] = 20
 
         if "time_stride" not in self.p:
-            self.p["time_stride"] = 10
+            self.p["time_stride"] = 8
         if "local_context_stride" not in self.p:
             self.p["local_context_stride"] = 2
 
@@ -111,16 +120,20 @@ class SpindleDetectorLSTM(object):
         self.p["local_context_size"] = int(self.p["local_context_sec"] * self.p["fs"])
         self.p["crop_size"] = self.p["page_size"] + 2*self.p["border_size"]
 
-    def _default_train_params(self, train_params):
-        if "batch_size" not in train_params:
-            train_params["batch_size"] = 32
-        if "learning_rate" not in train_params:
-            train_params["learning_rate"] = 1e-3
-        if "class_weights" not in train_params:
-            train_params["class_weights"] = [0.5, 0.5]
-        if "drop_rate" not in train_params:
-            train_params["drop_rate"] = 0.0
-        return train_params
+    def _default_train_params(self):
+        if "batch_size" not in self.p:
+            self.p["batch_size"] = 32
+        if "learning_rate" not in self.p:
+            self.p["learning_rate"] = 1e-3
+        if "class_weights" not in self.p:
+            self.p["class_weights"] = [1, 1]
+        if "drop_rate" not in self.p:
+            self.p["drop_rate"] = 0.0
+        if "clip_gradients" not in self.p:
+            self.p["clip_gradients"] = False
+            self.p["clip_norm"] = None
+        elif self.p["clip_gradients"] and ("clip_norm" not in self.p):
+            self.p["clip_norm"] = 5
 
     def _iter_training_init(self, feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, batch_size):
         with tf.device('/cpu:0'):
@@ -193,7 +206,17 @@ class SpindleDetectorLSTM(object):
             optimizer = tf.train.AdamOptimizer(learning_rate=lr)
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)  # For BN
             with tf.control_dependencies(update_ops):
-                train_step = optimizer.minimize(loss)
+                gvs = optimizer.compute_gradients(loss)
+                if self.p["clip_gradients"]:
+                    gvs = [(tf.clip_by_norm(gv[0], self.p["clip_norm"]), gv[1]) for gv in gvs]
+                train_step = optimizer.apply_gradients(gvs)
+
+                # Histogram of gradients norm
+                with tf.name_scope("gradients_summaries"):
+                    grad_norm_list = [tf.sqrt(tf.reduce_mean(gv[0] ** 2)) for gv in gvs]
+                    grad_norm = tf.stack(grad_norm_list)
+                    tf.summary.scalar('grad_norm', grad_norm)
+
         return train_step
 
     def _batch_metrics_init(self, predictions, labels):
@@ -208,9 +231,7 @@ class SpindleDetectorLSTM(object):
             tp = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_one), "float"))
             fp = tf.reduce_sum(tf.cast(tf.logical_and(labels_zero, predictions_one), "float"))
             fn = tf.reduce_sum(tf.cast(tf.logical_and(labels_one, predictions_zero), "float"))
-            # tf.summary.scalar('bs_tp', tp)
-            # tf.summary.scalar('bs_fp', fp)
-            # tf.summary.scalar('bs_fn', fn)
+
             # Edge case: no detections -> precision 1
             bs_precision = tf.cond(
                 pred=tf.equal((tp+fp), 0),
@@ -226,8 +247,8 @@ class SpindleDetectorLSTM(object):
             # Edge case: precision and recall 0 -> f1 score 0
             bs_f1_score = tf.cond(
                 pred=tf.equal((bs_precision + bs_recall), 0),
-                true_fn= lambda: 0.0,
-                false_fn= lambda: 2*bs_precision*bs_recall/(bs_precision + bs_recall)
+                true_fn=lambda: 0.0,
+                false_fn=lambda: 2*bs_precision*bs_recall/(bs_precision + bs_recall)
             )
             tf.summary.scalar('bs_precision', bs_precision)
             tf.summary.scalar('bs_recall', bs_recall)
