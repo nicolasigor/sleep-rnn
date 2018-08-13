@@ -58,7 +58,7 @@ class SpindleDetectorLSTM(object):
         self.ckpt_path = self.model_path + 'checkpoints/model'
         tb_path = self.model_path + 'tb_summ/'
         sess = tf.Session()
-        saver = tf.train.Saver(keep_checkpoint_every_n_hours=1)
+        saver = tf.train.Saver()
         train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
         val_writer = tf.summary.FileWriter(tb_path + 'val')
 
@@ -112,8 +112,6 @@ class SpindleDetectorLSTM(object):
 
         if "time_stride" not in self.p:
             self.p["time_stride"] = 8
-        if "local_context_stride" not in self.p:
-            self.p["local_context_stride"] = 2
 
         self.p["border_size"] = int(self.p["border_sec"] * self.p["fs"])
         self.p["page_size"] = int(self.p["page_sec"] * self.p["fs"])
@@ -129,11 +127,11 @@ class SpindleDetectorLSTM(object):
             self.p["class_weights"] = [1, 1]
         if "drop_rate" not in self.p:
             self.p["drop_rate"] = 0.0
-        if "clip_gradients" not in self.p:
-            self.p["clip_gradients"] = False
-            self.p["clip_norm"] = None
-        elif self.p["clip_gradients"] and ("clip_norm" not in self.p):
-            self.p["clip_norm"] = 5
+        # if "clip_gradients" not in self.p:
+        #     self.p["clip_gradients"] = False
+        #     self.p["clip_norm"] = None
+        # elif self.p["clip_gradients"] and ("clip_norm" not in self.p):
+        #     self.p["clip_norm"] = 5
 
     def _iter_training_init(self, feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, batch_size):
         with tf.device('/cpu:0'):
@@ -204,18 +202,20 @@ class SpindleDetectorLSTM(object):
     def _optimizer_init(self, loss, lr):
         with tf.name_scope("optimizer"):
             optimizer = tf.train.AdamOptimizer(learning_rate=lr)
+            gvs = optimizer.compute_gradients(loss)
+            # if self.p["clip_gradients"]:
+            #     gvs = [(tf.clip_by_norm(gv[0], self.p["clip_norm"]), gv[1]) for gv in gvs]
+            #
+            # # Histogram of gradients norm
+            # with tf.name_scope("grads_summ"):
+            #     grad_norm_list = [tf.sqrt(tf.reduce_sum(gv[0] ** 2)) for gv in gvs]
+            #     grad_norm_stacked = tf.stack(grad_norm_list)
+            #     tf.summary.histogram('grad_norm', grad_norm_stacked)
+
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)  # For BN
             with tf.control_dependencies(update_ops):
-                gvs = optimizer.compute_gradients(loss)
-                if self.p["clip_gradients"]:
-                    gvs = [(tf.clip_by_norm(gv[0], self.p["clip_norm"]), gv[1]) for gv in gvs]
+                # train_step = optimizer.minimize(loss)
                 train_step = optimizer.apply_gradients(gvs)
-
-                # Histogram of gradients norm
-                with tf.name_scope("gradients_summaries"):
-                    grad_norm_list = [tf.sqrt(tf.reduce_mean(gv[0] ** 2)) for gv in gvs]
-                    grad_norm = tf.stack(grad_norm_list)
-                    tf.summary.scalar('grad_norm', grad_norm)
 
         return train_step
 

@@ -20,7 +20,7 @@ Siguientes pasos:
 
 
 Consultar:
-- Recurrent (o variational?) Dropout
+x Recurrent (o variational?) Dropout
 - Weight Decay (L2 regularization)
 
 Pensar a futuro:

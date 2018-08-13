@@ -6,12 +6,40 @@ import numpy as np
 from models import cwt_ops
 
 
-def cwt_time_stride_layer(input_sequence,
-                          params,
-                          use_out_bn=False,
-                          training=False,
-                          reuse=False,
-                          name=None):
+# def cwt_time_stride_layer(input_sequence,
+#                           params,
+#                           use_out_bn=False,
+#                           training=False,
+#                           reuse=False,
+#                           name=None):
+#     # Input sequence has shape [batch_size, time_len]
+#     wavelets, _ = cwt_ops.complex_morlet_wavelets(
+#         fb_array=params["fb_array"],
+#         fs=params["fs"],
+#         lower_freq=params["lower_freq"],
+#         upper_freq=params["upper_freq"],
+#         n_scales=params["n_scales"],
+#         flattening=True)
+#     cwt_sequence = cwt_ops.cwt_layer(
+#         inputs=input_sequence,
+#         wavelets=wavelets,
+#         border_crop=params["border_size"],
+#         stride=params["time_stride"],
+#         name=name)
+#     if use_out_bn:
+#         cwt_sequence = tf.layers.batch_normalization(inputs=cwt_sequence, training=training,
+#                                                      name=name+"bn", reuse=reuse)
+#     # Output sequence has shape [batch_size, time_len, n_scales, channels]
+#     return cwt_sequence
+
+
+def cwt_local_stride_layer(input_sequence,
+                           params,
+                           stride_reduction_factor=1,
+                           use_out_bn=False,
+                           training=False,
+                           reuse=False,
+                           name=None):
     # Input sequence has shape [batch_size, time_len]
     wavelets, _ = cwt_ops.complex_morlet_wavelets(
         fb_array=params["fb_array"],
@@ -24,7 +52,7 @@ def cwt_time_stride_layer(input_sequence,
         inputs=input_sequence,
         wavelets=wavelets,
         border_crop=params["border_size"],
-        stride=params["time_stride"],
+        stride=int(params["time_stride"]*stride_reduction_factor),
         name=name)
     if use_out_bn:
         cwt_sequence = tf.layers.batch_normalization(inputs=cwt_sequence, training=training,
@@ -50,7 +78,7 @@ def conv_layer(inputs,
                                                    name="bn", reuse=reuse)
 
         outputs = tf.layers.conv2d(inputs=inputs, filters=filters, kernel_size=kernel_size, activation=activation,
-                                padding=padding, name="conv", reuse=reuse)
+                                   padding=padding, name="conv", reuse=reuse)
 
         if use_maxpool:
             outputs = tf.layers.max_pooling2d(inputs=outputs, pool_size=2, strides=2)
@@ -58,13 +86,13 @@ def conv_layer(inputs,
     return outputs
 
 
-def flatten_layer(inputs, name=None):
-    with tf.name_scope(name):
-        # Input has shape [batch_size, d0, ..., dn]
-        dim = np.prod(inputs.get_shape().as_list()[1:])
-        outputs = tf.reshape(inputs, shape=(-1, dim))
-        # Output has shape [batch_size, d0*...*dn]
-    return outputs
+# def flatten_layer(inputs, name=None):
+#     with tf.name_scope(name):
+#         # Input has shape [batch_size, d0, ..., dn]
+#         dim = np.prod(inputs.get_shape().as_list()[1:])
+#         outputs = tf.reshape(inputs, shape=(-1, dim))
+#         # Output has shape [batch_size, d0*...*dn]
+#     return outputs
 
 
 def sequence_flatten_layer(inputs, name=None):
@@ -150,4 +178,18 @@ def sequence_fc_layer(inputs,
 
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
     # Output sequence has shape [batch_size, time_len, num_units]
+    return outputs
+
+
+def bn_conv3x3_block(inputs,
+                     filters,
+                     training=False,
+                     reuse=False,
+                     name=None):
+    # BN-CONV-ReLU-BN-CONV-ReLU-MaxPool block with given number of filters. Kernel of 3x3
+    with tf.variable_scope(name):
+        outputs = conv_layer(inputs, filters, 3, use_in_bn=True, activation=tf.nn.relu,
+                             training=training, reuse=reuse, name="conv3x3_1")
+        outputs = conv_layer(outputs, filters, 3, use_in_bn=True, activation=tf.nn.relu, use_maxpool=True,
+                             training=training, reuse=reuse, name="conv3x3_2")
     return outputs
