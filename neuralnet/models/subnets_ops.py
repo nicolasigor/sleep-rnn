@@ -129,8 +129,10 @@ def cudnn_lstm_layer(inputs,
         if use_in_bn:
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
                                                    name="bn", reuse=reuse)
-        if use_in_drop:
-            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate, name="drop")
+        if use_in_drop:  # Dropout mask is the same across time steps
+            noise_shape = tf.concat([[1], tf.shape(inputs)[1:]], axis=0)
+            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate,
+                                       name="drop", noise_shape=noise_shape)
         if num_dirs == 2:
             direction = 'bidirectional'
             name = 'blstm'
