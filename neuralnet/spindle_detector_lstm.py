@@ -200,6 +200,7 @@ class SpindleDetectorLSTM(object):
         return loss
 
     def _optimizer_init(self, loss, lr):
+        # TODO: track histogram of weights and study l2 regularization
         with tf.name_scope("optimizer"):
             optimizer = tf.train.AdamOptimizer(learning_rate=lr)
             gvs = optimizer.compute_gradients(loss)

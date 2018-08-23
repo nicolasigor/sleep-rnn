@@ -10,11 +10,13 @@ if __name__ == "__main__":
 
     # Instance of detector
     model_params = {
-        "fs": dataset.get_fs()
+        "fs": dataset.get_fs(),
+        "fb_array": np.array([0.5, 1, 1.5, 2])
     }
     # Train detector
     train_params = {
         "learning_rate": 1e-3,
+        "drop_rate": 0.0
     }
     max_it = 5000
     stat_every = 50

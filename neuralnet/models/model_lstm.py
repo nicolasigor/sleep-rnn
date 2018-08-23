@@ -120,6 +120,7 @@ def blstm_model_v2(
     return logits, predictions
 
 
+'''
 def lstm_base_model_v3(input_sequence,
                        num_dirs,
                        params,
@@ -180,3 +181,4 @@ def blstm_model_v3(
         name="model"):
     logits, predictions = lstm_base_model_v3(input_sequence, 2, params, training, reuse, name)
     return logits, predictions
+'''

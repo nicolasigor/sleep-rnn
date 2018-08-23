@@ -131,6 +131,7 @@ def cudnn_lstm_layer(inputs,
                                                    name="bn", reuse=reuse)
         if use_in_drop:  # Dropout mask is the same across time steps
             noise_shape = tf.concat([[1], tf.shape(inputs)[1:]], axis=0)
+            noise_shape = tf.print(noise_shape, [noise_shape])
             inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate,
                                        name="drop", noise_shape=noise_shape)
         if num_dirs == 2:
