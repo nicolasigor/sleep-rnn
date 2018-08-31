@@ -75,21 +75,35 @@ def lstm_base_model_v2(input_sequence,
 
     with tf.variable_scope(name):
         # Regular BN at the end of CWT
-        cwt_sequence = subnets_ops.cwt_local_stride_layer(input_sequence, params, name="cwt", use_out_bn=True)
-
+        cwt_sequence = subnets_ops.cwt_local_stride_layer(input_sequence, params, name="cwt", log_transform=True, use_out_bn=True)
         # Prepare for LSTM
         temp_sequence = subnets_ops.sequence_flatten_layer(cwt_sequence, name="flatten")
         temp_sequence = subnets_ops.do_time_major_layer(temp_sequence, name="do_time_major")
 
         # No BN, Dropout on both lstm layers
-        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=256, num_dirs=num_dirs, use_in_drop=True,
-                                              drop_rate=params["drop_rate"],
-                                              training=training, reuse=reuse, name=lstm_type + "_1")
-        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=256, num_dirs=num_dirs, use_in_drop=True,
-                                              drop_rate=params["drop_rate"],
-                                              training=training, reuse=reuse, name=lstm_type + "_2")
+        # lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=256, num_dirs=num_dirs, use_in_drop=True,
+        #                                       drop_rate=params["drop_rate"],
+        #                                       training=training, reuse=reuse, name=lstm_type + "_1")
+        # lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=256, num_dirs=num_dirs, use_in_drop=True,
+        #                                       drop_rate=params["drop_rate"],
+        #                                       training=training, reuse=reuse, name=lstm_type + "_2")
+        #
+        # temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")
 
-        temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")
+        n_layers = 3
+        num_units = 256
+        lstm_out = temp_sequence
+        for i in range(n_layers):
+            # lstm_out = subnets_ops.cudnn_lstm_layer(lstm_out, num_units=num_units, num_dirs=num_dirs, use_in_drop=True,
+            #                                         drop_rate=params["drop_rate"], training=training, reuse=reuse,
+            #                                         name=lstm_type+"_"+str(i))
+            if i==0:
+                use_in_bn=False
+            else:
+                use_in_bn=True
+            lstm_out = subnets_ops.cudnn_lstm_layer(lstm_out, num_units=num_units, num_dirs=num_dirs, use_in_bn=use_in_bn,
+                                                    training=training, reuse=reuse, name=lstm_type+"_"+str(i+1))
+        temp_sequence = subnets_ops.undo_time_major_layer(lstm_out, name="undo_time_major")
 
         # No dropout on the last FC layer
         logits = subnets_ops.sequence_fc_layer(temp_sequence, num_units=2,

@@ -37,6 +37,7 @@ def cwt_local_stride_layer(input_sequence,
                            params,
                            stride_reduction_factor=1,
                            use_out_bn=False,
+                           log_transform=False,
                            training=False,
                            reuse=False,
                            name=None):
@@ -54,6 +55,8 @@ def cwt_local_stride_layer(input_sequence,
         border_crop=params["border_size"],
         stride=int(params["time_stride"]*stride_reduction_factor),
         name=name)
+    if log_transform:
+        cwt_sequence = tf.log(cwt_sequence + 1e-3)
     if use_out_bn:
         cwt_sequence = tf.layers.batch_normalization(inputs=cwt_sequence, training=training,
                                                      name=name+"bn", reuse=reuse)
@@ -131,7 +134,7 @@ def cudnn_lstm_layer(inputs,
                                                    name="bn", reuse=reuse)
         if use_in_drop:  # Dropout mask is the same across time steps
             noise_shape = tf.concat([[1], tf.shape(inputs)[1:]], axis=0)
-            noise_shape = tf.print(noise_shape, [noise_shape])
+            # noise_shape = tf.print(noise_shape, [noise_shape])
             inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate,
                                        name="drop", noise_shape=noise_shape)
         if num_dirs == 2:

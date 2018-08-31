@@ -76,19 +76,22 @@ class SpindleDetectorLSTM(object):
 
         for it in range(1, max_it+1):
             feed_dict = {handle_ph: train_handle, training_ph: True}
-            _, train_loss, train_summ = sess.run([train_step, loss, merged], feed_dict=feed_dict)
+            sess.run(train_step, feed_dict=feed_dict)
+            # _, train_loss, train_summ, train_metrics = sess.run([train_step, loss, merged, metrics], feed_dict=feed_dict)
             if it % stat_every == 0:
+                feed_dict = {handle_ph: train_handle, training_ph: False}
+                train_loss, train_summ, train_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
                 feed_dict = {handle_ph: val_handle, training_ph: False}
-                val_loss, val_summ = sess.run([loss, merged], feed_dict=feed_dict)
+                val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
                 train_writer.add_summary(train_summ, it)
                 val_writer.add_summary(val_summ, it)
                 elapsed_time = time.time() - start_time
-                print("Iter %i/%i -- train_loss %f -- val_loss %f -- elap time %f [s]"
-                      % (it, max_it, train_loss, val_loss, elapsed_time))
+                print("Iter %i/%i -- train loss %1.6f f1 %1.4f -- val loss %1.6f f1 %1.4f -- elap time %f [s]"
+                      % (it, max_it, train_loss, train_metrics["bs_f1_score"], val_loss, val_metrics["bs_f1_score"], elapsed_time))
         save_path = saver.save(sess, self.ckpt_path, global_step=max_it)
         print("Model saved to: %s" % save_path)
 
-        # TODO: evaluate on training set and validation conditioned on a flag
+        # TODO: epoch-wise training, evaluation and shuffle
 
         # Reset everything
         tf.reset_default_graph()
