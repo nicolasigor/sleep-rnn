@@ -218,16 +218,16 @@ def lstm_base_model_v0(
     with tf.variable_scope(name):
 
         cwt_sequence = subnets_ops.cwt_local_stride_layer(
-            input_sequence, params, name="cwt", use_out_bn=True, training=training,
-            use_avg_pool=False, log_transform=False)
+            input_sequence, params, name="cwt", use_out_bn=params["cwt_bn"], training=training,
+            use_avg_pool=False, log_transform=params["log_transform"])
 
         # Prepare for LSTM
         temp_sequence = subnets_ops.sequence_flatten_layer(cwt_sequence, name="flatten")
         temp_sequence = subnets_ops.do_time_major_layer(temp_sequence, name="do_time_major")
 
-        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=128, num_dirs=num_dirs,
+        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=params["lstm_units"], num_dirs=num_dirs,
                                               training=training, reuse=reuse, name=lstm_type+"_1")
-        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=128, num_dirs=num_dirs,
+        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=params["lstm_units"], num_dirs=num_dirs,
                                               training=training, reuse=reuse, name=lstm_type+"_2")
 
         temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")

@@ -1,7 +1,7 @@
 from sleep_data import SleepDataMASS
 from spindle_detector_lstm import SpindleDetectorLSTM
 import tensorflow as tf
-from models import lstm_model_v0, blstm_model_v0
+from models import lstm_model_v0
 import numpy as np
 
 if __name__ == "__main__":

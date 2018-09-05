@@ -125,7 +125,7 @@ class SpindleDetectorLSTM(object):
         if "batch_size" not in self.p:
             self.p["batch_size"] = 32
         if "learning_rate" not in self.p:
-            self.p["learning_rate"] = 1e-3
+            self.p["learning_rate"] = 1e-4
         if "class_weights" not in self.p:
             self.p["class_weights"] = [1, 1]
         if "drop_rate" not in self.p:
