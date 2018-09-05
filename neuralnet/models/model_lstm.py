@@ -218,7 +218,7 @@ def lstm_base_model_v0(
     with tf.variable_scope(name):
 
         cwt_sequence = subnets_ops.cwt_local_stride_layer(
-            input_sequence, params, name="cwt", use_out_bn=False, training=training,
+            input_sequence, params, name="cwt", use_out_bn=True, training=training,
             use_avg_pool=False, log_transform=False)
 
         # Prepare for LSTM
