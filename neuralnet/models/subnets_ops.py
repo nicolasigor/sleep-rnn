@@ -38,6 +38,7 @@ def cwt_local_stride_layer(input_sequence,
                            stride_reduction_factor=1,
                            use_out_bn=False,
                            log_transform=False,
+                           use_avg_pool=False,
                            training=False,
                            reuse=False,
                            name=None):
@@ -49,12 +50,23 @@ def cwt_local_stride_layer(input_sequence,
         upper_freq=params["upper_freq"],
         n_scales=params["n_scales"],
         flattening=True)
-    cwt_sequence = cwt_ops.cwt_layer(
-        inputs=input_sequence,
-        wavelets=wavelets,
-        border_crop=params["border_size"],
-        stride=int(params["time_stride"]*stride_reduction_factor),
-        name=name)
+
+    if use_avg_pool:
+        cwt_sequence = cwt_ops.cwt_layer(
+            inputs=input_sequence,
+            wavelets=wavelets,
+            border_crop=params["border_size"],
+            stride=1,
+            name=name)
+        stride = int(params["time_stride"] * stride_reduction_factor)
+        cwt_sequence = tf.layers.average_pooling2d(inputs=cwt_sequence, pool_size=(stride, 1), strides=(stride, 1))
+    else:
+        cwt_sequence = cwt_ops.cwt_layer(
+            inputs=input_sequence,
+            wavelets=wavelets,
+            border_crop=params["border_size"],
+            stride=int(params["time_stride"]*stride_reduction_factor),
+            name=name)
     if log_transform:
         cwt_sequence = tf.log(cwt_sequence + 1e-3)
     if use_out_bn:
