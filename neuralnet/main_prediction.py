@@ -31,16 +31,18 @@ if __name__ == "__main__":
     # Predict validation data
     feats_val, labels_val = dataset.get_augmented_numpy_subset(
         subset_name="val", mark_mode=1, border_sec=model_params["border_sec"])
-    predictions_val = detector.predict(train_params, ckpt_path, feats_val)
-    
-    print(feats_val.shape, labels_val.shape, predictions_val.shape)
-    np.savetxt("predictions_val_right.csv", predictions_val[:, :, 1])
+    # predictions_val = detector.predict(train_params, ckpt_path, feats_val)
+    # print(labels_val[:, 3000:7000:10].shape)
+    np.savetxt("expert1_val.csv", labels_val[:, 3000:7000:10])
+    # print(feats_val.shape, labels_val.shape, predictions_val.shape)
+    # np.savetxt("predictions_val_right.csv", predictions_val[:, :, 1])
     
     # Predict test data
     feats_test, labels_test = dataset.get_augmented_numpy_subset(
         subset_name="test", mark_mode=1, border_sec=model_params["border_sec"])
-    predictions_test = detector.predict(train_params, ckpt_path, feats_test)
+    np.savetxt("expert1_test.csv", labels_test[:, 3000:7000:10])
+    # predictions_test = detector.predict(train_params, ckpt_path, feats_test)
     
-    print(feats_test.shape, labels_test.shape, predictions_test.shape)
-    np.savetxt("predictions_test_right.csv", predictions_test[:, :, 1])
+    # print(feats_test.shape, labels_test.shape, predictions_test.shape)
+    # np.savetxt("predictions_test_right.csv", predictions_test[:, :, 1])
 
