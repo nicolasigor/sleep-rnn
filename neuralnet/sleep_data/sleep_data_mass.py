@@ -81,11 +81,13 @@ class SleepDataMASS(object):
         return data_path_list
 
     def random_split(self, data_path_list):
-        random_perm = [10,  1,  4,  9,  2,  8, 13,  5, 11,  6,  3, 14, 12,  0,  7]
-        test_idx = random_perm[0:4]
-        val_idx = random_perm[4:7]
-        train_idx = random_perm[7:]
-
+        # random_perm = [10,  1,  4,  9,  2,  8, 13,  5, 11,  6,  3, 14, 12,  0,  7]
+        # test_idx = random_perm[0:4]
+        # val_idx = random_perm[4:7]
+        # train_idx = random_perm[7:]
+        test_idx = [1,  4,  9, 10]
+        val_idx = [2,  8, 13]
+        train_idx = [5, 11,  6,  3, 14, 12,  0,  7]
         train_path_list = [data_path_list[i] for i in train_idx]
         val_path_list = [data_path_list[i] for i in val_idx]
         test_path_list = [data_path_list[i] for i in test_idx]

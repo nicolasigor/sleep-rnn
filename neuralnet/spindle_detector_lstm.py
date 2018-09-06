@@ -51,7 +51,7 @@ class SpindleDetectorLSTM(object):
             feats_train_ph, labels_train_ph, feats_val_ph, labels_val_ph, self.p["batch_size"])
 
         # Build model graph
-        loss, train_step, metrics = self._build_training_graph(
+        loss, train_step, metrics, feats, predictions = self._build_training_graph(
             iterator, training_ph, self.p["learning_rate"], self.p["class_weights"])
 
         # Session, savers and writers
@@ -59,12 +59,12 @@ class SpindleDetectorLSTM(object):
         tb_path = self.model_path + 'tb_summ/'
         sess = tf.Session()
         saver = tf.train.Saver(max_to_keep=100)
-        train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
-        val_writer = tf.summary.FileWriter(tb_path + 'val')
+        # train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
+        # val_writer = tf.summary.FileWriter(tb_path + 'val')
 
         # Initialization of variables
         sess.run(tf.global_variables_initializer())
-        merged = tf.summary.merge_all()
+        # merged = tf.summary.merge_all()
 
         # Initialization of iterators
         # sess.run(iter_train.initializer, feed_dict={feats_train_ph: feats_train, labels_train_ph: labels_train})
@@ -86,8 +86,7 @@ class SpindleDetectorLSTM(object):
         while True:
             try:
                 feed_dict = {handle_ph: train_handle, training_ph: False}
-                train_loss, train_summ, train_metrics = sess.run([loss, merged, metrics],
-                                                                 feed_dict=feed_dict)
+                train_loss, train_metrics = sess.run([loss, metrics], feed_dict=feed_dict)
                 train_loss_ema = train_loss_ema + ema_train * (train_loss - train_loss_ema)
                 train_f1_ema = train_f1_ema + ema_train * (train_metrics["bs_f1_score"] - train_f1_ema)
             except tf.errors.OutOfRangeError:
@@ -103,7 +102,7 @@ class SpindleDetectorLSTM(object):
             try:
                 count += 1
                 feed_dict = {handle_ph: val_handle, training_ph: False}
-                val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
+                val_loss, val_metrics = sess.run([loss, metrics], feed_dict=feed_dict)
                 val_loss_total = val_loss_total + (val_loss - val_loss_total) / count
                 val_tp += val_metrics["tp"]
                 val_fp += val_metrics["fp"]
@@ -128,8 +127,7 @@ class SpindleDetectorLSTM(object):
             while True:
                 try:
                     feed_dict = {handle_ph: train_handle, training_ph: True}
-                    _, train_loss, train_summ, train_metrics = sess.run([train_step, loss, merged, metrics],
-                                                                        feed_dict=feed_dict)
+                    _, train_loss, train_metrics = sess.run([train_step, loss, metrics], feed_dict=feed_dict)
                     train_loss_ema = train_loss_ema + ema_train*(train_loss - train_loss_ema)
                     train_f1_ema = train_f1_ema + ema_train*(train_metrics["bs_f1_score"] - train_f1_ema)
                 except tf.errors.OutOfRangeError:
@@ -145,7 +143,7 @@ class SpindleDetectorLSTM(object):
                 try:
                     count += 1
                     feed_dict = {handle_ph: val_handle, training_ph: False}
-                    val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
+                    val_loss, val_metrics = sess.run([loss, metrics], feed_dict=feed_dict)
                     val_loss_total = val_loss_total + (val_loss - val_loss_total)/count
                     val_tp += val_metrics["tp"]
                     val_fp += val_metrics["fp"]
@@ -184,6 +182,11 @@ class SpindleDetectorLSTM(object):
         save_path = saver.save(sess, self.ckpt_path, global_step=n_epochs)
         print("Model saved to: %s" % save_path)
 
+        # PREDICT ON VAL AND TEST SET
+        feats_val, labels_val = dataset.get_augmented_numpy_subset(
+            subset_name="val", mark_mode=1, border_sec=self.p["border_sec"])
+        feats_test, labels_test = dataset.get_augmented_numpy_subset(
+            subset_name="test", mark_mode=1, border_sec=self.p["border_sec"])
 
         # Reset everything
         tf.reset_default_graph()
@@ -284,7 +287,7 @@ class SpindleDetectorLSTM(object):
         train_step = self._optimizer_init(loss, lr)
         # Metrics
         metrics = self._batch_metrics_init(predictions, labels)
-        return loss, train_step, metrics
+        return loss, train_step, metrics, feats, predictions
 
     def _build_evaluation_graph(self, iterator):
         # TODO: evaluation graph
