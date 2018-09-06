@@ -422,7 +422,7 @@ def model_for_ppt(
                                               training=training, reuse=reuse, name=lstm_type + "_1")
         lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=256, num_dirs=num_dirs,
                                               # use_in_bn=True,
-                                              # use_in_drop=True, drop_rate=0.5,
+                                              use_in_drop=True, drop_rate=0.5,
                                               training=training, reuse=reuse, name=lstm_type+"_2")
 
         temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")

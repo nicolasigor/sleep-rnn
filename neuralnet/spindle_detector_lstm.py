@@ -59,8 +59,8 @@ class SpindleDetectorLSTM(object):
         tb_path = self.model_path + 'tb_summ/'
         sess = tf.Session()
         saver = tf.train.Saver(max_to_keep=100)
-        # train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
-        # val_writer = tf.summary.FileWriter(tb_path + 'val')
+        train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
+        val_writer = tf.summary.FileWriter(tb_path + 'val')
 
         # Initialization of variables
         sess.run(tf.global_variables_initializer())
@@ -272,7 +272,10 @@ class SpindleDetectorLSTM(object):
         out = int(self.p["page_size"]/2)
         print("out:", out)
         print("feat", feat)
-        feat = feat[out:-out]
+        start = 3000
+        end = 9000
+        print("start", start, "end", end)
+        feat = feat[start:end]
         print("feat v2", feat)
         return feat
 

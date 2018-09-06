@@ -24,7 +24,7 @@ if __name__ == "__main__":
         "time_stride": 10,
     }
 
-    ckpt_path = "results/sequential_20180905-202914/checkpoints"
+    ckpt_path = "results/sequential_20180906-013602/checkpoints"
 
     detector = SpindleDetectorLSTM(model_params, model_fn=model_for_ppt)
 
@@ -32,4 +32,15 @@ if __name__ == "__main__":
     feats_val, labels_val = dataset.get_augmented_numpy_subset(
         subset_name="val", mark_mode=1, border_sec=model_params["border_sec"])
     predictions_val = detector.predict(train_params, ckpt_path, feats_val)
+    
     print(feats_val.shape, labels_val.shape, predictions_val.shape)
+    np.savetxt("predictions_val_right.csv", predictions_val[:, :, 1])
+    
+    # Predict test data
+    feats_test, labels_test = dataset.get_augmented_numpy_subset(
+        subset_name="test", mark_mode=1, border_sec=model_params["border_sec"])
+    predictions_test = detector.predict(train_params, ckpt_path, feats_test)
+    
+    print(feats_test.shape, labels_test.shape, predictions_test.shape)
+    np.savetxt("predictions_test_right.csv", predictions_test[:, :, 1])
+
