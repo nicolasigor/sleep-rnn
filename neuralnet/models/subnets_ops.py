@@ -71,15 +71,16 @@ def cwt_local_stride_layer(input_sequence,
         cwt_sequence = tf.log(cwt_sequence + 1e-3)
     if use_out_bn:
         cwt_sequence = tf.layers.batch_normalization(inputs=cwt_sequence, training=training,
-                                                     name=name+"bn", reuse=reuse)
+                                                     name=name+"bn", reuse=reuse, renorm=True)
     # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt_sequence
 
 
 def conv_layer(inputs,
                filters,
-               kernel_size,
+               kernel_size=3,
                padding="same",
+               strides=1,
                use_in_bn=False,
                activation=None,
                use_maxpool=False,
@@ -90,10 +91,10 @@ def conv_layer(inputs,
     with tf.variable_scope(name):
         if use_in_bn:
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
-                                                   name="bn", reuse=reuse)
+                                                   name="bn", reuse=reuse, renorm=True)
 
         outputs = tf.layers.conv2d(inputs=inputs, filters=filters, kernel_size=kernel_size, activation=activation,
-                                   padding=padding, name="conv", reuse=reuse)
+                                   padding=padding, strides=strides, name="conv", reuse=reuse)
 
         if use_maxpool:
             outputs = tf.layers.max_pooling2d(inputs=outputs, pool_size=2, strides=2)
@@ -143,7 +144,7 @@ def cudnn_lstm_layer(inputs,
     with tf.variable_scope(name):
         if use_in_bn:
             inputs = tf.layers.batch_normalization(inputs=inputs, training=training,
-                                                   name="bn", reuse=reuse)
+                                                   name="bn", reuse=reuse, renorm=True)
         if use_in_drop:  # Dropout mask is the same across time steps
             noise_shape = tf.concat([[1], tf.shape(inputs)[1:]], axis=0)
             # noise_shape = tf.print(noise_shape, [noise_shape])
@@ -178,6 +179,7 @@ def sequence_fc_layer(inputs,
                       num_units,
                       use_in_bn=False,
                       use_in_drop=False,
+                      kernel_size=1,
                       drop_rate=0,
                       activation=None,
                       training=False,
@@ -187,11 +189,16 @@ def sequence_fc_layer(inputs,
     with tf.variable_scope(name):
         inputs = tf.expand_dims(inputs, axis=2)  # shape [batch_size, time_len, 1, feats]
         if use_in_bn:
-            inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse)
+            inputs = tf.layers.batch_normalization(inputs=inputs, training=training, name="bn", reuse=reuse, renorm=True)
         if use_in_drop:
-            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate, name="drop")
+            # inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate, name="drop")
+            in_sh = tf.shape(inputs)
+            noise_shape = [in_sh[0], 1, in_sh[2], in_sh[3]]
+            # noise_shape = tf.print(noise_shape, [noise_shape])
+            inputs = tf.layers.dropout(inputs, training=training, rate=drop_rate,
+                                       name="drop", noise_shape=noise_shape)
 
-        outputs = tf.layers.conv2d(inputs=inputs, filters=num_units, kernel_size=1, activation=activation,
+        outputs = tf.layers.conv2d(inputs=inputs, filters=num_units, kernel_size=kernel_size, activation=activation,
                                    padding="same", name="conv1x1", reuse=reuse)
 
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")

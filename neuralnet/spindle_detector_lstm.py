@@ -25,7 +25,7 @@ class SpindleDetectorLSTM(object):
             self.model_path = model_path
         self.ckpt_path = None
 
-    def train(self, dataset, max_it, stat_every, train_params=None):
+    def train(self, dataset, n_epochs, train_params=None):
         # Reset everything
         tf.reset_default_graph()
 
@@ -58,7 +58,7 @@ class SpindleDetectorLSTM(object):
         self.ckpt_path = self.model_path + 'checkpoints/model'
         tb_path = self.model_path + 'tb_summ/'
         sess = tf.Session()
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=100)
         train_writer = tf.summary.FileWriter(tb_path + 'train', sess.graph)
         val_writer = tf.summary.FileWriter(tb_path + 'val')
 
@@ -67,20 +67,111 @@ class SpindleDetectorLSTM(object):
         merged = tf.summary.merge_all()
 
         # Initialization of iterators
-        sess.run(iter_train.initializer, feed_dict={feats_train_ph: feats_train, labels_train_ph: labels_train})
-        sess.run(iter_val.initializer, feed_dict={feats_val_ph: feats_val, labels_val_ph: labels_val})
-        train_handle, val_handle = sess.run([iter_train.string_handle(), iter_val.string_handle()])
+        # sess.run(iter_train.initializer, feed_dict={feats_train_ph: feats_train, labels_train_ph: labels_train})
+        # sess.run(iter_val.initializer, feed_dict={feats_val_ph: feats_val, labels_val_ph: labels_val})
+        # train_handle, val_handle = sess.run([iter_train.string_handle(), iter_val.string_handle()])
 
         start_time = time.time()
         print("Beginning training of " + self.name + " at " + self.model_path)
 
+        ema_train = 0.8
+        train_loss_ema = 0
+        train_f1_ema = 0
+
+        # Epoch 0
+        # Initialization of iterators
+        sess.run(iter_train.initializer, feed_dict={feats_train_ph: feats_train, labels_train_ph: labels_train})
+        sess.run(iter_val.initializer, feed_dict={feats_val_ph: feats_val, labels_val_ph: labels_val})
+        train_handle, val_handle = sess.run([iter_train.string_handle(), iter_val.string_handle()])
+        while True:
+            try:
+                feed_dict = {handle_ph: train_handle, training_ph: False}
+                train_loss, train_summ, train_metrics = sess.run([loss, merged, metrics],
+                                                                 feed_dict=feed_dict)
+                train_loss_ema = train_loss_ema + ema_train * (train_loss - train_loss_ema)
+                train_f1_ema = train_f1_ema + ema_train * (train_metrics["bs_f1_score"] - train_f1_ema)
+            except tf.errors.OutOfRangeError:
+                # train_writer.add_summary(train_summ, i)
+                break
+
+        val_loss_total = 0
+        val_tp = 0
+        val_fp = 0
+        val_fn = 0
+        count = 0
+        while True:
+            try:
+                count += 1
+                feed_dict = {handle_ph: val_handle, training_ph: False}
+                val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
+                val_loss_total = val_loss_total + (val_loss - val_loss_total) / count
+                val_tp += val_metrics["tp"]
+                val_fp += val_metrics["fp"]
+                val_fn += val_metrics["fn"]
+            except tf.errors.OutOfRangeError:
+                # val_writer.add_summary(val_summ, i)
+                val_loss = val_loss_total
+                val_precision = val_tp / (val_tp + val_fp)
+                val_recall = val_tp / (val_tp + val_fn)
+                val_f1 = 2 * val_precision * val_recall / (val_recall + val_precision)
+                break
+        # [Perform end-of-epoch calculations here.]
+        elapsed_time = time.time() - start_time
+        print("Epoch %1.3i/%1.3i -- train_loss %1.6f f1 %1.4f -- val loss %1.6f f1 %1.4f -- elap time %f [s]" %
+              (0, n_epochs, train_loss_ema, train_f1_ema, val_loss, val_f1, elapsed_time))
+
+        for i in range(1, n_epochs+1):
+            # Initialization of iterators
+            sess.run(iter_train.initializer, feed_dict={feats_train_ph: feats_train, labels_train_ph: labels_train})
+            sess.run(iter_val.initializer, feed_dict={feats_val_ph: feats_val, labels_val_ph: labels_val})
+            train_handle, val_handle = sess.run([iter_train.string_handle(), iter_val.string_handle()])
+            while True:
+                try:
+                    feed_dict = {handle_ph: train_handle, training_ph: True}
+                    _, train_loss, train_summ, train_metrics = sess.run([train_step, loss, merged, metrics],
+                                                                        feed_dict=feed_dict)
+                    train_loss_ema = train_loss_ema + ema_train*(train_loss - train_loss_ema)
+                    train_f1_ema = train_f1_ema + ema_train*(train_metrics["bs_f1_score"] - train_f1_ema)
+                except tf.errors.OutOfRangeError:
+                    # train_writer.add_summary(train_summ, i)
+                    break
+
+            val_loss_total = 0
+            val_tp = 0
+            val_fp = 0
+            val_fn = 0
+            count = 0
+            while True:
+                try:
+                    count += 1
+                    feed_dict = {handle_ph: val_handle, training_ph: False}
+                    val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
+                    val_loss_total = val_loss_total + (val_loss - val_loss_total)/count
+                    val_tp += val_metrics["tp"]
+                    val_fp += val_metrics["fp"]
+                    val_fn += val_metrics["fn"]
+                except tf.errors.OutOfRangeError:
+                    # val_writer.add_summary(val_summ, i)
+                    val_loss = val_loss_total
+                    val_precision = val_tp/(val_tp+val_fp)
+                    val_recall = val_tp/(val_tp+val_fn)
+                    val_f1 = 2*val_precision*val_recall/(val_recall + val_precision)
+                    break
+            # [Perform end-of-epoch calculations here.]
+            elapsed_time = time.time() - start_time
+            print("Epoch %1.3i/%1.3i -- train_loss %1.6f f1 %1.4f -- val loss %1.6f f1 %1.4f -- elap time %f [s]" %
+                  (i, n_epochs, train_loss_ema, train_f1_ema, val_loss, val_f1, elapsed_time))
+            if i % 5 == 0 and i != n_epochs:
+                save_path = saver.save(sess, self.ckpt_path, global_step=i)
+                print("Model saved to: %s" % save_path)
+        '''
         for it in range(1, max_it+1):
             feed_dict = {handle_ph: train_handle, training_ph: True}
-            sess.run(train_step, feed_dict=feed_dict)
-            # _, train_loss, train_summ, train_metrics = sess.run([train_step, loss, merged, metrics], feed_dict=feed_dict)
+            # sess.run(train_step, feed_dict=feed_dict)
+            _, train_loss, train_summ, train_metrics = sess.run([train_step, loss, merged, metrics], feed_dict=feed_dict)
             if it % stat_every == 0:
-                feed_dict = {handle_ph: train_handle, training_ph: False}
-                train_loss, train_summ, train_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
+                # feed_dict = {handle_ph: train_handle, training_ph: False}
+                # train_loss, train_summ, train_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
                 feed_dict = {handle_ph: val_handle, training_ph: False}
                 val_loss, val_summ, val_metrics = sess.run([loss, merged, metrics], feed_dict=feed_dict)
                 train_writer.add_summary(train_summ, it)
@@ -88,10 +179,11 @@ class SpindleDetectorLSTM(object):
                 elapsed_time = time.time() - start_time
                 print("Iter %i/%i -- train loss %1.6f f1 %1.4f -- val loss %1.6f f1 %1.4f -- elap time %f [s]"
                       % (it, max_it, train_loss, train_metrics["bs_f1_score"], val_loss, val_metrics["bs_f1_score"], elapsed_time))
-        save_path = saver.save(sess, self.ckpt_path, global_step=max_it)
+        
+        '''
+        save_path = saver.save(sess, self.ckpt_path, global_step=n_epochs)
         print("Model saved to: %s" % save_path)
 
-        # TODO: epoch-wise training, evaluation and shuffle
 
         # Reset everything
         tf.reset_default_graph()
@@ -150,7 +242,7 @@ class SpindleDetectorLSTM(object):
 
     def _dataset_init(self, feats_ph, labels_ph, batch_size):
         dataset = tf.data.Dataset.from_tensor_slices((feats_ph, labels_ph))
-        dataset = dataset.repeat()
+        # dataset = dataset.repeat()
         dataset = dataset.map(self._random_crop_fn)
         dataset = dataset.shuffle(buffer_size=5000)
         dataset = dataset.batch(batch_size=batch_size)
@@ -171,6 +263,16 @@ class SpindleDetectorLSTM(object):
         label = tf.cast(label_cast, dtype=tf.int32)
         return feat, label
 
+    def _central_crop_fn(self, feat):
+        # Central crop
+        print("CROP",self.p["crop_size"])
+        out = int(self.p["page_size"]/2)
+        print("out:", out)
+        print("feat", feat)
+        feat = feat[out:-out]
+        print("feat v2", feat)
+        return feat
+
     def _build_training_graph(self, iterator, training_ph, lr, class_weights):
         # Input
         feats, labels = iterator.get_next()
@@ -184,14 +286,17 @@ class SpindleDetectorLSTM(object):
         metrics = self._batch_metrics_init(predictions, labels)
         return loss, train_step, metrics
 
-    def _build_evaluation_graph(self):
+    def _build_evaluation_graph(self, iterator):
         # TODO: evaluation graph
-
         pass
 
-    def _build_prediction_graph(self):
+    def _build_prediction_graph(self, iterator):
         # TODO: prediction graph
-        pass
+        # Input
+        feats = iterator.get_next()
+        # Model
+        _, predictions = self.model_fn(feats, self.p, training=False)
+        return predictions
 
     def _loss_init(self, logits, labels, class_weights):
         with tf.name_scope("loss"):
@@ -260,7 +365,10 @@ class SpindleDetectorLSTM(object):
             metrics = {
                 "bs_precision": bs_precision,
                 "bs_recall": bs_recall,
-                "bs_f1_score": bs_f1_score
+                "bs_f1_score": bs_f1_score,
+                "tp": tp,
+                "fp": fp,
+                "fn": fn
             }
         return metrics
 
@@ -271,6 +379,45 @@ class SpindleDetectorLSTM(object):
         # TODO: restore from checkpoint and evaluate
         pass
 
-    def predict(self):
+    def predict(self, train_params, ckpt_path, feats):
         # TODO: restore from checkpoint and predict
-        pass
+        # Reset everything
+        tf.reset_default_graph()
+
+        # Combine params
+        if train_params is not None:
+            self.p.update(train_params)
+        self._default_train_params()
+
+        # Build input pipeline
+        with tf.device('/cpu:0'):
+            with tf.name_scope("input_ph"):
+                feats_ph = tf.placeholder(dtype=tf.float32, shape=feats.shape, name="feats_ph")
+                dataset = tf.data.Dataset.from_tensor_slices(feats_ph)
+                dataset = dataset.map(self._central_crop_fn)
+                dataset = dataset.batch(batch_size=32)
+                dataset = dataset.prefetch(buffer_size=2)
+                iter_predict = dataset.make_initializable_iterator()
+
+        # Build model graph
+        prediction = self._build_prediction_graph(iter_predict)
+
+        sess = tf.Session()
+        saver = tf.train.Saver()
+        print("Loading checkpoint at " + ckpt_path)
+        saver.restore(sess, tf.train.latest_checkpoint(ckpt_path))
+
+        # Initialization of iterators
+        sess.run(iter_predict.initializer, feed_dict={feats_ph: feats})
+
+        prediction_list = []
+        while True:
+            try:
+                this_prediction = sess.run(prediction)
+                print(this_prediction.shape)
+            except tf.errors.OutOfRangeError:
+                break
+            prediction_list.append(this_prediction)
+        prediction_total = np.concatenate(prediction_list)
+        tf.reset_default_graph()
+        return prediction_total

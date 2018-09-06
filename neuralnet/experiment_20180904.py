@@ -19,12 +19,15 @@ if __name__ == "__main__":
     max_it = 20000
     stat_every = 100
 
-    log_transform_list = [False, True]
+    # log_transform_list = [False, True]
+    log_transform_list = [False]
     cwt_bn_list = [False, True]
-    fb_1 = np.array([1.5])
+    # fb_1 = np.array([1.5])
     fb_2 = np.array([0.5, 1.0, 1.5, 2.0])
-    fb_array_list = [fb_1, fb_2]
-    lstm_units_list = [128, 256]
+    # fb_array_list = [fb_1, fb_2]
+    fb_array_list = [fb_2]
+    # lstm_units_list = [128, 256]
+    lstm_units_list = [256]
 
     train_params_list = []
     for fb_array, log_transform, cwt_bn, lstm_units in itertools.product(fb_array_list,
@@ -39,7 +42,7 @@ if __name__ == "__main__":
         }
         train_params_list.append(train_params)
 
-    experiment_name = "20180904_experiment"
+    experiment_name = "20180904_experiment_v2"
     experiment_path = 'results/' + experiment_name + '/'
 
     if not os.path.exists(experiment_path):
@@ -61,7 +64,7 @@ if __name__ == "__main__":
         str_params = str_params + "_dir1"
         model_path = experiment_path + str_params + '/'
         # Train detector
-        # print(model_path)
+        print(model_path)
         tf.set_random_seed(0)
         detector = SpindleDetectorLSTM(model_params, model_path=model_path, model_fn=model_fn)
         detector.train(dataset, max_it, stat_every, train_params)
@@ -75,10 +78,10 @@ if __name__ == "__main__":
         str_params = str_params + "_log" + str(int(train_params["log_transform"]))
         str_params = str_params + "_bn" + str(int(train_params["cwt_bn"]))
         str_params = str_params + "_units" + str(train_params["lstm_units"])
-        str_params = str_params + "_dir1"
+        str_params = str_params + "_dir2"
         model_path = experiment_path + str_params + '/'
         # Train detector
-        # print(model_path)
+        print(model_path)
         tf.set_random_seed(0)
         detector = SpindleDetectorLSTM(model_params, model_path=model_path, model_fn=model_fn)
         detector.train(dataset, max_it, stat_every, train_params)

@@ -218,21 +218,65 @@ def lstm_base_model_v0(
     with tf.variable_scope(name):
 
         cwt_sequence = subnets_ops.cwt_local_stride_layer(
-            input_sequence, params, name="cwt", use_out_bn=params["cwt_bn"], training=training,
-            use_avg_pool=False, log_transform=params["log_transform"])
+            input_sequence, params, name="cwt", use_out_bn=False, training=training,
+            use_avg_pool=False, log_transform=True, stride_reduction_factor=1/4)
+
+        # Convolutional stage input shape [batch, time_len, n_scales, n_spectrograms]
+        # out_cnn = cwt_sequence
+        # out_cnn = tf.layers.conv2d(inputs=cwt_sequence, filters=16, kernel_size=3, activation=tf.nn.relu, stride=2,
+        #                            padding="same", name="conv_1", reuse=reuse)
+        # out_cnn = tf.layers.conv2d(inputs=out_cnn, filters=32, kernel_size=3, activation=tf.nn.relu, stride=2,
+        #                            padding="same", name="conv_2", reuse=reuse)
+
+        # out_cnn = subnets_ops.conv_layer(inputs=cwt_sequence, filters=16, strides=1, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_1a")
+        # out_cnn = subnets_ops.conv_layer(inputs=out_cnn, filters=16, strides=2, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_1b")
+        # out_cnn = subnets_ops.conv_layer(inputs=out_cnn, filters=32, strides=1, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_2a")
+        # out_cnn = subnets_ops.conv_layer(inputs=out_cnn, filters=32, strides=2, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_2b")
+
+        out_cnn = subnets_ops.conv_layer(inputs=cwt_sequence, filters=16, strides=2, activation=tf.nn.relu,
+                                         use_in_bn=True,
+                                         training=training, reuse=reuse, name="conv_1")
+        out_cnn = subnets_ops.conv_layer(inputs=out_cnn, filters=16, strides=2, activation=tf.nn.relu,
+                                         use_in_bn=True,
+                                         training=training, reuse=reuse, name="conv_2")
+
+        # Flattening
+        temp_sequence = subnets_ops.sequence_flatten_layer(out_cnn, name="flatten")
+
+        # Local contexttf.concat([[1], tf.shape(inputs)[1:]], axis=0)
+        with tf.name_scope("short_context"):
+            in_sh = tf.shape(temp_sequence)
+            zero_pad_time = tf.zeros([in_sh[0], 1, in_sh[2]], tf.float32)
+            past_values = tf.concat([zero_pad_time, temp_sequence[:, :-1, :]], 1)
+            future_values = tf.concat([temp_sequence[:, 1:, :], zero_pad_time], 1)
+            temp_sequence = tf.concat([past_values, temp_sequence, future_values], 2)
 
         # Prepare for LSTM
-        temp_sequence = subnets_ops.sequence_flatten_layer(cwt_sequence, name="flatten")
         temp_sequence = subnets_ops.do_time_major_layer(temp_sequence, name="do_time_major")
 
-        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=params["lstm_units"], num_dirs=num_dirs,
+        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=512, num_dirs=num_dirs,
+                                              # use_in_bn=True,
+                                              # use_in_drop=True, drop_rate=0.3,
                                               training=training, reuse=reuse, name=lstm_type+"_1")
-        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=params["lstm_units"], num_dirs=num_dirs,
-                                              training=training, reuse=reuse, name=lstm_type+"_2")
+        # lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=256, num_dirs=num_dirs,
+        #                                       # use_in_bn=True,
+        #                                       # use_in_drop=True, drop_rate=0.3,
+        #                                       training=training, reuse=reuse, name=lstm_type+"_2")
+
+        lstm_2 = lstm_1
 
         temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")
 
         logits = subnets_ops.sequence_fc_layer(temp_sequence, num_units=2,
+                                               # use_in_bn=True,
                                                training=training, reuse=reuse, name="fc")
         with tf.name_scope("predictions"):
             predictions = tf.nn.softmax(logits, axis=-1)
@@ -257,4 +301,141 @@ def blstm_model_v0(
         reuse=False,
         name="model"):
     logits, predictions = lstm_base_model_v0(input_sequence, 2, params, training, reuse, name)
+    return logits, predictions
+
+'''
+def lstm_base_model_v0_cnn(
+        input_sequence,
+        num_dirs,
+        params,
+        training,
+        reuse,
+        name):
+    # Very simple model
+    if num_dirs == 2:
+        lstm_type = "blstm"
+    else:
+        lstm_type = "lstm"
+
+    with tf.variable_scope(name):
+
+        cwt_sequence = subnets_ops.cwt_local_stride_layer(
+            input_sequence, params, name="cwt", use_out_bn=params["cwt_bn"], training=training,
+            use_avg_pool=False, log_transform=params["log_transform"], stride_reduction_factor=1/4)
+
+        # Some convolutions, input shape [batch, time_len, n_scales, n_spectrograms]
+        out_cnn = tf.layers.conv2d(inputs=cwt_sequence, filters=16, kernel_size=3, activation=tf.nn.relu, stride=(2, 1),
+                                   padding="same", name="conv_1", reuse=reuse)
+        out_cnn = tf.layers.conv2d(inputs=out_cnn, filters=16, kernel_size=3, activation=tf.nn.relu, stride=(2, 1),
+                                   padding="same", name="conv_2", reuse=reuse)
+
+        # Prepare for LSTM
+        temp_sequence = subnets_ops.sequence_flatten_layer(out_cnn, name="flatten")
+        temp_sequence = subnets_ops.do_time_major_layer(temp_sequence, name="do_time_major")
+
+        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=params["lstm_units"], num_dirs=num_dirs,
+                                              training=training, reuse=reuse, name=lstm_type+"_1")
+        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=params["lstm_units"], num_dirs=num_dirs,
+                                              training=training, reuse=reuse, name=lstm_type+"_2")
+
+        temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")
+
+        logits = subnets_ops.sequence_fc_layer(temp_sequence, num_units=2,
+                                               training=training, reuse=reuse, name="fc")
+        with tf.name_scope("predictions"):
+            predictions = tf.nn.softmax(logits, axis=-1)
+    # Need shape [batch, time_len, 2]
+    return logits, predictions
+
+
+def lstm_model_v0_cnn(
+        input_sequence,
+        params,
+        training=False,
+        reuse=False,
+        name="model"):
+    logits, predictions = lstm_base_model_v0_cnn(input_sequence, 1, params, training, reuse, name)
+    return logits, predictions
+
+
+def blstm_model_v0_cnn(
+        input_sequence,
+        params,
+        training=False,
+        reuse=False,
+        name="model"):
+    logits, predictions = lstm_base_model_v0_cnn(input_sequence, 2, params, training, reuse, name)
+    return logits, predictions
+'''
+
+
+def model_for_ppt(
+        input_sequence,
+        params,
+        training,
+        reuse=False,
+        name="model"):
+
+    num_dirs = 2
+
+    # Very simple model
+    if num_dirs == 2:
+        lstm_type = "blstm"
+    else:
+        lstm_type = "lstm"
+
+    with tf.variable_scope(name):
+
+        cwt_sequence = subnets_ops.cwt_local_stride_layer(
+            input_sequence, params, name="cwt", use_out_bn=False, training=training,
+            use_avg_pool=True, log_transform=True)
+
+        # cwt_sequence = subnets_ops.cwt_local_stride_layer(
+        #     input_sequence, params, name="cwt", use_out_bn=False, training=training,
+        #     use_avg_pool=False, log_transform=True, stride_reduction_factor=1/4)
+
+        # Convolutional stage input shape [batch, time_len, n_scales, n_spectrograms] (goal: subsampling)
+        # out_cnn = subnets_ops.conv_layer(inputs=cwt_sequence, filters=16, strides=2, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_1")
+        # out_cnn = subnets_ops.conv_layer(inputs=out_cnn, filters=16, strides=2, activation=tf.nn.relu,
+        #                                  use_in_bn=True,
+        #                                  training=training, reuse=reuse, name="conv_2")
+        out_cnn = cwt_sequence
+
+        # Flattening
+        temp_sequence = subnets_ops.sequence_flatten_layer(out_cnn, name="flatten")
+
+        with tf.name_scope("short_context"):
+            in_sh = tf.shape(temp_sequence)
+            zero_pad_time = tf.zeros([in_sh[0], 1, in_sh[2]], tf.float32)
+            past_values = tf.concat([zero_pad_time, temp_sequence[:, :-1, :]], 1)
+            future_values = tf.concat([temp_sequence[:, 1:, :], zero_pad_time], 1)
+            temp_sequence = tf.concat([past_values, temp_sequence, future_values], 2)
+
+        # Prepare for LSTM
+        temp_sequence = subnets_ops.do_time_major_layer(temp_sequence, name="do_time_major")
+
+        lstm_1 = subnets_ops.cudnn_lstm_layer(temp_sequence, num_units=256, num_dirs=num_dirs,
+                                              use_in_bn=True,
+                                              # use_in_drop=True, drop_rate=0.5,
+                                              training=training, reuse=reuse, name=lstm_type + "_1")
+        lstm_2 = subnets_ops.cudnn_lstm_layer(lstm_1, num_units=256, num_dirs=num_dirs,
+                                              # use_in_bn=True,
+                                              # use_in_drop=True, drop_rate=0.5,
+                                              training=training, reuse=reuse, name=lstm_type+"_2")
+
+        temp_sequence = subnets_ops.undo_time_major_layer(lstm_2, name="undo_time_major")
+
+        # logits = subnets_ops.sequence_fc_layer(temp_sequence, num_units=2,
+        #                                        use_in_bn=True,
+        #                                        training=training, reuse=reuse, name="fc")
+        logits = subnets_ops.sequence_fc_layer(temp_sequence, num_units=2,
+                                               # use_in_bn=True,
+                                               # use_in_drop=True, drop_rate=0.5,
+                                               kernel_size=1,
+                                               training=training, reuse=reuse, name="fc")
+        with tf.name_scope("predictions"):
+            predictions = tf.nn.softmax(logits, axis=-1)
+    # Need shape [batch, time_len, 2]
     return logits, predictions
