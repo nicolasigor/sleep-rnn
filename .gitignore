@@ -24,6 +24,7 @@ neuralnet/sleep_data/ssdata*
 neuralnet/sleep_data/checkpoint*
 neuralnet/results
 neuralnet/checkpoint*
+neuralnet/falcondata
 
 # External tool builders
 .externalToolBuilders/
