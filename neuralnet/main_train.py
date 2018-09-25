@@ -18,7 +18,7 @@ if __name__ == "__main__":
         "border_sec": 5
     }
 
-    n_epochs = 10
+    n_epochs = 100
 
     # Train detector
     train_params = {

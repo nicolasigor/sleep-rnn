@@ -26,7 +26,7 @@ def inter2seq(inter, start, end):
         raise Exception('Values in inter matrix should be within start and end bounds')
     sequence = np.zeros(end - start + 1, dtype=np.int32)
     for i in range(len(inter)):
-        start_sample = inter[i, 0] - start - 1
-        end_sample = inter[i, 1] - start
+        start_sample = inter[i, 0] - start
+        end_sample = inter[i, 1] - start + 1
         sequence[start_sample:end_sample] = 1
     return sequence
