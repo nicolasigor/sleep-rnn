@@ -17,14 +17,19 @@ __pychache__
 
 .asv
 
-analysis/ssdata/register
+matlab/ssdata
+
 *.mat
 
-neuralnet/sleep_data/ssdata*
-neuralnet/sleep_data/checkpoint*
-neuralnet/results
-neuralnet/checkpoint*
-neuralnet/falcondata
+detector/sleep_data/ssdata*
+detector/sleep_data/checkpoint*
+detector/results
+detector/checkpoint*
+detector/falcondata
+
+data/ssdata*
+
+dataset/
 
 # External tool builders
 .externalToolBuilders/

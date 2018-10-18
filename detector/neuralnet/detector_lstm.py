@@ -1,0 +1,2 @@
+class DetectorLSTM(object):
+    pass
