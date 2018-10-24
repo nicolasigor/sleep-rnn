@@ -11,6 +11,7 @@ local.properties
 .loadpath
 .recommenders
 .idea
+*.pickle
 
 .ipynb_checkpoints
 __pychache__

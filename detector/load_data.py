@@ -1,3 +1,3 @@
-from sleep_data import SleepDataMASS
-dataset = SleepDataMASS()
+from sleep.mass import MASS
+dataset = MASS()
 dataset.save_checkpoint()
