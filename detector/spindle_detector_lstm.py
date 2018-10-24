@@ -247,7 +247,7 @@ class SpindleDetectorLSTM(object):
         dataset = tf.data.Dataset.from_tensor_slices((feats_ph, labels_ph))
         # dataset = dataset.repeat()
         dataset = dataset.map(self._random_crop_fn)
-        dataset = dataset.shuffle(buffer_size=5000)
+        dataset = dataset.shuffle(buffer_size=50)
         dataset = dataset.batch(batch_size=batch_size)
         dataset = dataset.prefetch(buffer_size=2)
         return dataset

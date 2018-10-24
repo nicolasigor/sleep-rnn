@@ -167,6 +167,11 @@ def cudnn_lstm_layer(inputs,
     return outputs
 
 
+
+
+
+
+
 def undo_time_major_layer(inputs, name=None):
     with tf.name_scope(name):
         # Input shape: [time_len, batch_size, feats]

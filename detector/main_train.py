@@ -14,17 +14,18 @@ if __name__ == "__main__":
     # Instance of detector
     model_params = {
         "fs": dataset.get_fs(),
-        "fb_array": np.array([0.5, 1.0, 1.5, 2.0]),  # np.array([0.5, 1, 1.5, 2, 2.5, 3.0, 3.5, 4.0]),
+        "fb_array": np.array([1.5]),  # np.array([0.5, 1, 1.5, 2, 2.5, 3.0, 3.5, 4.0]),
         "border_sec": 5
     }
 
-    n_epochs = 100
+    n_epochs = 5
 
     # Train detector
     train_params = {
         "learning_rate": 1e-4,
         "drop_rate": 0.0,
         "time_stride": 10,
+        "batch_size": 4
         # "log_transform": False,
         # "cwt_bn": True,
         # "lstm_units": 256

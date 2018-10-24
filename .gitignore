@@ -27,7 +27,7 @@ detector/results
 detector/checkpoint*
 detector/falcondata
 
-data/ssdata*
+data/
 
 dataset/
 
