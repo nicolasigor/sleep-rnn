@@ -14,7 +14,8 @@ import scipy.signal as sp_signal
 from .data_ops import seq2inter, inter2seq
 from neuralnet.constants import TRAIN_SUBSET, VAL_SUBSET, TEST_SUBSET
 
-PATH_DATABASE = "../data/ssdata_mass"
+PATH_THIS_PACKAGE = os.path.dirname(os.path.abspath(__file__))
+PATH_DATABASE = os.path.abspath(os.path.join(PATH_THIS_PACKAGE, "../../data/ssdata_mass"))
 PATH_REC = "register"
 PATH_MARKS_1 = "label/marks/e1"
 PATH_MARKS_2 = "label/marks/e2"
@@ -24,6 +25,7 @@ PATH_STATES = "label/states"
 class MASS(object):
 
     def __init__(self, load_checkpoint=False):
+        print('Loading database from %s' % PATH_DATABASE)
         self.name = "MASS"
         self.fs = 200  # Sampling frequency [Hz] to be used (not the original one)
         self.dur_page = 20  # Time of window page [s]

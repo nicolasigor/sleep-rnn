@@ -5,7 +5,8 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-from spectrum.cmorlet import compute_cwt
+from spectrum import cmorlet
+
 from .constants import CHANNELS_LAST, CHANNELS_FIRST
 from .constants import PAD_SAME, PAD_VALID
 from .constants import BN, BN_RENORM
@@ -94,14 +95,14 @@ def cmorlet_layer(
     with tf.variable_scope(name):
         # Input sequence has shape [batch_size, time_len]
         if use_avg_pool:
-            cwt = compute_cwt(
+            cwt = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=1,
                 data_format=data_format, trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1), data_format=data_format)
         else:
-            cwt = compute_cwt(
+            cwt = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=stride,
                 data_format=data_format, trainable=trainable_wavelet)
@@ -227,7 +228,7 @@ def sequence_fc_layer(
     # Output sequence has shape [batch_size, time_len, num_units]
     return outputs
 
-# TODO: fix dropout and batch norm
+# TODO: fix dropout and batch normets
 def cudnn_lstm_layer(inputs,
                      num_units,
                      num_dirs=1,
