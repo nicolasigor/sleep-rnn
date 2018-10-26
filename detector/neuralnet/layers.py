@@ -174,19 +174,19 @@ def bn_conv3x3_block(
 
 
 def flatten(inputs, name=None):
+    """ Flattens [batch_size, d0, ..., dn] to [batch_size, d0*...*dn]
+    """
     with tf.name_scope(name):
-        # Input has shape [batch_size, d0, ..., dn]
-        dim = np.prod(inputs.get_shape().as_list()[1:])
+        dim = tf.reduce_prod(tf.shape(inputs)[1:])
         outputs = tf.reshape(inputs, shape=(-1, dim))
-        # Output has shape [batch_size, d0*...*dn]
     return outputs
 
 
 def sequence_flatten(inputs, name=None):
     with tf.name_scope(name):
         # Input has shape [batch_size, time_len, d0, ..., dn]
-        dims = inputs.get_shape().as_list()
-        outputs = tf.reshape(inputs, shape=(-1, dims[1], np.prod(dims[2:])))
+        dims = tf.shape(inputs)
+        outputs = tf.reshape(inputs, shape=(-1, dims[1], tf.reduce_prod(dims[2:])))
         # Output has shape [batch_size, time_len, d0*...*dn]
     return outputs
 
