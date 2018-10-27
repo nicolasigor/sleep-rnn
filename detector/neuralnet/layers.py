@@ -2,16 +2,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 import tensorflow as tf
 
 from spectrum import cmorlet
 
-from .constants import CHANNELS_LAST, CHANNELS_FIRST
-from .constants import PAD_SAME, PAD_VALID
-from .constants import BN, BN_RENORM
-from .constants import MAXPOOL, AVGPOOL
-from .constants import REGULAR_DROPOUT, TIME_DROPOUT
+from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
+from utils.constants import PAD_SAME, PAD_VALID
+from utils.constants import BN, BN_RENORM
+from utils.constants import MAXPOOL, AVGPOOL
+from utils.constants import TIME_DROPOUT
 
 
 def bn_layer(

@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from neuralnet.constants import CHANNELS_LAST, CHANNELS_FIRST
+from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
 
 
 # TODO: change channel ordering for computing the cwt too (not just at the end)

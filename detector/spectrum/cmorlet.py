@@ -3,10 +3,9 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 
 from .cwt_ops import apply_wavelets
-from neuralnet.constants import CHANNELS_LAST
+from utils.constants import CHANNELS_LAST
 
 
 def compute_cwt(

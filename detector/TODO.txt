@@ -1,9 +1,6 @@
 
 Directas:
-x Cambiar stride de 10 a 8. (ahora secuencias de 500 puntos en lugar de 400). Step de 40ms a 200Hz.
-x Eliminar marcas muy cortas / largas de MASS (modificar sleep_data_mass/load_data)
 - Histograma de norma de gradientes y clip gradients. "Print or plot the gradients to see its usual range, then scale down gradients that exceeds this range. This prevents spikes in the gradients to mess up the parameters during training."
-x Fusionar los train_params con los params para simplicidad.
 
 Con tiempo:
 - Implementar "evaluate" que entregue precision, recall y f1 score en un subset dado (metricas by sample), para varios puntos de operacion (umbrales 0.1:0.05:0.9, devolver el arreglo de umbrales). Asi dejar que automaticamente entregue performance en train, val y test cuando termine la corrida si es que pongo un flag en true. O que lo puedo hacer restaurando de un checkpoint.
@@ -17,16 +14,3 @@ Siguientes pasos:
 --
 
 * Ver como "corregir" las marcas muy largas del E2 (elegir los 3 segundos centrales quizas?)
-
-
-Consultar:
-x Recurrent (o variational?) Dropout
-- Weight Decay (L2 regularization)
-
-Pensar a futuro:
-- Attention?
-- Outputs son bounding boxes?
-
-Mencionar:
-- forget bias
-
