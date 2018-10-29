@@ -11,7 +11,7 @@ import numpy as np
 from scipy.signal import resample_poly, butter, filtfilt
 
 PATH_THIS_DIR = os.path.dirname(__file__)
-PATH_DATA = os.path.abspath(os.path.join(PATH_THIS_DIR, '../../data'))
+PATH_DATA = os.path.join(PATH_THIS_DIR, '../../data')
 
 
 def seq2inter(sequence):
