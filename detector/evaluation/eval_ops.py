@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from sleep.data_ops import inter2seq, seq2inter
+from sleep.data_ops import inter2seq
 
 
 def by_sample_confusion(events, detections, input_is_binary=False):

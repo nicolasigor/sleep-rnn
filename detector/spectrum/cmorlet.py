@@ -1,4 +1,5 @@
-"""cmorlet.py: Module that implements the CWT using the complex morlet wavelet"""
+"""cmorlet.py: Module that implements the CWT using the
+complex morlet wavelet"""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -22,8 +23,9 @@ def compute_cwt(
         stride=1,
         data_format=CHANNELS_LAST,
         trainable=False):
-    """ Computes the CWT of a batch of signals based on the complex Morlet wavelet.
-    Please refer to the documentation of compute_wavelets and apply_wavelets to see the description of the parameters.
+    """Computes the CWT of a batch of signals with the complex Morlet wavelet.
+    Please refer to the documentation of compute_wavelets and apply_wavelets to
+    see the description of the parameters.
     """
     wavelets, _ = compute_wavelets(
         fb_list=fb_list,
@@ -44,7 +46,7 @@ def compute_cwt(
     return cwt
 
 
-# TODO: Support trainable fb params. Use fb_array only as initialization in that case.
+# TODO: Support trainable fb params. Use fb_list as initialization.
 def compute_wavelets(
         fb_list,
         fs,
@@ -59,22 +61,26 @@ def compute_wavelets(
 
     This function computes the complex morlet wavelet defined as:
     PSI(k) = (pi*Fb)^(-0.5) * exp(i*2*pi*Fc*k) * exp(-(k^2)/Fb)
-    It supports several values of Fb at once, while Fc is fixed to 1 since we can change the frequency of the
-    wavelets by changing the scale. Note that greater Fb values will lead to more duration of the wavelet in time,
+    It supports several values of Fb at once, while Fc is fixed to 1 since we
+    can change the frequency of the wavelets by changing the scale. Note that
+    greater Fb values will lead to more duration of the wavelet in time,
     leading to better frequency resolution but worse time resolution.
-    Scales will be automatically computed from the given frequency range and the number of desired scales. The scales
-    will increase exponentially.
+    Scales will be automatically computed from the given frequency range and the
+    number of desired scales. The scales  will increase exponentially.
 
     Args:
         fb_list: (list of floats) list of values for Fb (one for each scalogram)
-        fs: (float) Sampling frequency of the signals of interest
+        fs: (float) Sampling frequency of the signals of interest.
         lower_freq: (float) Lower frequency to be considered for the scalogram.
         upper_freq: (float) Upper frequency to be considered for the scalogram.
-        n_scales: (int) Number of scales to cover the frequency range
-        flattening: (Optional, boolean, defaults to False) If True, each wavelet will be multiplied by its
-            corresponding frequency, to avoid having too large coefficients for low frequency ranges, since it is
-            common for natural signals to have a spectrum whose power decays roughly like 1/f.
-        trainable: (Optional, boolean, defaults to False) If True, the fb params will be trained with backprop.
+        n_scales: (int) Number of scales to cover the frequency range.
+        flattening: (Optional, boolean, defaults to False) If True, each wavelet
+            will be multiplied by its corresponding frequency, to avoid having
+            too large coefficients for low frequency ranges, since it is
+            common for natural signals to have a spectrum whose power decays
+            roughly like 1/f.
+        trainable: (Optional, boolean, defaults to False) If True, the fb params
+            will be trained with backprop.
         name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
@@ -83,9 +89,9 @@ def compute_wavelets(
     """
     # Checking
     if lower_freq > upper_freq:
-        raise Exception("lower_freq should be lower than upper_freq")
+        raise ValueError("lower_freq should be lower than upper_freq")
     if lower_freq < 0:
-        raise Exception("Expected positive lower_freq.")
+        raise ValueError("Expected positive lower_freq.")
 
     # Generate initial and last scale
     s_0 = fs / upper_freq
@@ -108,7 +114,9 @@ def compute_wavelets(
         for i in range(n_scales):
             scale = scales[i]
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
-            kernel_base = np.exp(-((k_array / scale) ** 2) / fb) / np.sqrt(np.pi * fb * scale)
+            norm_constant = np.sqrt(np.pi * fb * scale)
+            exp_term = np.exp(-((k_array / scale) ** 2) / fb)
+            kernel_base = exp_term / norm_constant
             kernel_real = kernel_base * np.cos(2 * np.pi * k_array / scale)
             kernel_imag = kernel_base * np.sin(2 * np.pi * k_array / scale)
             if flattening:

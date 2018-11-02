@@ -23,4 +23,11 @@ AVGPOOL = 'avgpool'
 
 # Type of dropout
 REGULAR_DROP = 'regular_dropout'
-SEQUENCE_DROP = 'time_dropout'
+SEQUENCE_DROP = 'sequence_dropout'
+
+# Number of directions for LSTM layers
+UNIDIRECTIONAL = 'unidirectional'
+BIDIRECTIONAL = 'bidirectional'
+
+# Error message, parameter not in valid list
+ERROR_INVALID = 'Expected %s for %s, but %s was provided.'

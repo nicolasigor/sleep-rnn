@@ -12,8 +12,8 @@ sys.path.append(detector_path)
 
 from sleep.data_ops import norm_clip_eeg, extract_pages
 
-PATH_SAMPLE_SIGNAL = 'ind_signal.npy'
-PATH_SAMPLE_PAGES = 'ind_pages.npy'
+PATH_SAMPLE_SIGNAL = '../demo_data/ind_signal.npy'
+PATH_SAMPLE_PAGES = '../demo_data/ind_pages.npy'
 
 if __name__ == '__main__':
     ind_signal = np.load(PATH_SAMPLE_SIGNAL)
@@ -21,7 +21,8 @@ if __name__ == '__main__':
     fs = 200
     page_size = 4000
     clip_value = 5
-    norm_signal = norm_clip_eeg(ind_signal, ind_pages, page_size, clip_value=clip_value)
+    norm_signal = norm_clip_eeg(
+        ind_signal, ind_pages, page_size, clip_value=clip_value)
 
     # Plot only N2 data
     n2_data = extract_pages(norm_signal, ind_pages, page_size)

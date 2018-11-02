@@ -12,7 +12,7 @@ sys.path.append(detector_path)
 
 from sleep.data_ops import filter_eeg, power_spectrum
 
-PATH_SAMPLE = 'demo_signal.csv'
+PATH_SAMPLE = '../demo_data/demo_signal.csv'
 
 if __name__ == '__main__':
     demo_signal = np.loadtxt(PATH_SAMPLE)

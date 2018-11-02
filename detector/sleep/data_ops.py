@@ -16,9 +16,9 @@ PATH_DATA = os.path.join(PATH_THIS_DIR, '../../data')
 
 
 def seq2inter(sequence):
-    """Returns the start and end samples of active intervals in a binary sequence."""
+    """Returns the start and end samples of intervals in a binary sequence."""
     if not np.array_equal(sequence, sequence.astype(bool)):
-        raise Exception('Sequence must have binary values only')
+        raise ValueError('Sequence must have binary values only')
     intervals = []
     n = len(sequence)
     prev_val = 0
@@ -35,9 +35,11 @@ def seq2inter(sequence):
 
 
 def inter2seq(intervals, start, end):
-    """Returns the binary sequence segment from 'start' to 'end', associated with the active intervals."""
-    if np.sum((intervals < start)) > 0 or np.sum((intervals > end)) > 0:
-        raise Exception('Values in inter matrix should be within start and end bounds')
+    """Returns the binary sequence segment from 'start' to 'end',
+    associated with the active intervals."""
+    if np.any(intervals < start) or np.any(intervals > end):
+        msg = 'Values in intervals should be within start and end bounds'
+        raise Exception(msg)
     sequence = np.zeros(end - start + 1, dtype=np.int32)
     for i in range(len(intervals)):
         start_sample = intervals[i, 0] - start
@@ -47,12 +49,14 @@ def inter2seq(intervals, start, end):
 
 
 def filter_eeg(signal, fs, lowcut=0.5, highcut=35):
-    """Returns filtered signal sampled at fs Hz, with a [lowcut, highcut] Hz bandpass."""
-    # Generate butter bandpass of order 3
+    """Returns filtered signal sampled at fs Hz, with a [lowcut, highcut] Hz
+    bandpass."""
+    # Generate butter bandpass of order 3.
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
     b, a = butter(3, [low, high], btype='band')
+    # Apply filter to the signal with zero-phase.
     filtered_signal = filtfilt(b, a, signal)
     return filtered_signal
 
@@ -68,18 +72,21 @@ def resample_eeg(signal, fs_old, fs_new):
 
 
 def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=5):
-    """Normalizes EEG data according to N2 pages statistics, and then clips extreme values.
+    """Normalizes EEG data according to N2 pages statistics, and then clips.
 
-    EEGs are very close to a Gaussian signal, but are subject to outlier values. To compute a more robust
-    estimation of the underlying mean and variance of N2 pages, we compute the median and the interquartile
-    range. These estimations are used to normalize the signal with a Z-score. After normalization, the signal
-    is clipped to the [-clip_value, clip_value] range.
+    EEGs are very close to a Gaussian signal, but are subject to outlier values.
+    To compute a more robust estimation of the underlying mean and variance of
+    N2 pages, we compute the median and the interquartile range. These
+    estimations are used to normalize the signal with a Z-score. After
+    normalization, the signal is clipped to the [-clip_value, clip_value] range.
 
     Args:
         signal: 1-D array containing EEG data.
         n2_pages_indices: 1-D array with indices of N2 pages of the hypnogram.
-        page_size: (int) Number of samples contained in a single page of the hypnogram.
-        clip_value: (Optional, int, Defaults to 3) Value used to clip the signal after normalization.
+        page_size: (int) Number of samples contained in a single page of the
+            hypnogram.
+        clip_value: (Optional, int, Defaults to 3) Value used to clip the signal
+            after normalization.
     """
     # Extract statistics only from N2 stages
     n2_data = extract_pages(signal, n2_pages_indices, page_size)
@@ -112,13 +119,15 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
     """Extracts and returns the given set of pages from the sequence.
 
     Args:
-        sequence: (1-D Array) sequence from where to extract data
-        pages_indices: (1-D Array) array of indices of pages to be extracted
-        page_size: (int) number in samples of each page
-        border_size: (Optional, int) number of samples to be added at each border. Defaults to 0.
+        sequence: (1-D Array) sequence from where to extract data.
+        pages_indices: (1-D Array) array of indices of pages to be extracted.
+        page_size: (int) number in samples of each page.
+        border_size: (Optional, int,, defaults to 0) number of samples to be
+            added at each border.
 
     Returns:
-        pages_data: (2-D Array) array of shape [n_pages, page_size+2*border_size] that contains the extracted data.
+        pages_data: (2-D Array) array of shape [n_pages,page_size+2*border_size]
+            that contains the extracted data.
     """
     pages_list = []
     for page in pages_indices:
@@ -131,14 +140,16 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
 
 
 def seq2inter_with_pages(pages_sequence, pages_indices):
-    """Returns the start and end samples of active intervals in a binary sequence that is split in pages."
+    """Returns the start and end samples of intervals in a binary sequence that
+    is split in pages."
 
     Args:
-        pages_sequence: (2d array) binary matrix with shape [n_pages, page_size]
-        pages_indices: (1d array) array of indices of the corresponding pages in pages_sequence, with shape [n_pages,]
+        pages_sequence: (2d array) binary array with shape [n_pages, page_size]
+        pages_indices: (1d array) array of indices of the corresponding pages in
+            pages_sequence, with shape [n_pages,]
     """
     if pages_sequence.shape[0] != pages_indices.shape[0]:
-        raise ValueError('Shape mismatch. Inputs must have same number of rows.')
+        raise ValueError('Shape mismatch. Inputs need the same number of rows.')
     tmp_sequence = pages_sequence.flatten()
     if not np.array_equal(tmp_sequence, tmp_sequence.astype(bool)):
         raise Exception('Sequence must have binary values only')
