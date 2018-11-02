@@ -13,4 +13,22 @@ Siguientes pasos:
 
 --
 
-* Ver como "corregir" las marcas muy largas del E2 (elegir los 3 segundos centrales quizas?)
+- Que al final de un entrenamiento se haga la evaluacion automatica del modelo entrenado.
+- Implementar input pipeline aparte (quizas una clase SimpleIterator).
+- Refactorizar integrando prediccion y evaluacion de modelos nuevos.
+
+- Que el loss sea el mean de todos los losses (incluido timesteps)
+- Plotear norma del gradiente en un entrenamiento y setear un clip gradient apropiado si es que se perciben explodings
+- Ojo a entrenar con sgd + momentum en vez de adam
+- Para entrenar: 100 epocas o cuando el val error no mejora en 5 epocas?
+- Reportar losses y f1 scores epoch-wise en tensorboard
+- Reportar en entrenamiento 'iou' y 'dice' global: todas las muestras comunes dividido en todas las muestras (no separar por eventos, como un proxy rapido).
+- Ojo con la db6 wavelet (puede ser una init para spline)
+- Label augmentation -> al azar hacer pequeñas traslaciones temporales de los labels (aprovechando que los bordes son imprecisos)
+- Encoder-decoder tipo ladder network /unet para segmentar con blstms.
+- Objeto que sea solo la red, y otro objeto que contenga a la red y que haga el postprocessing usando info del indice de las epocas y entregar las marcas como inicio-fin con el arreglito del largo de la marca (que empiece antes y termine despues, 25ms para compensar subsampling).
+
+- Trainable cmorlet. Reportar fb en tensorboard. Para esto implementar una cmorlet que sea mas ancha de lo normal para permitir un fb mas grande durante el entrenamiento.
+- Implementar funciones que dadas las predicciones en samplestamps, evalue, tanto global como por sujeto (ver como hacer de forma eficiente las curvas precision/recall).
+- En el test no tomar ls predicciones de los bordes. Para esto se podria agregar un borde adicional al borde de la cwt.
+- Implementar reinicio de adam con disminucion de learning rate.
