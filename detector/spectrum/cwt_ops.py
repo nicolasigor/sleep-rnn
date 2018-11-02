@@ -1,3 +1,5 @@
+"""cwt_ops.py: Module that computes the CWT"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -16,23 +18,23 @@ def apply_wavelets(
         data_format=CHANNELS_LAST,
         name=None):
     """
-    CWT layer implementation in Tensorflow
+    CWT layer implementation in Tensorflow that returns the scalograms tensor.
 
     Implementation of CWT in Tensorflow, aimed at providing GPU acceleration. This layer use computed wavelets.
     It supports the computation of several scalograms. Different scalograms will be stacked along the channel dimension.
 
     Args:
-        inputs: A batch of 1D tensors of shape [batch_size, time_len].
-        wavelets: A list of computed wavelet banks.
-        border_crop: (Optional) Int>=0 that specifies the number of samples to be removed at each border at the end.
-         This parameter allows to input a longer signal than the final desired size to remove border effects of the CWT.
-         Default is 0 (no removing at the borders).
-        stride: (Optional) Int>0. The stride of the sliding window across the input. Default is 1.
-        data_format: (Optional) A string from: "channels_last", "channels_first". Defaults to "channels_last".
-         Specify the data format of the output data. With the default format "channels_last", the output has shape
-         [batch, signal_size, n_scales, channels]. Alternatively, with the format "channels_first", the output has shape
-         [batch, channels, signal_size, n_scales].
-        name: (Optional) A name for the operation.
+        inputs: (tensor) A batch of 1D tensors of shape [batch_size, time_len].
+        wavelets: (list of tuples of arrays) A list of computed wavelet banks.
+        border_crop: (Optional, int, defaults to 0) Non-negative integer that specifies the number of samples to be
+            removed at each border at the end. This parameter allows to input a longer signal than the final desired
+            size to remove border effects of the CWT.
+        stride: (Optional, int, defaults to 1) The stride of the sliding window across the input. Default is 1.
+        data_format: (Optional, string, defaults to CHANNELS_LAST) A string from: "channels_last", "channels_first".
+            Specify the data format of the output data. With the default format "channels_last", the output has shape
+            [batch, signal_size, n_scales, channels]. Alternatively, with the format "channels_first", the output has
+            shape [batch, channels, signal_size, n_scales].
+        name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
         Scalogram tensor.

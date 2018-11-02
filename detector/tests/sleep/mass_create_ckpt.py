@@ -11,4 +11,4 @@ from sleep.mass import MASS
 
 if __name__ == '__main__':
     dataset = MASS()
-    # dataset.save_checkpoint()
+    dataset.save_checkpoint()

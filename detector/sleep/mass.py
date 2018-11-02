@@ -13,6 +13,7 @@ import pyedflib
 
 from .data_ops import inter2seq
 from .data_ops import filter_eeg, resample_eeg, norm_clip_eeg
+from .data_ops import extract_pages
 from .data_ops import PATH_DATA
 from utils.constants import TRAIN_SUBSET, VAL_SUBSET, TEST_SUBSET
 
@@ -36,6 +37,7 @@ IDS_TRAIN = [1, 5, 7, 9, 10, 14, 17, 19]
 IDS_VAL = [3, 11]
 IDS_TEST = [2, 6, 12, 13]
 
+# TODO: Split dataset in train, val, test, according to new knowledge
 
 # TODO: Check subject 18 (performance issue)
 class MASS(object):
@@ -45,13 +47,15 @@ class MASS(object):
         self.fs = 200  # Sampling frequency [Hz] to be used (not the original one)
         self.page_duration = 20  # Time of window page [s]
         self.page_size = int(self.page_duration * self.fs)
-        self.min_ss_duration = 0.3  # Minimum feasible duration of SS in seconds
-        self.max_ss_duration = 3  # Maximum feasible duration of SS in seconds
+        self.min_ss_duration = 0.3  # Minimum duration of SS in seconds
+        self.max_ss_duration = 3  # Maximum duration of SS in seconds
         self.channel = 13  # Channel for SS marks, C3 in 13, F3 in 22
         self.n2_char = '2'  # Character for N2 identification in hypnogram
+        # Only those registers that have marks from two experts
+        self.reg_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
         self.data = self.load_data(load_checkpoint)
         n_pages = np.sum([ind[KEY_PAGES].shape[0] for ind in self.data])
-        print("\nPages in %s dataset: %d" % (self.name, n_pages))
+        print("\nPages in %s dataset: %s" % (self.name, n_pages))
 
     def load_data(self, load_checkpoint):
         """Loads data either from a checkpoint or from scratch."""
@@ -68,11 +72,9 @@ class MASS(object):
 
     def get_file_paths(self):
         """Returns a list of dictionaries containing relevant paths for loading the database."""
-        # Only those registers that have marks from two experts
-        reg_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
         # Build list of paths
         data_path_list = []
-        for i, reg_id in enumerate(reg_ids):
+        for i, reg_id in enumerate(self.reg_ids):
             path_eeg_file = os.path.join(PATH_MASS, PATH_REC, '01-02-%04d PSG.edf' % reg_id)
             path_states_file = os.path.join(PATH_MASS, PATH_STATES, '01-02-%04d Base.edf' % reg_id)
             path_marks_1_file = os.path.join(PATH_MASS, PATH_MARKS_1, '01-02-%04d SpindleE1.edf' % reg_id)
@@ -87,7 +89,7 @@ class MASS(object):
             }
             data_path_list.append(ind_dict)
         print('%d records in %s dataset.' % (len(data_path_list), self.name))
-        print('Subject IDs: %s' % reg_ids)
+        print('Subject IDs: %s' % self.reg_ids)
         return data_path_list
 
     def save_checkpoint(self):
@@ -109,6 +111,7 @@ class MASS(object):
             data_list = pickle.load(handle)
         return data_list
 
+    # TODO: Strategy to combine E1 and E2 marks
     def load_from_files(self):
         """Loads the data from files and transforms it appropriately."""
         data_path_list = self.get_file_paths()
@@ -168,9 +171,20 @@ class MASS(object):
         # Sleep spindles are slightly longer due to the resampling using a rounded fs_old.
         fs_new = fs_old * self.fs / np.round(fs_old)  # Apparent sample frequency
         marks = np.round(marks_time * fs_new).astype(np.int32)  # Transforms to sample-stamps
-        # Remove too short and too long spindles
-        feasible_idx = np.where((durations >= self.min_ss_duration) & (durations <= self.max_ss_duration))[0]
+        # Remove too short spindles
+        feasible_idx = np.where(durations >= self.min_ss_duration)[0]
         marks = marks[feasible_idx, :]
+        durations = durations[feasible_idx]
+        # Remove weird annotations (extremely long)
+        feasible_idx = np.where(durations <= self.page_duration/4)[0]
+        marks = marks[feasible_idx, :]
+        durations = durations[feasible_idx]
+        # For annotations with durations longer than 3, keep the central 3s
+        excess = durations - self.max_ss_duration
+        excess = np.clip(excess, 0, None)
+        half_remove = (fs_new * excess / 2).astype(np.int32)
+        marks[:, 0] = marks[:, 0] + half_remove
+        marks[:, 1] = marks[:, 1] - half_remove
         return marks
 
     def read_states(self, path_states_file, signal_length):
@@ -196,69 +210,50 @@ class MASS(object):
         n2_pages = n2_pages.astype(np.int32)
         return n2_pages
 
-    # TODO: method to obtain the n2 segments of a list of subjects.
-    def get_subject_data(self, id, augmented_page=False, border_size=0, which_mark=1):
-        pass
+    def get_subject_data(self, reg_id, augmented_page=False, border_size=0, which_mark=1):
+        """Returns segments of signal and marks from n2 pages for the given subject id.
 
-    # def preprocessing_eeg(self, signal, n2_pages):
-    #     # Clip at -250, 250
-    #     thr = 250
-    #     signal = np.clip(signal, -thr, thr)
-    #     # Concatenate every n2 page
-    #     n2_list = []
-    #     for page in n2_pages:
-    #         sample_start = page * self.page_size
-    #         sample_end = (page + 1) * self.page_size
-    #         n2_signal = signal[sample_start:sample_end]
-    #         n2_list.append(n2_signal)
-    #     n2_signal = np.concatenate(n2_list, axis=0)
-    #     # Compute mean and std for n2 pages
-    #     data_mean = np.mean(n2_signal)
-    #     data_std = np.std(n2_signal)
-    #     # Normalization
-    #     new_signal = (signal - data_mean) / data_std
-    #     return new_signal
-    #
-    # def get_subset(self, subset_name):
-    #     # Select subset
-    #     if subset_name == VAL_SUBSET:
-    #         data_list = self.data_val
-    #     elif subset_name == TEST_SUBSET:
-    #         data_list = self.data_test
-    #     elif subset_name == TRAIN_SUBSET:
-    #         data_list = self.data_train
-    #     else:
-    #         raise Exception("Invalid subset_name '%s'. Expected '%s', '%s', or '%s'." %
-    #                         (subset_name, TRAIN_SUBSET, VAL_SUBSET, TEST_SUBSET))
-    #     return data_list
-    #
-    # def get_augmented_numpy_subset(self, subset_name, mark_mode, border_sec):
-    #     # Get augmented pages for random cropping.
-    #     # border_sec: Seconds to be added at both borders of the augmented page.
-    #     data_list = self.get_subset(subset_name)
-    #     border_size = border_sec * self.fs
-    #     features = []
-    #     labels = []
-    #     # Iterate over registers
-    #     for i in range(len(data_list)):
-    #         ind_dict = data_list[i]
-    #         signal = ind_dict['signal']
-    #         n2_pages = ind_dict['pages']
-    #         if mark_mode == 1:
-    #             marks = ind_dict['marks_1']
-    #         elif mark_mode == 2:
-    #             marks = ind_dict['marks_2']
-    #         else:
-    #             raise Exception("Invalid mark_mode %s. Expected 1 or 2." % mark_mode)
-    #         # Iterate over pages
-    #         for page in n2_pages:
-    #             offset = page * self.page_size
-    #             start_sample = int(offset - self.page_size/2 - border_size)
-    #             end_sample = int(start_sample + 2*self.page_size + 2*border_size)
-    #             augmented_page_signal = signal[start_sample:end_sample]
-    #             augmented_page_labels = marks[start_sample:end_sample]
-    #             features.append(augmented_page_signal)
-    #             labels.append(augmented_page_labels)
-    #     features_np = np.stack(features, axis=0)
-    #     labels_np = np.stack(labels, axis=0)
-    #     return features_np, labels_np
+        Args:
+            reg_id: (int) id of the subject of interest.
+            augmented_page: (Optional, boolean) whether to augment the page with half page at each side.
+                Defaults to False.
+            border_size: (Optional, int) number of samples to be added at each border of the segments. Defaults to 0.
+            which_mark: (Optional, int) Whether to get E1 marks (1) or E2 marks (2). Defaults to 1.
+
+        Returns:
+            n2_signal: (2D array) each row is an (augmented) page of the signal
+            n2_marks: (2D array) each row is an (augmented) page of the marks
+        """
+        if reg_id not in self.reg_ids:
+            raise ValueError('ID %s is invalid, please provide one from %s' % (reg_id, self.reg_ids))
+        # Look for dictionary associated with this id
+        id_idx = self.reg_ids.index(reg_id)
+        ind_dict = self.data[id_idx]
+        # Unpack data
+        signal = ind_dict[KEY_EEG]
+        n2_pages = ind_dict[KEY_PAGES]
+        if which_mark == 1:
+            marks = ind_dict['%s_1' % KEY_MARKS]
+        elif which_mark == 2:
+            marks = ind_dict['%s_2' % KEY_MARKS]
+        else:
+            raise ValueError("Invalid value %s for 'which_mark'. Expected 1 or 2." % which_mark)
+        # Compute border to be added
+        if augmented_page:
+            total_border = self.page_size // 2 + border_size
+        else:
+            total_border = border_size
+        n2_signal = extract_pages(signal, n2_pages, self.page_size, border_size=total_border)
+        n2_marks = extract_pages(marks, n2_pages, self.page_size, border_size=total_border)
+        return n2_signal, n2_marks
+
+    def get_subject_pages(self, reg_id):
+        """Returns the indices of the N2 pages of this subject."""
+        if reg_id not in self.reg_ids:
+            raise ValueError('ID %s is invalid, please provide one from %s' % (reg_id, self.reg_ids))
+        # Look for dictionary associated with this id
+        id_idx = self.reg_ids.index(reg_id)
+        ind_dict = self.data[id_idx]
+        # Unpack data
+        pages = ind_dict[KEY_PAGES]
+        return pages

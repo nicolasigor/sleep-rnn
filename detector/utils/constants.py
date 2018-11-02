@@ -1,3 +1,5 @@
+"""constants.py: Module that stores several useful constants for the project."""
+
 # Data format
 CHANNELS_FIRST = 'channels_first'
 CHANNELS_LAST = 'channels_last'
@@ -20,5 +22,5 @@ MAXPOOL = 'maxpool'
 AVGPOOL = 'avgpool'
 
 # Type of dropout
-REGULAR_DROPOUT = 'regular_dropout'
-TIME_DROPOUT = 'time_dropout'
+REGULAR_DROP = 'regular_dropout'
+SEQUENCE_DROP = 'time_dropout'

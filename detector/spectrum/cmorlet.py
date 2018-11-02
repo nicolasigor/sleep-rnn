@@ -1,3 +1,5 @@
+"""cmorlet.py: Module that implements the CWT using the complex morlet wavelet"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -21,6 +23,7 @@ def compute_cwt(
         data_format=CHANNELS_LAST,
         trainable=False):
     """ Computes the CWT of a batch of signals based on the complex Morlet wavelet.
+    Please refer to the documentation of compute_wavelets and apply_wavelets to see the description of the parameters.
     """
     wavelets, _ = compute_wavelets(
         fb_list=fb_list,
@@ -63,19 +66,20 @@ def compute_wavelets(
     will increase exponentially.
 
     Args:
-        fb_list: list of values for Fb (one for each scalogram)
-        fs: Sampling frequency of the input.
-        lower_freq: Lower frequency to be considered for the scalogram.
-        upper_freq: Upper frequency to be considered for the scalogram.
-        n_scales: Number of scales to cover the frequency range
-        flattening: (Optional) If True, each wavelet will be multiplied by its corresponding frequency, to avoid
-         having too large coefficients for low frequency ranges, since it is common for natural signals to have a
-         spectrum whose power decays roughly like 1/f. Defaults to False.
-        trainable: (Optional) If True, the fb params will be trained with backprop. Defaults to False.
+        fb_list: (list of floats) list of values for Fb (one for each scalogram)
+        fs: (float) Sampling frequency of the signals of interest
+        lower_freq: (float) Lower frequency to be considered for the scalogram.
+        upper_freq: (float) Upper frequency to be considered for the scalogram.
+        n_scales: (int) Number of scales to cover the frequency range
+        flattening: (Optional, boolean, defaults to False) If True, each wavelet will be multiplied by its
+            corresponding frequency, to avoid having too large coefficients for low frequency ranges, since it is
+            common for natural signals to have a spectrum whose power decays roughly like 1/f.
+        trainable: (Optional, boolean, defaults to False) If True, the fb params will be trained with backprop.
+        name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
-        wavelets: A list of computed wavelet banks.
-        frequencies: Array of frequencies for each scale.
+        wavelets: (list of tuples of arrays) A list of computed wavelet banks.
+        frequencies: (1D array) Array of frequencies for each scale.
     """
     # Checking
     if lower_freq > upper_freq:
