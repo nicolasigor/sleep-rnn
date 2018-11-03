@@ -25,7 +25,7 @@ if __name__ == "__main__":
     train_params_list = []
     for lr in lr_list:
         train_params = {
-            "learning_rate": lr,
+            "init_learning_rate": lr,
         }
         train_params_list.append(train_params)
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     for train_params in train_params_list:
         for i in range(n_retries):
             # str_params = "batch" + str(train_params["batch_size"])
-            str_params = "lr" + str(train_params["learning_rate"])
+            str_params = "lr" + str(train_params["init_learning_rate"])
             # str_params = str_params + "dr" + str(train_params["drop_rate"])
             model_path = 'results/' + experiment_name + '/cnn_lstm_2l_256u/' + str_params + '/run' + str(i+1) + '/'
             # Train detector
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     for train_params in train_params_list:
         for i in range(n_retries):
             # str_params = "batch" + str(train_params["batch_size"])
-            str_params = "lr" + str(train_params["learning_rate"])
+            str_params = "lr" + str(train_params["init_learning_rate"])
             # str_params = str_params + "dr" + str(train_params["drop_rate"])
             model_path = 'results/' + experiment_name + '/cnn_blstm_2l_256u/' + str_params + '/run' + str(i + 1) + '/'
             # Train detector

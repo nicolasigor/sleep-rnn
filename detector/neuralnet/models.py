@@ -20,34 +20,36 @@ from utils.constants import UNIDIRECTIONAL, BIDIRECTIONAL
 from utils.constants import ERROR_INVALID
 
 
+# TODO: make a Base Class BaseModel
+
+
 class BaseModel(object):
     def __init__(
             self,
-            n_feats_timesteps,
-            n_labels_timesteps,
-            learning_rate,
+            feat_shape,
+            label_shape,
+            init_learning_rate,
             class_weights,
             batch_size,
             clip_gradients,
             max_epochs,
             logdir,
-            model_params):
-
+            params):
         # Clean computational graph
         tf.reset_default_graph()
 
         # Save attributes
-        self.n_feats_timesteps = n_feats_timesteps
-        self.n_labels_timesteps = n_labels_timesteps
-        self.learning_rate = learning_rate
+        self.feat_shape = list(feat_shape)
+        self.label_shape = list(label_shape)
+        self.init_learning_rate = init_learning_rate
         self.class_weights = class_weights
         self.batch_size = batch_size
         self.clip_gradients=clip_gradients
         self.max_epochs = max_epochs
         self.logdir = logdir
-        self.model_params = model_params  # Holds variables for the children
+        self.params = params  # Holds variables for the children
 
-        # Crate directory of logs
+        # Create directory of logs
         if not os.path.exists(self.logdir):
             os.makedirs(self.logdir)
         self.ckptdir = os.path.join(self.logdir, 'model', 'ckpt')
@@ -56,12 +58,12 @@ class BaseModel(object):
 
         # Input placeholders
         self.feats_ph = tf.placeholder(
-            tf.float32, shape=[None, self.n_feats_timesteps], name='feats_ph')
+            tf.float32, shape=[None] + self.feat_shape, name='feats_ph')
         self.labels_ph = tf.placeholder(
-            tf.int32, shape=[None, self.n_labels_timesteps], name='labels_ph')
+            tf.int32, shape=[None] + self.label_shape, name='labels_ph')
         self.training_ph = tf.placeholder(tf.bool, name="training_ph")
 
-        # Input pipeline
+        # Input pipeline (single iterator)
         self.iterator = net_ops.input_pipeline(
             self.feats_ph, self.labels_ph, self.batch_size, self._map_fn)
         self.feats, self.labels = self.iterator.get_next()
@@ -69,24 +71,37 @@ class BaseModel(object):
         # Model prediction
         self.logits, self.probabilities = self._model_fn(self.feats)
 
+        # Evaluation metrics
+        self.metrics_dict = self._metrics_fn(self.probabilities, self.labels)
+
         # Add training operations
         self.loss = net_ops.loss_fn(
             self.logits, self.labels, self.class_weights)
+        self.learning_rate = tf.Variable(
+            self.init_learning_rate, trainable=False)
         self.train_step, self.reset_optimizer = net_ops.optimizer_fn(
             self.loss, self.learning_rate, self.clip_gradients)
 
         # Fusion of all summaries
-        self.summ = tf.summary.merge_all()
+        self.merged = tf.summary.merge_all()
+
         # Tensorflow session for graph management
         self.sess = tf.Session()
+
+        # Saver for checkpoints
         self.saver = tf.train.Saver()
-        # Summaries ops
+
+        # Summary writers
         self.train_writer = tf.summary.FileWriter(
             os.path.join(self.logdir, 'train'))
         self.val_writer = tf.summary.FileWriter(
             os.path.join(self.logdir, 'val'))
         self.train_writer.add_graph(self.sess.graph)
-        self.merged = tf.summary.merge_all()
+
+        # Initialization op
+        self.init_op = tf.group(
+            tf.global_variables_initializer(),
+            tf.local_variables_initializer())
 
     # TODO: Reportar metricas bs
     def fit(self, x_train, y_train, x_val, y_val):
@@ -100,7 +115,7 @@ class BaseModel(object):
               (self.batch_size, self.max_epochs, x_train.shape[0], niters))
         start_time = time.time()
 
-        self.sess.run(tf.global_variables_initializer())
+        self.sess.run(self.init_op)
         self.sess.run(self.iterator.initializer,
                       feed_dict={self.feats_ph: x_train,
                                  self.labels_ph: y_train})
@@ -140,10 +155,14 @@ class BaseModel(object):
         """This method has to be implemented if desired."""
         return feat, label
 
+    def _metrics_fn(self, probabilities, labels):
+        """This method has to be implemented"""
+        metrics_dict = {}
+        return metrics_dict
 
-# TODO: Agregar peculiaridades de este modelo
-class MorletConvBLSTM(BaseModel):
-    pass
+
+#class MorletConvBLSTM(BaseModel):
+#    pass
     # Use self.params for these methods.
 
    # def _model_fn(self, inputs):
@@ -169,5 +188,12 @@ class MorletConvBLSTM(BaseModel):
 
 
 # TODO: implement spline model
-class SplineConvBLSTM(BaseModel):
-    pass
+#class SplineConvBLSTM(BaseModel):
+#    pass
+
+
+
+
+# def update_learning_rate(self, global_step):
+#        self.sess.run(tf.assign(self.learning_rate,
+#0.04 / (2.0 ** (global_step // self.params["iterations_to_update_learning_rate"]))))

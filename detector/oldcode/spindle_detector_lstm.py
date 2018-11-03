@@ -52,7 +52,7 @@ class SpindleDetectorLSTM(object):
 
         # Build model graph
         loss, train_step, metrics, feats, predictions = self._build_training_graph(
-            iterator, training_ph, self.p["learning_rate"], self.p["class_weights"])
+            iterator, training_ph, self.p["init_learning_rate"], self.p["class_weights"])
 
         # Session, savers and writers
         self.ckpt_path = self.model_path + 'checkpoints/model'
@@ -219,8 +219,8 @@ class SpindleDetectorLSTM(object):
     def _default_train_params(self):
         if "batch_size" not in self.p:
             self.p["batch_size"] = 32
-        if "learning_rate" not in self.p:
-            self.p["learning_rate"] = 1e-4
+        if "init_learning_rate" not in self.p:
+            self.p["init_learning_rate"] = 1e-4
         if "class_weights" not in self.p:
             self.p["class_weights"] = [1, 1]
         if "drop_rate" not in self.p:

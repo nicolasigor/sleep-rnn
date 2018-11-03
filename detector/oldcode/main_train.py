@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # Train detector
     train_params = {
-        "learning_rate": 1e-4,
+        "init_learning_rate": 1e-4,
         "drop_rate": 0.0,
         "time_stride": 10,
         "batch_size": 4
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     #
     # # Train detector
     # train_params = {
-    #     "learning_rate": 1e-4,
+    #     "init_learning_rate": 1e-4,
     #     "drop_rate": 0.0,
     #     "time_stride": 10,
     #     "log_transform": True,
