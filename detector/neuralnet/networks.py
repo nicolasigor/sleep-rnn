@@ -1,4 +1,4 @@
-"""networks.py: Module that defines neural network models."""
+"""networks.py: Module that defines neural network models functions."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -24,7 +24,7 @@ def cmorlet_conv_blstm_net(
         border_crop,
         training,
         n_conv_blocks=0,
-        n_time_levels=2,
+        n_time_levels=1,
         batchnorm_conv=BN_RENORM,
         batchnorm_first_lstm=BN_RENORM,
         dropout_first_lstm=None,
@@ -42,8 +42,10 @@ def cmorlet_conv_blstm_net(
     This models first computes the CWT using the cmorlet wavelets, then, if
     applicable, applies convolutional blocks of two 3x3 convolutions followed
     by maxpooling. After this, the outputs is flatten and is passed to a
-    2-layers blstm stage. The final classification is made with a FC layer
-    with 2 outputs.
+    blstm stage. This stage is a 2-layers BLSTM is only one time level is used,
+    or it's a ladder network downsampling and upsampling the time dimension if
+    two or three time levels are used. The final classification is made with a
+    FC layer with 2 outputs.
 
     Args:
         inputs: (2d tensor) input tensor of shape [batch_size, time_len]
@@ -57,6 +59,9 @@ def cmorlet_conv_blstm_net(
         n_conv_blocks: (Optional, {0, 1, 2, 3}, defaults to 0) Indicates the
             number of convolutional blocks to be performed after the CWT and
             before the BLSTM. If 0, no blocks are applied.
+        n_time_levels: (Optional, {1, 2, 3}, defaults 1) Indicates the number
+            of stages for the recurrent part, building a ladder-like network.
+            If 1, it's a simple 2-layers BLSTM network.
         batchnorm_conv: (Optional, {None, BN, BN_RENORM}, defaults to BN_RENORM)
             Type of batchnorm to be used in the convolutional blocks. BN is
             normal batchnorm, and BN_RENORM is a batchnorm with renorm
@@ -71,21 +76,24 @@ def cmorlet_conv_blstm_net(
             dropout with the same noise shape for each time_step. If None,
             dropout is not applied. The dropout layer is applied after the
             batchnorm.
-        batchnorm_second_lstm: (Optional, {None, BN, BN_RENORM}, defaults to
-            None) Type of batchnorm to be used in the second BLSTM layer.
+        batchnorm_rest_lstm: (Optional, {None, BN, BN_RENORM}, defaults to
+            None) Type of batchnorm to be used in the rest of BLSTM layers.
             BN is normal batchnorm, and BN_RENORM is a batchnorm with renorm
             activated. If None, batchnorm is not applied.
-        dropout_second_lstm: (Optional, {None REGULAR_DROP, SEQUENCE_DROP},
-            defaults to None) Type of dropout to be used in the second BLSTM
-            layer. REGULAR_DROP is regular  dropout, and SEQUENCE_DROP is a
+        dropout_rest_lstm: (Optional, {None REGULAR_DROP, SEQUENCE_DROP},
+            defaults to None) Type of dropout to be used in the rest of BLSTM
+            layers. REGULAR_DROP is regular  dropout, and SEQUENCE_DROP is a
             dropout with the same noise shape for each time_step. If None,
             dropout is not applied. The dropout layer is applied after the
             batchnorm.
+        time_pooling: (Optional, {AVGPOOL, MAXPOOL}, defaults to AVGPOOL)
+            Indicates the type of pooling to be performed to downsample
+            the time dimension if n_time_levels > 1.
         batchnorm_fc: (Optional, {None, BN, BN_RENORM}, defaults to
             None) Type of batchnorm to be used in the output layer.
             BN is normal batchnorm, and BN_RENORM is a batchnorm with renorm
             activated. If None, batchnorm is not applied.
-        dropout_fc.: (Optional, {None REGULAR_DROP, SEQUENCE_DROP},
+        dropout_fc: (Optional, {None REGULAR_DROP, SEQUENCE_DROP},
             defaults to None) Type of dropout to be used in output
             layer. REGULAR_DROP is regular  dropout, and SEQUENCE_DROP is a
             dropout with the same noise shape for each time_step. If None,

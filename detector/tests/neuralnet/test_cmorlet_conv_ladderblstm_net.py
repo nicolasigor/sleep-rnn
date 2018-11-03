@@ -12,7 +12,7 @@ import tensorflow as tf
 detector_path = '../../'
 sys.path.append(detector_path)
 
-from neuralnet.networks import cmorlet_conv_ladderblstm_net
+from neuralnet.networks import cmorlet_conv_blstm_net
 from utils.constants import BN, BN_RENORM
 from utils.constants import REGULAR_DROP, SEQUENCE_DROP, AVGPOOL, MAXPOOL
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     tf.reset_default_graph()
     inputs = tf.placeholder(dtype=tf.float32, shape=[None, input_length],
                             name="feats_train_ph")
-    outputs = cmorlet_conv_ladderblstm_net(
+    outputs = cmorlet_conv_blstm_net(
         inputs,
         fb_list,
         fs,
