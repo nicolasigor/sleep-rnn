@@ -6,10 +6,6 @@ Con tiempo:
 - Implementar "evaluate" que entregue precision, recall y f1 score en un subset dado (metricas by sample), para varios puntos de operacion (umbrales 0.1:0.05:0.9, devolver el arreglo de umbrales). Asi dejar que automaticamente entregue performance en train, val y test cuando termine la corrida si es que pongo un flag en true. O que lo puedo hacer restaurando de un checkpoint.
 - Análisis de errores de la ultima mejor arquitectura (lo que esta en el doc) (enfasis en metricas by-event)
 
-Siguientes pasos:
-- Implementar etapa convolucional previa (contexto local a la lstm). stride 2 cwt, 2 maxpool. Decidir contexto (1 segundo?). Notar que la cnn tambien hace la pega de proyectar a la resolucion temporal final de forma mas adecuada que solo subsamplear agresivamente con el stride 8 de la cwt. " Feed-forward layers first. Preprocessing the input with feedforward layers allows your model to project the data into a space with easier temporal dynamics. This can improve performance on the task.
-- Aprender CWT (idea: aprender ventana de la oscilacion con splines)
-
 
 --
 
@@ -18,17 +14,15 @@ Siguientes pasos:
 - Refactorizar integrando prediccion y evaluacion de modelos nuevos.
 
 - Que el loss sea el mean de todos los losses (incluido timesteps)
-- Plotear norma del gradiente en un entrenamiento y setear un clip gradient apropiado si es que se perciben explodings
-- Ojo a entrenar con sgd + momentum en vez de adam
+- Ojo a entrenar con sgd + momentum en vez de adam - Implementar reinicio de adam con disminucion de learning rate.
 - Para entrenar: 100 epocas o cuando el val error no mejora en 5 epocas?
 - Reportar losses y f1 scores epoch-wise en tensorboard
 - Reportar en entrenamiento 'iou' y 'dice' global: todas las muestras comunes dividido en todas las muestras (no separar por eventos, como un proxy rapido).
 - Ojo con la db6 wavelet (puede ser una init para spline)
 - Label augmentation -> al azar hacer pequeñas traslaciones temporales de los labels (aprovechando que los bordes son imprecisos)
-- Encoder-decoder tipo ladder network /unet para segmentar con blstms.
 - Objeto que sea solo la red, y otro objeto que contenga a la red y que haga el postprocessing usando info del indice de las epocas y entregar las marcas como inicio-fin con el arreglito del largo de la marca (que empiece antes y termine despues, 25ms para compensar subsampling).
 
 - Trainable cmorlet. Reportar fb en tensorboard. Para esto implementar una cmorlet que sea mas ancha de lo normal para permitir un fb mas grande durante el entrenamiento.
 - Implementar funciones que dadas las predicciones en samplestamps, evalue, tanto global como por sujeto (ver como hacer de forma eficiente las curvas precision/recall).
 - En el test no tomar ls predicciones de los bordes. Para esto se podria agregar un borde adicional al borde de la cwt.
-- Implementar reinicio de adam con disminucion de learning rate.
+

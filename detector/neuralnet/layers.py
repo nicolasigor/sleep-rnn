@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
@@ -52,19 +53,23 @@ def batchnorm_layer(
             [CHANNELS_FIRST, CHANNELS_LAST],
             'data_format', data_format)
         raise ValueError(msg)
-    if batchnorm == BN:
-        outputs = tf.layers.batch_normalization(
-            inputs=inputs, training=training, name=name,
-            reuse=reuse, axis=axis)
-    elif batchnorm == BN_RENORM:
-        outputs = tf.layers.batch_normalization(
-            inputs=inputs, training=training, name='%s_renorm' % name,
-            reuse=reuse, axis=axis, renorm=True)
-    else:
-        msg = ERROR_INVALID % (
-            [BN, BN_RENORM],
-            'batchnorm', batchnorm)
-        raise ValueError(msg)
+    if batchnorm == BN_RENORM:
+        name = '%s_renorm' % name
+
+    with tf.variable_scope(name):
+        if batchnorm == BN:
+            outputs = tf.layers.batch_normalization(
+                inputs=inputs, training=training,
+                reuse=reuse, axis=axis)
+        elif batchnorm == BN_RENORM:
+            outputs = tf.layers.batch_normalization(
+                inputs=inputs, training=training,
+                reuse=reuse, axis=axis, renorm=True)
+        else:
+            msg = ERROR_INVALID % (
+                [BN, BN_RENORM],
+                'batchnorm', batchnorm)
+            raise ValueError(msg)
     return outputs
 
 
@@ -93,22 +98,25 @@ def dropout_layer(
             training phase or not.
     """
     if dropout == SEQUENCE_DROP:
-        in_shape = tf.shape(inputs)
-        if time_major:  # Input has shape [time_len, batch, feats]
-            noise_shape = [1, in_shape[1], in_shape[2], in_shape[3]]
-        else:  # Input has shape [batch, time_len, feats]
-            noise_shape = [in_shape[0], 1, in_shape[2], in_shape[3]]
-        outputs = tf.layers.dropout(
-            inputs, training=training, rate=drop_rate, name=name,
-            noise_shape=noise_shape)
-    elif dropout == REGULAR_DROP:
-        outputs = tf.layers.dropout(
-            inputs, training=training, rate=drop_rate, name=name)
-    else:
-        msg = ERROR_INVALID % (
-            [SEQUENCE_DROP, REGULAR_DROP],
-            'dropout', dropout)
-        raise ValueError(msg)
+        name = '%s_seq' % name
+    with tf.variable_scope(name):
+        if dropout == SEQUENCE_DROP:
+            in_shape = tf.shape(inputs)
+            if time_major:  # Input has shape [time_len, batch, feats]
+                noise_shape = [1, in_shape[1], in_shape[2]]
+            else:  # Input has shape [batch, time_len, feats]
+                noise_shape = [in_shape[0], 1, in_shape[2]]
+            outputs = tf.layers.dropout(
+                inputs, training=training, rate=drop_rate,
+                noise_shape=noise_shape)
+        elif dropout == REGULAR_DROP:
+            outputs = tf.layers.dropout(
+                inputs, training=training, rate=drop_rate)
+        else:
+            msg = ERROR_INVALID % (
+                [SEQUENCE_DROP, REGULAR_DROP],
+                'dropout', dropout)
+            raise ValueError(msg)
     return outputs
 
 
@@ -169,7 +177,7 @@ def cmorlet_layer(
     """
     with tf.variable_scope(name):
         # Input sequence has shape [batch_size, time_len]
-        if use_avg_pool:
+        if use_avg_pool and stride > 1:
             cwt = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=1,
@@ -306,8 +314,9 @@ def bn_conv3_block(
 def flatten(inputs, name=None):
     """ Flattens [batch_size, d0, ..., dn] to [batch_size, d0*...*dn]"""
     with tf.name_scope(name):
-        dim = tf.reduce_prod(tf.shape(inputs)[1:])
-        outputs = tf.reshape(inputs, shape=(-1, dim))
+        dims = inputs.get_shape().as_list()
+        feat_dim = np.prod(dims[1:])
+        outputs = tf.reshape(inputs, shape=(-1, feat_dim))
     return outputs
 
 
@@ -315,9 +324,9 @@ def sequence_flatten(inputs, name=None):
     """ Flattens [batch_size, time_len, d0, ..., dn] to
     [batch_size, time_len, d0*...*dn]"""
     with tf.name_scope(name):
-        dims = tf.shape(inputs)
-        outputs = tf.reshape(
-            inputs, shape=(-1, dims[1], tf.reduce_prod(dims[2:])))
+        dims = inputs.get_shape().as_list()
+        feat_dim = np.prod(dims[2:])
+        outputs = tf.reshape(inputs, shape=(-1, dims[1], feat_dim))
     return outputs
 
 
@@ -367,8 +376,6 @@ def sequence_fc_layer(
         name: (Optional, string, defaults to None) A name for the operation.
     """
     with tf.variable_scope(name):
-        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
-        inputs = tf.expand_dims(inputs, axis=2)
         if batchnorm:
             inputs = batchnorm_layer(
                 inputs, 'bn', batchnorm=batchnorm, reuse=reuse,
@@ -377,7 +384,8 @@ def sequence_fc_layer(
             inputs = dropout_layer(
                 inputs, 'drop', drop_rate=drop_rate, dropout=dropout,
                 training=training)
-
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
         outputs = tf.layers.conv2d(
             inputs=inputs, filters=num_units, kernel_size=1,
             activation=activation, padding=PAD_SAME, name="conv1", reuse=reuse)
@@ -495,3 +503,36 @@ def reverse_time(inputs):
     """Time reverse the provided 3D tensor. Assumes time major."""
     reversed_inputs = array_ops.reverse_v2(inputs, [0])
     return reversed_inputs
+
+
+def time_downsampling_layer(inputs, pooling=AVGPOOL, name=None):
+    """Performs a pooling operation on the time dimension. Batch major"""
+    with tf.variable_scope(name):
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+        if pooling == AVGPOOL:
+            outputs = tf.layers.average_pooling2d(
+                inputs=inputs, pool_size=(2, 1), strides=(2, 1))
+        elif pooling == MAXPOOL:
+            outputs = tf.layers.max_pooling2d(
+                inputs=inputs, pool_size=(2, 1), strides=(2, 1))
+        else:
+            msg = ERROR_INVALID % (
+                [AVGPOOL, MAXPOOL],
+                'pooling', pooling)
+            raise ValueError(msg)
+        # [batch_size, time_len/2, 1, n_feats]
+        # -> [batch_size, time_len/2, n_feats]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
+def time_upsampling_layer(inputs, filters, name=None):
+    with tf.variable_scope(name):
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+        outputs = tf.layers.conv2d_transpose(
+            inputs, filters=filters, kernel_size=(2, 1),
+            strides=(2, 1), padding=PAD_SAME)
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
