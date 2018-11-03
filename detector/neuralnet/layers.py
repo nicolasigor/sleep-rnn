@@ -506,7 +506,14 @@ def reverse_time(inputs):
 
 
 def time_downsampling_layer(inputs, pooling=AVGPOOL, name=None):
-    """Performs a pooling operation on the time dimension. Batch major"""
+    """Performs a pooling operation on the time dimension by a factor of 2.
+
+    Args:
+        inputs: (3d tensor) input tensor with shape [batch, time, feats]
+        pooling: (Optional, {AVGPOOL, MAXPOOL}, defaults to AVGPOOL) Specifies
+            the type of pooling to be performed along the time axis.
+        name: (Optional, string, defaults to None) A name for the operation.
+    """
     with tf.variable_scope(name):
         # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
         inputs = tf.expand_dims(inputs, axis=2)
@@ -527,12 +534,19 @@ def time_downsampling_layer(inputs, pooling=AVGPOOL, name=None):
     return outputs
 
 
-def time_upsampling_layer(inputs, filters, name=None):
+def time_upsampling_layer(inputs, out_feats, name=None):
+    """Performs a time upsampling by a factor of 2, using UpConv.
+
+    Args:
+        inputs: (3d tensor) input tensor with shape [batch, time, feats]
+        out_feats: (int) number of features of the output.
+        name: (Optional, string, defaults to None) A name for the operation.
+    """
     with tf.variable_scope(name):
         # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
         inputs = tf.expand_dims(inputs, axis=2)
         outputs = tf.layers.conv2d_transpose(
-            inputs, filters=filters, kernel_size=(2, 1),
+            inputs, filters=out_feats, kernel_size=(2, 1),
             strides=(2, 1), padding=PAD_SAME)
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
     return outputs

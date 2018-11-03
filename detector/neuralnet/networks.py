@@ -1,5 +1,4 @@
-"""networks.py: Module that defines neural network
-models."""
+"""networks.py: Module that defines neural network models."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -25,11 +24,13 @@ def cmorlet_conv_blstm_net(
         border_crop,
         training,
         n_conv_blocks=0,
+        n_time_levels=2,
         batchnorm_conv=BN_RENORM,
         batchnorm_first_lstm=BN_RENORM,
         dropout_first_lstm=None,
-        batchnorm_second_lstm=None,
-        dropout_second_lstm=None,
+        batchnorm_rest_lstm=None,
+        dropout_rest_lstm=None,
+        time_pooling=AVGPOOL,
         batchnorm_fc=None,
         dropout_fc=None,
         drop_rate=0.5,
@@ -107,102 +108,8 @@ def cmorlet_conv_blstm_net(
         if n_conv_blocks not in [0, 1, 2, 3]:
             msg = ERROR_INVALID % ([0, 1, 2, 3], 'n_conv_blocks', n_conv_blocks)
             raise ValueError(msg)
-
-        cwt_stride = 8 / (2**n_conv_blocks)
-
-        # CWT CMORLET
-        outputs = layers.cmorlet_layer(
-            inputs,
-            fb_list,
-            fs,
-            lower_freq=1,
-            upper_freq=30,
-            n_scales=32,
-            stride=cwt_stride,
-            border_crop=border_crop,
-            training=training,
-            data_format=data_format,
-            trainable_wavelet=trainable_wavelet,
-            name='spectrum')
-
-        # Convolutional stage (only if n_conv_blocks is greater than 0)
-        for i in range(n_conv_blocks):
-            filters = 16 * (2**i)
-            outputs = layers.bn_conv3_block(
-                outputs,
-                filters,
-                batchnorm=batchnorm_conv,
-                training=training,
-                data_format=data_format,
-                name='conv_block_%d' % (i+1))
-
-        outputs = layers.sequence_flatten(outputs, 'flatten')
-
-        # 2-layers BLSTM
-        outputs = layers.lstm_layer(
-            outputs,
-            128,
-            num_dirs=BIDIRECTIONAL,
-            batchnorm=batchnorm_first_lstm,
-            dropout=dropout_first_lstm,
-            drop_rate=drop_rate,
-            training=training,
-            name='blstm_1')
-
-        outputs = layers.lstm_layer(
-            outputs,
-            128,
-            num_dirs=BIDIRECTIONAL,
-            batchnorm=batchnorm_second_lstm,
-            dropout=dropout_second_lstm,
-            drop_rate=drop_rate,
-            training=training,
-            name='blstm_2')
-
-        # Final FC classification layer
-        logits = layers.sequence_fc_layer(
-            outputs,
-            2,
-            batchnorm=batchnorm_fc,
-            dropout=dropout_fc,
-            drop_rate=drop_rate,
-            training=training,
-            name='fc'
-        )
-        with tf.variable_scope('probabilities'):
-            probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
-
-
-def cmorlet_conv_ladderblstm_net(
-        inputs,
-        fb_list,
-        fs,
-        border_crop,
-        training,
-        n_conv_blocks=0,
-        n_time_levels=2,
-        batchnorm_conv=BN_RENORM,
-        batchnorm_first_lstm=BN_RENORM,
-        dropout_first_lstm=None,
-        batchnorm_rest_lstm=None,
-        dropout_rest_lstm=None,
-        time_pooling=AVGPOOL,
-        batchnorm_fc=None,
-        dropout_fc=None,
-        drop_rate=0.5,
-        trainable_wavelet=False,
-        data_format=CHANNELS_LAST,
-        name='model'):
-    """ Model similar to cmorlet_conv_blstm_net but with ladder stages
-    for the recurrent part"""
-    with tf.variable_scope(name):
-
-        if n_conv_blocks not in [0, 1, 2, 3]:
-            msg = ERROR_INVALID % ([0, 1, 2, 3], 'n_conv_blocks', n_conv_blocks)
-            raise ValueError(msg)
-        if n_time_levels not in [2, 3]:
-            msg = ERROR_INVALID % ([2, 3], 'n_time_levels', n_time_levels)
+        if n_time_levels not in [1, 2, 3]:
+            msg = ERROR_INVALID % ([1, 2, 3], 'n_time_levels', n_time_levels)
             raise ValueError(msg)
 
         cwt_stride = 8 / (2**n_conv_blocks)
@@ -235,9 +142,31 @@ def cmorlet_conv_ladderblstm_net(
 
         outputs = layers.sequence_flatten(outputs, 'flatten')
 
-        # Ladder BLSTM
+        # Multi stage BLSTM
+        if n_time_levels == 1:
+            first_level_channels = 256
 
-        if n_time_levels == 2:
+            # Just a simple 2-layers BLSTM
+            outputs = layers.lstm_layer(
+                outputs,
+                first_level_channels // 2,
+                num_dirs=BIDIRECTIONAL,
+                batchnorm=batchnorm_first_lstm,
+                dropout=dropout_first_lstm,
+                drop_rate=drop_rate,
+                training=training,
+                name='blstm_1')
+            outputs = layers.lstm_layer(
+                outputs,
+                first_level_channels // 2,
+                num_dirs=BIDIRECTIONAL,
+                batchnorm=batchnorm_rest_lstm,
+                dropout=dropout_rest_lstm,
+                drop_rate=drop_rate,
+                training=training,
+                name='blstm_2')
+
+        elif n_time_levels == 2:
             first_level_channels = 128
             second_level_channels = 256
 
@@ -253,6 +182,7 @@ def cmorlet_conv_ladderblstm_net(
                 name='blstm_1e')
             outputs_1e_down = layers.time_downsampling_layer(
                 outputs_1e, pooling=time_pooling, name='down_1e')
+
             outputs_deep = layers.lstm_layer(
                 outputs_1e_down,
                 second_level_channels // 2,
@@ -304,6 +234,7 @@ def cmorlet_conv_ladderblstm_net(
                 name='blstm_2e')
             outputs_2e_down = layers.time_downsampling_layer(
                 outputs_2e, pooling=time_pooling, name='down_2e')
+
             outputs_deep = layers.lstm_layer(
                 outputs_2e_down,
                 third_level_channels // 2,
