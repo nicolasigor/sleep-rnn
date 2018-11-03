@@ -17,6 +17,10 @@ local.properties
 .ipynb_checkpoints
 __pychache__
 
+summ/
+logs/
+results/
+
 .asv
 
 matlab/ssdata
