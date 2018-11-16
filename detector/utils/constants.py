@@ -1,9 +1,5 @@
 """constants.py: Module that stores several useful constants for the project."""
 
-# Data format
-CHANNELS_FIRST = 'channels_first'
-CHANNELS_LAST = 'channels_last'
-
 # Database split
 TRAIN_SUBSET = 'train'
 VAL_SUBSET = 'val'

@@ -8,13 +8,7 @@ import tensorflow as tf
 
 from . import layers
 
-from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
-from utils.constants import PAD_SAME, PAD_VALID
-from utils.constants import BN, BN_RENORM
-from utils.constants import MAXPOOL, AVGPOOL
-from utils.constants import SEQUENCE_DROP, REGULAR_DROP
-from utils.constants import UNIDIRECTIONAL, BIDIRECTIONAL
-from utils.constants import ERROR_INVALID
+from utils import constants
 
 
 def cmorlet_conv_blstm_net(
@@ -25,17 +19,16 @@ def cmorlet_conv_blstm_net(
         training,
         n_conv_blocks=0,
         n_time_levels=1,
-        batchnorm_conv=BN_RENORM,
-        batchnorm_first_lstm=BN_RENORM,
+        batchnorm_conv=constants.BN_RENORM,
+        batchnorm_first_lstm=constants.BN_RENORM,
         dropout_first_lstm=None,
         batchnorm_rest_lstm=None,
         dropout_rest_lstm=None,
-        time_pooling=AVGPOOL,
+        time_pooling=constants.AVGPOOL,
         batchnorm_fc=None,
         dropout_fc=None,
         drop_rate=0.5,
         trainable_wavelet=False,
-        data_format=CHANNELS_LAST,
         name='model'):
     """ Basic model with cmorlet, convolutions, and 2-layers BLSTM.
 
@@ -103,21 +96,17 @@ def cmorlet_conv_blstm_net(
             units to be dropped. If dropout is None, this is ignored.
         trainable_wavelet: (Optional, boolean, defaults to False) If True, the
             fb params will be trained with backprop.
-        data_format: (Optional, {CHANNELS_LAST, CHANNELS_FIRST}, defaults to
-            CHANNELS_LAST) Specify the data format of the inputs. With the
-            default format CHANNELS_LAST, the data has shape
-            [batch_size, height, width, n_channels]. Alternatively, with the
-            format CHANNELS_FIRST, the output has shape
-            [batch_size, n_channels, height, width].
         name: (Optional, string, defaults to 'model') A name for the network.
     """
     with tf.variable_scope(name):
 
         if n_conv_blocks not in [0, 1, 2, 3]:
-            msg = ERROR_INVALID % ([0, 1, 2, 3], 'n_conv_blocks', n_conv_blocks)
+            msg = constants.ERROR_INVALID \
+                  % ([0, 1, 2, 3], 'n_conv_blocks', n_conv_blocks)
             raise ValueError(msg)
         if n_time_levels not in [1, 2, 3]:
-            msg = ERROR_INVALID % ([1, 2, 3], 'n_time_levels', n_time_levels)
+            msg = constants.ERROR_INVALID \
+                  % ([1, 2, 3], 'n_time_levels', n_time_levels)
             raise ValueError(msg)
 
         cwt_stride = 8 / (2**n_conv_blocks)
@@ -133,7 +122,6 @@ def cmorlet_conv_blstm_net(
             stride=cwt_stride,
             border_crop=border_crop,
             training=training,
-            data_format=data_format,
             trainable_wavelet=trainable_wavelet,
             name='spectrum')
 
@@ -145,7 +133,6 @@ def cmorlet_conv_blstm_net(
                 filters,
                 batchnorm=batchnorm_conv,
                 training=training,
-                data_format=data_format,
                 name='conv_block_%d' % (i+1))
 
         outputs = layers.sequence_flatten(outputs, 'flatten')
@@ -158,7 +145,7 @@ def cmorlet_conv_blstm_net(
             outputs = layers.lstm_layer(
                 outputs,
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_first_lstm,
                 dropout=dropout_first_lstm,
                 drop_rate=drop_rate,
@@ -167,7 +154,7 @@ def cmorlet_conv_blstm_net(
             outputs = layers.lstm_layer(
                 outputs,
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -182,7 +169,7 @@ def cmorlet_conv_blstm_net(
             outputs_1e = layers.lstm_layer(
                 outputs,
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_first_lstm,
                 dropout=dropout_first_lstm,
                 drop_rate=drop_rate,
@@ -194,7 +181,7 @@ def cmorlet_conv_blstm_net(
             outputs_deep = layers.lstm_layer(
                 outputs_1e_down,
                 second_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -207,7 +194,7 @@ def cmorlet_conv_blstm_net(
             outputs = layers.lstm_layer(
                 tf.concat([outputs_1d_up, outputs_1e], axis=-1),
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -223,7 +210,7 @@ def cmorlet_conv_blstm_net(
             outputs_1e = layers.lstm_layer(
                 outputs,
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_first_lstm,
                 dropout=dropout_first_lstm,
                 drop_rate=drop_rate,
@@ -234,7 +221,7 @@ def cmorlet_conv_blstm_net(
             outputs_2e = layers.lstm_layer(
                 outputs_1e_down,
                 second_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -246,7 +233,7 @@ def cmorlet_conv_blstm_net(
             outputs_deep = layers.lstm_layer(
                 outputs_2e_down,
                 third_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -259,7 +246,7 @@ def cmorlet_conv_blstm_net(
             outputs_2d = layers.lstm_layer(
                 tf.concat([outputs_2d_up, outputs_2e], axis=-1),
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -270,7 +257,7 @@ def cmorlet_conv_blstm_net(
             outputs = layers.lstm_layer(
                 tf.concat([outputs_1d_up, outputs_1e], axis=-1),
                 first_level_channels // 2,
-                num_dirs=BIDIRECTIONAL,
+                num_dirs=constants.BIDIRECTIONAL,
                 batchnorm=batchnorm_rest_lstm,
                 dropout=dropout_rest_lstm,
                 drop_rate=drop_rate,
@@ -290,8 +277,3 @@ def cmorlet_conv_blstm_net(
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
         return logits, probabilities
-
-
-def spline_conv_blstm_net():
-    # TODO: implement spline network
-    pass

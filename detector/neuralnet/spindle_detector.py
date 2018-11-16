@@ -6,14 +6,9 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
-from utils.constants import PAD_SAME, PAD_VALID
-from utils.constants import BN, BN_RENORM
-from utils.constants import MAXPOOL, AVGPOOL
-from utils.constants import SEQUENCE_DROP, REGULAR_DROP
-from utils.constants import UNIDIRECTIONAL, BIDIRECTIONAL
-from utils.constants import ERROR_INVALID
+from utils import constants
 
-# TODO: implement detector that accepts a BaseModel instance
+
 class SpindleDetector(object):
+    # TODO: implement detector that accepts a BaseModel instance
     pass

@@ -293,11 +293,11 @@ class SpindleDetectorLSTM(object):
         return loss, train_step, metrics, feats, predictions
 
     def _build_evaluation_graph(self, iterator):
-        # TODO: evaluation graph
+
         pass
 
     def _build_prediction_graph(self, iterator):
-        # TODO: prediction graph
+
         # Input
         feats = iterator.get_next()
         # Model
@@ -314,7 +314,7 @@ class SpindleDetectorLSTM(object):
         return loss
 
     def _optimizer_init(self, loss, lr):
-        # TODO: track histogram of weights and study l2 regularization
+
         with tf.name_scope("optimizer"):
             optimizer = tf.train.AdamOptimizer(learning_rate=lr)
             gvs = optimizer.compute_gradients(loss)
@@ -382,11 +382,11 @@ class SpindleDetectorLSTM(object):
         self.ckpt_path = model_path + 'checkpoints/model'
 
     def evaluate(self):
-        # TODO: restore from checkpoint and evaluate
+
         pass
 
     def predict(self, train_params, ckpt_path, feats):
-        # TODO: restore from checkpoint and predict
+
         # Reset everything
         tf.reset_default_graph()
 

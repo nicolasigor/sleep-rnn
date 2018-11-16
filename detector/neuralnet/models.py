@@ -9,18 +9,12 @@ import time
 
 import tensorflow as tf
 
+from utils import constants
 from . import networks
 from . import net_ops
-from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
-from utils.constants import PAD_SAME, PAD_VALID
-from utils.constants import BN, BN_RENORM
-from utils.constants import MAXPOOL, AVGPOOL
-from utils.constants import SEQUENCE_DROP, REGULAR_DROP
-from utils.constants import UNIDIRECTIONAL, BIDIRECTIONAL
-from utils.constants import ERROR_INVALID
 
 
-# TODO: make a Base Class BaseModel
+# TODO: make a Base Class BaseModel and Cmorlet model
 
 
 class BaseModel(object):
@@ -185,11 +179,6 @@ class BaseModel(object):
    #     label_cast = stack_crop[1, border_size:-border_size:time_stride]
    #     label = tf.cast(label_cast, dtype=tf.int32)
    #     return feat, label
-
-
-# TODO: implement spline model
-#class SplineConvBLSTM(BaseModel):
-#    pass
 
 
 

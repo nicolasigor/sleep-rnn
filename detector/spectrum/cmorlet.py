@@ -8,7 +8,6 @@ from __future__ import print_function
 import numpy as np
 
 from .cwt_ops import apply_wavelets
-from utils.constants import CHANNELS_LAST
 
 
 def compute_cwt(
@@ -21,7 +20,6 @@ def compute_cwt(
         flattening=False,
         border_crop=0,
         stride=1,
-        data_format=CHANNELS_LAST,
         trainable=False):
     """Computes the CWT of a batch of signals with the complex Morlet wavelet.
     Please refer to the documentation of compute_wavelets and apply_wavelets to
@@ -41,12 +39,10 @@ def compute_cwt(
         wavelets=wavelets,
         border_crop=border_crop,
         stride=stride,
-        data_format=data_format,
         name='cwt')
     return cwt
 
 
-# TODO: Support trainable fb params. Use fb_list as initialization.
 def compute_wavelets(
         fb_list,
         fs,
@@ -87,6 +83,8 @@ def compute_wavelets(
         wavelets: (list of tuples of arrays) A list of computed wavelet banks.
         frequencies: (1D array) Array of frequencies for each scale.
     """
+    # TODO: Support trainable fb params. Use fb_list as initialization.
+
     # Checking
     if lower_freq > upper_freq:
         raise ValueError("lower_freq should be lower than upper_freq")

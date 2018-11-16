@@ -11,7 +11,8 @@ from sleep.data_ops import inter2seq
 
 def by_sample_confusion(events, detections, input_is_binary=False):
     """Returns a dictionary with by-sample metrics.
-    If input_is_binary is true, the inputs are assumed to be binary sequences. If False, is assumed to be sample-stamps
+    If input_is_binary is true, the inputs are assumed to be binary sequences.
+    If False, is assumed to be sample-stamps
     in ascending order.
     """
     # We need binary sequences here, so let's transform if that's not the case
@@ -33,8 +34,10 @@ def by_sample_confusion(events, detections, input_is_binary=False):
 
 
 def by_sample_iou(events, detections, input_is_binary=False):
-    """Returns the IoU considering the entire eeg as a single segmentation problem.
-    If input_is_binary is true, the inputs are assumed to be binary sequences. If False, is assumed to be sample-stamps
+    """Returns the IoU considering the entire eeg as a single segmentation
+    problem.
+    If input_is_binary is true, the inputs are assumed to be binary sequences.
+    If False, is assumed to be sample-stamps
     in ascending order.
     """
     # We need binary sequences here, so let's transform if that's not the case
@@ -51,8 +54,10 @@ def by_sample_iou(events, detections, input_is_binary=False):
 
 def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
     """Returns a dictionary with by-events metrics.
-    events and detections are assumed to be sample-stamps, and to be in ascending order.
-    iou_array can be provided if it is already computed. If this is the case, events and detections are ignored.
+    events and detections are assumed to be sample-stamps, and to be in
+    ascending order.
+    iou_array can be provided if it is already computed. If this is the case,
+    events and detections are ignored.
     """
     if iou_array is None:
         iou_array, _ = matching(events, detections)
@@ -76,23 +81,29 @@ def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
 
 
 def matching(events, detections):
-    """Returns the IoU associated with each event. Events that has no detections have IoU zero.
-    events and detections are assumed to be sample-stamps, and to be in ascending order."""
+    """Returns the IoU associated with each event. Events that has no detections
+    have IoU zero. events and detections are assumed to be sample-stamps, and to
+    be in ascending order."""
     # Matrix of overlap, rows are events, columns are detections
     n_det = detections.shape[0]
     n_gs = events.shape[0]
     overlaps = np.zeros((n_gs, n_det))
     for i in range(n_gs):
         for j in range(n_det):
-            inter_samples = np.arange(max(events[i, 0], detections[j, 0]), min(events[i, 1], detections[j, 1]) + 1)
+            inter_samples = np.arange(
+                max(events[i, 0], detections[j, 0]),
+                min(events[i, 1], detections[j, 1]) + 1)
             if inter_samples.size > 0:
                 intersection = inter_samples.size
-                union_samples = np.arange(min(events[i, 0], detections[j, 0]), max(events[i, 1], detections[j, 1]) + 1)
+                union_samples = np.arange(
+                    min(events[i, 0], detections[j, 0]),
+                    max(events[i, 1], detections[j, 1]) + 1)
                 union = union_samples.size
                 overlaps[i, j] = intersection / union
     # Greedy matching
     iou_array = []  # Array for IoU for every true event (gs)
-    idx_array = []  # Array for the index associated with the true event. If no detection is found, this value is -1
+    idx_array = []  # Array for the index associated with the true event.
+    # If no detection is found, this value is -1
     for i in range(n_gs):
         if np.sum(overlaps[i, :]) > 0:
             # Find max overlap

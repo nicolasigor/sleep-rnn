@@ -10,4 +10,8 @@ sys.path.append(detector_path)
 from sleep.mass import MASS
 
 if __name__ == '__main__':
+    dataset = MASS()
+    dataset.save_checkpoint()
+    del dataset
     dataset = MASS(load_checkpoint=True)
+

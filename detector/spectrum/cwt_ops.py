@@ -6,17 +6,12 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
-from utils.constants import ERROR_INVALID
 
-
-# TODO: change channel ordering for computing the cwt too (not just at the end)
 def apply_wavelets(
         inputs,
         wavelets,
         border_crop=0,
         stride=1,
-        data_format=CHANNELS_LAST,
         name=None):
     """
     CWT layer implementation in Tensorflow that returns the scalograms tensor.
@@ -34,30 +29,18 @@ def apply_wavelets(
             desired size to remove border effects of the CWT.
         stride: (Optional, int, defaults to 1) The stride of the sliding window
             across the input. Default is 1.
-        data_format: (Optional, {CHANNELS_LAST, CHANNELS_FIRST}, defaults to
-            CHANNELS_LAST) Specify the data format of the output data. With the
-            default format CHANNELS_LAST, the output has shape
-            [batch, signal_size, n_scales, channels]. Alternatively, with the
-            format CHANNELS_FIRST, the output has shape
-            [batch, channels, signal_size, n_scales].
         name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
         Scalogram tensor.
     """
-    # Checking
-    if data_format not in [CHANNELS_FIRST, CHANNELS_LAST]:
-        msg = ERROR_INVALID % (
-            [CHANNELS_FIRST, CHANNELS_LAST],
-            'data_format', data_format)
-        raise ValueError(msg)
 
     n_scalograms = len(wavelets)
 
     # Generate the scalograms
     border_crop = int(border_crop/stride)
     start = border_crop
-    if border_crop == 0:
+    if border_crop <= 0:
         end = None
     else:
         end = -border_crop
@@ -87,8 +70,4 @@ def apply_wavelets(
                 scalograms_list.append(single_scalogram)
         # Get all scalograms in shape [batch, time_len, n_scales, n_scalograms]
         scalograms = tf.concat(scalograms_list, -1)
-        if data_format == CHANNELS_FIRST:
-            # [batch, time_len, n_scales, n_scalograms]
-            # -> [batch, time_len, n_scalograms, n_scales]
-            scalograms = tf.transpose(scalograms, perm=[0, 3, 1, 2])
     return scalograms

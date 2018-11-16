@@ -12,7 +12,7 @@ from scipy.signal import resample_poly, butter, filtfilt
 from scipy.stats import iqr
 
 PATH_THIS_DIR = os.path.dirname(__file__)
-PATH_DATA = os.path.join(PATH_THIS_DIR, '../../data')
+PATH_DATA = os.path.join(PATH_THIS_DIR, '..', '..', 'data')
 
 
 def seq2inter(sequence):
@@ -71,7 +71,7 @@ def resample_eeg(signal, fs_old, fs_new):
     return signal
 
 
-def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=5):
+def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=6):
     """Normalizes EEG data according to N2 pages statistics, and then clips.
 
     EEGs are very close to a Gaussian signal, but are subject to outlier values.
@@ -85,7 +85,7 @@ def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=5):
         n2_pages_indices: 1-D array with indices of N2 pages of the hypnogram.
         page_size: (int) Number of samples contained in a single page of the
             hypnogram.
-        clip_value: (Optional, int, Defaults to 3) Value used to clip the signal
+        clip_value: (Optional, int, Defaults to 6) Value used to clip the signal
             after normalization.
     """
     # Extract statistics only from N2 stages
@@ -105,13 +105,13 @@ def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=5):
 
 def power_spectrum(signal, fs):
     """Returns the single-sided power spectrum of the signal using FFT"""
-    N = signal.size
+    n = signal.size
     y = np.fft.fft(signal)
-    y = np.abs(y) / N
-    power = y[:N // 2]
+    y = np.abs(y) / n
+    power = y[:n // 2]
     power[1:-1] = 2 * power[1:-1]
-    freq = np.fft.fftfreq(N, d=1 / fs)
-    freq = freq[:N // 2]
+    freq = np.fft.fftfreq(n, d=1 / fs)
+    freq = freq[:n // 2]
     return power, freq
 
 

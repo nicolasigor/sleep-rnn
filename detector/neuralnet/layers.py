@@ -11,21 +11,13 @@ from tensorflow.python.ops import array_ops
 
 from spectrum import cmorlet
 from spectrum import spline
-
-from utils.constants import CHANNELS_LAST, CHANNELS_FIRST
-from utils.constants import PAD_SAME, PAD_VALID
-from utils.constants import BN, BN_RENORM
-from utils.constants import MAXPOOL, AVGPOOL
-from utils.constants import SEQUENCE_DROP, REGULAR_DROP
-from utils.constants import UNIDIRECTIONAL, BIDIRECTIONAL
-from utils.constants import ERROR_INVALID
+from utils import constants
 
 
 def batchnorm_layer(
         inputs,
         name,
-        batchnorm=BN,
-        data_format=CHANNELS_LAST,
+        batchnorm=constants.BN,
         reuse=False,
         training=False):
     """Buils a batchnormalization layer.
@@ -37,46 +29,35 @@ def batchnorm_layer(
         batchnorm: (Optional, {BN, BN_RENORM}, defaults to BN) Type of batchnorm
             to be used. BN is normal batchnorm, and BN_RENORM is a batchnorm
             with renorm activated.
-        data_format: (Optional, {CHANNELS_LAST, CHANNELS_FIRST}, defaults to
-            CHANNELS_LAST) Specify data format used in inputs.
         reuse: (Optional, boolean, defaults to False) Whether to reuse the layer
             variables.
         training: (Optional, boolean, defaults to False) Indicates if it is the
             training phase or not.
     """
-    if data_format == CHANNELS_LAST:
-        axis = -1
-    elif data_format == CHANNELS_FIRST:
-        axis = 1
-    else:
-        msg = ERROR_INVALID % (
-            [CHANNELS_FIRST, CHANNELS_LAST],
-            'data_format', data_format)
+    if batchnorm not in [constants.BN, constants.BN_RENORM]:
+        msg = constants.ERROR_INVALID % (
+            [constants.BN, constants.BN_RENORM],
+            'batchnorm', batchnorm)
         raise ValueError(msg)
-    if batchnorm == BN_RENORM:
-        name = '%s_renorm' % name
 
+    if batchnorm == constants.BN_RENORM:
+        name = '%s_renorm' % name
     with tf.variable_scope(name):
-        if batchnorm == BN:
+        if batchnorm == constants.BN:
             outputs = tf.layers.batch_normalization(
                 inputs=inputs, training=training,
-                reuse=reuse, axis=axis)
-        elif batchnorm == BN_RENORM:
+                reuse=reuse)
+        else:  # BN_RENORM
             outputs = tf.layers.batch_normalization(
                 inputs=inputs, training=training,
-                reuse=reuse, axis=axis, renorm=True)
-        else:
-            msg = ERROR_INVALID % (
-                [BN, BN_RENORM],
-                'batchnorm', batchnorm)
-            raise ValueError(msg)
+                reuse=reuse, renorm=True)
     return outputs
 
 
 def dropout_layer(
         inputs,
         name,
-        dropout=REGULAR_DROP,
+        dropout=constants.REGULAR_DROP,
         drop_rate=0.5,
         time_major=False,
         training=False):
@@ -97,10 +78,16 @@ def dropout_layer(
         training: (Optional, boolean, defaults to False) Indicates if it is the
             training phase or not.
     """
-    if dropout == SEQUENCE_DROP:
+    if dropout not in [constants.SEQUENCE_DROP, constants.REGULAR_DROP]:
+        msg = constants.ERROR_INVALID % (
+            [constants.SEQUENCE_DROP, constants.REGULAR_DROP],
+            'dropout', dropout)
+        raise ValueError(msg)
+
+    if dropout == constants.SEQUENCE_DROP:
         name = '%s_seq' % name
     with tf.variable_scope(name):
-        if dropout == SEQUENCE_DROP:
+        if dropout == constants.SEQUENCE_DROP:
             in_shape = tf.shape(inputs)
             if time_major:  # Input has shape [time_len, batch, feats]
                 noise_shape = [1, in_shape[1], in_shape[2]]
@@ -109,14 +96,9 @@ def dropout_layer(
             outputs = tf.layers.dropout(
                 inputs, training=training, rate=drop_rate,
                 noise_shape=noise_shape)
-        elif dropout == REGULAR_DROP:
+        else:  # REGULAR_DROP
             outputs = tf.layers.dropout(
                 inputs, training=training, rate=drop_rate)
-        else:
-            msg = ERROR_INVALID % (
-                [SEQUENCE_DROP, REGULAR_DROP],
-                'dropout', dropout)
-            raise ValueError(msg)
     return outputs
 
 
@@ -133,7 +115,6 @@ def cmorlet_layer(
         use_log=True,
         batchnorm=None,
         training=False,
-        data_format=CHANNELS_LAST,
         trainable_wavelet=False,
         reuse=False,
         name=None):
@@ -163,12 +144,6 @@ def cmorlet_layer(
             The batchnorm layer is applied after the transformations.
         training: (Optional, boolean, defaults to False) Indicates if it is the
             training phase or not.
-        data_format: (Optional, {CHANNELS_LAST, CHANNELS_FIRST}, defaults to
-            CHANNELS_LAST) Specify the data format of the output data. With the
-            default format CHANNELS_LAST, the output has shape
-            [batch, signal_size, n_scales, channels]. Alternatively, with the
-            format CHANNELS_FIRST, the output has shape
-            [batch, channels, signal_size, n_scales].
         trainable_wavelet: (Optional, boolean, defaults to False) If True, the
             fb params will be trained with backprop.
         reuse: (Optional, boolean, defaults to False) Whether to reuse the layer
@@ -181,42 +156,35 @@ def cmorlet_layer(
             cwt = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=1,
-                data_format=data_format, trainable=trainable_wavelet)
+                trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
-                inputs=cwt, pool_size=(stride, 1), strides=(stride, 1),
-                data_format=data_format)
+                inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
         else:
             cwt = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=stride,
-                data_format=data_format, trainable=trainable_wavelet)
+                trainable=trainable_wavelet)
         if use_log:
             cwt = tf.log(cwt + 1e-3)
         if batchnorm:
             cwt = batchnorm_layer(
-                cwt, 'bn', batchnorm=batchnorm, data_format=data_format,
+                cwt, 'bn', batchnorm=batchnorm,
                 reuse=reuse, training=training)
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt
-
-
-# TODO: implement spline layer
-def spline_layer():
-    pass
 
 
 def conv2d_layer(
         inputs,
         filters,
         kernel_size=3,
-        padding=PAD_SAME,
+        padding=constants.PAD_SAME,
         strides=1,
         batchnorm=None,
         activation=None,
         pooling=None,
         training=False,
         reuse=False,
-        data_format=CHANNELS_LAST,
         name=None):
     """Buils a 2d convolutional layer with batch normalization and pooling.
 
@@ -244,55 +212,45 @@ def conv2d_layer(
             training phase or not.
          reuse: (Optional, boolean, defaults to False) Whether to reuse the
             layer variables.
-         data_format: (Optional, {CHANNELS_LAST, CHANNELS_FIRST}, defaults to
-            CHANNELS_LAST) Specify the data format of the inputs. With the
-            default format CHANNELS_LAST, the data has shape
-            [batch_size, height, width, n_channels]. Alternatively, with the
-            format CHANNELS_FIRST, the output has shape
-            [batch_size, n_channels, height, width].
          name: (Optional, string, defaults to None) A name for the operation.
     """
+    if padding not in [constants.AVGPOOL, constants.MAXPOOL]:
+        msg = constants.ERROR_INVALID % (
+            [constants.AVGPOOL, constants.MAXPOOL],
+            'pooling', pooling)
+        raise ValueError(msg)
+    if padding not in [constants.PAD_SAME, constants.PAD_VALID]:
+        msg = constants.ERROR_INVALID % (
+            [constants.PAD_VALID, constants.PAD_SAME],
+            'padding', padding)
+        raise ValueError(msg)
+
     with tf.variable_scope(name):
         if batchnorm:
             inputs = batchnorm_layer(
-                inputs, 'bn', batchnorm=batchnorm, data_format=data_format,
+                inputs, 'bn', batchnorm=batchnorm,
                 reuse=reuse, training=training)
-
-        if padding not in [PAD_SAME, PAD_VALID]:
-            msg = ERROR_INVALID % (
-                [PAD_VALID, PAD_SAME],
-                'padding', padding)
-            raise ValueError(msg)
         outputs = tf.layers.conv2d(
             inputs=inputs, filters=filters, kernel_size=kernel_size,
             activation=activation, padding=padding, strides=strides,
-            name='conv', reuse=reuse, data_format=data_format)
-
+            name='conv', reuse=reuse)
         if pooling:
-            if pooling == AVGPOOL:
+            if pooling == constants.AVGPOOL:
                 outputs = tf.layers.average_pooling2d(
-                    inputs=outputs, pool_size=2, strides=2,
-                    data_format=data_format)
-            elif pooling == MAXPOOL:
+                    inputs=outputs, pool_size=2, strides=2)
+            else:  # MAXPOOL
                 outputs = tf.layers.max_pooling2d(
-                    inputs=outputs, pool_size=2, strides=2,
-                    data_format=data_format)
-            else:
-                msg = ERROR_INVALID % (
-                    [AVGPOOL, MAXPOOL],
-                    'pooling', pooling)
-                raise ValueError(msg)
+                    inputs=outputs, pool_size=2, strides=2)
     return outputs
 
 
 def bn_conv3_block(
         inputs,
         filters,
-        batchnorm=BN,
-        pooling=MAXPOOL,
+        batchnorm=constants.BN,
+        pooling=constants.MAXPOOL,
         training=False,
         reuse=False,
-        data_format=CHANNELS_LAST,
         name=None):
     """Builds a convolutional block.
      The block consists of BN-CONV-ReLU-BN-CONV-ReLU-POOL with 3x3 kernels and
@@ -302,12 +260,12 @@ def bn_conv3_block(
     with tf.variable_scope(name):
         outputs = conv2d_layer(
             inputs, filters, batchnorm=batchnorm, activation=tf.nn.relu,
-            training=training, reuse=reuse, data_format=data_format,
+            training=training, reuse=reuse,
             name='conv3_1')
         outputs = conv2d_layer(
             outputs, filters, batchnorm=batchnorm, activation=tf.nn.relu,
             pooling=pooling, training=training, reuse=reuse,
-            data_format=data_format, name='conv3_2')
+            name='conv3_2')
     return outputs
 
 
@@ -388,7 +346,8 @@ def sequence_fc_layer(
         inputs = tf.expand_dims(inputs, axis=2)
         outputs = tf.layers.conv2d(
             inputs=inputs, filters=num_units, kernel_size=1,
-            activation=activation, padding=PAD_SAME, name="conv1", reuse=reuse)
+            activation=activation, padding=constants.PAD_SAME,
+            name="conv1", reuse=reuse)
         # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
     return outputs
@@ -397,7 +356,7 @@ def sequence_fc_layer(
 def lstm_layer(
         inputs,
         num_units,
-        num_dirs=UNIDIRECTIONAL,
+        num_dirs=constants.UNIDIRECTIONAL,
         batchnorm=None,
         dropout=None,
         drop_rate=0.5,
@@ -434,6 +393,12 @@ def lstm_layer(
             variables.
         name: (Optional, string, defaults to None) A name for the operation.
     """
+    if num_dirs not in [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL]:
+        msg = constants.ERROR_INVALID % (
+            [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL],
+            'num_dirs', num_dirs)
+        raise ValueError(msg)
+
     with tf.variable_scope(name):
         if batchnorm:
             inputs = batchnorm_layer(
@@ -444,15 +409,10 @@ def lstm_layer(
                 inputs, 'drop', drop_rate=drop_rate, dropout=dropout,
                 training=training)
 
-        if num_dirs == UNIDIRECTIONAL:
+        if num_dirs == constants.UNIDIRECTIONAL:
             lstm_name = 'lstm'
-        elif num_dirs == BIDIRECTIONAL:
+        else:  # BIDIRECTIONAL
             lstm_name = 'blstm'
-        else:
-            msg = ERROR_INVALID % (
-                [UNIDIRECTIONAL, BIDIRECTIONAL],
-                 'num_dirs', num_dirs)
-            raise ValueError(msg)
 
         use_cudnn = tf.test.is_gpu_available(cuda_only=True)
 
@@ -470,9 +430,9 @@ def lstm_layer(
                 num_layers=1, num_units=num_units, direction=num_dirs,
                 name='cudnn_%s' % lstm_name)
             outputs, _ = rnn_cell(inputs)
-        else: # Only CPU is available
+        else:  # Only CPU is available
             # Apply LSTMBlockFused (most efficient in CPU)
-            if num_dirs == BIDIRECTIONAL:
+            if num_dirs == constants.BIDIRECTIONAL:
                 with tf.variable_scope(lstm_name):
                     forward_rnn_cell = tf.contrib.rnn.LSTMBlockFusedCell(
                         num_units=num_units, reuse=reuse, name='forward')
@@ -505,7 +465,7 @@ def reverse_time(inputs):
     return reversed_inputs
 
 
-def time_downsampling_layer(inputs, pooling=AVGPOOL, name=None):
+def time_downsampling_layer(inputs, pooling=constants.AVGPOOL, name=None):
     """Performs a pooling operation on the time dimension by a factor of 2.
 
     Args:
@@ -514,20 +474,22 @@ def time_downsampling_layer(inputs, pooling=AVGPOOL, name=None):
             the type of pooling to be performed along the time axis.
         name: (Optional, string, defaults to None) A name for the operation.
     """
+    if pooling not in [constants.AVGPOOL, constants.MAXPOOL]:
+        msg = constants.ERROR_INVALID % (
+            [constants.AVGPOOL, constants.MAXPOOL],
+            'pooling', pooling)
+        raise ValueError(msg)
+
     with tf.variable_scope(name):
         # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
         inputs = tf.expand_dims(inputs, axis=2)
-        if pooling == AVGPOOL:
+        if pooling == constants.AVGPOOL:
             outputs = tf.layers.average_pooling2d(
                 inputs=inputs, pool_size=(2, 1), strides=(2, 1))
-        elif pooling == MAXPOOL:
+        else:  # MAXPOOL
             outputs = tf.layers.max_pooling2d(
                 inputs=inputs, pool_size=(2, 1), strides=(2, 1))
-        else:
-            msg = ERROR_INVALID % (
-                [AVGPOOL, MAXPOOL],
-                'pooling', pooling)
-            raise ValueError(msg)
+
         # [batch_size, time_len/2, 1, n_feats]
         # -> [batch_size, time_len/2, n_feats]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
@@ -547,6 +509,6 @@ def time_upsampling_layer(inputs, out_feats, name=None):
         inputs = tf.expand_dims(inputs, axis=2)
         outputs = tf.layers.conv2d_transpose(
             inputs, filters=out_feats, kernel_size=(2, 1),
-            strides=(2, 1), padding=PAD_SAME)
+            strides=(2, 1), padding=constants.PAD_SAME)
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
     return outputs

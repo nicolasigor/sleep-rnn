@@ -4,7 +4,7 @@ import tensorflow as tf
 from models import lstm_model_v3, blstm_model_v3
 
 
-# TODO: usar las 4 gpus del cluster
+
 if __name__ == "__main__":
     # Sleep data
     dataset = SleepDataMASS(load_from_checkpoint=True)
