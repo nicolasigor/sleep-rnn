@@ -231,7 +231,8 @@ class SpindleDataset(object):
             data = self._load_from_checkpoint()
         else:
             if self.load_checkpoint:
-                print("A checkpoint doesn't exist. Loading from files instead.")
+                print("A checkpoint doesn't exist at %s."
+                      " Loading from files instead." % self.ckpt_file)
             else:
                 print('Loading from files.')
             data = self._load_from_files()
