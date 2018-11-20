@@ -15,9 +15,6 @@ from sleep.data_ops import PATH_DATA
 
 if __name__ == '__main__':
     dataset = MASS(load_checkpoint=True)
-    dataset.save_checkpoint()
 
     scipy.io.savemat(os.path.join(PATH_DATA, 'mat_mass.mat'),
                      mdict={'mass': dataset.data})
-
-
