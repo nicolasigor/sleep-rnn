@@ -210,7 +210,7 @@ def conv2d_layer(
          name: (Optional, string, defaults to None) A name for the operation.
     """
     errors.check_valid_value(
-        pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL])
+        pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL, None])
     errors.check_valid_value(
         padding, 'padding', [constants.PAD_SAME, constants.PAD_VALID])
 
@@ -495,4 +495,133 @@ def time_upsampling_layer(inputs, out_feats, name=None):
             inputs, filters=out_feats, kernel_size=(2, 1),
             strides=(2, 1), padding=constants.PAD_SAME)
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
+def multilayer_lstm_block(
+        inputs,
+        num_units,
+        n_layers,
+        num_dirs=constants.UNIDIRECTIONAL,
+        batchnorm_first_lstm=constants.BN,
+        dropout_first_lstm=None,
+        batchnorm_rest_lstm=None,
+        dropout_rest_lstm=None,
+        drop_rate=0.5,
+        training=False,
+        name=None):
+    """Builds a multi-layer lstm block.
+
+    The block consists of BN-LSTM-...LSTM, with every layer using the same
+    specifications. A particular dropout and batchnorm specification can be
+    set for the first layer. n_layers defines the number of layers
+    to be stacked.
+    Please see the documentation of lstm_layer for details on input parameters.
+    """
+    with tf.variable_scope(name):
+        outputs = inputs
+        for i in range(n_layers):
+            if i == 1:
+                batchnorm = batchnorm_first_lstm
+                dropout = dropout_first_lstm
+            else:
+                batchnorm = batchnorm_rest_lstm
+                dropout = dropout_rest_lstm
+            outputs = lstm_layer(
+                outputs,
+                num_units=num_units,
+                num_dirs=num_dirs,
+                batchnorm=batchnorm,
+                dropout=dropout,
+                drop_rate=drop_rate,
+                training=training,
+                name='lstm_%d' % (i+1))
+    return outputs
+
+
+def multistage_lstm_block(
+        inputs,
+        num_units,
+        n_time_levels,
+        num_dirs=constants.UNIDIRECTIONAL,
+        batchnorm_first_lstm=constants.BN,
+        dropout_first_lstm=None,
+        batchnorm_rest_lstm=None,
+        dropout_rest_lstm=None,
+        time_pooling=constants.AVGPOOL,
+        drop_rate=0.5,
+        training=False,
+        name=None):
+    """Builds a multi-stage lstm block.
+
+    The block consists of a recursive stage structure:
+
+    LSTM ------------------------------------------------------- LSTM
+            |                                               |
+            downsampling - (another LSTM stage) - upsampling
+
+    Where (another LSTM stage) repeats the same pattern. The number of
+    stages is specified with 'n_time_levels', and the last stage is a single
+    LSTM layer. If 'n_time_levels' is 1, then a single LSTM layer is returned.
+    Every layer uses the same specifications, but a particular dropout and
+    batchnorm specification can be set for the first layer. Upsampling is
+    performed using an 1D upconv along the time dimension, while downsampling
+    is performed using 1D pooling along the time dimension. The number of
+    units used in (another LSTM stage) is doubled.
+    Please see the documentation of lstm_layer and time downsampling_layer
+    for details on input parameters.
+    """
+
+    with tf.variable_scope(name):
+        if num_dirs == constants.BIDIRECTIONAL:
+            stage_channels = 2 * num_units
+        else:
+            stage_channels = num_units
+        if n_time_levels == 1:  # Last stage
+            outputs = lstm_layer(
+                inputs,
+                num_units=num_units,
+                num_dirs=num_dirs,
+                batchnorm=batchnorm_first_lstm,
+                dropout=dropout_first_lstm,
+                drop_rate=drop_rate,
+                training=training,
+                name='lstm')
+        else:  # Make a new block
+            stage_outputs = lstm_layer(
+                inputs,
+                num_units=num_units,
+                num_dirs=num_dirs,
+                batchnorm=batchnorm_first_lstm,
+                dropout=dropout_first_lstm,
+                drop_rate=drop_rate,
+                training=training,
+                name='lstm_enc')
+            outputs = time_downsampling_layer(
+                stage_outputs, pooling=time_pooling, name='down')
+            # Nested block, doubling the number of channels
+            outputs = multistage_lstm_block(
+                outputs,
+                2 * num_units,
+                n_time_levels-1,
+                num_dirs=num_dirs,
+                batchnorm_first_lstm=batchnorm_rest_lstm,
+                dropout_first_lstm=dropout_rest_lstm,
+                batchnorm_rest_lstm=batchnorm_rest_lstm,
+                dropout_rest_lstm=dropout_rest_lstm,
+                time_pooling=time_pooling,
+                drop_rate=drop_rate,
+                training=training,
+                name='next_stage')
+            outputs = time_upsampling_layer(
+                outputs, stage_channels, name='up')
+            outputs = lstm_layer(
+                tf.concat([outputs, stage_outputs], axis=-1),
+                num_units=num_units,
+                num_dirs=num_dirs,
+                batchnorm=batchnorm_rest_lstm,
+                dropout=dropout_rest_lstm,
+                drop_rate=drop_rate,
+                training=training,
+                name='lstm_dec')
     return outputs

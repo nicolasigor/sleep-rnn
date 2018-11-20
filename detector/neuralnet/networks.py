@@ -108,7 +108,7 @@ def cmorlet_conv_blstm_net(
         lower_freq = 1  # Hz
         upper_freq = 30  # Hz
         initial_conv_filters = 16
-        initial_blstm_units = 2*64
+        initial_lstm_units = 64
 
         # CWT CMORLET
         outputs = layers.cmorlet_layer(
@@ -136,127 +136,33 @@ def cmorlet_conv_blstm_net(
 
         outputs = layers.sequence_flatten(outputs, 'flatten')
 
-        # Multi stage BLSTM
-        first_level_channels = initial_blstm_units
-        second_level_channels = 2*initial_blstm_units
-        third_level_channels = 4*initial_blstm_units
-
-        if n_time_levels == 1:
-            # Just a simple 2-layers BLSTM
-            outputs = layers.lstm_layer(
+        if n_time_levels == 1:  # Multilayer BLSTM (2 layers)
+            outputs = layers.multilayer_lstm_block(
                 outputs,
-                first_level_channels // 2,
+                initial_lstm_units,
+                2,
                 num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_first_lstm,
-                dropout=dropout_first_lstm,
+                batchnorm_first_lstm=batchnorm_first_lstm,
+                dropout_first_lstm=dropout_first_lstm,
+                batchnorm_rest_lstm=batchnorm_rest_lstm,
+                dropout_rest_lstm=dropout_rest_lstm,
                 drop_rate=drop_rate,
                 training=training,
-                name='blstm_1')
-            outputs = layers.lstm_layer(
+                name='multi_layer_blstm')
+        else:  # Multi stage BLSTM
+            outputs = layers.multistage_lstm_block(
                 outputs,
-                first_level_channels // 2,
+                initial_lstm_units,
+                n_time_levels,
                 num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
+                batchnorm_first_lstm=batchnorm_first_lstm,
+                dropout_first_lstm=dropout_first_lstm,
+                batchnorm_rest_lstm=batchnorm_rest_lstm,
+                dropout_rest_lstm=dropout_rest_lstm,
+                time_pooling=time_pooling,
                 drop_rate=drop_rate,
                 training=training,
-                name='blstm_2')
-
-        elif n_time_levels == 2:
-            # Go down
-            outputs_1e = layers.lstm_layer(
-                outputs,
-                first_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_first_lstm,
-                dropout=dropout_first_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_1e')
-            outputs_1e_down = layers.time_downsampling_layer(
-                outputs_1e, pooling=time_pooling, name='down_1e')
-
-            outputs_deep = layers.lstm_layer(
-                outputs_1e_down,
-                second_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_deep')
-
-            # Go up
-            outputs_1d_up = layers.time_upsampling_layer(
-                outputs_deep, first_level_channels, name='up_1e')
-            outputs = layers.lstm_layer(
-                tf.concat([outputs_1d_up, outputs_1e], axis=-1),
-                first_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_1d')
-
-        else:  # it's 3, we need to go deeper
-            # Go down
-            outputs_1e = layers.lstm_layer(
-                outputs,
-                first_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_first_lstm,
-                dropout=dropout_first_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_1e')
-            outputs_1e_down = layers.time_downsampling_layer(
-                outputs_1e, pooling=time_pooling, name='down_1e')
-            outputs_2e = layers.lstm_layer(
-                outputs_1e_down,
-                second_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_2e')
-            outputs_2e_down = layers.time_downsampling_layer(
-                outputs_2e, pooling=time_pooling, name='down_2e')
-
-            outputs_deep = layers.lstm_layer(
-                outputs_2e_down,
-                third_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_deep')
-
-            # Go up
-            outputs_2d_up = layers.time_upsampling_layer(
-                outputs_deep, second_level_channels, name='up_2d')
-            outputs_2d = layers.lstm_layer(
-                tf.concat([outputs_2d_up, outputs_2e], axis=-1),
-                first_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_2d')
-            outputs_1d_up = layers.time_upsampling_layer(
-                outputs_2d, first_level_channels, name='up_1d')
-            outputs = layers.lstm_layer(
-                tf.concat([outputs_1d_up, outputs_1e], axis=-1),
-                first_level_channels // 2,
-                num_dirs=constants.BIDIRECTIONAL,
-                batchnorm=batchnorm_rest_lstm,
-                dropout=dropout_rest_lstm,
-                drop_rate=drop_rate,
-                training=training,
-                name='blstm_1d')
+                name='multi_stage_blstm')
 
         # Final FC classification layer
         logits = layers.sequence_fc_layer(

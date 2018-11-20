@@ -51,6 +51,6 @@ if __name__ == '__main__':
         name='model')
 
     sess = tf.Session()
-    tb_path = os.path.join(os.path.dirname(__file__), 'summ')
+    tb_path = os.path.join(os.path.dirname(__file__), '')
     writer = tf.summary.FileWriter(os.path.join(tb_path, 'train'), sess.graph)
     print('Saving summaries at %s' % tb_path)

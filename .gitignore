@@ -20,6 +20,7 @@ __pychache__
 summ/
 logs/
 results/
+experiments/
 
 .asv
 
