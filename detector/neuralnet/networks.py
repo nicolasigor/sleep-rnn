@@ -9,6 +9,7 @@ import tensorflow as tf
 from . import layers
 
 from utils import constants
+from utils import errors
 
 
 def cmorlet_conv_blstm_net(
@@ -100,25 +101,23 @@ def cmorlet_conv_blstm_net(
     """
     with tf.variable_scope(name):
 
-        if n_conv_blocks not in [0, 1, 2, 3]:
-            msg = constants.ERROR_INVALID \
-                  % ([0, 1, 2, 3], 'n_conv_blocks', n_conv_blocks)
-            raise ValueError(msg)
-        if n_time_levels not in [1, 2, 3]:
-            msg = constants.ERROR_INVALID \
-                  % ([1, 2, 3], 'n_time_levels', n_time_levels)
-            raise ValueError(msg)
-
+        errors.check_valid_value(n_conv_blocks, 'n_conv_blocks', [0, 1, 2, 3])
+        errors.check_valid_value(n_time_levels, 'n_time_levels', [1, 2, 3])
         cwt_stride = 8 / (2**n_conv_blocks)
+        n_scales = 32
+        lower_freq = 1  # Hz
+        upper_freq = 30  # Hz
+        initial_conv_filters = 16
+        initial_blstm_units = 2*64
 
         # CWT CMORLET
         outputs = layers.cmorlet_layer(
             inputs,
             fb_list,
             fs,
-            lower_freq=1,
-            upper_freq=30,
-            n_scales=32,
+            lower_freq=lower_freq,
+            upper_freq=upper_freq,
+            n_scales=n_scales,
             stride=cwt_stride,
             border_crop=border_crop,
             training=training,
@@ -127,7 +126,7 @@ def cmorlet_conv_blstm_net(
 
         # Convolutional stage (only if n_conv_blocks is greater than 0)
         for i in range(n_conv_blocks):
-            filters = 16 * (2**i)
+            filters = initial_conv_filters * (2**i)
             outputs = layers.bn_conv3_block(
                 outputs,
                 filters,
@@ -138,9 +137,11 @@ def cmorlet_conv_blstm_net(
         outputs = layers.sequence_flatten(outputs, 'flatten')
 
         # Multi stage BLSTM
-        if n_time_levels == 1:
-            first_level_channels = 256
+        first_level_channels = initial_blstm_units
+        second_level_channels = 2*initial_blstm_units
+        third_level_channels = 4*initial_blstm_units
 
+        if n_time_levels == 1:
             # Just a simple 2-layers BLSTM
             outputs = layers.lstm_layer(
                 outputs,
@@ -162,9 +163,6 @@ def cmorlet_conv_blstm_net(
                 name='blstm_2')
 
         elif n_time_levels == 2:
-            first_level_channels = 128
-            second_level_channels = 256
-
             # Go down
             outputs_1e = layers.lstm_layer(
                 outputs,
@@ -202,10 +200,6 @@ def cmorlet_conv_blstm_net(
                 name='blstm_1d')
 
         else:  # it's 3, we need to go deeper
-            first_level_channels = 128
-            second_level_channels = 256
-            third_level_channels = 512
-
             # Go down
             outputs_1e = layers.lstm_layer(
                 outputs,

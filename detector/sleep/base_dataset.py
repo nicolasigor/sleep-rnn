@@ -8,6 +8,7 @@ import os
 import pickle
 
 from utils import constants
+from utils import errors
 from . import data_ops
 from .data_ops import PATH_DATA
 
@@ -17,7 +18,7 @@ KEY_PAGES = 'pages'
 KEY_MARKS = 'marks'
 
 
-class SpindleDataset(object):
+class BaseDataset(object):
     """This is a base class sleep spindle datasets.
     It provides the option to load and create checkpoints of the processed
     data, and provides methods to query data from specific ids or entire
@@ -89,11 +90,7 @@ class SpindleDataset(object):
 
     def get_subject_pages(self, subject_id):
         """Returns the indices of the N2 pages of this subject."""
-        if subject_id not in self.all_ids:
-            msg = constants.ERROR_INVALID % (
-                self.all_ids,
-                'ID', subject_id)
-            raise ValueError(msg)
+        errors.check_valid_value(subject_id, 'ID', self.all_ids)
         # Look for dictionary associated with this id
         id_idx = self.all_ids.index(subject_id)
         ind_dict = self.data[id_idx]
@@ -127,17 +124,9 @@ class SpindleDataset(object):
             n2_signal: (2D array) each row is an (augmented) page of the signal
             n2_marks: (2D array) each row is an (augmented) page of the marks
         """
-        if subject_id not in self.all_ids:
-            msg = constants.ERROR_INVALID % (
-                self.all_ids,
-                'ID', subject_id)
-            raise ValueError(msg)
+        errors.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i+1) for i in range(self.n_experts)]
-        if which_expert not in valid_experts:
-            msg = constants.ERROR_INVALID % (
-                valid_experts,
-                'which_expert', which_expert)
-            raise ValueError(msg)
+        errors.check_valid_value(which_expert, 'which_expert', valid_experts)
 
         # Look for dictionary associated with this id
         id_idx = self.all_ids.index(subject_id)

@@ -12,6 +12,7 @@ from tensorflow.python.ops import array_ops
 from spectrum import cmorlet
 from spectrum import spline
 from utils import constants
+from utils import errors
 
 
 def batchnorm_layer(
@@ -34,11 +35,8 @@ def batchnorm_layer(
         training: (Optional, boolean, defaults to False) Indicates if it is the
             training phase or not.
     """
-    if batchnorm not in [constants.BN, constants.BN_RENORM]:
-        msg = constants.ERROR_INVALID % (
-            [constants.BN, constants.BN_RENORM],
-            'batchnorm', batchnorm)
-        raise ValueError(msg)
+    errors.check_valid_value(
+        batchnorm, 'batchnorm', [constants.BN, constants.BN_RENORM])
 
     if batchnorm == constants.BN_RENORM:
         name = '%s_renorm' % name
@@ -78,11 +76,8 @@ def dropout_layer(
         training: (Optional, boolean, defaults to False) Indicates if it is the
             training phase or not.
     """
-    if dropout not in [constants.SEQUENCE_DROP, constants.REGULAR_DROP]:
-        msg = constants.ERROR_INVALID % (
-            [constants.SEQUENCE_DROP, constants.REGULAR_DROP],
-            'dropout', dropout)
-        raise ValueError(msg)
+    errors.check_valid_value(
+        dropout, 'dropout', [constants.SEQUENCE_DROP, constants.REGULAR_DROP])
 
     if dropout == constants.SEQUENCE_DROP:
         name = '%s_seq' % name
@@ -214,16 +209,10 @@ def conv2d_layer(
             layer variables.
          name: (Optional, string, defaults to None) A name for the operation.
     """
-    if padding not in [constants.AVGPOOL, constants.MAXPOOL]:
-        msg = constants.ERROR_INVALID % (
-            [constants.AVGPOOL, constants.MAXPOOL],
-            'pooling', pooling)
-        raise ValueError(msg)
-    if padding not in [constants.PAD_SAME, constants.PAD_VALID]:
-        msg = constants.ERROR_INVALID % (
-            [constants.PAD_VALID, constants.PAD_SAME],
-            'padding', padding)
-        raise ValueError(msg)
+    errors.check_valid_value(
+        pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL])
+    errors.check_valid_value(
+        padding, 'padding', [constants.PAD_SAME, constants.PAD_VALID])
 
     with tf.variable_scope(name):
         if batchnorm:
@@ -393,11 +382,9 @@ def lstm_layer(
             variables.
         name: (Optional, string, defaults to None) A name for the operation.
     """
-    if num_dirs not in [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL]:
-        msg = constants.ERROR_INVALID % (
-            [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL],
-            'num_dirs', num_dirs)
-        raise ValueError(msg)
+    errors.check_valid_value(
+        num_dirs, 'num_dirs',
+        [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL])
 
     with tf.variable_scope(name):
         if batchnorm:
@@ -474,11 +461,8 @@ def time_downsampling_layer(inputs, pooling=constants.AVGPOOL, name=None):
             the type of pooling to be performed along the time axis.
         name: (Optional, string, defaults to None) A name for the operation.
     """
-    if pooling not in [constants.AVGPOOL, constants.MAXPOOL]:
-        msg = constants.ERROR_INVALID % (
-            [constants.AVGPOOL, constants.MAXPOOL],
-            'pooling', pooling)
-        raise ValueError(msg)
+    errors.check_valid_value(
+        pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL])
 
     with tf.variable_scope(name):
         # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]

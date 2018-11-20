@@ -13,8 +13,7 @@ detector_path = '../../'
 sys.path.append(detector_path)
 
 from neuralnet.networks import cmorlet_conv_blstm_net
-from utils.constants import BN, BN_RENORM
-from utils.constants import REGULAR_DROP, SEQUENCE_DROP, AVGPOOL, MAXPOOL
+from utils import constants
 
 
 if __name__ == '__main__':
@@ -39,14 +38,14 @@ if __name__ == '__main__':
         training,
         n_conv_blocks=2,
         n_time_levels=3,
-        batchnorm_conv=BN_RENORM,
-        batchnorm_first_lstm=BN_RENORM,
+        batchnorm_conv=constants.BN_RENORM,
+        batchnorm_first_lstm=constants.BN_RENORM,
         dropout_first_lstm=None,
         batchnorm_rest_lstm=None,
-        dropout_rest_lstm=SEQUENCE_DROP,
-        time_pooling=AVGPOOL,
+        dropout_rest_lstm=constants.SEQUENCE_DROP,
+        time_pooling=constants.AVGPOOL,
         batchnorm_fc=None,
-        dropout_fc=SEQUENCE_DROP,
+        dropout_fc=constants.SEQUENCE_DROP,
         drop_rate=0.5,
         trainable_wavelet=False,
         name='model')

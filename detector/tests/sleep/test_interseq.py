@@ -65,4 +65,5 @@ if __name__ == '__main__':
     print('Example sequence with pages:\n', example_seq_pages)
     print('Provided pages for example:\n', example_pages)
     print('True conversion to intervals:\n', example_inter_pages)
-    print('Conversion to intervals:\n', seq2inter_with_pages(example_seq_pages, example_pages))
+    print('Conversion to intervals:\n',
+          seq2inter_with_pages(example_seq_pages, example_pages))

@@ -1,4 +1,4 @@
-"""eval_ops.py: Module for general evaluation metrics operations."""
+"""metrics.py: Module for general evaluation metrics operations."""
 
 from __future__ import absolute_import
 from __future__ import division

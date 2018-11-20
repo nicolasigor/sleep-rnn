@@ -22,17 +22,16 @@ def input_pipeline(
         map_fn: (Optional, function, defaults to None) A function that
             preprocess the features and labels before passing them to the model.
     """
-    with tf.device('/cpu:0'):
-        with tf.name_scope("iterator"):
-            # Input placeholder
+    with tf.name_scope("iterator"):
+        with tf.device('/cpu:0'):
             dataset = tf.data.Dataset.from_tensor_slices((feats_ph, labels_ph))
             dataset = dataset.shuffle(buffer_size=1000)
             dataset = dataset.repeat()
             if map_fn is not None:
                 dataset = dataset.map(map_fn)
             dataset = dataset.batch(batch_size=batch_size)
-            dataset = dataset.prefetch(buffer_size=2)
-            iterator = dataset.make_initializable_iterator()
+        dataset = dataset.prefetch(buffer_size=2)
+        iterator = dataset.make_initializable_iterator()
     return iterator
 
 

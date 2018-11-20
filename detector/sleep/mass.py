@@ -12,8 +12,8 @@ import pyedflib
 
 from . import data_ops
 from . import postprocessing
-from .spindle_dataset import SpindleDataset
-from .spindle_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
+from .base_dataset import BaseDataset
+from .base_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
 
 PATH_MASS_RELATIVE = 'ssdata_mass'
 PATH_REC = 'register'
@@ -29,7 +29,7 @@ IDS_INVALID = [4, 8, 15, 16, 18]
 IDS_TEST = [2, 6, 12, 13]
 
 
-class MASS(SpindleDataset):
+class MASS(BaseDataset):
     """This is a class to manipulate the MASS sleep EEG dataset.
 
     Expected directory tree inside DATA folder (see data_ops.py):
@@ -57,7 +57,7 @@ class MASS(SpindleDataset):
         """Constructor"""
         # TODO: Check subject 18 (performance issue)
         # MASS parameters
-        self.channel = 13  # Channel for SS marks, C3 in 13, F3 in 22
+        self.channel = 13  # Channel for SS marks, C3-CLE in 13, F3-CLE in 22
         self.n2_char = '2'  # Character for N2 identification in hypnogram
 
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
@@ -105,7 +105,7 @@ class MASS(SpindleDataset):
         return data_list
 
     def _get_file_paths(self):
-        """Returns a list of dicts containing paths for loading the database."""
+        """Returns a list of dicts containing paths to load the database."""
         # Build list of paths
         data_path_list = []
         for subject_id in self.all_ids:

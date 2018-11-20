@@ -12,8 +12,8 @@ import pyedflib
 
 from . import data_ops
 from . import postprocessing
-from .spindle_dataset import SpindleDataset
-from .spindle_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
+from .base_dataset import BaseDataset
+from .base_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
 
 PATH_MASS_RELATIVE = 'ssdata_inta'
 PATH_REC = 'register'
@@ -40,7 +40,7 @@ NAMES = [
     'TAGO061203']
 
 
-class INTA(SpindleDataset):
+class INTA(BaseDataset):
     """This is a class to manipulate the INTA sleep EEG dataset.
 
     Expected directory tree inside DATA folder (see data_ops.py):
@@ -61,7 +61,7 @@ class INTA(SpindleDataset):
     def __init__(self, load_checkpoint=False):
         """Constructor"""
         # INTA parameters
-        self.channel = 1  # Channel for SS marks
+        self.channel = 0  # Channel for SS marks, first is F4-C4
         # Source format is 1:SQ4  2:SQ3  3:SQ2  4:SQ1  5:REM  6:WA
         self.n2_char = 3  # Character for N2 identification in hypnogram
         self.original_page_duration = 30  # Time of window page [s]
@@ -107,7 +107,7 @@ class INTA(SpindleDataset):
         return data_list
 
     def _get_file_paths(self):
-        """Returns a list of dicts containing paths for loading the database."""
+        """Returns a list of dicts containing paths to load the database."""
         # Build list of paths
         data_path_list = []
         for subject_id in self.all_ids:
@@ -152,7 +152,7 @@ class INTA(SpindleDataset):
         Returns the sample-stamps of each mark."""
         # Recovery sample-stamps
         marks_file = np.loadtxt(path_marks_file, dtype='i', delimiter=' ')
-        marks = marks_file[marks_file[:, 5] == self.channel][:, [0, 1]]
+        marks = marks_file[marks_file[:, 5] == self.channel+1][:, [0, 1]]
         marks = np.round(marks).astype(np.int32)
         # Combine marks that are too close according to standards
         marks = postprocessing.combine_close_marks(

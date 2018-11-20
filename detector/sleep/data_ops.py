@@ -39,7 +39,7 @@ def inter2seq(intervals, start, end):
     associated with the active intervals."""
     if np.any(intervals < start) or np.any(intervals > end):
         msg = 'Values in intervals should be within start and end bounds'
-        raise Exception(msg)
+        raise ValueError(msg)
     sequence = np.zeros(end - start + 1, dtype=np.int32)
     for i in range(len(intervals)):
         start_sample = intervals[i, 0] - start
@@ -152,7 +152,7 @@ def seq2inter_with_pages(pages_sequence, pages_indices):
         raise ValueError('Shape mismatch. Inputs need the same number of rows.')
     tmp_sequence = pages_sequence.flatten()
     if not np.array_equal(tmp_sequence, tmp_sequence.astype(bool)):
-        raise Exception('Sequence must have binary values only')
+        raise ValueError('Sequence must have binary values only')
 
     page_size = pages_sequence.shape[1]
     max_page = np.max(pages_indices)
