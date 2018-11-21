@@ -73,6 +73,8 @@ drop_rate: (Optional, float, defaults to 0.5) Dropout rate. Fraction of
 trainable_wavelet: (Optional, boolean, defaults to False) If True, the
     fb params will be trained with backprop.
 type_wavelet: ({CMORLET, SPLINE}) Type of wavelet to be used.
+use_log: (boolean) Whether to apply logarithm to the CWT output, after the 
+    avg pool.
 n_scales: (int) Number of scales to be computed for the scalogram.
 lower_freq: (float) Lower frequency to be considered in the scalograms [Hz].
 upper_freq: (float) Upper frequency to be considered in the scalograms [Hz].
@@ -100,6 +102,7 @@ DROPOUT_FC = 'dropout_fc'
 DROP_RATE = 'drop_rate'
 TRAINABLE_WAVELET = 'trainable_wavelet'
 TYPE_WAVELET = 'type_wavelet'
+USE_LOG = 'use_log'
 N_SCALES = 'n_scales'
 LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
@@ -153,32 +156,33 @@ default_params = {
     TIME_RESOLUTION_FACTOR: 8,
     FS: 200,
     BORDER_DURATION: 3,
-    FB_LIST: [1.5],
+    FB_LIST: [0.5, 1.0, 1.5, 2.0],
     N_CONV_BLOCKS: 0,
     N_TIME_LEVELS: 1,
-    BATCHNORM_CONV: constants.BN_RENORM,
-    BATCHNORM_FIRST_LSTM: constants.BN_RENORM,
+    BATCHNORM_CONV: constants.BN,
+    BATCHNORM_FIRST_LSTM: constants.BN,
     DROPOUT_FIRST_LSTM: None,
     BATCHNORM_REST_LSTM: None,
-    DROPOUT_REST_LSTM: None,
+    DROPOUT_REST_LSTM: constants.SEQUENCE_DROP,
     TIME_POOLING: constants.AVGPOOL,
     BATCHNORM_FC: None,
-    DROPOUT_FC: None,
-    DROP_RATE: 0.5,
+    DROPOUT_FC: constants.SEQUENCE_DROP,
+    DROP_RATE: 0.3,
     TRAINABLE_WAVELET: False,
     TYPE_WAVELET: constants.CMORLET,
+    USE_LOG: True,
     N_SCALES: 32,
-    LOWER_FREQ: 1,
-    UPPER_FREQ: 30,
+    LOWER_FREQ: 2,
+    UPPER_FREQ: 32,
     INITIAL_CONV_FILTERS: 16,
-    INITIAL_LSTM_UNITS: 64,
+    INITIAL_LSTM_UNITS: 128,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 0.001,
-    CLIP_GRADIENTS: False,
-    CLIP_NORM: 5,
+    CLIP_GRADIENTS: True,
+    CLIP_NORM: 1,
     MOMENTUM: 0.9,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
     MAX_EPOCHS: 100,
-    NSTATS: 100
+    NSTATS: 50
 }

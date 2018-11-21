@@ -88,7 +88,7 @@ class BaseDataset(object):
         # n_pages = np.sum([ind[KEY_PAGES].shape[0] for ind in self.data])
         # print("\nPages in %s dataset: %s" % (self.name, n_pages))
 
-    def get_subject_pages(self, subject_id):
+    def get_subject_pages(self, subject_id, verbose=False):
         """Returns the indices of the N2 pages of this subject."""
         errors.check_valid_value(subject_id, 'ID', self.all_ids)
         # Look for dictionary associated with this id
@@ -96,7 +96,24 @@ class BaseDataset(object):
         ind_dict = self.data[id_idx]
         # Unpack data
         pages = ind_dict[KEY_PAGES]
+        if verbose:
+            print('Getting ID %s, %d N2 pages'
+                  % (ind_dict[KEY_ID], pages.size))
         return pages
+
+    def get_subset_pages(
+            self,
+            subject_id_list,
+            verbose=False
+    ):
+        """Returns the list of N2 pages from a list of subjects.
+        """
+        subset_pages = []
+        for subject_id in subject_id_list:
+            n2_pages = self.get_subject_pages(
+                subject_id, verbose)
+            subset_pages.append(n2_pages)
+        return subset_pages
 
     def get_subject_data(
             self,
@@ -150,7 +167,7 @@ class BaseDataset(object):
                   % (ind_dict[KEY_ID], n2_pages.size, which_expert))
         return n2_signal, n2_marks
 
-    def get_subset(
+    def get_subset_data(
             self,
             subject_id_list,
             augmented_page=False,
@@ -172,38 +189,6 @@ class BaseDataset(object):
             subset_signals.append(n2_signal)
             subset_marks.append(n2_marks)
         return subset_signals, subset_marks
-
-    def get_train_subset(
-            self,
-            augmented_page=False,
-            border_size=0,
-            which_expert=1,
-            verbose=False
-    ):
-        """Returns the train subset"""
-        train_signals, train_marks = self.get_subset(
-            self.train_ids,
-            augmented_page=augmented_page,
-            border_size=border_size,
-            which_expert=which_expert,
-            verbose=verbose)
-        return train_signals, train_marks
-
-    def get_test_subset(
-            self,
-            augmented_page=False,
-            border_size=0,
-            which_expert=1,
-            verbose=False
-    ):
-        """Returns the test subset"""
-        test_signals, test_marks = self.get_subset(
-            self.test_ids,
-            augmented_page=augmented_page,
-            border_size=border_size,
-            which_expert=which_expert,
-            verbose=verbose)
-        return test_signals, test_marks
 
     def save_checkpoint(self):
         """Saves a pickle file containing the loaded data."""

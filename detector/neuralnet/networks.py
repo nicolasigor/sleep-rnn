@@ -62,6 +62,7 @@ def wavelet_blstm_net(
                 n_scales=params[param_keys.N_SCALES],
                 stride=cwt_stride,
                 border_crop=border_crop,
+                use_log=params[param_keys.USE_LOG],
                 training=training,
                 trainable_wavelet=params[param_keys.TRAINABLE_WAVELET],
                 name='spectrum')
@@ -76,6 +77,7 @@ def wavelet_blstm_net(
                 n_scales=params[param_keys.N_SCALES],
                 stride=cwt_stride,
                 border_crop=border_crop,
+                use_log=params[param_keys.USE_LOG],
                 training=training,
                 trainable_wavelet=params[param_keys.TRAINABLE_WAVELET],
                 name='spectrum')
