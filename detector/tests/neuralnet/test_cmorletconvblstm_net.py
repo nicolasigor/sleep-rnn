@@ -5,8 +5,6 @@ from __future__ import print_function
 import os
 import sys
 
-import matplotlib.pyplot as plt
-import numpy as np
 import tensorflow as tf
 
 detector_path = '../../'
@@ -51,6 +49,6 @@ if __name__ == '__main__':
         name='model')
 
     sess = tf.Session()
-    tb_path = os.path.join(os.path.dirname(__file__), '')
+    tb_path = os.path.join(os.path.dirname(__file__), 'logs')
     writer = tf.summary.FileWriter(os.path.join(tb_path, 'train'), sess.graph)
     print('Saving summaries at %s' % tb_path)
