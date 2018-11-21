@@ -7,12 +7,10 @@ import sys
 detector_path = '../../'
 sys.path.append(detector_path)
 
+from neuralnet.models import WaveletBLSTM
 from utils import constants
+from utils import param_keys
 
 
 if __name__ == '__main__':
-    # Parameters
-    fs = 200
-    page_duration = 20
-    border_duration = 1
-    fb_list = [1.5]
+    model = WaveletBLSTM({})

@@ -25,5 +25,20 @@ SEQUENCE_DROP = 'sequence_dropout'
 UNIDIRECTIONAL = 'unidirectional'
 BIDIRECTIONAL = 'bidirectional'
 
+# Types of wavelet
+CMORLET = 'cmorlet'
+SPLINE = 'spline'
+
+# Type of class weights
+BALANCED = 'balanced'
+
+# Types of loss
+CROSS_ENTROPY_LOSS = 'cross_entropy_loss'
+DICE_LOSS = 'dice_loss'
+
+# Types of optimizer
+ADAM_OPTIMIZER = 'adam_optimizer'
+SGD_OPTIMIZER = 'sgd_optimizer'
+
 # Error message, parameter not in valid list
 ERROR_INVALID = 'Expected %s for %s, but %s was provided.'
