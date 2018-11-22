@@ -183,6 +183,6 @@ default_params = {
     CLIP_NORM: 1,
     MOMENTUM: 0.9,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_EPOCHS: 100,
+    MAX_EPOCHS: 50,
     NSTATS: 50
 }

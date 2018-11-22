@@ -16,6 +16,7 @@ from utils import param_keys
 
 SEED = 1234
 
+
 if __name__ == '__main__':
 
     # Load data

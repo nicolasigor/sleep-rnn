@@ -92,7 +92,7 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             total = n_negative + n_positive
             weight_negative = n_positive / total
             weight_positive = n_negative / total
-            class_weights = tf.constant([weight_negative, weight_positive])
+            class_weights = tf.stack([weight_negative, weight_positive], axis=0)
             weights = tf.gather(class_weights, labels)
         else:
             class_weights = tf.constant(class_weights)
