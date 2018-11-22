@@ -94,8 +94,8 @@ N_TIME_LEVELS = 'n_time_levels'
 BATCHNORM_CONV = 'batchnorm_conv'
 BATCHNORM_FIRST_LSTM = 'batchnorm_first_lstm'
 DROPOUT_FIRST_LSTM = 'dropout_first_lstm'
-BATCHNORM_REST_LSTM = 'batchnorm_first_lstm'
-DROPOUT_REST_LSTM = 'dropout_first_lstm'
+BATCHNORM_REST_LSTM = 'batchnorm_rest_lstm'
+DROPOUT_REST_LSTM = 'dropout_rest_lstm'
 TIME_POOLING = 'time_pooling'
 BATCHNORM_FC = 'batchnorm_fc'
 DROPOUT_FC = 'dropout_fc'
@@ -179,7 +179,7 @@ default_params = {
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 0.001,
-    CLIP_GRADIENTS: True,
+    CLIP_GRADIENTS: False,  # TODO: Fix clip gradients
     CLIP_NORM: 1,
     MOMENTUM: 0.9,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
