@@ -13,8 +13,9 @@ from sleep.mass import MASS
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
 from utils import param_keys
+from utils import constants
 
-SEED = 1234
+SEED = 123
 
 
 if __name__ == '__main__':
@@ -26,19 +27,22 @@ if __name__ == '__main__':
     params = param_keys.default_params
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
+    params[param_keys.MAX_EPOCHS] = 10
+    params[param_keys.TYPE_LOSS] = constants.DICE_LOSS
 
     # Create model
-    model = WaveletBLSTM(params, logdir='results/demo_logs')
+    model = WaveletBLSTM(params, logdir='results/demo_logs_dice')
 
     # Get training set ids
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
 
     # Split to form validation set
-    # TODO: quitar esta trampita
-    train_ids, _ = data_manipulation.split_ids_list(
+    # train_ids, _ = data_manipulation.split_ids_list(
+    #     all_train_ids, seed=SEED)
+    # val_ids = dataset.test_ids
+    train_ids, val_ids = data_manipulation.split_ids_list(
         all_train_ids, seed=SEED)
-    val_ids = dataset.test_ids
     print('Training set IDs:', train_ids)
     print('Validation set IDs:', val_ids)
 

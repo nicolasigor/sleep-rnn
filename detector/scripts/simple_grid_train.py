@@ -23,24 +23,31 @@ SEED = 123
 if __name__ == '__main__':
 
     # Grid search
-    dropout_rest_lstm_list = [None, constants.SEQUENCE_DROP]
-    dropout_fc_list = [None, constants.SEQUENCE_DROP]
-    use_log_list = [False, True]
-    class_weights_list = [None, constants.BALANCED]
+    # dropout_rest_lstm_list = [None, constants.SEQUENCE_DROP]
+    # dropout_fc_list = [None, constants.SEQUENCE_DROP]
+    # use_log_list = [False, True]
+    # class_weights_list = [None, constants.BALANCED]
+    clip_grad_clip_norm_list = [(True, 1), (True, 3), (False, 5)]
+    type_optimizer_list = [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER]
+    learning_rate_list = [0.1, 0.01, 0.001]
+    type_loss_list = [constants.CROSS_ENTROPY_LOSS, constants.DICE_LOSS]
 
     # Create experiment
     parameters_list = list(itertools.product(
-        dropout_rest_lstm_list,
-        dropout_fc_list,
-        use_log_list,
-        class_weights_list))
+        clip_grad_clip_norm_list,
+        type_optimizer_list,
+        learning_rate_list,
+        type_loss_list
+    ))
     print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
-    for dropout_rest_lstm, dropout_fc, use_log, class_weights in parameters_list:
+    for clip_grad_clip_norm, type_optimizer, learning_rate, type_loss in parameters_list:
+        clip_grad = clip_grad_clip_norm[0]
+        clip_norm = clip_grad_clip_norm[1]
         experiment_dir = os.path.join(
-            'results', 'grid_20181121',
-            'dorest_%s_dofc_%s_log_%s_w_%s'
-            % (dropout_rest_lstm, dropout_fc, use_log, class_weights)
+            'results', 'grid_20181122',
+            'cgrad_%s_cnorm_%s_opt_%s_lr_%s_loss_%s'
+            % (clip_grad, clip_norm, type_optimizer, learning_rate, type_loss)
         )
         print('This run directory: %s' % experiment_dir)
 
@@ -53,10 +60,11 @@ if __name__ == '__main__':
         params[param_keys.FS] = dataset.fs
 
         # Grid params
-        params[param_keys.DROPOUT_REST_LSTM] = dropout_rest_lstm
-        params[param_keys.DROPOUT_FC] = dropout_fc
-        params[param_keys.USE_LOG] = use_log
-        params[param_keys.CLASS_WEIGHTS] = class_weights
+        params[param_keys.CLIP_GRADIENTS] = clip_grad
+        params[param_keys.CLIP_NORM] = clip_norm
+        params[param_keys.TYPE_OPTIMIZER] = type_optimizer
+        params[param_keys.LEARNING_RATE] = learning_rate
+        params[param_keys.TYPE_LOSS] = type_loss
 
         # Create model
         model = WaveletBLSTM(params, logdir=experiment_dir)
@@ -66,7 +74,6 @@ if __name__ == '__main__':
         all_train_ids = dataset.train_ids
 
         # Split to form validation set
-        # TODO: quitar esta trampita
         # train_ids, _ = data_manipulation.split_ids_list(
         #     all_train_ids, seed=SEED)
         # val_ids = dataset.test_ids

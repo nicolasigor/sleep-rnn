@@ -114,6 +114,7 @@ def dice_loss_fn(probabilities, labels):
             labels: (2d tensor) binary tensor of shape [batch, timelen]
         """
     with tf.name_scope(constants.DICE_LOSS):
+        labels = tf.to_float(labels)
         intersection = tf.reduce_sum(tf.multiply(probabilities, labels))
         size_prob = tf.reduce_sum(tf.square(probabilities))
         size_labels = tf.reduce_sum(labels)
@@ -121,6 +122,37 @@ def dice_loss_fn(probabilities, labels):
         loss = 1 - dice
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
+
+
+def generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm):
+    """Applies the optimizer to the loss."""
+    original_gvs = optimizer.compute_gradients(loss)
+
+    gradients = [gv[0] for gv in original_gvs]
+    grad_norm = tf.global_norm(gradients, name='gradient_norm')
+    grad_norm_summ = tf.summary.scalar('grad_norm', grad_norm)
+
+    if clip_gradients:
+        gradients, _ = tf.clip_by_global_norm(
+            gradients,
+            clip_norm,
+            use_norm=grad_norm,
+            name='clipping')
+        clipped_grad_norm = tf.global_norm(gradients, name='new_gradient_norm')
+        variables = [gv[1] for gv in original_gvs]
+        new_gvs = [(grad, var) for grad, var in zip(gradients, variables)]
+        clipped_grad_norm_summ = tf.summary.scalar(
+            'clipped_grad_norm', clipped_grad_norm)
+        grad_norm_summ = tf.summary.merge(
+            [grad_norm_summ, clipped_grad_norm_summ])
+    else:
+        new_gvs = original_gvs
+
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)  # For BN
+    with tf.control_dependencies(update_ops):
+        train_step = optimizer.apply_gradients(new_gvs)
+    reset_optimizer_op = tf.variables_initializer(optimizer.variables())
+    return train_step, reset_optimizer_op, grad_norm_summ
 
 
 def adam_optimizer_fn(loss, learning_rate, clip_gradients, clip_norm):
@@ -134,26 +166,7 @@ def adam_optimizer_fn(loss, learning_rate, clip_gradients, clip_norm):
     """
     with tf.name_scope(constants.ADAM_OPTIMIZER):
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-        gvs = optimizer.compute_gradients(loss)
-
-        gradients = [gv[0] for gv in gvs]
-        grad_norm = tf.global_norm(gradients, name='gradient_norm')
-        grad_norm_summ = tf.summary.scalar('grad_norm', grad_norm)
-
-        if clip_gradients:
-            gradients = tf.clip_by_global_norm(
-                gradients,
-                clip_norm,
-                use_norm=grad_norm,
-                name='clipping')
-            variables = [gv[1] for gv in gvs]
-            gvs = [(grad, var) for grad, var in zip(gradients, variables)]
-
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)  # For BN
-        with tf.control_dependencies(update_ops):
-            train_step = optimizer.apply_gradients(gvs)
-        reset_optimizer_op = tf.variables_initializer(optimizer.variables())
-    return train_step, reset_optimizer_op, grad_norm_summ
+    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
 
 
 def sgd_optimizer_fn(loss, learning_rate, momentum, clip_gradients, clip_norm):
@@ -170,26 +183,7 @@ def sgd_optimizer_fn(loss, learning_rate, momentum, clip_gradients, clip_norm):
     with tf.name_scope(constants.SGD_OPTIMIZER):
         optimizer = tf.train.MomentumOptimizer(
             learning_rate, momentum, use_nesterov=True)
-        gvs = optimizer.compute_gradients(loss)
-
-        gradients = [gv[0] for gv in gvs]
-        grad_norm = tf.global_norm(gradients, name='gradient_norm')
-        grad_norm_summ = tf.summary.scalar('grad_norm', grad_norm)
-
-        if clip_gradients:
-            gradients = tf.clip_by_global_norm(
-                gradients,
-                clip_norm,
-                use_norm=grad_norm,
-                name='clipping')
-            variables = [gv[1] for gv in gvs]
-            gvs = [(grad, var) for grad, var in zip(gradients, variables)]
-
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)  # For BN
-        with tf.control_dependencies(update_ops):
-            train_step = optimizer.apply_gradients(gvs)
-        reset_optimizer_op = tf.variables_initializer(optimizer.variables())
-    return train_step, reset_optimizer_op, grad_norm_summ
+    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
 
 
 def confusion_matrix(logits, labels):
