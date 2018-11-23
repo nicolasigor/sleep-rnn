@@ -29,6 +29,7 @@ if __name__ == '__main__':
     params[param_keys.FS] = dataset.fs
     params[param_keys.MAX_EPOCHS] = 10
     params[param_keys.TYPE_LOSS] = constants.DICE_LOSS
+    params[param_keys.N_TIME_LEVELS] = 3
 
     # Create model
     model = WaveletBLSTM(params, logdir='results/demo_logs_dice')

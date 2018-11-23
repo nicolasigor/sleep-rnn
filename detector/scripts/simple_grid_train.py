@@ -27,27 +27,24 @@ if __name__ == '__main__':
     # dropout_fc_list = [None, constants.SEQUENCE_DROP]
     # use_log_list = [False, True]
     # class_weights_list = [None, constants.BALANCED]
-    clip_grad_clip_norm_list = [(True, 1), (True, 3), (False, 5)]
-    type_optimizer_list = [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER]
-    learning_rate_list = [0.1, 0.01, 0.001]
-    type_loss_list = [constants.CROSS_ENTROPY_LOSS, constants.DICE_LOSS]
+    # clip_norm_list = [0.25, 0.5, 1]
+    learning_rate_exp_list = [3, 4, 5]
+    initial_lstm_units_list = [64, 128]
+    n_time_levels_list = [1, 2, 3]
 
     # Create experiment
     parameters_list = list(itertools.product(
-        clip_grad_clip_norm_list,
-        type_optimizer_list,
-        learning_rate_list,
-        type_loss_list
+        learning_rate_exp_list,
+        initial_lstm_units_list,
+        n_time_levels_list
     ))
     print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
-    for clip_grad_clip_norm, type_optimizer, learning_rate, type_loss in parameters_list:
-        clip_grad = clip_grad_clip_norm[0]
-        clip_norm = clip_grad_clip_norm[1]
+    for learning_rate, initial_lstm_units, n_time_levels in parameters_list:
         experiment_dir = os.path.join(
-            'results', 'grid_20181122',
-            'cgrad_%s_cnorm_%s_opt_%s_lr_%s_loss_%s'
-            % (clip_grad, clip_norm, type_optimizer, learning_rate, type_loss)
+            'results', 'grid_20181123',
+            'lr_%s_lstm_%s_ntime_%s'
+            % (learning_rate, initial_lstm_units, n_time_levels)
         )
         print('This run directory: %s' % experiment_dir)
 
@@ -60,11 +57,9 @@ if __name__ == '__main__':
         params[param_keys.FS] = dataset.fs
 
         # Grid params
-        params[param_keys.CLIP_GRADIENTS] = clip_grad
-        params[param_keys.CLIP_NORM] = clip_norm
-        params[param_keys.TYPE_OPTIMIZER] = type_optimizer
-        params[param_keys.LEARNING_RATE] = learning_rate
-        params[param_keys.TYPE_LOSS] = type_loss
+        params[param_keys.LEARNING_RATE] = 10**(-learning_rate)
+        params[param_keys.INITIAL_LSTM_UNITS] = initial_lstm_units
+        params[param_keys.N_TIME_LEVELS] = n_time_levels
 
         # Create model
         model = WaveletBLSTM(params, logdir=experiment_dir)
