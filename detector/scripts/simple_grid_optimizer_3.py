@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # use_log_list = [False, True]
     # class_weights_list = [None, constants.BALANCED]
     # clip_norm_list = [0.25, 0.5, 1]
-    learning_rate_exp_list = [3, 4, 5]
+    learning_rate_exp_list = [5]
     opt_momentum_list = [
         (constants.ADAM_OPTIMIZER, 0.0),  # Adam ignores momentum
         (constants.SGD_OPTIMIZER, 0.3),

@@ -116,7 +116,7 @@ def dice_loss_fn(probabilities, labels):
     with tf.name_scope(constants.DICE_LOSS):
         labels = tf.to_float(labels)
         intersection = tf.reduce_sum(tf.multiply(probabilities, labels))
-        size_prob = tf.reduce_sum(tf.square(probabilities))
+        size_prob = tf.reduce_sum(probabilities)
         size_labels = tf.reduce_sum(labels)
         dice = 2 * intersection / (size_prob + size_labels)
         loss = 1 - dice
@@ -183,6 +183,22 @@ def sgd_optimizer_fn(loss, learning_rate, momentum, clip_gradients, clip_norm):
     with tf.name_scope(constants.SGD_OPTIMIZER):
         optimizer = tf.train.MomentumOptimizer(
             learning_rate, momentum, use_nesterov=True)
+    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
+
+
+def rmsprop_optimizer_fn(loss, learning_rate, momentum, clip_gradients, clip_norm):
+    """Returns the optimizer operation to minimize the loss with RMSProp
+
+    Args:
+        loss: (tensor) loss to be minimized
+        learning_rate: (float) learning rate for the optimizer
+        momentum: (Optional, float) momentum for the optimizer.
+        clip_gradients: (boolean) Whether to clip gradient by the global norm.
+        clip_norm: (float) Global norm to clip.
+    """
+    with tf.name_scope(constants.RMSPROP_OPTIMIZER):
+        optimizer = tf.train.RMSPropOptimizer(
+            learning_rate, momentum=momentum)
     return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
 
 

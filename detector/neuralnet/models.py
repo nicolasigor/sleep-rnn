@@ -167,11 +167,17 @@ class WaveletBLSTM(BaseModel):
         type_optimizer = self.params[param_keys.TYPE_OPTIMIZER]
         errors.check_valid_value(
             type_optimizer, 'type_optimizer',
-            [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER])
+            [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER,
+             constants.RMSPROP_OPTIMIZER])
 
         if type_optimizer == constants.ADAM_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = net_ops.adam_optimizer_fn(
                 self.loss, self.learning_rate,
+                self.params[param_keys.CLIP_GRADIENTS],
+                self.params[param_keys.CLIP_NORM])
+        elif type_optimizer == constants.RMSPROP_OPTIMIZER:
+            train_step, reset_optimizer_op, grad_norm_summ = net_ops.rmsprop_optimizer_fn(
+                self.loss, self.learning_rate, self.params[param_keys.MOMENTUM],
                 self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM])
         else:
@@ -204,7 +210,7 @@ class WaveletBLSTM(BaseModel):
 
     def _eval_metrics_fn(self):
         with tf.name_scope("eval_metrics"):
-            batch_metrics_dict = {
+            eval_metrics_dict = {
                 KEY_TP: self.batch_metrics_dict[KEY_TP],
                 KEY_FP: self.batch_metrics_dict[KEY_FP],
                 KEY_FN: self.batch_metrics_dict[KEY_FN],
@@ -215,4 +221,4 @@ class WaveletBLSTM(BaseModel):
                 self.batch_metrics_summ
             ]
             eval_metrics_summ = tf.summary.merge(eval_metrics_summ)
-        return batch_metrics_dict, eval_metrics_summ
+        return eval_metrics_dict, eval_metrics_summ

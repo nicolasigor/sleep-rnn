@@ -15,7 +15,7 @@ from . import postprocessing
 from .base_dataset import BaseDataset
 from .base_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
 
-PATH_MASS_RELATIVE = 'ssdata_inta'
+PATH_INTA_RELATIVE = 'ssdata_inta'
 PATH_REC = 'register'
 PATH_MARKS = 'label/marks'
 PATH_STATES = 'label/states'
@@ -45,7 +45,7 @@ class INTA(BaseDataset):
 
     Expected directory tree inside DATA folder (see data_ops.py):
 
-    PATH_MASS_RELATIVE
+    PATH_INTA_RELATIVE
     |__ PATH_REC
         |__ ADGU101504.rec
         |__ ALUR012904.rec
@@ -69,7 +69,7 @@ class INTA(BaseDataset):
         valid_ids = [i for i in range(1, 12) if i not in IDS_INVALID]
         test_ids = IDS_TEST
         train_ids = [i for i in valid_ids if i not in test_ids]
-        super().__init__(PATH_MASS_RELATIVE, load_checkpoint, 'inta', 1,
+        super().__init__(PATH_INTA_RELATIVE, load_checkpoint, 'inta', 1,
                          train_ids, test_ids)
 
     def _load_from_files(self):
