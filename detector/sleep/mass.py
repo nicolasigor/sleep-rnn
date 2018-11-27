@@ -34,7 +34,7 @@ class MASS(BaseDataset):
 
     Expected directory tree inside DATA folder (see data_ops.py):
 
-    PATH_INTA_RELATIVE
+    PATH_MASS_RELATIVE
     |__ PATH_REC
         |__ 01-02-0001 PSG.edf
         |__ 01-02-0002 PSG.edf
