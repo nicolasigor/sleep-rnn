@@ -95,7 +95,8 @@ class BaseModel(object):
         # Learning rate variable
         with tf.variable_scope('learning_rate'):
             self.learning_rate = tf.Variable(
-                self.params[param_keys.LEARNING_RATE], trainable=False, name='lr')
+                self.params[param_keys.LEARNING_RATE], trainable=False,
+                name='lr')
 
         with tf.variable_scope('feeding'):
             # Training iterator

@@ -148,14 +148,14 @@ def cmorlet_layer(
     with tf.variable_scope(name):
         # Input sequence has shape [batch_size, time_len]
         if use_avg_pool and stride > 1:
-            cwt = cmorlet.compute_cwt(
+            cwt, wavelets = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=1,
                 trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
         else:
-            cwt = cmorlet.compute_cwt(
+            cwt, wavelets = cmorlet.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 flattening=True, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
