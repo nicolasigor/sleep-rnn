@@ -23,22 +23,14 @@ SEED = 123
 if __name__ == '__main__':
 
     # Grid search
-    # dropout_rest_lstm_list = [None, constants.SEQUENCE_DROP]
-    # dropout_fc_list = [None, constants.SEQUENCE_DROP]
-    # use_log_list = [False, True]
-    # class_weights_list = [None, constants.BALANCED]
-    # clip_norm_list = [0.25, 0.5, 1]
     learning_rate_exp_list = [4]
     opt_momentum_list = [
         (constants.ADAM_OPTIMIZER, 0.0),  # Adam ignores momentum
-        (constants.SGD_OPTIMIZER, 0.3),
         (constants.SGD_OPTIMIZER, 0.5),
         (constants.SGD_OPTIMIZER, 0.9),
-        (constants.SGD_OPTIMIZER, 0.99),
         (constants.RMSPROP_OPTIMIZER, 0.0),
         (constants.RMSPROP_OPTIMIZER, 0.5),
         (constants.RMSPROP_OPTIMIZER, 0.9),
-        (constants.RMSPROP_OPTIMIZER, 0.99)
     ]
     batch_size_list = [32, 128]
 
@@ -55,7 +47,7 @@ if __name__ == '__main__':
         momentum = opt_momentum[1]
 
         experiment_dir = os.path.join(
-            'results', 'grid_20181126',
+            'results', 'grid_20181128',
             'lr_%d_batch_%d_opt_%s_m_%1.2f'
             % (learning_rate, batch_size, opt_name, momentum)
         )
@@ -69,7 +61,7 @@ if __name__ == '__main__':
         params[param_keys.PAGE_DURATION] = dataset.page_duration
         params[param_keys.FS] = dataset.fs
 
-        params[param_keys.MAX_EPOCHS] = 50
+        params[param_keys.MAX_EPOCHS] = 100
 
         # Grid params
         params[param_keys.LEARNING_RATE] = 10**(-learning_rate)

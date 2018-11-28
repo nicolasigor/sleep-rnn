@@ -129,12 +129,15 @@ learning_rate: (float) learning rate for the optimizer
 clip_gradients: (boolean) Whether to clip the gradient by the global norm.
 clip_norm: (float) if clip_gradients is true, this is the global norm to use.
 momentum: (float) momentum for the SGD optimizer.
+use_nesterov: (bool) whether to use nesterov momentum instead of regular
+    momentum for SGD optimization.
 type_optimizer: ({ADAM_OPTIMIZER, SGD_OPTIMIZER}) Type of optimizer to be used.
 """
 LEARNING_RATE = 'learning_rate'
 CLIP_GRADIENTS = 'clip_gradients'
 CLIP_NORM = 'clip_norm'
 MOMENTUM = 'momentum'
+USE_NESTEROV_MOMENTUM = 'use_nesterov'
 TYPE_OPTIMIZER = 'type_optimizer'
 
 
@@ -166,7 +169,7 @@ default_params = {
     DROPOUT_REST_LSTM: constants.SEQUENCE_DROP,
     TIME_POOLING: constants.AVGPOOL,
     BATCHNORM_FC: None,
-    DROPOUT_FC: None,
+    DROPOUT_FC: constants.SEQUENCE_DROP,
     DROP_RATE: 0.3,
     TRAINABLE_WAVELET: False,
     TYPE_WAVELET: constants.CMORLET,
@@ -180,8 +183,9 @@ default_params = {
     TYPE_LOSS: constants.DICE_LOSS,
     LEARNING_RATE: 0.001,
     CLIP_GRADIENTS: True,
-    CLIP_NORM: 1,
+    CLIP_NORM: 5,
     MOMENTUM: 0.9,
+    USE_NESTEROV_MOMENTUM: True,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
     MAX_EPOCHS: 100,
     NSTATS: 50

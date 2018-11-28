@@ -521,7 +521,7 @@ def multilayer_lstm_block(
     with tf.variable_scope(name):
         outputs = inputs
         for i in range(n_layers):
-            if i == 1:
+            if i == 0:
                 batchnorm = batchnorm_first_lstm
                 dropout = dropout_first_lstm
             else:

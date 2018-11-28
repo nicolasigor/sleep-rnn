@@ -12,7 +12,7 @@ import numpy as np
 import tensorflow as tf
 
 from utils import param_keys
-from . import net_ops
+from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
 PATH_TO_PROJECT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))
@@ -75,49 +75,53 @@ class BaseModel(object):
         # --- Build model
 
         # Input placeholders
-        self.handle_ph = tf.placeholder(tf.string, shape=[], name='handle_ph')
-        self.feats_train_ph = tf.placeholder(
-            tf.float32, shape=[None] + self.feat_train_shape,
-            name='feats_train_ph')
-        self.labels_train_ph = tf.placeholder(
-            tf.int32, shape=[None] + self.label_train_shape,
-            name='labels_train_ph')
-        self.feats_eval_ph = tf.placeholder(
-            tf.float32, shape=[None] + self.feat_eval_shape,
-            name='feats_eval_ph')
-        self.labels_eval_ph = tf.placeholder(
-            tf.int32, shape=[None] + self.label_eval_shape,
-            name='labels_eval_ph')
-        self.training_ph = tf.placeholder(tf.bool, name="training_ph")
+        with tf.variable_scope('inputs_ph'):
+            self.handle_ph = tf.placeholder(
+                tf.string, shape=[], name='handle_ph')
+            self.feats_train_ph = tf.placeholder(
+                tf.float32, shape=[None] + self.feat_train_shape,
+                name='feats_train_ph')
+            self.labels_train_ph = tf.placeholder(
+                tf.int32, shape=[None] + self.label_train_shape,
+                name='labels_train_ph')
+            self.feats_eval_ph = tf.placeholder(
+                tf.float32, shape=[None] + self.feat_eval_shape,
+                name='feats_eval_ph')
+            self.labels_eval_ph = tf.placeholder(
+                tf.int32, shape=[None] + self.label_eval_shape,
+                name='labels_eval_ph')
+            self.training_ph = tf.placeholder(tf.bool, name="training_ph")
 
         # Learning rate variable
-        self.learning_rate = tf.Variable(
-            self.params[param_keys.LEARNING_RATE], trainable=False, name='lr')
+        with tf.variable_scope('learning_rate'):
+            self.learning_rate = tf.Variable(
+                self.params[param_keys.LEARNING_RATE], trainable=False, name='lr')
 
-        # Training iterator
-        self.iterator_train = net_ops.get_iterator(
-            (self.feats_train_ph, self.labels_train_ph),
-            batch_size=self.params[param_keys.BATCH_SIZE],
-            shuffle_buffer_size=self.params[param_keys.SHUFFLE_BUFFER_SIZE],
-            map_fn=self._train_map_fn,
-            prefetch_buffer_size=self.params[param_keys.PREFETCH_BUFFER_SIZE],
-            name='iter_train')
+        with tf.variable_scope('feeding'):
+            # Training iterator
+            self.iterator_train = feeding.get_iterator(
+                (self.feats_train_ph, self.labels_train_ph),
+                batch_size=self.params[param_keys.BATCH_SIZE],
+                shuffle_buffer_size=self.params[param_keys.SHUFFLE_BUFFER_SIZE],
+                map_fn=self._train_map_fn,
+                prefetch_buffer_size=self.params[param_keys.PREFETCH_BUFFER_SIZE],
+                name='iter_train')
 
-        # Evaluation iterator
-        self.iterator_eval = net_ops.get_iterator(
-            (self.feats_eval_ph, self.labels_eval_ph),
-            batch_size=self.params[param_keys.BATCH_SIZE],
-            shuffle_buffer_size=0,
-            map_fn=self._eval_map_fn,
-            prefetch_buffer_size=1,
-            name='iter_eval')
+            # Evaluation iterator
+            self.iterator_eval = feeding.get_iterator(
+                (self.feats_eval_ph, self.labels_eval_ph),
+                batch_size=self.params[param_keys.BATCH_SIZE],
+                shuffle_buffer_size=0,
+                map_fn=self._eval_map_fn,
+                prefetch_buffer_size=1,
+                name='iter_eval')
 
-        # Global iterator
-        iterators_list = [self.iterator_train, self.iterator_eval]
-        self.iterator = net_ops.get_global_iterator(
-                self.handle_ph, iterators_list,
-                name='iters')
-        self.feats, self.labels = self.iterator.get_next()
+            # Global iterator
+            iterators_list = [self.iterator_train, self.iterator_eval]
+            self.iterator = feeding.get_global_iterator(
+                    self.handle_ph, iterators_list,
+                    name='iters')
+            self.feats, self.labels = self.iterator.get_next()
 
         # Model prediction
         self.logits, self.probabilities = self._model_fn()
@@ -139,10 +143,11 @@ class BaseModel(object):
         self.sess = tf.Session(config=config)
 
         # Get handles for iterators
-        handles_list = self.sess.run(
-            [iterator.string_handle() for iterator in iterators_list])
-        self.handle_train = handles_list[0]
-        self.handle_eval = handles_list[1]
+        with tf.variable_scope('handles'):
+            handles_list = self.sess.run(
+                [iterator.string_handle() for iterator in iterators_list])
+            self.handle_train = handles_list[0]
+            self.handle_eval = handles_list[1]
 
         # Saver for checkpoints
         self.saver = tf.train.Saver()

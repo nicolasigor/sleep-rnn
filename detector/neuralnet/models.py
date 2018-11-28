@@ -15,7 +15,7 @@ from utils import errors
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
 from . import networks
-from . import net_ops
+from . import losses, optimizers, metrics
 
 # Metrics dict
 KEY_TP = 'tp'
@@ -157,10 +157,11 @@ class WaveletBLSTM(BaseModel):
             [constants.CROSS_ENTROPY_LOSS, constants.DICE_LOSS])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
-            loss, loss_summ = net_ops.cross_entropy_loss_fn(
+            loss, loss_summ = losses.cross_entropy_loss_fn(
                 self.logits, self.labels, self.params[param_keys.CLASS_WEIGHTS])
         else:
-            loss, loss_summ = net_ops.dice_loss_fn(self.probabilities[..., 1], self.labels)
+            loss, loss_summ = losses.dice_loss_fn(
+                self.probabilities[..., 1], self.labels)
         return loss,loss_summ
 
     def _optimizer_fn(self):
@@ -171,27 +172,28 @@ class WaveletBLSTM(BaseModel):
              constants.RMSPROP_OPTIMIZER])
 
         if type_optimizer == constants.ADAM_OPTIMIZER:
-            train_step, reset_optimizer_op, grad_norm_summ = net_ops.adam_optimizer_fn(
+            train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
                 self.loss, self.learning_rate,
                 self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM])
         elif type_optimizer == constants.RMSPROP_OPTIMIZER:
-            train_step, reset_optimizer_op, grad_norm_summ = net_ops.rmsprop_optimizer_fn(
+            train_step, reset_optimizer_op, grad_norm_summ = optimizers.rmsprop_optimizer_fn(
                 self.loss, self.learning_rate, self.params[param_keys.MOMENTUM],
                 self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM])
         else:
-            train_step, reset_optimizer_op, grad_norm_summ = net_ops.sgd_optimizer_fn(
+            train_step, reset_optimizer_op, grad_norm_summ = optimizers.sgd_optimizer_fn(
                 self.loss, self.learning_rate,
                 self.params[param_keys.MOMENTUM],
                 self.params[param_keys.CLIP_GRADIENTS],
-                self.params[param_keys.CLIP_NORM])
+                self.params[param_keys.CLIP_NORM],
+                self.params[param_keys.USE_NESTEROV_MOMENTUM])
         return train_step, reset_optimizer_op, grad_norm_summ
 
     def _batch_metrics_fn(self):
-        with tf.name_scope("batch_metrics"):
-            tp, fp, fn = net_ops.confusion_matrix(self.logits, self.labels)
-            precision, recall, f1_score = net_ops.precision_recall_f1score(
+        with tf.variable_scope('batch_metrics'):
+            tp, fp, fn = metrics.confusion_matrix(self.logits, self.labels)
+            precision, recall, f1_score = metrics.precision_recall_f1score(
                 tp, fp, fn)
             prec_summ = tf.summary.scalar(KEY_PRECISION, precision)
             rec_summ = tf.summary.scalar(KEY_RECALL, recall)
@@ -209,7 +211,7 @@ class WaveletBLSTM(BaseModel):
         return batch_metrics_dict, batch_metrics_summ
 
     def _eval_metrics_fn(self):
-        with tf.name_scope("eval_metrics"):
+        with tf.variable_scope('eval_metrics'):
             eval_metrics_dict = {
                 KEY_TP: self.batch_metrics_dict[KEY_TP],
                 KEY_FP: self.batch_metrics_dict[KEY_FP],

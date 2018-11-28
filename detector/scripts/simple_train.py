@@ -28,10 +28,10 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
     params[param_keys.MAX_EPOCHS] = 1
-    params[param_keys.BATCH_SIZE] = 256
+    params[param_keys.BATCH_SIZE] = 32
 
     # Create model
-    model = WaveletBLSTM(params, logdir='results/demo_logs_batch256')
+    model = WaveletBLSTM(params, logdir='results/demo_logs_graph')
 
     # Get training set ids
     print('Loading training set and splitting')
