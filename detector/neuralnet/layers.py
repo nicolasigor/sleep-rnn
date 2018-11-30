@@ -185,8 +185,7 @@ def conv2d_layer(
 
     Args:
          inputs: (4d tensor) input tensor of shape
-            [batch_size, height, width, n_channels] or
-            [batch_size, n_channels, height, width].
+            [batch_size, height, width, n_channels]
          filters: (int) Number of filters to apply.
          kernel_size: (Optional, int or tuple of int, defaults to 3) Size of
             the kernels.
@@ -200,7 +199,7 @@ def conv2d_layer(
             The batchnorm layer is applied before convolution.
          activation: (Optional, function, defaults to None) Type of activation
             to be used after convolution. If None, activation is linear.
-         pooling: (Optional, {AVGPOOL, MAXPOOL}, defaults to None) Type of
+         pooling: (Optional, {AVGPOOL, MAXPOOL, None}, defaults to None) Type of
             pooling to be used after convolution, which is always of stride 2
             and pool size 2. If None, pooling is not applied.
          training: (Optional, boolean, defaults to False) Indicates if it is the

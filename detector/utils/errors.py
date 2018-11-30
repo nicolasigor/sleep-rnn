@@ -1,10 +1,10 @@
-"""networks.py: Module that defines neural network models functions."""
+"""Module that defines common errors."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from utils import constants
+from . import constants
 
 
 def check_valid_value(value, name, valid_list):
@@ -13,4 +13,3 @@ def check_valid_value(value, name, valid_list):
         msg = constants.ERROR_INVALID \
               % (valid_list, name, value)
         raise ValueError(msg)
-
