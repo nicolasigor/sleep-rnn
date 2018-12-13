@@ -61,6 +61,7 @@ def wavelet_blstm_net(
                 upper_freq=params[param_keys.UPPER_FREQ],
                 n_scales=params[param_keys.N_SCALES],
                 stride=cwt_stride,
+                size_factor=params[param_keys.WAVELET_SIZE_FACTOR],
                 border_crop=border_crop,
                 use_log=params[param_keys.USE_LOG],
                 training=training,
@@ -90,6 +91,7 @@ def wavelet_blstm_net(
                 filters,
                 batchnorm=params[param_keys.BATCHNORM_CONV],
                 training=training,
+                pooling=params[param_keys.POOLING_CONV],
                 name='conv_block_%d' % (i+1))
 
         outputs = layers.sequence_flatten(outputs, 'flatten')
@@ -112,6 +114,7 @@ def wavelet_blstm_net(
                 outputs,
                 params[param_keys.INITIAL_LSTM_UNITS],
                 params[param_keys.N_TIME_LEVELS],
+                duplicate_after_downsampling=params[param_keys.DUPLICATE_AFTER_DOWNSAMPLING_LSTM],
                 num_dirs=constants.BIDIRECTIONAL,
                 batchnorm_first_lstm=params[param_keys.BATCHNORM_FIRST_LSTM],
                 dropout_first_lstm=params[param_keys.DROPOUT_FIRST_LSTM],

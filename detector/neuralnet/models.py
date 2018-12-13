@@ -83,13 +83,13 @@ class WaveletBLSTM(BaseModel):
         x_train, y_train, x_val, y_val = self.check_train_inputs(
             x_train, y_train, x_val, y_val)
         iter_per_epoch = x_train.shape[0] // self.params[param_keys.BATCH_SIZE]
-        niters = iter_per_epoch * self.params[param_keys.MAX_EPOCHS]
+        niters = self.params[param_keys.MAX_ITERATIONS]
 
         print('\nBeginning training at logdir "%s"' % self.logdir)
-        print('Batch size %d, Max epochs %d, '
+        print('Batch size %d, Iters per epoch %d, '
               'Training examples %d, Total iterations %d' %
               (self.params[param_keys.BATCH_SIZE],
-               self.params[param_keys.MAX_EPOCHS],
+               iter_per_epoch,
                x_train.shape[0], niters))
         start_time = time.time()
 

@@ -9,8 +9,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
-from spectrum import cmorlet
-from spectrum import spline
+# from spectrum import cmorlet
+from spectrum import cmorlet_v2
+# from spectrum import spline
 from utils import constants
 from utils import errors
 
@@ -105,6 +106,7 @@ def cmorlet_layer(
         upper_freq,
         n_scales,
         stride,
+        size_factor=1.0,
         border_crop=0,
         use_avg_pool=True,
         use_log=True,
@@ -145,18 +147,21 @@ def cmorlet_layer(
             variables.
         name: (Optional, string, defaults to None) A name for the operation.
     """
+
     with tf.variable_scope(name):
         # Input sequence has shape [batch_size, time_len]
         if use_avg_pool and stride > 1:
-            cwt, wavelets = cmorlet.compute_cwt(
+            cwt, wavelets = cmorlet_v2.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
+                size_factor=size_factor,
                 flattening=True, border_crop=border_crop, stride=1,
                 trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
         else:
-            cwt, wavelets = cmorlet.compute_cwt(
+            cwt, wavelets = cmorlet_v2.compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
+                size_factor=size_factor,
                 flattening=True, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
         if use_log:
@@ -542,6 +547,7 @@ def multistage_lstm_block(
         inputs,
         num_units,
         n_time_levels,
+        duplicate_after_downsampling=True,
         num_dirs=constants.UNIDIRECTIONAL,
         batchnorm_first_lstm=constants.BN,
         dropout_first_lstm=None,
@@ -587,6 +593,10 @@ def multistage_lstm_block(
                 training=training,
                 name='lstm')
         else:  # Make a new block
+            if duplicate_after_downsampling:
+                next_num_units = 2 * num_units
+            else:
+                next_num_units = num_units
             stage_outputs = lstm_layer(
                 inputs,
                 num_units=num_units,
@@ -598,10 +608,10 @@ def multistage_lstm_block(
                 name='lstm_enc')
             outputs = time_downsampling_layer(
                 stage_outputs, pooling=time_pooling, name='down')
-            # Nested block, doubling the number of channels
+            # Nested block
             outputs = multistage_lstm_block(
                 outputs,
-                2 * num_units,
+                next_num_units,
                 n_time_levels-1,
                 num_dirs=num_dirs,
                 batchnorm_first_lstm=batchnorm_rest_lstm,

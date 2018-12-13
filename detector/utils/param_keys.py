@@ -92,6 +92,7 @@ FB_LIST = 'fb_list'
 N_CONV_BLOCKS = 'n_conv_blocks'
 N_TIME_LEVELS = 'n_time_levels'
 BATCHNORM_CONV = 'batchnorm_conv'
+POOLING_CONV = 'pooling_conv'
 BATCHNORM_FIRST_LSTM = 'batchnorm_first_lstm'
 DROPOUT_FIRST_LSTM = 'dropout_first_lstm'
 BATCHNORM_REST_LSTM = 'batchnorm_rest_lstm'
@@ -101,6 +102,7 @@ BATCHNORM_FC = 'batchnorm_fc'
 DROPOUT_FC = 'dropout_fc'
 DROP_RATE = 'drop_rate'
 TRAINABLE_WAVELET = 'trainable_wavelet'
+WAVELET_SIZE_FACTOR = 'wavelet_size_factor'
 TYPE_WAVELET = 'type_wavelet'
 USE_LOG = 'use_log'
 N_SCALES = 'n_scales'
@@ -108,7 +110,7 @@ LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
-
+DUPLICATE_AFTER_DOWNSAMPLING_LSTM = 'duplicate_after_downsampling_lstm'
 
 """ Loss params
 
@@ -146,7 +148,7 @@ TYPE_OPTIMIZER = 'type_optimizer'
 max_epochs: (int) Maximum numer of epochs to be performed in the training loop.
 nstats: (int) Frequency in iterations to display metrics.
 """
-MAX_EPOCHS = 'max_epochs'
+MAX_ITERATIONS = 'max_epochs'
 NSTATS = 'nstats'
 
 
@@ -163,6 +165,7 @@ default_params = {
     N_CONV_BLOCKS: 0,
     N_TIME_LEVELS: 1,
     BATCHNORM_CONV: constants.BN_RENORM,
+    POOLING_CONV: constants.MAXPOOL,
     BATCHNORM_FIRST_LSTM: constants.BN_RENORM,
     DROPOUT_FIRST_LSTM: None,
     BATCHNORM_REST_LSTM: None,
@@ -171,7 +174,8 @@ default_params = {
     BATCHNORM_FC: None,
     DROPOUT_FC: constants.SEQUENCE_DROP,
     DROP_RATE: 0.3,
-    TRAINABLE_WAVELET: False,
+    TRAINABLE_WAVELET: True,
+    WAVELET_SIZE_FACTOR: 2.0,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 32,
@@ -179,14 +183,15 @@ default_params = {
     UPPER_FREQ: 32,
     INITIAL_CONV_FILTERS: 16,
     INITIAL_LSTM_UNITS: 128,
+    DUPLICATE_AFTER_DOWNSAMPLING_LSTM: True,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.DICE_LOSS,
     LEARNING_RATE: 0.001,
     CLIP_GRADIENTS: True,
     CLIP_NORM: 5,
     MOMENTUM: 0.9,
-    USE_NESTEROV_MOMENTUM: True,
+    USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_EPOCHS: 100,
+    MAX_ITERATIONS: 15000,
     NSTATS: 50
 }
