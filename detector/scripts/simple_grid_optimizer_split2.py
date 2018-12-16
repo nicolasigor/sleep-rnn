@@ -30,22 +30,23 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Grid search
-    learning_rate_exp_list = [3, 4]
-    opt_momentum_list = [
-        (constants.SGD_OPTIMIZER, 0.5),
-    ]
-    batch_size_list = [32, 128]
-    type_loss_list = [
-        constants.DICE_LOSS,
-        constants.CROSS_ENTROPY_LOSS
+    trainable_wavelet_list = [True]
+    drop_rate_list = [0.5]
+    loss_opt_lr_m_batch_list = [
+        (constants.CROSS_ENTROPY_LOSS, constants.ADAM_OPTIMIZER, 3, 0.0, 32),
+        (constants.CROSS_ENTROPY_LOSS, constants.ADAM_OPTIMIZER, 4, 0.0, 32),
+        (constants.CROSS_ENTROPY_LOSS, constants.SGD_OPTIMIZER, 3, 0.9, 32),
+        (constants.CROSS_ENTROPY_LOSS, constants.SGD_OPTIMIZER, 4, 0.9, 32),
+        (constants.DICE_LOSS, constants.ADAM_OPTIMIZER, 4, 0.0, 128),
+        (constants.DICE_LOSS, constants.SGD_OPTIMIZER, 3, 0.5, 128),
+        (constants.DICE_LOSS, constants.SGD_OPTIMIZER, 3, 0.9, 128)
     ]
 
     # Create experiment
     parameters_list = list(itertools.product(
-        learning_rate_exp_list,
-        opt_momentum_list,
-        batch_size_list,
-        type_loss_list
+        trainable_wavelet_list,
+        drop_rate_list,
+        loss_opt_lr_m_batch_list
     ))
     print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
@@ -91,23 +92,29 @@ if __name__ == '__main__':
     print('Validation set shape', x_val.shape, y_val.shape)
 
     # Initiate grid search
-    for learning_rate, opt_momentum, batch_size, type_loss in parameters_list:
-        opt_name = opt_momentum[0]
-        momentum = opt_momentum[1]
+    for trainable_wavelet, drop_rate, loss_opt_lr_m_batch in parameters_list:
+        type_loss = loss_opt_lr_m_batch[0]
+        type_opt = loss_opt_lr_m_batch[1]
+        learning_rate = loss_opt_lr_m_batch[2]
+        momentum = loss_opt_lr_m_batch[3]
+        batch_size = loss_opt_lr_m_batch[4]
 
         experiment_dir = os.path.join(
-            'results', 'grid_20181213',
-            'lr_%d_batch_%d_opt_%s_m_%1.1f_loss_%s'
-            % (learning_rate, batch_size, opt_name, momentum, type_loss)
+            'results', 'grid_20181215',
+            'loss_%s_opt_%s_lr_%d_m_%1.1f_batch_%d_trainwave_%d_drop_%1.1f'
+            % (type_loss, type_opt, learning_rate, momentum, batch_size,
+               int(trainable_wavelet), drop_rate)
         )
         print('This run directory: %s' % experiment_dir)
 
         # Grid params
-        params[param_keys.LEARNING_RATE] = 10**(-learning_rate)
-        params[param_keys.BATCH_SIZE] = batch_size
-        params[param_keys.TYPE_OPTIMIZER] = opt_name
-        params[param_keys.MOMENTUM] = momentum
+        params[param_keys.TRAINABLE_WAVELET] = trainable_wavelet
+        params[param_keys.DROP_RATE] = drop_rate
         params[param_keys.TYPE_LOSS] = type_loss
+        params[param_keys.TYPE_OPTIMIZER] = type_opt
+        params[param_keys.LEARNING_RATE] = 10 ** (-learning_rate)
+        params[param_keys.MOMENTUM] = momentum
+        params[param_keys.BATCH_SIZE] = batch_size
 
         # Create model
         model = WaveletBLSTM(params, logdir=experiment_dir)

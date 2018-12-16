@@ -30,8 +30,8 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Grid search
-    trainable_wavelet_list = [True, False]
-    drop_rate_list = [0.3, 0.5]
+    trainable_wavelet_list = [False]
+    drop_rate_list = [0.5]
     loss_opt_lr_m_batch_list = [
         (constants.CROSS_ENTROPY_LOSS, constants.ADAM_OPTIMIZER, 3, 0.0, 32),
         (constants.CROSS_ENTROPY_LOSS, constants.ADAM_OPTIMIZER, 4, 0.0, 32),

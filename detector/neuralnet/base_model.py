@@ -97,6 +97,8 @@ class BaseModel(object):
             self.learning_rate = tf.Variable(
                 self.params[param_keys.LEARNING_RATE], trainable=False,
                 name='lr')
+            self.lr_summ = tf.summary.scalar('lr', self.learning_rate)
+            self.lr_updates = 0
 
         with tf.variable_scope('feeding'):
             # Training iterator
@@ -232,6 +234,19 @@ class BaseModel(object):
         self.sess.run(self.iterator_eval.initializer,
                       feed_dict={self.feats_eval_ph: x_eval,
                                  self.labels_eval_ph: y_eval})
+
+    def _update_learning_rate(self, ckptdir):
+        # Restore checkpoint
+        if ckptdir:
+            self.load_checkpoint(ckptdir)
+        # Reset optimizer variables
+        self.sess.run(self.reset_optimizer)
+        # Half learning rate
+        self.lr_updates = self.lr_updates + 1
+        self.sess.run(tf.assign(
+            self.learning_rate,
+            self.params[param_keys.LEARNING_RATE] / (2 ** self.lr_updates)
+        ))
 
     def _single_train_iteration(self):
         self.sess.run(self.train_step,

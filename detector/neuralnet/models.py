@@ -4,6 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import json
+import os
 import time
 
 import numpy as np
@@ -24,6 +26,9 @@ KEY_FN = 'fn'
 KEY_PRECISION = 'precision'
 KEY_RECALL = 'recall'
 KEY_F1_SCORE = 'f1_score'
+
+# Fit dicts
+KEY_ITER = 'iteration'
 
 
 class WaveletBLSTM(BaseModel):
@@ -78,16 +83,15 @@ class WaveletBLSTM(BaseModel):
         return x_train, y_train, x_val, y_val
 
     def fit(self, x_train, y_train, x_val, y_val):
-        # TODO: decay learning rate and early stopping
         """Fits the model to the training data."""
         x_train, y_train, x_val, y_val = self.check_train_inputs(
             x_train, y_train, x_val, y_val)
         iter_per_epoch = x_train.shape[0] // self.params[param_keys.BATCH_SIZE]
-        niters = self.params[param_keys.MAX_ITERATIONS]
+        niters = self.params[param_keys.MAX_ITERS]
 
         print('\nBeginning training at logdir "%s"' % self.logdir)
         print('Batch size %d, Iters per epoch %d, '
-              'Training examples %d, Total iterations %d' %
+              'Training examples %d, Max iterations %d' %
               (self.params[param_keys.BATCH_SIZE],
                iter_per_epoch,
                x_train.shape[0], niters))
@@ -96,8 +100,21 @@ class WaveletBLSTM(BaseModel):
         self._initialize_variables()
         self._init_iterator_train(x_train, y_train)
 
+        # Best So Far
+        model_bsf = {
+            KEY_ITER: 0,
+            KEY_LOSS: 1e10,
+            KEY_F1_SCORE: 0,
+        }
+        # Last improvement criterion
+        model_criterion = {
+            KEY_ITER: 0,
+            KEY_LOSS: 1e10
+        }
+        rel_tol_loss = self.params[param_keys.REL_TOL_LOSS]
+
         # Training loop
-        nstats = self.params[param_keys.NSTATS]
+        nstats = self.params[param_keys.ITERS_STATS]
         for it in range(1, niters+1):
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
@@ -111,19 +128,57 @@ class WaveletBLSTM(BaseModel):
                 # Validation report is entire set
                 val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val)
                 self.val_writer.add_summary(val_summ, it)
-
                 elapsed = time.time() - start_time
                 loss_print = ('loss train %1.6f val %1.6f'
                               % (train_loss,
                                  val_loss))
                 f1_print = ('f1 train %1.6f val %1.6f'
-                              % (train_metrics[KEY_F1_SCORE],
-                                 val_metrics[KEY_F1_SCORE]))
+                            % (train_metrics[KEY_F1_SCORE],
+                               val_metrics[KEY_F1_SCORE]))
                 print('It %6.0d/%d - %s - %s - E.T. %1.4f s'
                       % (it, niters, loss_print, f1_print, elapsed))
-        # Save fitted model checkpoint
-        save_path = self.saver.save(self.sess, self.ckptdir)
-        print('Model saved at %s' % save_path)
+
+                # Check if a better model was found
+                if val_loss < model_bsf[KEY_LOSS]:
+                    model_bsf[KEY_LOSS] = float(val_loss)
+                    model_bsf[KEY_ITER] = it
+                    model_bsf[KEY_F1_SCORE] = float(val_metrics[KEY_F1_SCORE])
+                    # Save fitted model checkpoint
+                    save_path = self.saver.save(self.sess, self.ckptdir)
+                    print('    New BSF saved at %s' % save_path)
+
+                improvement_criterion = val_loss <= (1.0 - rel_tol_loss) * model_criterion[KEY_LOSS]
+                if improvement_criterion:
+                    # Update last time the improvement criterion was met
+                    model_criterion[KEY_LOSS] = val_loss
+                    model_criterion[KEY_ITER] = it
+
+                # Check early stopping criterion
+                stop_criterion = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_EARLY_STOP]
+                if stop_criterion:
+                    print('\nEarly Stopping. Loading BSF checkpoint')
+                    self.load_checkpoint(self.ckptdir)
+                    break
+
+                # Check LR update criterion
+                lr_criterion = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_LR_UPDATE]
+                if lr_criterion:
+                    print('    Learning rate halving.')
+                    self._update_learning_rate(self.ckptdir)
+
+        # Final stats
+        elapsed = time.time() - start_time
+        print('\n\nTotal training time: %1.4f s' % elapsed)
+        print('BSF at iteration %d' % model_bsf[KEY_ITER])
+        print('Validation loss %1.6f - f1 %1.6f'
+              % (model_bsf[KEY_LOSS], model_bsf[KEY_F1_SCORE]))
+
+        # Save BSF info
+        with open(os.path.join(self.logdir, 'bsf.json'), 'w') as outfile:
+            json.dump(model_bsf, outfile)
+
+        # save_path = self.saver.save(self.sess, self.ckptdir)
+        # print('Model saved at %s' % save_path)
 
     def _train_map_fn(self, feat, label):
         """Random cropping.

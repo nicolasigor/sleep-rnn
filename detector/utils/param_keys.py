@@ -148,8 +148,11 @@ TYPE_OPTIMIZER = 'type_optimizer'
 max_epochs: (int) Maximum numer of epochs to be performed in the training loop.
 nstats: (int) Frequency in iterations to display metrics.
 """
-MAX_ITERATIONS = 'max_epochs'
-NSTATS = 'nstats'
+MAX_ITERS = 'max_iters'
+ITERS_STATS = 'iters_stats'
+ITERS_LR_UPDATE = 'iters_lr_update'
+ITERS_EARLY_STOP = 'iters_early_stop'
+REL_TOL_LOSS = 'rel_tol_loss'
 
 
 # Default parameters dictionary
@@ -175,7 +178,7 @@ default_params = {
     DROPOUT_FC: constants.SEQUENCE_DROP,
     DROP_RATE: 0.3,
     TRAINABLE_WAVELET: True,
-    WAVELET_SIZE_FACTOR: 2.0,
+    WAVELET_SIZE_FACTOR: 3.0,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 32,
@@ -192,6 +195,9 @@ default_params = {
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_ITERATIONS: 15000,
-    NSTATS: 50
+    MAX_ITERS: 40000,
+    ITERS_STATS: 50,
+    ITERS_LR_UPDATE: 1000,
+    ITERS_EARLY_STOP: 2000,
+    REL_TOL_LOSS: 1e-2
 }
