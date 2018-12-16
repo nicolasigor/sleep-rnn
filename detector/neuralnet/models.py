@@ -106,12 +106,13 @@ class WaveletBLSTM(BaseModel):
             KEY_LOSS: 1e10,
             KEY_F1_SCORE: 0,
         }
-        # Last improvement criterion
+        # Improvement criterion
         model_criterion = {
             KEY_ITER: 0,
             KEY_LOSS: 1e10
         }
         rel_tol_loss = self.params[param_keys.REL_TOL_LOSS]
+        iter_last_lr_update = 0
 
         # Training loop
         nstats = self.params[param_keys.ITERS_STATS]
@@ -161,10 +162,16 @@ class WaveletBLSTM(BaseModel):
                     break
 
                 # Check LR update criterion
-                lr_criterion = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_LR_UPDATE]
+
+                # The model has not improved enough
+                lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_LR_UPDATE]
+                # The last lr update is far enough
+                lr_criterion_2 = (it - iter_last_lr_update) >= self.params[param_keys.ITERS_LR_UPDATE]
+                lr_criterion = lr_criterion_1 and lr_criterion_2
                 if lr_criterion:
-                    print('    Learning rate halving.')
+                    print('    Reset BSF and Learning rate halving.')
                     self._update_learning_rate(self.ckptdir)
+                    iter_last_lr_update = it
 
         # Final stats
         elapsed = time.time() - start_time

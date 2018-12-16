@@ -198,6 +198,6 @@ default_params = {
     MAX_ITERS: 40000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
-    ITERS_EARLY_STOP: 2000,
+    ITERS_EARLY_STOP: 4000,
     REL_TOL_LOSS: 1e-2
 }
