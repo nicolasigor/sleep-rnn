@@ -100,7 +100,7 @@ if __name__ == '__main__':
         batch_size = loss_opt_lr_m_batch[4]
 
         experiment_dir = os.path.join(
-            'results', 'grid_20181216',
+            'results', 'grid_20181217',
             'loss_%s_opt_%s_lr_%d_m_%1.1f_batch_%d_trainwave_%d_drop_%1.1f'
             % (type_loss, type_opt, learning_rate, momentum, batch_size,
                int(trainable_wavelet), drop_rate)
