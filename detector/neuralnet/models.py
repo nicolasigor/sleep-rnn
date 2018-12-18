@@ -148,18 +148,11 @@ class WaveletBLSTM(BaseModel):
                     save_path = self.saver.save(self.sess, self.ckptdir)
                     print('    New BSF saved at %s' % save_path)
 
-                improvement_criterion = val_loss <= (1.0 - rel_tol_loss) * model_criterion[KEY_LOSS]
+                improvement_criterion = val_loss < (1.0 - rel_tol_loss) * model_criterion[KEY_LOSS]
                 if improvement_criterion:
                     # Update last time the improvement criterion was met
                     model_criterion[KEY_LOSS] = val_loss
                     model_criterion[KEY_ITER] = it
-
-                # Check early stopping criterion
-                stop_criterion = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_EARLY_STOP]
-                if stop_criterion:
-                    print('\nEarly Stopping. Loading BSF checkpoint')
-                    self.load_checkpoint(self.ckptdir)
-                    break
 
                 # Check LR update criterion
 

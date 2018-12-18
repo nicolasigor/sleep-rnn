@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
         # Grid params
         params[param_keys.TRAINABLE_WAVELET] = trainable_wavelet
-        params[param_keys.DROP_RATE] = drop_rate
+        params[param_keys.DROP_RATE_LSTM] = drop_rate
         params[param_keys.TYPE_LOSS] = type_loss
         params[param_keys.TYPE_OPTIMIZER] = type_opt
         params[param_keys.LEARNING_RATE] = 10 ** (-learning_rate)

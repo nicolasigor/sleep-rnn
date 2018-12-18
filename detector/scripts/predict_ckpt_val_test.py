@@ -2,7 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import sys
+import json
 
 import numpy as np
 
@@ -30,18 +32,22 @@ if __name__ == '__main__':
     # Load data
     dataset = MASS(load_checkpoint=True)
 
-    # Update params
-    params = param_keys.default_params.copy()
-    params[param_keys.PAGE_DURATION] = dataset.page_duration
-    params[param_keys.FS] = dataset.fs
-    params[param_keys.MAX_ITERS] = 30000
-    params[param_keys.BATCH_SIZE] = 32
-    params[param_keys.ITERS_LR_UPDATE] = 1000
-    params[param_keys.REL_TOL_LOSS] = 1e-6
-    params[param_keys.LEARNING_RATE] = 1e-4
-    params[param_keys.DROP_RATE_LSTM] = 0.5
-    params[param_keys.N_CONV_BLOCKS] = 3
-    params[param_keys.RESIDUAL_CONV] = True
+    # ckpt_path = '../results/grid_20181216/loss_cross_entropy_loss_opt_adam_optimizer_lr_4_m_0.0_batch_32_trainwave_1_drop_0.3'
+    ckpt_path = '../results/grid_20181217/loss_cross_entropy_loss_opt_adam_optimizer_lr_3_m_0.0_batch_32_trainwave_0_drop_0.3'
+
+    # Restore params
+    filename = os.path.join(ckpt_path, 'params.json')
+    with open(filename, 'r') as infile:
+        params = json.load(infile)
+
+    print('Restoring from %s' % ckpt_path)
+    print(params)
+
+    filename = os.path.join(ckpt_path, 'bsf.json')
+    with open(filename, 'r') as infile:
+        bsf_stats = json.load(infile)
+    print('BSF stats on validation set:')
+    print(bsf_stats)
 
     # Get training set ids
     print('Loading training set and splitting')
@@ -61,6 +67,8 @@ if __name__ == '__main__':
     x_val, y_val = dataset.get_subset_data(
         val_ids, augmented_page=False, border_size=border_size,
         which_expert=1, verbose=True)
+
+    x_test, y_test = 0, 0
 
     # Transform to numpy arrays
     x_train = np.concatenate(x_train, axis=0)

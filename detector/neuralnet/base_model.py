@@ -64,7 +64,7 @@ class BaseModel(object):
             self.logdir = logdir
         else:
             self.logdir = os.path.join(PATH_TO_PROJECT, logdir)
-        self.params = param_keys.default_params
+        self.params = param_keys.default_params.copy()
         self.params.update(params)  # Overwrite defaults
 
         # Create directory of logs
@@ -101,6 +101,7 @@ class BaseModel(object):
             self.lr_updates = 0
 
         with tf.variable_scope('feeding'):
+            # TODO: balance batches
             # Training iterator
             self.iterator_train = feeding.get_iterator(
                 (self.feats_train_ph, self.labels_train_ph),

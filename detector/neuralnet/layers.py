@@ -242,6 +242,7 @@ def bn_conv3_block(
         filters,
         batchnorm=constants.BN,
         pooling=constants.MAXPOOL,
+        residual=False,
         training=False,
         reuse=False,
         name=None):
@@ -256,9 +257,17 @@ def bn_conv3_block(
             training=training, reuse=reuse,
             name='conv3_1')
         outputs = conv2d_layer(
-            outputs, filters, batchnorm=batchnorm, activation=tf.nn.relu,
+            outputs, filters, batchnorm=batchnorm, activation=None,
             pooling=pooling, training=training, reuse=reuse,
             name='conv3_2')
+        if residual:
+            projected_inputs = conv2d_layer(
+                inputs, filters, kernel_size=1, strides=2,
+                training=training, reuse=reuse, name='conv1x1')
+            outputs = outputs + projected_inputs
+
+        outputs = tf.nn.relu(outputs)
+
     return outputs
 
 

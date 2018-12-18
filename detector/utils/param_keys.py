@@ -100,7 +100,8 @@ DROPOUT_REST_LSTM = 'dropout_rest_lstm'
 TIME_POOLING = 'time_pooling'
 BATCHNORM_FC = 'batchnorm_fc'
 DROPOUT_FC = 'dropout_fc'
-DROP_RATE = 'drop_rate'
+DROP_RATE_FC = 'drop_rate_fc'
+DROP_RATE_LSTM = 'drop_rate_lstm'
 TRAINABLE_WAVELET = 'trainable_wavelet'
 WAVELET_SIZE_FACTOR = 'wavelet_size_factor'
 TYPE_WAVELET = 'type_wavelet'
@@ -111,6 +112,7 @@ UPPER_FREQ = 'upper_freq'
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
 DUPLICATE_AFTER_DOWNSAMPLING_LSTM = 'duplicate_after_downsampling_lstm'
+RESIDUAL_CONV = 'residual_conv'
 
 """ Loss params
 
@@ -151,7 +153,6 @@ nstats: (int) Frequency in iterations to display metrics.
 MAX_ITERS = 'max_iters'
 ITERS_STATS = 'iters_stats'
 ITERS_LR_UPDATE = 'iters_lr_update'
-ITERS_EARLY_STOP = 'iters_early_stop'
 REL_TOL_LOSS = 'rel_tol_loss'
 
 
@@ -168,7 +169,7 @@ default_params = {
     N_CONV_BLOCKS: 0,
     N_TIME_LEVELS: 1,
     BATCHNORM_CONV: constants.BN_RENORM,
-    POOLING_CONV: constants.MAXPOOL,
+    POOLING_CONV: constants.AVGPOOL,
     BATCHNORM_FIRST_LSTM: constants.BN_RENORM,
     DROPOUT_FIRST_LSTM: None,
     BATCHNORM_REST_LSTM: None,
@@ -176,9 +177,10 @@ default_params = {
     TIME_POOLING: constants.AVGPOOL,
     BATCHNORM_FC: None,
     DROPOUT_FC: constants.SEQUENCE_DROP,
-    DROP_RATE: 0.3,
-    TRAINABLE_WAVELET: True,
-    WAVELET_SIZE_FACTOR: 3.0,
+    DROP_RATE_FC: 0.0,
+    DROP_RATE_LSTM: 0.3,
+    TRAINABLE_WAVELET: False,
+    WAVELET_SIZE_FACTOR: 1.0,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 32,
@@ -188,16 +190,16 @@ default_params = {
     INITIAL_LSTM_UNITS: 128,
     DUPLICATE_AFTER_DOWNSAMPLING_LSTM: True,
     CLASS_WEIGHTS: None,
-    TYPE_LOSS: constants.DICE_LOSS,
+    TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 0.001,
     CLIP_GRADIENTS: True,
     CLIP_NORM: 5,
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_ITERS: 50000,
+    MAX_ITERS: 30000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1500,
-    ITERS_EARLY_STOP: 10000,
-    REL_TOL_LOSS: 1e-3
+    REL_TOL_LOSS: 1e-3,
+    RESIDUAL_CONV: False
 }

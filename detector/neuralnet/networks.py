@@ -92,6 +92,7 @@ def wavelet_blstm_net(
                 batchnorm=params[param_keys.BATCHNORM_CONV],
                 training=training,
                 pooling=params[param_keys.POOLING_CONV],
+                residual=params[param_keys.RESIDUAL_CONV],
                 name='conv_block_%d' % (i+1))
 
         outputs = layers.sequence_flatten(outputs, 'flatten')
@@ -106,7 +107,7 @@ def wavelet_blstm_net(
                 dropout_first_lstm=params[param_keys.DROPOUT_FIRST_LSTM],
                 batchnorm_rest_lstm=params[param_keys.BATCHNORM_REST_LSTM],
                 dropout_rest_lstm=params[param_keys.DROPOUT_REST_LSTM],
-                drop_rate=params[param_keys.DROP_RATE],
+                drop_rate=params[param_keys.DROP_RATE_LSTM],
                 training=training,
                 name='multi_layer_blstm')
         else:  # Multi stage BLSTM
@@ -121,7 +122,7 @@ def wavelet_blstm_net(
                 batchnorm_rest_lstm=params[param_keys.BATCHNORM_REST_LSTM],
                 dropout_rest_lstm=params[param_keys.DROPOUT_REST_LSTM],
                 time_pooling=params[param_keys.TIME_POOLING],
-                drop_rate=params[param_keys.DROP_RATE],
+                drop_rate=params[param_keys.DROP_RATE_LSTM],
                 training=training,
                 name='multi_stage_blstm')
 
@@ -131,7 +132,7 @@ def wavelet_blstm_net(
             2,
             batchnorm=params[param_keys.BATCHNORM_FC],
             dropout=params[param_keys.DROPOUT_FC],
-            drop_rate=params[param_keys.DROP_RATE],
+            drop_rate=params[param_keys.DROP_RATE_FC],
             training=training,
             name='fc'
         )
