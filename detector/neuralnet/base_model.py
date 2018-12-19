@@ -175,6 +175,7 @@ class BaseModel(object):
     def predict_proba(self, x):
         """Predicts the class probabilities over the data x."""
         niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = int(niters)
         probabilities_list = []
         for i in range(niters):
             start_index = i*self.params[param_keys.BATCH_SIZE]
