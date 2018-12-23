@@ -17,6 +17,9 @@ BN_RENORM = 'bn_renorm'
 MAXPOOL = 'maxpool'
 AVGPOOL = 'avgpool'
 
+# Alternative to pooling after convolution
+STRIDEDCONV = 'stridedconv'
+
 # Type of dropout
 REGULAR_DROP = 'regular_dropout'
 SEQUENCE_DROP = 'sequence_dropout'

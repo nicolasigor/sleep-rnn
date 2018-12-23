@@ -99,8 +99,8 @@ BATCHNORM_REST_LSTM = 'batchnorm_rest_lstm'
 DROPOUT_REST_LSTM = 'dropout_rest_lstm'
 TIME_POOLING = 'time_pooling'
 BATCHNORM_FC = 'batchnorm_fc'
-DROPOUT_FC = 'dropout_fc'
-DROP_RATE_FC = 'drop_rate_fc'
+DROPOUT_FC = 'dropout_fc' 
+DROP_RATE_FC = 'drop_rate_fc'  
 DROP_RATE_LSTM = 'drop_rate_lstm'
 TRAINABLE_WAVELET = 'trainable_wavelet'
 WAVELET_SIZE_FACTOR = 'wavelet_size_factor'
@@ -169,7 +169,7 @@ default_params = {
     N_CONV_BLOCKS: 0,
     N_TIME_LEVELS: 1,
     BATCHNORM_CONV: constants.BN_RENORM,
-    POOLING_CONV: constants.AVGPOOL,
+    POOLING_CONV: constants.STRIDEDCONV,
     BATCHNORM_FIRST_LSTM: constants.BN_RENORM,
     DROPOUT_FIRST_LSTM: None,
     BATCHNORM_REST_LSTM: None,
@@ -178,20 +178,20 @@ default_params = {
     BATCHNORM_FC: None,
     DROPOUT_FC: constants.SEQUENCE_DROP,
     DROP_RATE_FC: 0.0,
-    DROP_RATE_LSTM: 0.3,
-    TRAINABLE_WAVELET: False,
-    WAVELET_SIZE_FACTOR: 1.0,
+    DROP_RATE_LSTM: 0.5,
+    TRAINABLE_WAVELET: True,
+    WAVELET_SIZE_FACTOR: 3.0,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 32,
     LOWER_FREQ: 2,
     UPPER_FREQ: 32,
     INITIAL_CONV_FILTERS: 16,
-    INITIAL_LSTM_UNITS: 128,
-    DUPLICATE_AFTER_DOWNSAMPLING_LSTM: True,
+    INITIAL_LSTM_UNITS: 256,
+    DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
-    LEARNING_RATE: 0.001,
+    LEARNING_RATE: 1e-4,
     CLIP_GRADIENTS: True,
     CLIP_NORM: 5,
     MOMENTUM: 0.9,
@@ -199,7 +199,7 @@ default_params = {
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
     MAX_ITERS: 30000,
     ITERS_STATS: 50,
-    ITERS_LR_UPDATE: 1500,
-    REL_TOL_LOSS: 1e-3,
-    RESIDUAL_CONV: False
+    ITERS_LR_UPDATE: 1000,
+    REL_TOL_LOSS: 0.0,
+    RESIDUAL_CONV: True
 }
