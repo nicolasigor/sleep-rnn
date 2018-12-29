@@ -146,7 +146,7 @@ class MASS(BaseDataset):
             signal = file.readSignal(self.channel)
             fs_old = file.samplefrequency(self.channel)
             fs_old_round = int(np.round(fs_old))
-        signal = data_ops.filter_eeg(signal, self.fs)
+        signal = data_ops.filter_eeg(signal, fs_old)
         # We need an integer fs_old, that's why we use the rounded version. This
         # has the effect of slightly elongate the annotations of sleep spindles.
         # We provide the original fs_old so we can fix this when we read the
