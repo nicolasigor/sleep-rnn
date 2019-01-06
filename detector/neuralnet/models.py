@@ -203,11 +203,13 @@ class WaveletBLSTM(BaseModel):
         model_version = self.params[param_keys.MODEL_VERSION]
         errors.check_valid_value(
             model_version, 'model_version',
-            [constants.V1, constants.V2])
+            [constants.DUMMY, constants.V1, constants.V2])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
-        else:
+        elif model_version == constants.V2:
             model_fn = networks.wavelet_blstm_net_v2
+        else:
+            model_fn = networks.dummy_net
         logits, probabilities = model_fn(
             self.feats, self.params, self.training_ph)
         return logits, probabilities
@@ -290,7 +292,7 @@ class WaveletBLSTM(BaseModel):
         page_size = self.get_page_size()
         # Remove to recover single page from augmented page
         remove_size = border_size + page_size // 2
-        activity = y_train[remove_size:-remove_size]
+        activity = y_train[:, remove_size:-remove_size]
         activity = np.sum(activity, axis=1)
         # Sorting in ascending order (low to high)
         sorted_idx = np.argsort(activity)

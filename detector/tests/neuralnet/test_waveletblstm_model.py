@@ -13,4 +13,7 @@ from utils import param_keys
 
 
 if __name__ == '__main__':
-    model = WaveletBLSTM({})
+    # Parameters
+    params = param_keys.default_params.copy()
+    params[param_keys.MODEL_VERSION] = constants.DUMMY
+    model = WaveletBLSTM(params)

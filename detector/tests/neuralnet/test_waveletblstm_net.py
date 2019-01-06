@@ -10,16 +10,16 @@ import tensorflow as tf
 detector_path = '../../'
 sys.path.append(detector_path)
 
-from neuralnet.networks import wavelet_blstm_net
-from utils import constants
+from neuralnet.networks import dummy_net as wavelet_blstm_net
 from utils import param_keys
 
 
 if __name__ == '__main__':
     # Parameters
-    params = param_keys.default_params
-    page_size = params[param_keys.PAGE_SIZE]
-    border_size = params[param_keys.BORDER_CROP]
+    params = param_keys.default_params.copy()
+    fs = params[param_keys.FS]
+    page_size = params[param_keys.PAGE_DURATION] * fs
+    border_size = params[param_keys.BORDER_DURATION] * fs
     input_length = int(page_size + 2*border_size)
 
     # Build computational
@@ -30,8 +30,7 @@ if __name__ == '__main__':
     outputs = wavelet_blstm_net(
         inputs,
         params,
-        training=True,
-        name='model')
+        training=True)
 
     sess = tf.Session()
     tb_path = os.path.join(os.path.dirname(__file__), 'logs')

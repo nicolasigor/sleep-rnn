@@ -68,7 +68,8 @@ if __name__ == '__main__':
     print('Validation set shape', x_val.shape, y_val.shape)
 
     # Create model
-    model = WaveletBLSTM(params, logdir='results/demo_logs_graph')
+    params[param_keys.MODEL_VERSION] = constants.V1
+    model = WaveletBLSTM(params, logdir='results/demo_logs_testing_v1')
 
     # Train model
     model.fit(x_train, y_train, x_val, y_val)

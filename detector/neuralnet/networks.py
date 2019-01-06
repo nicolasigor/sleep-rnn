@@ -13,6 +13,35 @@ from utils import errors
 from utils import param_keys
 
 
+def dummy_net(
+        inputs,
+        params,
+        training,
+        name='model_dummy'
+):
+    """ Dummy network used for debugging purposes."""
+    with tf.variable_scope(name):
+        border_crop = int(
+            params[param_keys.BORDER_DURATION] * params[param_keys.FS])
+        inputs = inputs[:, border_crop:-border_crop]
+        # Simulates downsampling by 8
+        inputs = inputs[:, ::8]
+        # Simulates shape [batch, time, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            inputs,
+            2,
+            dropout=params[param_keys.TYPE_DROPOUT],
+            drop_rate=params[param_keys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+    return logits, probabilities
+
+
 def wavelet_blstm_net_v1(
         inputs,
         params,
@@ -68,7 +97,6 @@ def wavelet_blstm_net_v1(
             n_layers=2,
             num_dirs=constants.BIDIRECTIONAL,
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
-            dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
             drop_rate=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
@@ -171,6 +199,7 @@ def wavelet_blstm_net_v2(
             n_layers=2,
             num_dirs=constants.BIDIRECTIONAL,
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
+            dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
             drop_rate=params[param_keys.DROP_RATE_HIDDEN],
             training=training,

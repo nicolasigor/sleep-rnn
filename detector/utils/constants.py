@@ -48,5 +48,6 @@ RMSPROP_OPTIMIZER = 'rmsprop_optimizer'
 ERROR_INVALID = 'Expected %s for %s, but %s was provided.'
 
 # Model versions
+DUMMY = 'dummy'
 V1 = 'v1'
 V2 = 'v2'
