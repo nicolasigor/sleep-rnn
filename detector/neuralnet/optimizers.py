@@ -10,7 +10,7 @@ import tensorflow as tf
 from utils import constants
 
 
-def generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm):
+def generic_optimizer_fn(optimizer, loss, clip_norm):
     """Applies the optimizer to the loss."""
     original_gvs = optimizer.compute_gradients(loss)
 
@@ -18,7 +18,7 @@ def generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm):
     grad_norm = tf.global_norm(gradients, name='gradient_norm')
     grad_norm_summ = tf.summary.scalar('original_grad_norm', grad_norm)
 
-    if clip_gradients:
+    if clip_norm is not None:
         gradients, _ = tf.clip_by_global_norm(
             gradients,
             clip_norm,
@@ -42,23 +42,21 @@ def generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm):
 
 
 def adam_optimizer_fn(
-        loss, learning_rate, clip_gradients, clip_norm):
+        loss, learning_rate, clip_norm):
     """Returns the optimizer operation to minimize the loss with Adam.
 
     Args:
         loss: (tensor) loss to be minimized
         learning_rate: (float) learning rate for the optimizer
-        clip_gradients: (boolean) Whether to clip gradient by the global norm.
         clip_norm: (float) Global norm to clip.
     """
     with tf.name_scope(constants.ADAM_OPTIMIZER):
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
+    return generic_optimizer_fn(optimizer, loss, clip_norm)
 
 
 def sgd_optimizer_fn(
-        loss, learning_rate, momentum, clip_gradients, clip_norm,
-        use_nesterov):
+        loss, learning_rate, momentum, clip_norm, use_nesterov):
     """Returns the optimizer operation to minimize the loss with SGD with
     momentum.
 
@@ -66,7 +64,6 @@ def sgd_optimizer_fn(
         loss: (tensor) loss to be minimized
         learning_rate: (float) learning rate for the optimizer
         momentum: (Optional, float) momentum for the optimizer.
-        clip_gradients: (boolean) Whether to clip gradient by the global norm.
         clip_norm: (float) Global norm to clip.
         use_nesterov: (bool) whether to use
             Nesterov momentum instead of regular momentum.
@@ -74,21 +71,20 @@ def sgd_optimizer_fn(
     with tf.name_scope(constants.SGD_OPTIMIZER):
         optimizer = tf.train.MomentumOptimizer(
             learning_rate, momentum, use_nesterov=use_nesterov)
-    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
+    return generic_optimizer_fn(optimizer, loss, clip_norm)
 
 
 def rmsprop_optimizer_fn(
-        loss, learning_rate, momentum, clip_gradients, clip_norm):
+        loss, learning_rate, momentum, clip_norm):
     """Returns the optimizer operation to minimize the loss with RMSProp
 
     Args:
         loss: (tensor) loss to be minimized
         learning_rate: (float) learning rate for the optimizer
         momentum: (Optional, float) momentum for the optimizer.
-        clip_gradients: (boolean) Whether to clip gradient by the global norm.
         clip_norm: (float) Global norm to clip.
     """
     with tf.name_scope(constants.RMSPROP_OPTIMIZER):
         optimizer = tf.train.RMSPropOptimizer(
             learning_rate, momentum=momentum)
-    return generic_optimizer_fn(optimizer, loss, clip_gradients, clip_norm)
+    return generic_optimizer_fn(optimizer, loss, clip_norm)

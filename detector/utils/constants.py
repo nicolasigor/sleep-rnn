@@ -46,3 +46,7 @@ RMSPROP_OPTIMIZER = 'rmsprop_optimizer'
 
 # Error message, parameter not in valid list
 ERROR_INVALID = 'Expected %s for %s, but %s was provided.'
+
+# Model versions
+V1 = 'v1'
+V2 = 'v2'

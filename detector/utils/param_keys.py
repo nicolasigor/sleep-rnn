@@ -1,4 +1,5 @@
-"""Module that stores several useful keys to configure a model."""
+"""Module that stores several useful keys to configure a model.
+"""
 
 from . import constants
 
@@ -85,23 +86,16 @@ initial_lstm_units: (int) Number of units for lstm layers. If multi stage
     is used (n_time_levels > 1), after every time downsampling operation 
     the number of units is doubled.
 """
-TIME_RESOLUTION_FACTOR = 'time_resolution_factor'
+# General parameters
 FS = 'fs'
+MODEL_VERSION = 'model_version'
 BORDER_DURATION = 'border_duration'
+TYPE_BATCHNORM = 'batchnorm'
+TYPE_DROPOUT = 'dropout'
+DROP_RATE_HIDDEN = 'drop_rate_hidden'
+DROP_RATE_OUTPUT = 'drop_rate_output'
+# CWT parameters
 FB_LIST = 'fb_list'
-N_CONV_BLOCKS = 'n_conv_blocks'
-N_TIME_LEVELS = 'n_time_levels'
-BATCHNORM_CONV = 'batchnorm_conv'
-POOLING_CONV = 'pooling_conv'
-BATCHNORM_FIRST_LSTM = 'batchnorm_first_lstm'
-DROPOUT_FIRST_LSTM = 'dropout_first_lstm'
-BATCHNORM_REST_LSTM = 'batchnorm_rest_lstm'
-DROPOUT_REST_LSTM = 'dropout_rest_lstm'
-TIME_POOLING = 'time_pooling'
-BATCHNORM_FC = 'batchnorm_fc'
-DROPOUT_FC = 'dropout_fc' 
-DROP_RATE_FC = 'drop_rate_fc'  
-DROP_RATE_LSTM = 'drop_rate_lstm'
 TRAINABLE_WAVELET = 'trainable_wavelet'
 WAVELET_SIZE_FACTOR = 'wavelet_size_factor'
 TYPE_WAVELET = 'type_wavelet'
@@ -109,10 +103,16 @@ USE_LOG = 'use_log'
 N_SCALES = 'n_scales'
 LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
+# Parameters for convolutional stage
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
+# blstm parameters
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
+# Parameters for multi-stage blstm
+N_TIME_LEVELS = 'n_time_levels'
+TIME_POOLING = 'time_pooling'
 DUPLICATE_AFTER_DOWNSAMPLING_LSTM = 'duplicate_after_downsampling_lstm'
-RESIDUAL_CONV = 'residual_conv'
+# FC units in second to last layer
+FC_UNITS = 'fc_units'
 
 """ Loss params
 
@@ -130,15 +130,14 @@ TYPE_LOSS = 'type_loss'
 """ Optimizer params
 
 learning_rate: (float) learning rate for the optimizer
-clip_gradients: (boolean) Whether to clip the gradient by the global norm.
-clip_norm: (float) if clip_gradients is true, this is the global norm to use.
+clip_norm: (float) this is the global norm to use to clip gradients. If None,
+    no clipping is applied.
 momentum: (float) momentum for the SGD optimizer.
 use_nesterov: (bool) whether to use nesterov momentum instead of regular
     momentum for SGD optimization.
 type_optimizer: ({ADAM_OPTIMIZER, SGD_OPTIMIZER}) Type of optimizer to be used.
 """
 LEARNING_RATE = 'learning_rate'
-CLIP_GRADIENTS = 'clip_gradients'
 CLIP_NORM = 'clip_norm'
 MOMENTUM = 'momentum'
 USE_NESTEROV_MOMENTUM = 'use_nesterov'
@@ -158,41 +157,34 @@ REL_TOL_LOSS = 'rel_tol_loss'
 
 # Default parameters dictionary
 default_params = {
+    FS: 200,
     BATCH_SIZE: 32,
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
-    TIME_RESOLUTION_FACTOR: 8,
-    FS: 200,
+    MODEL_VERSION: constants.V2,
     BORDER_DURATION: 3,
-    FB_LIST: [0.5, 1.0, 1.5, 2.0],
-    N_CONV_BLOCKS: 0,
-    N_TIME_LEVELS: 1,
-    BATCHNORM_CONV: constants.BN_RENORM,
-    POOLING_CONV: constants.STRIDEDCONV,
-    BATCHNORM_FIRST_LSTM: constants.BN_RENORM,
-    DROPOUT_FIRST_LSTM: None,
-    BATCHNORM_REST_LSTM: None,
-    DROPOUT_REST_LSTM: constants.SEQUENCE_DROP,
-    TIME_POOLING: constants.AVGPOOL,
-    BATCHNORM_FC: None,
-    DROPOUT_FC: constants.SEQUENCE_DROP,
-    DROP_RATE_FC: 0.0,
-    DROP_RATE_LSTM: 0.5,
+    TYPE_BATCHNORM: constants.BN,
+    TYPE_DROPOUT: constants.SEQUENCE_DROP,
+    DROP_RATE_HIDDEN: 0.5,
+    DROP_RATE_OUTPUT: 0.2,
+    FB_LIST: [1.0],
     TRAINABLE_WAVELET: True,
-    WAVELET_SIZE_FACTOR: 3.0,
+    WAVELET_SIZE_FACTOR: 3,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
-    N_SCALES: 32,
-    LOWER_FREQ: 2,
-    UPPER_FREQ: 32,
-    INITIAL_CONV_FILTERS: 16,
+    N_SCALES: 48,
+    LOWER_FREQ: 1,
+    UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,
+    INITIAL_CONV_FILTERS: 16,
+    N_TIME_LEVELS: 1,
+    TIME_POOLING: constants.MAXPOOL,
     DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
+    FC_UNITS: 128,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
-    LEARNING_RATE: 1e-4,
-    CLIP_GRADIENTS: True,
+    LEARNING_RATE: 1e-3,
     CLIP_NORM: 5,
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
@@ -200,6 +192,5 @@ default_params = {
     MAX_ITERS: 30000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
-    REL_TOL_LOSS: 0.0,
-    RESIDUAL_CONV: True
+    REL_TOL_LOSS: 0.0
 }

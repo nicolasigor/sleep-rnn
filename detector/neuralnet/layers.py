@@ -19,9 +19,9 @@ from utils import errors
 def batchnorm_layer(
         inputs,
         name,
+        training,
         batchnorm=constants.BN,
-        reuse=False,
-        training=False):
+        reuse=False):
     """Buils a batchnormalization layer.
 
     Args:
@@ -56,10 +56,10 @@ def batchnorm_layer(
 def dropout_layer(
         inputs,
         name,
-        dropout=constants.REGULAR_DROP,
+        training,
+        dropout=constants.SEQUENCE_DROP,
         drop_rate=0.5,
-        time_major=False,
-        training=False):
+        time_major=False):
     """Builds a dropout layer.
 
     Args:
@@ -106,12 +106,12 @@ def cmorlet_layer(
         upper_freq,
         n_scales,
         stride,
+        training,
         size_factor=1.0,
         border_crop=0,
         use_avg_pool=True,
-        use_log=True,
+        use_log=False,
         batchnorm=None,
-        training=False,
         trainable_wavelet=False,
         reuse=False,
         name=None):
@@ -177,13 +177,13 @@ def cmorlet_layer(
 def conv2d_layer(
         inputs,
         filters,
+        training,
         kernel_size=3,
         padding=constants.PAD_SAME,
         strides=1,
         batchnorm=None,
         activation=None,
         pooling=None,
-        training=False,
         reuse=False,
         name=None):
     """Buils a 2d convolutional layer with batch normalization and pooling.
@@ -237,38 +237,114 @@ def conv2d_layer(
     return outputs
 
 
-def bn_conv3_block(
+def conv2d_residual_block(
         inputs,
         filters,
-        batchnorm=constants.BN,
-        pooling=constants.MAXPOOL,
-        residual=False,
-        training=False,
+        training,
+        is_first_unit=False,
+        strides=1,
+        batchnorm=None,
         reuse=False,
-        name=None):
-    """Builds a convolutional block.
-     The block consists of BN-CONV-ReLU-BN-CONV-ReLU-POOL with 3x3 kernels and
-     same number of filters. Please see the documentation of conv2d_layer
-     for details on input parameters.
-     """
+        name=None
+):
     with tf.variable_scope(name):
-        outputs = conv2d_layer(
-            inputs, filters, batchnorm=batchnorm, activation=tf.nn.relu,
-            training=training, reuse=reuse,
-            name='conv3_1')
-        outputs = conv2d_layer(
-            outputs, filters, batchnorm=batchnorm, activation=None,
-            pooling=pooling, training=training, reuse=reuse,
-            name='conv3_2')
-        if residual:
-            projected_inputs = conv2d_layer(
-                inputs, filters, kernel_size=1, strides=2,
-                training=training, reuse=reuse, name='conv1x1')
-            outputs = outputs + projected_inputs
 
-        outputs = tf.nn.relu(outputs)
+        if is_first_unit:
+            inputs = tf.layers.conv2d(
+                inputs=inputs, filters=filters, kernel_size=5,
+                padding=constants.PAD_SAME,
+                strides=strides, name='conv5_1', reuse=reuse)
+            inputs = tf.nn.relu(inputs)
+            if batchnorm:
+                inputs = batchnorm_layer(
+                    inputs, 'bn_1', batchnorm=batchnorm,
+                    reuse=reuse, training=training)
+
+            shortcut = inputs
+
+            outputs = tf.layers.conv2d(
+                inputs=inputs, filters=filters, kernel_size=3,
+                padding=constants.PAD_SAME,
+                strides=1, name='conv3_1', reuse=reuse)
+            outputs = tf.nn.relu(outputs)
+            if batchnorm:
+                outputs = batchnorm_layer(
+                    outputs, 'bn_2', batchnorm=batchnorm,
+                    reuse=reuse, training=training)
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=3,
+                padding=constants.PAD_SAME,
+                strides=1, name='conv3_2', reuse=reuse)
+
+            outputs = outputs + shortcut
+
+        else:
+            shortcut = inputs
+
+            outputs = tf.nn.relu(inputs)
+            if batchnorm:
+                outputs = batchnorm_layer(
+                    outputs, 'bn_1', batchnorm=batchnorm,
+                    reuse=reuse, training=training)
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=3,
+                padding=constants.PAD_SAME,
+                strides=strides, name='conv3_1', reuse=reuse)
+            outputs = tf.nn.relu(outputs)
+            if batchnorm:
+                outputs = batchnorm_layer(
+                    outputs, 'bn_2', batchnorm=batchnorm,
+                    reuse=reuse, training=training)
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=3,
+                padding=constants.PAD_SAME,
+                strides=1, name='conv3_2', reuse=reuse)
+
+            # Projection if necessary
+            input_filters = shortcut.get_shape().as_list()[-1]
+            if strides != 1 or input_filters != filters:
+                shortcut = tf.layers.conv2d(
+                    inputs=shortcut, filters=filters, kernel_size=1,
+                    padding=constants.PAD_SAME,
+                    strides=strides, name='conv1x1', reuse=reuse)
+
+            outputs = outputs + shortcut
 
     return outputs
+
+
+# def bn_conv3_block(
+#         inputs,
+#         filters,
+#         batchnorm=constants.BN,
+#         pooling=constants.MAXPOOL,
+#         residual=False,
+#         training=False,
+#         reuse=False,
+#         name=None):
+#     """Builds a convolutional block.
+#      The block consists of BN-CONV-ReLU-BN-CONV-ReLU-POOL with 3x3 kernels and
+#      same number of filters. Please see the documentation of conv2d_layer
+#      for details on input parameters.
+#      """
+#     with tf.variable_scope(name):
+#         outputs = conv2d_layer(
+#             inputs, filters, batchnorm=batchnorm, activation=tf.nn.relu,
+#             training=training, reuse=reuse,
+#             name='conv3_1')
+#         outputs = conv2d_layer(
+#             outputs, filters, batchnorm=batchnorm, activation=None,
+#             pooling=pooling, training=training, reuse=reuse,
+#             name='conv3_2')
+#         if residual:
+#             projected_inputs = conv2d_layer(
+#                 inputs, filters, kernel_size=1, strides=2,
+#                 training=training, reuse=reuse, name='conv1x1')
+#             outputs = outputs + projected_inputs
+#
+#         outputs = tf.nn.relu(outputs)
+#
+#     return outputs
 
 
 def flatten(inputs, name=None):
@@ -301,11 +377,11 @@ def swap_batch_time(inputs, name=None):
 def sequence_fc_layer(
         inputs,
         num_units,
+        training,
         batchnorm=None,
         dropout=None,
         drop_rate=0,
         activation=None,
-        training=False,
         reuse=False,
         name=None):
     """ Builds a FC layer that can be applied directly to a sequence.
@@ -358,11 +434,11 @@ def sequence_fc_layer(
 def lstm_layer(
         inputs,
         num_units,
+        training,
         num_dirs=constants.UNIDIRECTIONAL,
         batchnorm=None,
         dropout=None,
         drop_rate=0.5,
-        training=False,
         reuse=False,
         name=None):
     """ Builds an LSTM layer that can be applied directly to a sequence.
@@ -515,13 +591,13 @@ def multilayer_lstm_block(
         inputs,
         num_units,
         n_layers,
+        training,
         num_dirs=constants.UNIDIRECTIONAL,
         batchnorm_first_lstm=constants.BN,
         dropout_first_lstm=None,
         batchnorm_rest_lstm=None,
         dropout_rest_lstm=None,
         drop_rate=0.5,
-        training=False,
         name=None):
     """Builds a multi-layer lstm block.
 
@@ -556,6 +632,7 @@ def multistage_lstm_block(
         inputs,
         num_units,
         n_time_levels,
+        training,
         duplicate_after_downsampling=True,
         num_dirs=constants.UNIDIRECTIONAL,
         batchnorm_first_lstm=constants.BN,
@@ -564,7 +641,6 @@ def multistage_lstm_block(
         dropout_rest_lstm=None,
         time_pooling=constants.AVGPOOL,
         drop_rate=0.5,
-        training=False,
         name=None):
     """Builds a multi-stage lstm block.
 

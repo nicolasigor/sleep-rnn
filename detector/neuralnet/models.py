@@ -31,6 +31,7 @@ KEY_F1_SCORE = 'f1_score'
 KEY_ITER = 'iteration'
 
 
+# TODO: Remove BaseModel class (is unnecessary)
 class WaveletBLSTM(BaseModel):
     """ Model that manages the implemented network."""
 
@@ -47,7 +48,7 @@ class WaveletBLSTM(BaseModel):
         feat_train_shape = [augmented_input_length]
         label_train_shape = feat_train_shape
         feat_eval_shape = [page_size + 2 * border_size]
-        label_eval_shape = [page_size/8]
+        label_eval_shape = [page_size / 8]
         super().__init__(
             feat_train_shape,
             label_train_shape,
@@ -69,7 +70,7 @@ class WaveletBLSTM(BaseModel):
 
     def check_train_inputs(self, x_train, y_train, x_val, y_val):
         """Ensures that validation data has the proper shape."""
-        time_stride = self.params[param_keys.TIME_RESOLUTION_FACTOR]
+        time_stride = 8
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         crop_size = page_size + 2 * border_size
@@ -95,17 +96,16 @@ class WaveletBLSTM(BaseModel):
               (self.params[param_keys.BATCH_SIZE],
                iter_per_epoch,
                x_train.shape[0], niters))
+        print('Initial learning rate:', self.params[param_keys.LEARNING_RATE])
         start_time = time.time()
 
         self._initialize_variables()
-        self._init_iterator_train(x_train, y_train)
 
-        # Best So Far
-        model_bsf = {
-            KEY_ITER: 0,
-            KEY_LOSS: 1e10,
-            KEY_F1_SCORE: 0,
-        }
+        # split set into two parts
+        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(
+            x_train, y_train)
+        self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
+
         # Improvement criterion
         model_criterion = {
             KEY_ITER: 0,
@@ -139,15 +139,6 @@ class WaveletBLSTM(BaseModel):
                 print('It %6.0d/%d - %s - %s - E.T. %1.4f s'
                       % (it, niters, loss_print, f1_print, elapsed))
 
-                # Check if a better model was found
-                if val_loss < model_bsf[KEY_LOSS]:
-                    model_bsf[KEY_LOSS] = float(val_loss)
-                    model_bsf[KEY_ITER] = it
-                    model_bsf[KEY_F1_SCORE] = float(val_metrics[KEY_F1_SCORE])
-                    # Save fitted model checkpoint
-                    save_path = self.saver.save(self.sess, self.ckptdir)
-                    print('    New BSF saved at %s' % save_path)
-
                 improvement_criterion = val_loss < (1.0 - rel_tol_loss) * model_criterion[KEY_LOSS]
                 if improvement_criterion:
                     # Update last time the improvement criterion was met
@@ -162,23 +153,31 @@ class WaveletBLSTM(BaseModel):
                 lr_criterion_2 = (it - iter_last_lr_update) >= self.params[param_keys.ITERS_LR_UPDATE]
                 lr_criterion = lr_criterion_1 and lr_criterion_2
                 if lr_criterion:
-                    print('    Reset BSF and Learning rate halving.')
-                    self._update_learning_rate(self.ckptdir)
+                    new_lr = self._update_learning_rate()
+                    print('    Learning rate halving (%d). New value: %s'
+                          % (self.lr_updates, new_lr))
                     iter_last_lr_update = it
+
+        val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
+        last_model = {
+            KEY_ITER: niters,
+            KEY_LOSS: val_loss,
+            KEY_F1_SCORE: val_metrics[KEY_F1_SCORE]
+        }
 
         # Final stats
         elapsed = time.time() - start_time
         print('\n\nTotal training time: %1.4f s' % elapsed)
-        print('BSF at iteration %d' % model_bsf[KEY_ITER])
+        print('Ending at iteration %d' % last_model[KEY_ITER])
         print('Validation loss %1.6f - f1 %1.6f'
-              % (model_bsf[KEY_LOSS], model_bsf[KEY_F1_SCORE]))
+              % (last_model[KEY_LOSS], last_model[KEY_F1_SCORE]))
 
-        # Save BSF info
-        with open(os.path.join(self.logdir, 'bsf.json'), 'w') as outfile:
-            json.dump(model_bsf, outfile)
+        # Save last model quick info
+        with open(os.path.join(self.logdir, 'last_model.json'), 'w') as outfile:
+            json.dump(last_model, outfile)
 
-        # save_path = self.saver.save(self.sess, self.ckptdir)
-        # print('Model saved at %s' % save_path)
+        save_path = self.saver.save(self.sess, self.ckptdir)
+        print('Model saved at %s' % save_path)
 
     def _train_map_fn(self, feat, label):
         """Random cropping.
@@ -186,7 +185,7 @@ class WaveletBLSTM(BaseModel):
         This method is used to preprocess features and labels of single
         examples with a random cropping
         """
-        time_stride = self.params[param_keys.TIME_RESOLUTION_FACTOR]
+        time_stride = 8
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         crop_size = page_size + 2 * border_size
@@ -201,7 +200,15 @@ class WaveletBLSTM(BaseModel):
         return feat, label
 
     def _model_fn(self):
-        logits, probabilities = networks.wavelet_blstm_net(
+        model_version = self.params[param_keys.MODEL_VERSION]
+        errors.check_valid_value(
+            model_version, 'model_version',
+            [constants.V1, constants.V2])
+        if model_version == constants.V1:
+            model_fn = networks.wavelet_blstm_net_v1
+        else:
+            model_fn = networks.wavelet_blstm_net_v2
+        logits, probabilities = model_fn(
             self.feats, self.params, self.training_ph)
         return logits, probabilities
 
@@ -229,18 +236,15 @@ class WaveletBLSTM(BaseModel):
         if type_optimizer == constants.ADAM_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
                 self.loss, self.learning_rate,
-                self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM])
         elif type_optimizer == constants.RMSPROP_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.rmsprop_optimizer_fn(
                 self.loss, self.learning_rate, self.params[param_keys.MOMENTUM],
-                self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM])
         else:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.sgd_optimizer_fn(
                 self.loss, self.learning_rate,
                 self.params[param_keys.MOMENTUM],
-                self.params[param_keys.CLIP_GRADIENTS],
                 self.params[param_keys.CLIP_NORM],
                 self.params[param_keys.USE_NESTEROV_MOMENTUM])
         return train_step, reset_optimizer_op, grad_norm_summ
@@ -279,3 +283,26 @@ class WaveletBLSTM(BaseModel):
             ]
             eval_metrics_summ = tf.summary.merge(eval_metrics_summ)
         return eval_metrics_dict, eval_metrics_summ
+
+    def _split_train(self, x_train, y_train):
+        n_train = x_train.shape[0]
+        border_size = self.get_border_size()
+        page_size = self.get_page_size()
+        # Remove to recover single page from augmented page
+        remove_size = border_size + page_size // 2
+        activity = y_train[remove_size:-remove_size]
+        activity = np.sum(activity, axis=1)
+        # Sorting in ascending order (low to high)
+        sorted_idx = np.argsort(activity)
+        low_activity_idx = sorted_idx[:n_train//2]
+        high_activity_idx = sorted_idx[n_train//2:]
+
+        # Low activity
+        x_train_1 = x_train[low_activity_idx]
+        y_train_1 = y_train[low_activity_idx]
+
+        # High activity
+        x_train_2 = x_train[high_activity_idx]
+        y_train_2 = y_train[high_activity_idx]
+
+        return x_train_1, y_train_1, x_train_2, y_train_2

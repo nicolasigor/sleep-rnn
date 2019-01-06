@@ -71,7 +71,7 @@ def resample_eeg(signal, fs_old, fs_new):
     return signal
 
 
-def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=6):
+def norm_clip_eeg(signal, n2_pages_indices, page_size, clip_value=10):
     """Normalizes EEG data according to N2 pages statistics, and then clips.
 
     EEGs are very close to a Gaussian signal, but are subject to outlier values.

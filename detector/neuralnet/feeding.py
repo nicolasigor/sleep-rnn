@@ -9,6 +9,65 @@ import tensorflow as tf
 from utils import constants
 
 
+def get_iterator_splitted(
+        tensors_ph_1,
+        tensors_ph_2,
+        batch_size,
+        repeat=True,
+        shuffle_buffer_size=0,
+        map_fn=None,
+        prefetch_buffer_size=0,
+        name=None):
+    with tf.name_scope(name):
+        with tf.device('/cpu:0'):
+
+            batch_size_1 = int(batch_size / 2)
+            batch_size_2 = batch_size - batch_size_1
+
+            # First dataset
+            dataset_1 = tf.data.Dataset.from_tensor_slices(tensors_ph_1)
+            if shuffle_buffer_size > 0:
+                dataset_1 = dataset_1.shuffle(buffer_size=shuffle_buffer_size)
+            if repeat:
+                dataset_1 = dataset_1.repeat()
+            if map_fn is not None:
+                dataset_1 = dataset_1.map(map_fn)
+            dataset_1 = dataset_1.batch(batch_size=batch_size_1)
+            if prefetch_buffer_size > 0:
+                dataset_1 = dataset_1.prefetch(buffer_size=prefetch_buffer_size)
+
+            # Second dataset
+            dataset_2 = tf.data.Dataset.from_tensor_slices(tensors_ph_2)
+            if shuffle_buffer_size > 0:
+                dataset_2 = dataset_2.shuffle(buffer_size=shuffle_buffer_size)
+            if repeat:
+                dataset_2 = dataset_2.repeat()
+            if map_fn is not None:
+                dataset_2 = dataset_2.map(map_fn)
+            dataset_2 = dataset_2.batch(batch_size=batch_size_2)
+            if prefetch_buffer_size > 0:
+                dataset_2 = dataset_2.prefetch(buffer_size=prefetch_buffer_size)
+
+            # Zip datasets
+            dataset = tf.data.Dataset.zip((dataset_1, dataset_2))
+            dataset = dataset.map(_combine_batch_fn)
+            if prefetch_buffer_size > 0:
+                dataset = dataset.prefetch(buffer_size=prefetch_buffer_size)
+
+            iterator = dataset.make_initializable_iterator()
+    return iterator
+
+
+def _combine_batch_fn(feat_label_1, feat_label_2):
+    """Takes a tuple of (feat, label) from two sources and concatenates them
+    along the batch dimension to form a single tuple."""
+    feat_1, label_1 = feat_label_1
+    feat_2, label_2 = feat_label_2
+    feat = tf.concat([feat_1, feat_2], axis=0)
+    label = tf.concat([label_1, label_2], axis=0)
+    return feat, label
+
+
 def get_iterator(
         tensors_ph,
         batch_size,

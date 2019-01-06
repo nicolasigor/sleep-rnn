@@ -34,14 +34,6 @@ if __name__ == '__main__':
     params = param_keys.default_params.copy()
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
-    params[param_keys.MAX_ITERS] = 30000
-    params[param_keys.BATCH_SIZE] = 32
-    params[param_keys.ITERS_LR_UPDATE] = 1000
-    params[param_keys.REL_TOL_LOSS] = 1e-6
-    params[param_keys.LEARNING_RATE] = 1e-4
-    params[param_keys.DROP_RATE_LSTM] = 0.5
-    params[param_keys.N_CONV_BLOCKS] = 3
-    params[param_keys.RESIDUAL_CONV] = True
 
     # Get training set ids
     print('Loading training set and splitting')

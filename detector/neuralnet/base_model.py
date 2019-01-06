@@ -78,12 +78,18 @@ class BaseModel(object):
         with tf.variable_scope('inputs_ph'):
             self.handle_ph = tf.placeholder(
                 tf.string, shape=[], name='handle_ph')
-            self.feats_train_ph = tf.placeholder(
+            self.feats_train_1_ph = tf.placeholder(
                 tf.float32, shape=[None] + self.feat_train_shape,
-                name='feats_train_ph')
-            self.labels_train_ph = tf.placeholder(
+                name='feats_train_1_ph')
+            self.labels_train_1_ph = tf.placeholder(
                 tf.int32, shape=[None] + self.label_train_shape,
-                name='labels_train_ph')
+                name='labels_train_1_ph')
+            self.feats_train_2_ph = tf.placeholder(
+                tf.float32, shape=[None] + self.feat_train_shape,
+                name='feats_train_2_ph')
+            self.labels_train_2_ph = tf.placeholder(
+                tf.int32, shape=[None] + self.label_train_shape,
+                name='labels_train_2_ph')
             self.feats_eval_ph = tf.placeholder(
                 tf.float32, shape=[None] + self.feat_eval_shape,
                 name='feats_eval_ph')
@@ -101,10 +107,10 @@ class BaseModel(object):
             self.lr_updates = 0
 
         with tf.variable_scope('feeding'):
-            # TODO: balance batches
             # Training iterator
-            self.iterator_train = feeding.get_iterator(
-                (self.feats_train_ph, self.labels_train_ph),
+            self.iterator_train = feeding.get_iterator_splitted(
+                (self.feats_train_1_ph, self.labels_train_1_ph),
+                (self.feats_train_2_ph, self.labels_train_2_ph),
                 batch_size=self.params[param_keys.BATCH_SIZE],
                 shuffle_buffer_size=self.params[param_keys.SHUFFLE_BUFFER_SIZE],
                 map_fn=self._train_map_fn,
@@ -225,11 +231,14 @@ class BaseModel(object):
         """Loads variables from a checkpoint."""
         self.saver.restore(self.sess, ckptdir)
 
-    def _init_iterator_train(self, x_train, y_train):
+    def _init_iterator_train(self, x_train_1, y_train_1, x_train_2, y_train_2):
         """Init the train iterator."""
         self.sess.run(self.iterator_train.initializer,
-                      feed_dict={self.feats_train_ph: x_train,
-                                 self.labels_train_ph: y_train})
+                      feed_dict={self.feats_train_1_ph: x_train_1,
+                                 self.labels_train_1_ph: y_train_1,
+                                 self.feats_train_2_ph: x_train_2,
+                                 self.labels_train_2_ph: y_train_2
+                                 })
 
     def _init_iterator_eval(self, x_eval, y_eval):
         """Init the evaluation iterator."""
@@ -237,7 +246,7 @@ class BaseModel(object):
                       feed_dict={self.feats_eval_ph: x_eval,
                                  self.labels_eval_ph: y_eval})
 
-    def _update_learning_rate(self, ckptdir):
+    def _update_learning_rate(self, ckptdir=None):
         # Restore checkpoint
         if ckptdir:
             self.load_checkpoint(ckptdir)
@@ -245,10 +254,9 @@ class BaseModel(object):
         self.sess.run(self.reset_optimizer)
         # Half learning rate
         self.lr_updates = self.lr_updates + 1
-        self.sess.run(tf.assign(
-            self.learning_rate,
-            self.params[param_keys.LEARNING_RATE] / (2 ** self.lr_updates)
-        ))
+        new_lr = self.params[param_keys.LEARNING_RATE] / (2 ** self.lr_updates)
+        self.sess.run(tf.assign(self.learning_rate, new_lr))
+        return new_lr
 
     def _single_train_iteration(self):
         self.sess.run(self.train_step,

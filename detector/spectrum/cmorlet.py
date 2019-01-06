@@ -83,7 +83,6 @@ def compute_wavelets(
         wavelets: (list of tuples of arrays) A list of computed wavelet banks.
         frequencies: (1D array) Array of frequencies for each scale.
     """
-    # TODO: Support trainable fb params. Use fb_list as initialization.
 
     # Checking
     if lower_freq > upper_freq:
