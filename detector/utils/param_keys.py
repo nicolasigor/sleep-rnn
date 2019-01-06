@@ -184,7 +184,7 @@ default_params = {
     FC_UNITS: 128,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
-    LEARNING_RATE: 1e-3,
+    LEARNING_RATE: 1e-4,
     CLIP_NORM: 5,
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
