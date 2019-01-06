@@ -305,7 +305,7 @@ def conv2d_residual_block(
             if strides != 1 or input_filters != filters:
                 shortcut = tf.layers.conv2d(
                     inputs=shortcut, filters=filters, kernel_size=1,
-                    padding=constants.PAD_SAME,
+                    padding=constants.PAD_SAME, use_bias=False,
                     strides=strides, name='conv1x1', reuse=reuse)
 
             outputs = outputs + shortcut

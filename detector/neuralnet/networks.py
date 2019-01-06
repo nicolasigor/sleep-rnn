@@ -68,6 +68,7 @@ def wavelet_blstm_net_v1(
             n_layers=2,
             num_dirs=constants.BIDIRECTIONAL,
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
+            dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
             drop_rate=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
