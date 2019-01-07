@@ -308,3 +308,37 @@ class WaveletBLSTM(BaseModel):
         y_train_2 = y_train[high_activity_idx]
 
         return x_train_1, y_train_1, x_train_2, y_train_2
+
+    def predict_proba_augmented(self, x):
+        """Predicts the class probabilities over the data x.
+        x is assumed to be an augmented page"""
+        niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = int(niters)
+        probabilities_list = []
+        for i in range(niters):
+            start_index = i*self.params[param_keys.BATCH_SIZE]
+            end_index = (i+1)*self.params[param_keys.BATCH_SIZE]
+            batch = x[start_index:end_index]
+
+            # TODO: des-hardcoded
+            batch_left = batch[:, int(5*200):int(31*200)]
+            batch_right = batch[:, int(15 * 200):int(41 * 200)]
+            probabilities_left = self.sess.run(
+                self.probabilities,
+                feed_dict={
+                    self.feats: batch_left,
+                    self.training_ph: False
+                })
+            probabilities_right = self.sess.run(
+                self.probabilities,
+                feed_dict={
+                    self.feats: batch_right,
+                    self.training_ph: False
+                })
+            probabilities_left = probabilities_left[:, :250, :]
+            probabilities_right = probabilities_right[:, 250:, :]
+            probabilities = np.concatenate(
+                [probabilities_left, probabilities_right], axis=1)
+            probabilities_list.append(probabilities)
+        final_probabilities = np.concatenate(probabilities_list, axis=0)
+        return final_probabilities

@@ -36,15 +36,15 @@ def compare_wavelets(np_wavelets_v1, np_wavelets_v2, title_append=''):
     time_axis_v2 = time_axis_v2 - np.mean(time_axis_v2)
 
     # Show wavelets
-    fig, ax = plt.subplots(2, 1)
-    ax[0].plot(time_axis_v1, real_scale_v1, label='real')
-    ax[0].plot(time_axis_v1, imag_scale_v1, label='imag')
-    ax[0].set_title('V1 %s' % title_append)
+    fig, ax = plt.subplots(2, 1, sharex=True, dpi=100, figsize=(5, 5))
+    ax[0].plot(time_axis_v1, real_scale_v1, label='Real part', linewidth=1)
+    ax[0].plot(time_axis_v1, imag_scale_v1, label='Imag part', linewidth=1)
+    ax[0].set_title('Target CMorlet Wavelet %s' % title_append)
     ax[0].legend()
 
-    ax[1].plot(time_axis_v2, real_scale_v2, label='real')
-    ax[1].plot(time_axis_v2, imag_scale_v2, label='imag')
-    ax[1].set_title('V2 %s' % title_append)
+    ax[1].plot(time_axis_v2, real_scale_v2, label='Real part', linewidth=1)
+    ax[1].plot(time_axis_v2, imag_scale_v2, label='Imag part', linewidth=1)
+    ax[1].set_title('Trainable CMorlet Wavelet %s' % title_append)
     ax[1].legend()
 
     plt.xlim([time_axis_v1[0], time_axis_v1[-1]])
@@ -92,15 +92,22 @@ if __name__ == '__main__':
         stride=1,
         trainable=True)
 
+    # Add average pooling
+    outputs_v1 = tf.layers.average_pooling2d(
+        inputs=outputs_v1, pool_size=(8, 1), strides=(8, 1))
+    outputs_v2 = tf.layers.average_pooling2d(
+        inputs=outputs_v2, pool_size=(8, 1), strides=(8, 1))
+
     loss = tf.reduce_mean(tf.square(outputs_v1-outputs_v2))
     tf.summary.scalar('loss', loss)
-    optimizer = tf.train.AdamOptimizer()
+    optimizer = tf.train.AdamOptimizer(0.01)
     train_step = optimizer.minimize(loss)
     merged = tf.summary.merge_all()
 
-    niters = 10000
+    niters = 1000
     nstats = 50
     training = []
+    iterations = []
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         # See old wavelets
@@ -108,16 +115,20 @@ if __name__ == '__main__':
             wavelets_v2,
             feed_dict={signal_ph: demo_signal})
         compare_wavelets(
-            np_wavelets_v1[0], np_wavelets_v2[0], title_append='Original')
+            np_wavelets_v1[0], np_wavelets_v2[0], title_append='(Initialization)')
         for i in range(niters):
             np_loss, _ = sess.run([loss, train_step],
                                   feed_dict={signal_ph: demo_signal})
             if i % nstats == 0:
                 print('Iteration %d/%d, loss %1.6f' % (i+1, niters, np_loss))
             training.append(np_loss)
+            iterations.append(i)
 
-        plt.plot(training)
+        fig = plt.figure(figsize=(5, 4), dpi=100)
+        plt.plot(iterations, training, color='0.3')
         plt.title('Loss Evolution for Imitation Game')
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss MSE')
         plt.show()
 
         # See new wavelets
@@ -125,4 +136,4 @@ if __name__ == '__main__':
             wavelets_v2,
             feed_dict={signal_ph: demo_signal})
         compare_wavelets(
-            np_wavelets_v1[0], np_wavelets_v2[0], title_append='Trained')
+            np_wavelets_v1[0], np_wavelets_v2[0], title_append='(End of training)')
