@@ -161,8 +161,8 @@ class WaveletBLSTM(BaseModel):
         val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
         last_model = {
             KEY_ITER: niters,
-            KEY_LOSS: val_loss,
-            KEY_F1_SCORE: val_metrics[KEY_F1_SCORE]
+            KEY_LOSS: float(val_loss),
+            KEY_F1_SCORE: float(val_metrics[KEY_F1_SCORE])
         }
 
         # Final stats
@@ -172,12 +172,12 @@ class WaveletBLSTM(BaseModel):
         print('Validation loss %1.6f - f1 %1.6f'
               % (last_model[KEY_LOSS], last_model[KEY_F1_SCORE]))
 
+        save_path = self.saver.save(self.sess, self.ckptdir)
+        print('Model saved at %s' % save_path)
+
         # Save last model quick info
         with open(os.path.join(self.logdir, 'last_model.json'), 'w') as outfile:
             json.dump(last_model, outfile)
-
-        save_path = self.saver.save(self.sess, self.ckptdir)
-        print('Model saved at %s' % save_path)
 
     def _train_map_fn(self, feat, label):
         """Random cropping.
