@@ -310,6 +310,7 @@ class WaveletBLSTM(BaseModel):
         return x_train_1, y_train_1, x_train_2, y_train_2
 
     def predict_proba_augmented(self, x):
+        # TODO: No funciono, tiro cualquier cosa
         """Predicts the class probabilities over the data x.
         x is assumed to be an augmented page"""
         niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
