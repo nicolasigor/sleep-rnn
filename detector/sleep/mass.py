@@ -25,7 +25,7 @@ KEY_FILE_EEG = 'file_eeg'
 KEY_FILE_STATES = 'file_states'
 KEY_FILE_MARKS = 'file_marks'
 
-IDS_INVALID = [4, 8, 15, 16, 18]
+IDS_INVALID = [4, 8, 15, 16]
 IDS_TEST = [2, 6, 12, 13]
 
 
@@ -55,7 +55,6 @@ class MASS(BaseDataset):
 
     def __init__(self, load_checkpoint=False):
         """Constructor"""
-        # TODO: Reintegrate subject 18
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
         # In MASS, we need to index by name since not all the lists are

@@ -1,18 +1,5 @@
 """
-Train: Predicting ID 9
-Train: Predicting ID 1
-Train: Predicting ID 14
-Train: Predicting ID 10
-Train: Predicting ID 17
-Train: Predicting ID 7
-Train: Predicting ID 3
-Train: Predicting ID 11
-Val: Predicting ID 19
-Val: Predicting ID 5
-Test: Predicting ID 2
-Test: Predicting ID 6
-Test: Predicting ID 12
-Test: Predicting ID 13
+
 """
 
 
@@ -30,7 +17,7 @@ import numpy as np
 detector_path = '..'
 sys.path.append(detector_path)
 
-from sleep.mass import MASS
+from sleep.inta import INTA
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
 from utils import param_keys
@@ -56,7 +43,7 @@ if __name__ == '__main__':
     ckpt_path = os.path.join(results_dir, ckpt_folder)
 
     # Load data
-    dataset = MASS(load_checkpoint=True)
+    dataset = INTA(load_checkpoint=True)
 
     # Restore params of ckpt
     filename = os.path.join(ckpt_path, 'params.json')
@@ -129,7 +116,7 @@ if __name__ == '__main__':
         y_pred_test.append(this_pred)
 
     # Save predictions
-    save_dir = os.path.join(results_dir, 'predictions', ckpt_folder)
+    save_dir = os.path.join(results_dir, 'predictions_inta', ckpt_folder)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     print('Saving predictions at %s' % save_dir)

@@ -28,7 +28,7 @@ def simple_split_with_list(x, y, train_fraction=0.8, seed=None):
     return x_train, y_train, x_test, y_test
 
 
-def split_ids_list(subject_ids, train_fraction=0.8, seed=None):
+def split_ids_list(subject_ids, train_fraction=0.75, seed=None):
     """Splits the subject_ids list randomly using train_fraction."""
     n_subjects = len(subject_ids)
     n_train = int(n_subjects * train_fraction)
