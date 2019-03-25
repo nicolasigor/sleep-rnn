@@ -47,12 +47,13 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    n_try = 0
+    # n_try = 0
 
     results_dir = os.path.join('..', 'results')
     # ckpt_folder = 'grid_20181216/loss_cross_entropy_loss_opt_adam_optimizer_lr_4_m_0.0_batch_32_trainwave_1_drop_0.3'
     # ckpt_folder = 'grid_20181217/loss_cross_entropy_loss_opt_adam_optimizer_lr_3_m_0.0_batch_32_trainwave_0_drop_0.3'
-    ckpt_folder = 'bsf_20190106/version_v2_typebn_bn_try_%d' % n_try
+    # ckpt_folder = 'bsf_20190106/version_v2_typebn_bn_try_%d' % n_try
+    ckpt_folder = 'v1_bn_fixed_files'
 
     ckpt_path = os.path.join(results_dir, ckpt_folder)
 
@@ -64,7 +65,7 @@ if __name__ == '__main__':
     with open(filename, 'r') as infile:
         params = json.load(infile)
     # Overwrite defaults
-    params.update(param_keys.default_params)
+    # params.update(param_keys.default_params)
 
     print('Restoring from %s' % ckpt_path)
     pprint.pprint(params)
@@ -130,7 +131,7 @@ if __name__ == '__main__':
         y_pred_test.append(this_pred)
 
     # Save predictions
-    save_dir = os.path.join(results_dir, 'predictions_try_%d' % n_try, ckpt_folder)
+    save_dir = os.path.join(results_dir, 'predictions', ckpt_folder)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     print('Saving predictions at %s' % save_dir)
@@ -139,47 +140,47 @@ if __name__ == '__main__':
     np.save(os.path.join(save_dir, 'y_pred_test.npy'), y_pred_test)
     print('Predictions saved')
 
-    # ----- Augmented predictions
-    augmented_page = True
-    which_expert = 1
-
-    x_train, y_train = dataset.get_subset_data(
-        train_ids, augmented_page=augmented_page, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-    x_val, y_val = dataset.get_subset_data(
-        val_ids, augmented_page=augmented_page, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-    x_test, y_test = dataset.get_subset_data(
-        test_ids, augmented_page=augmented_page, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-
-    # We keep each patient separate, to see variation of performance
-    # between individuals
-    y_pred_train = []
-    y_pred_val = []
-    y_pred_test = []
-
-    # Start prediction
-    for i, sub_data in enumerate(x_train):
-        print('Train: Predicting ID %s' % train_ids[i])
-        this_pred = model.predict_proba_augmented(sub_data)
-        y_pred_train.append(this_pred)
-    for i, sub_data in enumerate(x_val):
-        print('Val: Predicting ID %s' % val_ids[i])
-        this_pred = model.predict_proba_augmented(sub_data)
-        y_pred_val.append(this_pred)
-    for i, sub_data in enumerate(x_test):
-        print('Test: Predicting ID %s' % test_ids[i])
-        this_pred = model.predict_proba_augmented(sub_data)
-        y_pred_test.append(this_pred)
-
-    # Save predictions
-    save_dir = os.path.join(results_dir, 'predictions_try_%d' % n_try,
-                            ckpt_folder)
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-    print('Saving predictions at %s' % save_dir)
-    np.save(os.path.join(save_dir, 'y_pred_train_augmented.npy'), y_pred_train)
-    np.save(os.path.join(save_dir, 'y_pred_val_augmented.npy'), y_pred_val)
-    np.save(os.path.join(save_dir, 'y_pred_test_augmented.npy'), y_pred_test)
-    print('Predictions saved')
+    # # ----- Augmented predictions
+    # augmented_page = True
+    # which_expert = 1
+    #
+    # x_train, y_train = dataset.get_subset_data(
+    #     train_ids, augmented_page=augmented_page, border_size=border_size,
+    #     which_expert=which_expert, verbose=True)
+    # x_val, y_val = dataset.get_subset_data(
+    #     val_ids, augmented_page=augmented_page, border_size=border_size,
+    #     which_expert=which_expert, verbose=True)
+    # x_test, y_test = dataset.get_subset_data(
+    #     test_ids, augmented_page=augmented_page, border_size=border_size,
+    #     which_expert=which_expert, verbose=True)
+    #
+    # # We keep each patient separate, to see variation of performance
+    # # between individuals
+    # y_pred_train = []
+    # y_pred_val = []
+    # y_pred_test = []
+    #
+    # # Start prediction
+    # for i, sub_data in enumerate(x_train):
+    #     print('Train: Predicting ID %s' % train_ids[i])
+    #     this_pred = model.predict_proba_augmented(sub_data)
+    #     y_pred_train.append(this_pred)
+    # for i, sub_data in enumerate(x_val):
+    #     print('Val: Predicting ID %s' % val_ids[i])
+    #     this_pred = model.predict_proba_augmented(sub_data)
+    #     y_pred_val.append(this_pred)
+    # for i, sub_data in enumerate(x_test):
+    #     print('Test: Predicting ID %s' % test_ids[i])
+    #     this_pred = model.predict_proba_augmented(sub_data)
+    #     y_pred_test.append(this_pred)
+    #
+    # # Save predictions
+    # save_dir = os.path.join(results_dir, 'predictions_try_%d' % n_try,
+    #                         ckpt_folder)
+    # if not os.path.exists(save_dir):
+    #     os.makedirs(save_dir)
+    # print('Saving predictions at %s' % save_dir)
+    # np.save(os.path.join(save_dir, 'y_pred_train_augmented.npy'), y_pred_train)
+    # np.save(os.path.join(save_dir, 'y_pred_val_augmented.npy'), y_pred_val)
+    # np.save(os.path.join(save_dir, 'y_pred_test_augmented.npy'), y_pred_test)
+    # print('Predictions saved')

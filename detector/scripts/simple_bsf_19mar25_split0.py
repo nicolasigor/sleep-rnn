@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print('Validation set shape', x_val.shape, y_val.shape)
 
     # Create model
-    logdir = os.path.join('results', 'bsf_fixed_files')
+    logdir = os.path.join('results', '20190325_fixed_loading', 'bsf_try0')
     print('This run directory: %s' % logdir)
     model = WaveletBLSTM(params, logdir=logdir)
 
