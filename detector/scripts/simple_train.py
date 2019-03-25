@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
+import os
 
 import numpy as np
 
@@ -69,7 +70,9 @@ if __name__ == '__main__':
 
     # Create model
     params[param_keys.MODEL_VERSION] = constants.V1
-    model = WaveletBLSTM(params, logdir='results/demo_logs_testing_v1')
+    logdir = os.path.join('results', 'bsf_fixed_files')
+    print('This run directory: %s' % logdir)
+    model = WaveletBLSTM(params, logdir=logdir)
 
     # Train model
     model.fit(x_train, y_train, x_val, y_val)

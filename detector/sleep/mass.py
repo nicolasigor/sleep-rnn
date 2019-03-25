@@ -55,9 +55,11 @@ class MASS(BaseDataset):
 
     def __init__(self, load_checkpoint=False):
         """Constructor"""
-        # TODO: Check subject 18 (performance issue)
+        # TODO: Reintegrate subject 18
         # MASS parameters
-        self.channel = 13  # Channel for SS marks, C3-CLE in 13, F3-CLE in 22
+        self.channel = 'EEG C3-CLE'  # Channel for SS marks
+        # In MASS, we need to index by name since not all the lists are
+        # sorted equally
         self.n2_char = '2'  # Character for N2 identification in hypnogram
 
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
@@ -68,7 +70,6 @@ class MASS(BaseDataset):
 
     def _load_from_files(self):
         """Loads the data from files and transforms it appropriately."""
-        # TODO: Strategy to combine E1 and E2 marks
         data_path_list = self._get_file_paths()
         data_list = []
         n_data = len(data_path_list)
@@ -143,9 +144,14 @@ class MASS(BaseDataset):
     def _read_eeg(self, path_eeg_file):
         """Loads signal from 'path_eeg_file', does filtering and resampling."""
         with pyedflib.EdfReader(path_eeg_file) as file:
-            signal = file.readSignal(self.channel)
-            fs_old = file.samplefrequency(self.channel)
+            channel_names = file.getSignalLabels()
+            channel_to_extract = channel_names.index(self.channel)
+            signal = file.readSignal(channel_to_extract)
+            fs_old = file.samplefrequency(channel_to_extract)
             fs_old_round = int(np.round(fs_old))
+
+            # Check
+            print('Channel extracted: %s' % file.getLabel(channel_to_extract))
         signal = data_ops.filter_eeg(signal, fs_old)
         # We need an integer fs_old, that's why we use the rounded version. This
         # has the effect of slightly elongate the annotations of sleep spindles.
