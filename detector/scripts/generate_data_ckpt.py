@@ -10,6 +10,7 @@ sys.path.append(detector_path)
 from sleep.mass import MASS
 from sleep.inta import INTA
 
+
 if __name__ == '__main__':
     # MASS - Create checkpoint and load to check
     dataset = MASS()

@@ -1,5 +1,9 @@
 """constants.py: Module that stores several useful constants for the project."""
 
+# Database name
+MASS_NAME = 'mass'
+INTA_NAME = 'inta'
+
 # Database split
 TRAIN_SUBSET = 'train'
 VAL_SUBSET = 'val'

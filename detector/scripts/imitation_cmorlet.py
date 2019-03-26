@@ -115,7 +115,8 @@ if __name__ == '__main__':
             wavelets_v2,
             feed_dict={signal_ph: demo_signal})
         compare_wavelets(
-            np_wavelets_v1[0], np_wavelets_v2[0], title_append='(Initialization)')
+            np_wavelets_v1[0], np_wavelets_v2[0],
+            title_append='(Initialization)')
         for i in range(niters):
             np_loss, _ = sess.run([loss, train_step],
                                   feed_dict={signal_ph: demo_signal})
@@ -136,4 +137,5 @@ if __name__ == '__main__':
             wavelets_v2,
             feed_dict={signal_ph: demo_signal})
         compare_wavelets(
-            np_wavelets_v1[0], np_wavelets_v2[0], title_append='(End of training)')
+            np_wavelets_v1[0], np_wavelets_v2[0],
+            title_append='(End of training)')
