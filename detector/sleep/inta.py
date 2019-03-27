@@ -54,7 +54,7 @@ class INTA(BaseDataset):
         |__ StagesOnly_ADGU101504.txt
         |__ ...
     |__ PATH_MARKS
-        |__ FixedSS_ADGU101504.txt
+        |__ NewFixedSS_ADGU101504.txt
         |__ ...
     """
 
@@ -120,7 +120,7 @@ class INTA(BaseDataset):
                 'StagesOnly_%s.txt' % subject_name)
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
-                'FixedSS_%s.txt' % subject_name)
+                'NewFixedSS_%s.txt' % subject_name)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG: path_eeg_file,
@@ -143,6 +143,8 @@ class INTA(BaseDataset):
         """Loads signal from 'path_eeg_file', does filtering."""
         with pyedflib.EdfReader(path_eeg_file) as file:
             signal = file.readSignal(self.channel)
+            # Check
+            print('Channel extracted: %s' % file.getLabel(self.channel))
         signal = data_ops.filter_eeg(signal, self.fs)
         return signal
 

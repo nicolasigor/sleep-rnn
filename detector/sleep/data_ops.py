@@ -34,12 +34,16 @@ def seq2inter(sequence):
     return intervals
 
 
-def inter2seq(intervals, start, end):
+def inter2seq(intervals, start, end, allow_early_end=False):
     """Returns the binary sequence segment from 'start' to 'end',
     associated with the active intervals."""
-    if np.any(intervals < start) or np.any(intervals > end):
-        msg = 'Values in intervals should be within start and end bounds'
+    if np.any(intervals < start):
+        msg = 'Values in intervals should be within start bound'
         raise ValueError(msg)
+    if np.any(intervals > end) and not allow_early_end:
+        msg = 'Values in intervals should be within end bound'
+        raise ValueError(msg)
+
     sequence = np.zeros(end - start + 1, dtype=np.int32)
     for i in range(len(intervals)):
         start_sample = intervals[i, 0] - start
