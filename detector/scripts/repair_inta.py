@@ -15,28 +15,26 @@ import pyedflib
 detector_path = '..'
 sys.path.append(detector_path)
 
-from sleep.inta import NAMES
+from sleep.data_ops import PATH_DATA
+from sleep.inta import NAMES, PATH_INTA_RELATIVE, PATH_MARKS, PATH_REC
 from sleep import data_ops
 
 
 if __name__ == '__main__':
 
     channel = 0  # f4-c4 channel
-
     filename_format = 'NewFixedSS_%s.txt'
+    inta_folder = os.path.join(PATH_DATA, PATH_INTA_RELATIVE)
 
     for name in NAMES:
-
         print('Fixing %s' % name)
+        path_marks_file = os.path.abspath(os.path.join(
+            inta_folder, PATH_MARKS, 'SS_%s.txt' % name))
+        path_eeg_file = os.path.abspath(os.path.join(
+            inta_folder, PATH_REC, '%s.rec' % name))
 
         # Read marks
-        path_marks_file = os.path.join(
-            '..', '..', 'data', 'ssdata_inta', 'label', 'marks',
-            'SS_%s.txt' % name)
-        path_eeg_file = os.path.join(
-            '..', '..', 'data', 'ssdata_inta', 'register',
-            '%s.rec' % name)
-
+        print('Loading %s' % path_marks_file)
         data = np.loadtxt(path_marks_file)
         for_this_channel = data[:, -1] == channel + 1
         data = data[for_this_channel]
@@ -53,32 +51,23 @@ if __name__ == '__main__':
             elif data[i, 0] < data[i, 1]:
                 new_data.append(data[i, :])
             else:  # Zero duration (equality)
-                print('Zero duration found')
+                print('Zero duration mark found and removed')
         new_data = np.stack(new_data, axis=0)
-        print('data',data.shape)
-        print('new_data',new_data.shape)
 
         raw_marks = data[:, [0, 1]]
         valid = data[:, 4]
 
-        # Separate according to valid value
-        # Valid = 0 is ignored.
-        raw_marks_1 = raw_marks[valid == 1]
-        raw_marks_2 = raw_marks[valid == 2]
-
-        print('ra1', raw_marks_1.shape)
-        print('ra2', raw_marks_2.shape)
-
+        print('Loading %s' % path_eeg_file)
         with pyedflib.EdfReader(path_eeg_file) as file:
             signal = file.readSignal(0)
             signal_len = signal.shape[0]
-            print('len', signal_len)
+
+        print('Starting correction... ', end='', flush=True)
+        # Separate according to valid value. Valid = 0 is ignored.
+        raw_marks_1 = raw_marks[valid == 1]
+        raw_marks_2 = raw_marks[valid == 2]
 
         # Turn into binary sequence
-
-        print('1 min, max', np.min(raw_marks_1), np.max(raw_marks_1))
-        print('2 min, max', np.min(raw_marks_2), np.max(raw_marks_2))
-
         raw_marks_1 = data_ops.inter2seq(raw_marks_1, 0, signal_len - 1,
                                          allow_early_end=True)
         raw_marks_2 = data_ops.inter2seq(raw_marks_2, 0, signal_len - 1,
@@ -88,13 +77,9 @@ if __name__ == '__main__':
         raw_marks_2 = data_ops.seq2inter(raw_marks_2)
         # In this way, overlapping intervals are now together
 
-        print('ra1', raw_marks_1.shape)
-        print('ra2', raw_marks_2.shape)
-
         # Correction rule:
         # Keep valid=2 always
         # Keep valid=1 only if there is no intersection with valid=2
-
         final_marks = [raw_marks_2]
         final_valid = [2 * np.ones(raw_marks_2.shape[0])]
         for i in range(raw_marks_1.shape[0]):
@@ -115,9 +100,6 @@ if __name__ == '__main__':
         final_marks = np.concatenate(final_marks, axis=0)
         final_valid = np.concatenate(final_valid, axis=0)
 
-        print('final_marks', final_marks.shape)
-        print('final_valid', final_valid.shape)
-
         # Now create array in right format
         # [start end -50 -50 valid channel]
         channel_for_txt = channel + 1
@@ -133,15 +115,13 @@ if __name__ == '__main__':
             axis=1
         )
         table = table.astype(np.int32)
-        print('table', table.shape)
-        print(table[:6, :])
-        print('')
 
-        # TODO: Now sort according to start time
-        # TODO: Now save into a file
-        # TODO: Check visually the result in jupyter notebook
+        # Now sort according to start time
+        table = table[table[:, 0].argsort()]
+        print('Done')
 
-        path_new_marks_file = os.path.join(
-            '..', '..', 'data', 'ssdata_inta', 'label', 'marks',
-            filename_format % name)
-        print('Saving at %s' % path_new_marks_file)
+        # Now save into a file
+        path_new_marks_file = os.path.abspath(os.path.join(
+            inta_folder, PATH_MARKS, filename_format % name))
+        np.savetxt(path_new_marks_file, table, fmt='%d', delimiter=' ')
+        print('Fixed marks saved at %s\n' % path_new_marks_file)

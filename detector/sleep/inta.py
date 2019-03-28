@@ -17,8 +17,8 @@ from .base_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
 
 PATH_INTA_RELATIVE = 'ssdata_inta'
 PATH_REC = 'register'
-PATH_MARKS = 'label/marks'
-PATH_STATES = 'label/states'
+PATH_MARKS = os.path.join('label', 'marks')
+PATH_STATES = os.path.join('label', 'states')
 
 KEY_FILE_EEG = 'file_eeg'
 KEY_FILE_STATES = 'file_states'

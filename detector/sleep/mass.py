@@ -17,9 +17,9 @@ from .base_dataset import KEY_ID, KEY_EEG, KEY_PAGES, KEY_MARKS
 
 PATH_MASS_RELATIVE = 'ssdata_mass'
 PATH_REC = 'register'
-PATH_MARKS_1 = 'label/marks/e1'
-PATH_MARKS_2 = 'label/marks/e2'
-PATH_STATES = 'label/states'
+PATH_MARKS_1 = os.path.join('label', 'marks', 'e1')
+PATH_MARKS_2 = os.path.join('label', 'marks', 'e2')
+PATH_STATES = os.path.join('label', 'states')
 
 KEY_FILE_EEG = 'file_eeg'
 KEY_FILE_STATES = 'file_states'
