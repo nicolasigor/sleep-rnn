@@ -34,8 +34,7 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
-    # ckpt_folder = 'v1_bn_fixed_files_trainINTA'
-    ckpt_folder = '20190325_v2bn_fixed_loading_train_mass/bsf_try3'
+    ckpt_folder = '20190328_v2bn_fixed_inta_train_inta/bsf_try3'
 
     # Select database for prediction
     dataset_name = constants.INTA_NAME

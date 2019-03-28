@@ -8,6 +8,8 @@ import numpy as np
 
 from sleep.data_ops import inter2seq
 
+# TODO: precision-recall curve
+
 
 def by_sample_confusion(events, detections, input_is_binary=False):
     """Returns a dictionary with by-sample metrics.
@@ -118,3 +120,27 @@ def matching(events, detections):
     iou_array = np.array(iou_array)
     idx_array = np.array(idx_array)
     return iou_array, idx_array
+
+
+def f1_vs_iou(events, detections, iou_thr_list, verbose=False):
+    f1_list = []
+    if verbose:
+        print('Matching events... ', end='', flush=True)
+    this_iou_data, _ = matching(events, detections)
+    if verbose:
+        print('Done', flush=True)
+    for iou_thr in iou_thr_list:
+        if verbose:
+            print('Processing IoU threshold %1.1f... ' % iou_thr, end='',
+                  flush=True)
+        this_stat = by_event_confusion(
+            events, detections,
+            iou_thr=iou_thr, iou_array=this_iou_data)
+        f1 = this_stat['f1_score']
+        f1_list.append(f1)
+        if verbose:
+            print('F1 obtained: %1.4f' % f1, flush=True)
+    if verbose:
+        print('Done')
+    f1_list = np.array(f1_list)
+    return f1_list
