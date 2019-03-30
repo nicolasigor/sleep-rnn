@@ -7,8 +7,7 @@ from __future__ import print_function
 import numpy as np
 
 from sleep.data_ops import inter2seq
-
-# TODO: precision-recall curve
+from sleep import postprocessing
 
 
 def by_sample_confusion(events, detections, input_is_binary=False):
@@ -144,3 +143,38 @@ def f1_vs_iou(events, detections, iou_thr_list, verbose=False):
         print('Done')
     f1_list = np.array(f1_list)
     return f1_list
+
+
+def average_f1_with_list(
+    pages_sequence_real_list, 
+    pages_sequence_predicted_list, 
+    pages_indices_list,
+    fs_real=200,
+    fs_predicted=25,
+    thr=0.5
+):
+    """Average F1 over several IoU values.
+    
+    The average F1 performance at fixed threshold (default 0.5) is
+    computed by averaging the F1 curve from IoU 0.5 to 0.9.
+    """
+    print('Preparing labels', flush=True)
+    y_thr = postprocessing.generate_mark_intervals_with_list(
+        pages_sequence_real_list, pages_indices_list, 
+        fs_real, fs_real, thr=None, postprocess=False)
+    print('Preparing predictions', flush=True)
+    y_pred_thr = postprocessing.generate_mark_intervals_with_list(
+        pages_sequence_predicted_list, pages_indices_list, 
+        fs_predicted, fs_real, thr=thr)
+    n_subjects = len(y_thr)
+    # Go through several IoU values
+    print('Computing F1 values', flush=True)
+    iou_list = np.arange(5, 10) * 0.1
+    all_f1_list = [f1_vs_iou(this_y, this_y_pred, iou_list) 
+                   for (this_y, this_y_pred) 
+                   in zip(y_thr, y_pred_thr)]
+    all_f1_list = np.stack(all_f1_list, axis=1)
+    average_f1 = np.mean(all_f1_list)
+    print('Done')
+    return average_f1
+

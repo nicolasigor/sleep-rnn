@@ -1,28 +1,29 @@
+2019:
 
-Directas:
-- Histograma de norma de gradientes y clip gradients. "Print or plot the gradients to see its usual range, then scale down gradients that exceeds this range. This prevents spikes in the gradients to mess up the parameters during training."
+(Borrar marcados con X luego de armar ppt)
 
-Con tiempo:
-- Implementar "evaluate" que entregue precision, recall y f1 score en un subset dado (metricas by sample), para varios puntos de operacion (umbrales 0.1:0.05:0.9, devolver el arreglo de umbrales). Asi dejar que automaticamente entregue performance en train, val y test cuando termine la corrida si es que pongo un flag en true. O que lo puedo hacer restaurando de un checkpoint.
-- Análisis de errores de la ultima mejor arquitectura (lo que esta en el doc) (enfasis en metricas by-event)
+[X] Reparación lectura MASS
+[X] Reparación marcas INTA
+[X] Implementación eficiente curva f1 vs IoU
+[x] Upsampling de 25 a 200 Hz de las predicciones
+[X] Implementación de curva PR con varios umbrales de probabilidad
+[X] Mejoramiento estetico de graficos de evaluacion y visualizacion
+[X] Implementacion de metrica escalar de validacion (Average F1)
+[X] Reentrenamiento y guardar evaluacion de mejor modelo en MASS e INTA luego de reparaciones
 
+[ ] Decidir por cross-validation mirando AF1 en validacion:
+a. BN o BRN (después del cambio de bn sobre el espectrograma)
+b. Etapa convnet: resnet v1, resnet v2, o no residual.
+c. Numero de unidades en LSTM.
+d. Numero de unidades FC hidden (o bien sin esta capa)
+e. Uso o no de logaritmo en espectrograma.
 
---
+[ ] Analisis de error:
+a. Sensibilidad al postprocessing
+b. Localizacion de falsos a lo largo de las paginas (bordes?)
+c. IoU segun duracion de eventos reales
+d. IoU segun duracion de eventos detectados
 
-- Que al final de un entrenamiento se haga la evaluacion automatica del modelo entrenado.
-- Implementar input pipeline aparte (quizas una clase SimpleIterator).
-- Refactorizar integrando prediccion y evaluacion de modelos nuevos.
+[ ] Desempeño segun el numero de registros en train 
 
-- Que el loss sea el mean de todos los losses (incluido timesteps)
-- Ojo a entrenar con sgd + momentum en vez de adam - Implementar reinicio de adam con disminucion de learning rate.
-- Para entrenar: 100 epocas o cuando el val error no mejora en 5 epocas?
-- Reportar losses y f1 scores epoch-wise en tensorboard
-- Reportar en entrenamiento 'iou' y 'dice' global: todas las muestras comunes dividido en todas las muestras (no separar por eventos, como un proxy rapido).
-- Ojo con la db6 wavelet (puede ser una init para spline)
-- Label augmentation -> al azar hacer pequeñas traslaciones temporales de los labels (aprovechando que los bordes son imprecisos)
-- Objeto que sea solo la red, y otro objeto que contenga a la red y que haga el postprocessing usando info del indice de las epocas y entregar las marcas como inicio-fin con el arreglito del largo de la marca (que empiece antes y termine despues, 25ms para compensar subsampling).
-
-- Trainable cmorlet. Reportar fb en tensorboard. Para esto implementar una cmorlet que sea mas ancha de lo normal para permitir un fb mas grande durante el entrenamiento.
-- Implementar funciones que dadas las predicciones en samplestamps, evalue, tanto global como por sujeto (ver como hacer de forma eficiente las curvas precision/recall).
-- En el test no tomar ls predicciones de los bordes. Para esto se podria agregar un borde adicional al borde de la cwt.
 
