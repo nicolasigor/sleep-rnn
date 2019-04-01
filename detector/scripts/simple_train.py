@@ -2,19 +2,21 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import json
 import sys
 import os
 
 import numpy as np
 
 detector_path = '..'
-results_path = os.path.join(detector_path, 'results')
+results_folder = 'results'
 sys.path.append(detector_path)
 
 from sleep.mass import MASS
 from sleep.inta import INTA
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
+from evaluation import metrics
 from utils import param_keys
 from utils import constants
 from utils import errors
@@ -36,9 +38,9 @@ if __name__ == '__main__':
     which_expert = 1
 
     # Path to save results of run
-    logdir = 'logdir'
+    logdir = 'demo'
     logdir = os.path.join(
-        results_path,
+        results_folder,
         '%s_train_%s' % (logdir, dataset_name))
 
     # Load data
@@ -55,7 +57,7 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
     # params[param_keys.MODEL_VERSION] = constants.V1
-    # params[param_keys.MAX_ITERS] = 15000
+    params[param_keys.MAX_ITERS] = 100
 
     # Get training set ids
     print('Loading training set and splitting')
@@ -95,3 +97,35 @@ if __name__ == '__main__':
 
     # Train model
     model.fit(x_train, y_train, x_val, y_val)
+
+    # ----- Obtain AF1 metric
+    x_val_m, _ = dataset.get_subset_data(
+        val_ids, augmented_page=False, border_size=border_size,
+        which_expert=which_expert, verbose=False)
+
+    y_pred_val = []
+    for i, sub_data in enumerate(x_val_m):
+        print('Val: Predicting ID %s' % val_ids[i])
+        this_pred = model.predict_proba(sub_data)
+        # Keep only probability of class one
+        this_pred = this_pred[..., 1]
+        y_pred_val.append(this_pred)
+
+    _, y_val_m = dataset.get_subset_data(
+        val_ids, augmented_page=False, border_size=0,
+        which_expert=which_expert, verbose=False)
+    pages_val = dataset.get_subset_pages(val_ids, verbose=False)
+
+    val_af1 = metrics.average_f1_with_list(
+        y_val_m, y_pred_val, pages_val,
+        fs_real=dataset.fs, fs_predicted=dataset.fs//8, thr=0.5)
+    print('Validation AF1: %1.6f' % val_af1)
+
+    metric_dict = {
+        'description': 'demo',
+        'val_seed': SEED,
+        'database': dataset_name,
+        'val_af1': float(val_af1)
+    }
+    with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
+        json.dump(metric_dict, outfile)

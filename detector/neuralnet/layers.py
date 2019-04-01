@@ -167,9 +167,12 @@ def cmorlet_layer(
         if use_log:
             cwt = tf.log(cwt + 1e-3)
         if batchnorm:
+            cwt = sequence_flatten(cwt, name='flatten_to_bn')
             cwt = batchnorm_layer(
                 cwt, 'bn', batchnorm=batchnorm,
                 reuse=reuse, training=training)
+            cwt = sequence_unflatten(
+                cwt, len(fb_list), name='unflatten_from_bn')
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt
 
@@ -363,6 +366,16 @@ def sequence_flatten(inputs, name=None):
         dims = inputs.get_shape().as_list()
         feat_dim = np.prod(dims[2:])
         outputs = tf.reshape(inputs, shape=(-1, dims[1], feat_dim))
+    return outputs
+
+
+def sequence_unflatten(inputs, n_channels, name=None):
+    """ Unflattens [batch_size, time_len, width*channels] to
+    [batch_size, time_len, width, channels]"""
+    with tf.name_scope(name):
+        dims = inputs.get_shape().as_list()
+        width_dim = dims[2] // n_channels
+        outputs = tf.reshape(inputs, shape=(-1, dims[1], width_dim, n_channels))
     return outputs
 
 

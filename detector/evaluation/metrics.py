@@ -166,7 +166,6 @@ def average_f1_with_list(
     y_pred_thr = postprocessing.generate_mark_intervals_with_list(
         pages_sequence_predicted_list, pages_indices_list, 
         fs_predicted, fs_real, thr=thr)
-    n_subjects = len(y_thr)
     # Go through several IoU values
     print('Computing F1 values', flush=True)
     iou_list = np.arange(5, 10) * 0.1
