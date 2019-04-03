@@ -21,6 +21,7 @@ def batchnorm_layer(
         name,
         training,
         batchnorm=constants.BN,
+        scale=True,
         reuse=False):
     """Buils a batchnormalization layer.
 
@@ -45,11 +46,11 @@ def batchnorm_layer(
         if batchnorm == constants.BN:
             outputs = tf.layers.batch_normalization(
                 inputs=inputs, training=training,
-                reuse=reuse)
+                reuse=reuse, scale=scale)
         else:  # BN_RENORM
             outputs = tf.layers.batch_normalization(
                 inputs=inputs, training=training,
-                reuse=reuse, renorm=True)
+                reuse=reuse, renorm=True, scale=scale)
     return outputs
 
 
@@ -167,12 +168,19 @@ def cmorlet_layer(
         if use_log:
             cwt = tf.log(cwt + 1e-3)
         if batchnorm:
-            cwt = sequence_flatten(cwt, name='flatten_to_bn')
-            cwt = batchnorm_layer(
-                cwt, 'bn', batchnorm=batchnorm,
-                reuse=reuse, training=training)
-            cwt = sequence_unflatten(
-                cwt, len(fb_list), name='unflatten_from_bn')
+            # Unstack spectrograms
+            n_spect = len(fb_list)
+            cwt = tf.unstack(cwt, axis=-1)
+            # cwt = sequence_flatten(cwt, name='flatten_to_bn')
+            after_bn = []
+            for k in range(n_spect):
+                tmp = batchnorm_layer(
+                    cwt[k], 'bn', batchnorm=batchnorm,
+                    reuse=reuse, training=training)
+                after_bn.append(tmp)
+            cwt = tf.stack(after_bn, axis=-1)
+            # cwt = sequence_unflatten(
+            #     cwt, len(fb_list), name='unflatten_from_bn')
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt
 
@@ -240,7 +248,7 @@ def conv2d_layer(
     return outputs
 
 
-def conv2d_residual_block(
+def conv2d_residualv2_block(
         inputs,
         filters,
         training,
@@ -248,6 +256,7 @@ def conv2d_residual_block(
         strides=1,
         batchnorm=None,
         reuse=False,
+        kernel_init=None,
         name=None
 ):
     with tf.variable_scope(name):
@@ -255,7 +264,7 @@ def conv2d_residual_block(
         if is_first_unit:
             inputs = tf.layers.conv2d(
                 inputs=inputs, filters=filters, kernel_size=5,
-                padding=constants.PAD_SAME,
+                padding=constants.PAD_SAME, kernel_initializer=kernel_init,
                 strides=strides, name='conv5_1', reuse=reuse)
             inputs = tf.nn.relu(inputs)
             if batchnorm:
@@ -267,7 +276,7 @@ def conv2d_residual_block(
 
             outputs = tf.layers.conv2d(
                 inputs=inputs, filters=filters, kernel_size=3,
-                padding=constants.PAD_SAME,
+                padding=constants.PAD_SAME, kernel_initializer=kernel_init,
                 strides=1, name='conv3_1', reuse=reuse)
             outputs = tf.nn.relu(outputs)
             if batchnorm:
@@ -276,7 +285,7 @@ def conv2d_residual_block(
                     reuse=reuse, training=training)
             outputs = tf.layers.conv2d(
                 inputs=outputs, filters=filters, kernel_size=3,
-                padding=constants.PAD_SAME,
+                padding=constants.PAD_SAME, kernel_initializer=kernel_init,
                 strides=1, name='conv3_2', reuse=reuse)
 
             outputs = outputs + shortcut
@@ -291,7 +300,7 @@ def conv2d_residual_block(
                     reuse=reuse, training=training)
             outputs = tf.layers.conv2d(
                 inputs=outputs, filters=filters, kernel_size=3,
-                padding=constants.PAD_SAME,
+                padding=constants.PAD_SAME, kernel_initializer=kernel_init,
                 strides=strides, name='conv3_1', reuse=reuse)
             outputs = tf.nn.relu(outputs)
             if batchnorm:
@@ -300,7 +309,7 @@ def conv2d_residual_block(
                     reuse=reuse, training=training)
             outputs = tf.layers.conv2d(
                 inputs=outputs, filters=filters, kernel_size=3,
-                padding=constants.PAD_SAME,
+                padding=constants.PAD_SAME, kernel_initializer=kernel_init,
                 strides=1, name='conv3_2', reuse=reuse)
 
             # Projection if necessary
@@ -309,6 +318,117 @@ def conv2d_residual_block(
                 shortcut = tf.layers.conv2d(
                     inputs=shortcut, filters=filters, kernel_size=1,
                     padding=constants.PAD_SAME, use_bias=False,
+                    kernel_initializer=kernel_init,
+                    strides=strides, name='conv1x1', reuse=reuse)
+
+            outputs = outputs + shortcut
+
+    return outputs
+
+
+def conv2d_residualv2_prebn_block(
+        inputs,
+        filters,
+        training,
+        is_first_unit=False,
+        strides=1,
+        batchnorm=None,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    with tf.variable_scope(name):
+
+        if is_first_unit:
+            if batchnorm:
+                inputs = tf.layers.conv2d(
+                    inputs=inputs, filters=filters, kernel_size=5,
+                    padding=constants.PAD_SAME,
+                    strides=strides, name='conv5_1', reuse=reuse,
+                    kernel_initializer=kernel_init,
+                    use_bias=False)
+                inputs = batchnorm_layer(
+                    inputs, 'bn_1', batchnorm=batchnorm,
+                    reuse=reuse, training=training, scale=False)
+            else:
+                inputs = tf.layers.conv2d(
+                    inputs=inputs, filters=filters, kernel_size=5,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=strides, name='conv5_1', reuse=reuse)
+            inputs = tf.nn.relu(inputs)
+
+            shortcut = inputs
+
+            if batchnorm:
+                outputs = tf.layers.conv2d(
+                    inputs=inputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME,
+                    strides=1, name='conv3_1', reuse=reuse,
+                    use_bias=False, kernel_initializer=kernel_init,
+                )
+                outputs = batchnorm_layer(
+                    outputs, 'bn_2', batchnorm=batchnorm,
+                    reuse=reuse, training=training, scale=False)
+                outputs = tf.nn.relu(outputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME,
+                    strides=1, name='conv3_2', reuse=reuse,
+                    use_bias=False, kernel_initializer=kernel_init
+                )
+            else:
+                outputs = tf.layers.conv2d(
+                    inputs=inputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=1, name='conv3_1', reuse=reuse)
+                outputs = tf.nn.relu(outputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=1, name='conv3_2', reuse=reuse)
+
+            outputs = outputs + shortcut
+
+        else:
+            shortcut = inputs
+
+            if batchnorm:
+                outputs = batchnorm_layer(
+                    inputs, 'bn_1', batchnorm=batchnorm,
+                    reuse=reuse, training=training, scale=False)
+                outputs = tf.nn.relu(outputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=strides, name='conv3_1', reuse=reuse,
+                    use_bias=False)
+                outputs = batchnorm_layer(
+                    outputs, 'bn_2', batchnorm=batchnorm,
+                    reuse=reuse, training=training, scale=False)
+                outputs = tf.nn.relu(outputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=1, name='conv3_2', reuse=reuse, use_bias=False)
+            else:
+                outputs = tf.nn.relu(inputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=strides, name='conv3_1', reuse=reuse)
+                outputs = tf.nn.relu(outputs)
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=filters, kernel_size=3,
+                    padding=constants.PAD_SAME, kernel_initializer=kernel_init,
+                    strides=1, name='conv3_2', reuse=reuse)
+
+            # Projection if necessary
+            input_filters = shortcut.get_shape().as_list()[-1]
+            if strides != 1 or input_filters != filters:
+                shortcut = tf.layers.conv2d(
+                    inputs=shortcut, filters=filters, kernel_size=1,
+                    padding=constants.PAD_SAME, use_bias=False,
+                    kernel_initializer=kernel_init,
                     strides=strides, name='conv1x1', reuse=reuse)
 
             outputs = outputs + shortcut
@@ -395,6 +515,7 @@ def sequence_fc_layer(
         dropout=None,
         drop_rate=0,
         activation=None,
+        kernel_init=None,
         reuse=False,
         name=None):
     """ Builds a FC layer that can be applied directly to a sequence.
@@ -438,6 +559,7 @@ def sequence_fc_layer(
         outputs = tf.layers.conv2d(
             inputs=inputs, filters=num_units, kernel_size=1,
             activation=activation, padding=constants.PAD_SAME,
+            kernel_initializer=kernel_init,
             name="conv1", reuse=reuse)
         # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
@@ -606,7 +728,7 @@ def multilayer_lstm_block(
         n_layers,
         training,
         num_dirs=constants.UNIDIRECTIONAL,
-        batchnorm_first_lstm=constants.BN,
+        batchnorm_first_lstm=None,
         dropout_first_lstm=None,
         batchnorm_rest_lstm=None,
         dropout_rest_lstm=None,

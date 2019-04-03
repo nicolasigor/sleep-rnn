@@ -156,7 +156,7 @@ def average_f1_with_list(
     """Average F1 over several IoU values.
     
     The average F1 performance at fixed threshold (default 0.5) is
-    computed by averaging the F1 curve from IoU 0.5 to 0.9.
+    computed by averaging the F1 curve from IoU 0.3 to 0.8.
     """
     print('Preparing labels', flush=True)
     y_thr = postprocessing.generate_mark_intervals_with_list(
@@ -167,8 +167,9 @@ def average_f1_with_list(
         pages_sequence_predicted_list, pages_indices_list, 
         fs_predicted, fs_real, thr=thr)
     # Go through several IoU values
+    iou_list = np.arange(3, 9) * 0.1
+    print('Considered thresholds:', iou_list)
     print('Computing F1 values', flush=True)
-    iou_list = np.arange(5, 10) * 0.1
     all_f1_list = [f1_vs_iou(this_y, this_y_pred, iou_list) 
                    for (this_y, this_y_pred) 
                    in zip(y_thr, y_pred_thr)]
@@ -176,4 +177,3 @@ def average_f1_with_list(
     average_f1 = np.mean(all_f1_list)
     print('Done')
     return average_f1
-

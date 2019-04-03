@@ -56,7 +56,7 @@ if __name__ == '__main__':
     params = param_keys.default_params.copy()
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
-    # params[param_keys.MODEL_VERSION] = constants.V1
+    params[param_keys.MODEL_VERSION] = constants.V3
     params[param_keys.MAX_ITERS] = 100
 
     # Get training set ids

@@ -203,11 +203,13 @@ class WaveletBLSTM(BaseModel):
         model_version = self.params[param_keys.MODEL_VERSION]
         errors.check_valid_value(
             model_version, 'model_version',
-            [constants.DUMMY, constants.V1, constants.V2])
+            [constants.DUMMY, constants.V1, constants.V2, constants.V3])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
         elif model_version == constants.V2:
             model_fn = networks.wavelet_blstm_net_v2
+        elif model_version == constants.V3:
+            model_fn = networks.wavelet_blstm_net_v3
         else:
             model_fn = networks.dummy_net
         logits, probabilities = model_fn(

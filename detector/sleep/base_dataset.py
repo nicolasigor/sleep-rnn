@@ -201,7 +201,7 @@ class BaseDataset(object):
     def _load_data(self):
         """Loads data either from a checkpoint or from scratch."""
         if self.load_checkpoint and self._exists_checkpoint():
-            print('Loading from checkpoint')
+            print('Loading from checkpoint... ', flush=True, end='')
             data = self._load_from_checkpoint()
         else:
             if self.load_checkpoint:

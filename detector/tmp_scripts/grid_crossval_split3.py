@@ -37,12 +37,12 @@ if __name__ == '__main__':
 
     # -----
     # Grid search
-    type_bn_list = [constants.BN, constants.BN_RENORM]
+    type_model_list = [constants.V3]
 
-    experiment_name = '20190401_type_bn'
+    experiment_name = '20190403_type_model'
 
     print('Number of combinations to be evaluated: %d'
-          % len(type_bn_list))
+          % len(type_model_list))
 
     # Choose seed
     seed = SEED_LIST[id_try]
@@ -99,18 +99,18 @@ if __name__ == '__main__':
     print('Validation set shape', x_val.shape, y_val.shape)
 
     # Start grid search
-    for type_bn in type_bn_list:
+    for type_model in type_model_list:
         # Path to save results of run
         logdir = os.path.join(
             results_folder,
             '%s_train_%s' % (experiment_name, dataset_name),
-            '%s' % type_bn,
+            '%s' % type_model,
             'seed%d' % id_try
         )
         print('This run directory: %s' % logdir)
 
         # Grid params
-        params[param_keys.TYPE_BATCHNORM] = type_bn
+        params[param_keys.MODEL_VERSION] = type_model
 
         # Create model
         model = WaveletBLSTM(params, logdir=logdir)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         print('Validation AF1: %1.6f' % val_af1)
 
         metric_dict = {
-            'description': 'using type_bn equal to %s' % type_bn,
+            'description': 'using model version equal to %s' % type_model,
             'val_seed': seed,
             'database': dataset_name,
             'val_af1': float(val_af1)
