@@ -70,6 +70,9 @@ if __name__ == '__main__':
     params[param_keys.TYPE_BATCHNORM] = constants.BN
     params[param_keys.MODEL_VERSION] = constants.V3
 
+    # Shorter training time
+    params[param_keys.MAX_ITERS] = 20000
+
     # Get training set ids
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
