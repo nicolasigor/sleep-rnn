@@ -34,8 +34,8 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190401_type_bn'
-    grid_folder_list = ['bn', 'bn_renorm']
+    ckpt_folder = '20190404_lstm_size'
+    grid_folder_list = [32, 64, 128]
 
     # Select database for prediction
     dataset_name = constants.MASS_NAME
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             ckpt_path = os.path.abspath(os.path.join(
                 results_path,
                 '%s_train_%s' % (ckpt_folder, dataset_name),
-                folder_name,
+                '%s' % folder_name,
                 'seed%d' % k
             ))
 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                 results_path,
                 'predictions_%s' % dataset_name,
                 '%s_train_%s' % (ckpt_folder, dataset_name),
-                folder_name,
+                '%s' % folder_name,
                 'seed%d' % k
             ))
             if not os.path.exists(save_dir):
