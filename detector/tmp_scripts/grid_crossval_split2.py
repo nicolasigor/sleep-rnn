@@ -37,12 +37,12 @@ if __name__ == '__main__':
 
     # -----
     # Grid search
-    type_model_list = [constants.V3]
+    lstm_size_list = [32, 64, 128]
 
-    experiment_name = '20190403_type_model'
+    experiment_name = '20190404_lstm_size'
 
     print('Number of combinations to be evaluated: %d'
-          % len(type_model_list))
+          % len(lstm_size_list))
 
     # Choose seed
     seed = SEED_LIST[id_try]
@@ -65,6 +65,10 @@ if __name__ == '__main__':
     params = param_keys.default_params.copy()
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
+
+    # Grid winners so far
+    params[param_keys.TYPE_BATCHNORM] = constants.BN
+    params[param_keys.MODEL_VERSION] = constants.V3
 
     # Get training set ids
     print('Loading training set and splitting')
@@ -99,18 +103,18 @@ if __name__ == '__main__':
     print('Validation set shape', x_val.shape, y_val.shape)
 
     # Start grid search
-    for type_model in type_model_list:
+    for lstm_size in lstm_size_list:
         # Path to save results of run
         logdir = os.path.join(
             results_folder,
             '%s_train_%s' % (experiment_name, dataset_name),
-            '%s' % type_model,
+            '%s' % lstm_size,
             'seed%d' % id_try
         )
         print('This run directory: %s' % logdir)
 
         # Grid params
-        params[param_keys.MODEL_VERSION] = type_model
+        params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
 
         # Create model
         model = WaveletBLSTM(params, logdir=logdir)
@@ -142,7 +146,7 @@ if __name__ == '__main__':
         print('Validation AF1: %1.6f' % val_af1)
 
         metric_dict = {
-            'description': 'using model version equal to %s' % type_model,
+            'description': 'using lstm size equal to %s' % lstm_size,
             'val_seed': seed,
             'database': dataset_name,
             'val_af1': float(val_af1)
