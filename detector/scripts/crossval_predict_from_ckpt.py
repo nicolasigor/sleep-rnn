@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = '20190404_lstm_size'
-    grid_folder_list = [32, 64, 128]
+    grid_folder_list = [256]
 
     # Select database for prediction
     dataset_name = constants.MASS_NAME
