@@ -5,6 +5,7 @@ from __future__ import print_function
 import json
 import sys
 import os
+import itertools
 
 import numpy as np
 
@@ -33,20 +34,23 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try = 0
+    id_try_list = [0, 1, 2, 3]
 
     # -----
     # Grid search
-    lstm_size_list = [32, 64, 128]
+    lstm_size_list = [512]
+    fc_size_list = [32, 64]
 
-    experiment_name = '20190404_lstm_size'
+    # Create experiment
+    parameters_list = list(itertools.product(
+        lstm_size_list,
+        fc_size_list
+    ))
+
+    experiment_name = '20190405_lstm_and_fc_size'
 
     print('Number of combinations to be evaluated: %d'
-          % len(lstm_size_list))
-
-    # Choose seed
-    seed = SEED_LIST[id_try]
-    print('Using validation split seed %d' % seed)
+          % len(parameters_list))
 
     # Select database for training
     dataset_name = constants.MASS_NAME
@@ -77,84 +81,89 @@ if __name__ == '__main__':
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
 
-    # Split to form validation set
-    train_ids, val_ids = data_manipulation.split_ids_list(
-        all_train_ids, seed=seed)
-    print('Training set IDs:', train_ids)
-    print('Validation set IDs:', val_ids)
+    for id_try in id_try_list:
+        # Choose seed
+        seed = SEED_LIST[id_try]
+        print('\nUsing validation split seed %d' % seed)
+        # Split to form validation set
+        train_ids, val_ids = data_manipulation.split_ids_list(
+            all_train_ids, seed=seed)
+        print('Training set IDs:', train_ids)
+        print('Validation set IDs:', val_ids)
 
-    # Get data
-    border_size = get_border_size(params)
-    x_train, y_train = dataset.get_subset_data(
-        train_ids, augmented_page=True, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-    x_val, y_val = dataset.get_subset_data(
-        val_ids, augmented_page=False, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-
-    # Transform to numpy arrays
-    x_train = np.concatenate(x_train, axis=0)
-    y_train = np.concatenate(y_train, axis=0)
-    x_val = np.concatenate(x_val, axis=0)
-    y_val = np.concatenate(y_val, axis=0)
-
-    # Shuffle training set
-    x_train, y_train = data_manipulation.shuffle_data(
-        x_train, y_train, seed=seed)
-
-    print('Training set shape', x_train.shape, y_train.shape)
-    print('Validation set shape', x_val.shape, y_val.shape)
-
-    # Start grid search
-    for lstm_size in lstm_size_list:
-        # Path to save results of run
-        logdir = os.path.join(
-            results_folder,
-            '%s_train_%s' % (experiment_name, dataset_name),
-            '%s' % lstm_size,
-            'seed%d' % id_try
-        )
-        print('This run directory: %s' % logdir)
-
-        # Grid params
-        params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
-
-        # Create model
-        model = WaveletBLSTM(params, logdir=logdir)
-
-        # Train model
-        model.fit(x_train, y_train, x_val, y_val)
-
-        # ----- Obtain AF1 metric
-        x_val_m, _ = dataset.get_subset_data(
+        # Get data
+        border_size = get_border_size(params)
+        x_train, y_train = dataset.get_subset_data(
+            train_ids, augmented_page=True, border_size=border_size,
+            which_expert=which_expert, verbose=True)
+        x_val, y_val = dataset.get_subset_data(
             val_ids, augmented_page=False, border_size=border_size,
-            which_expert=which_expert, verbose=False)
+            which_expert=which_expert, verbose=True)
 
-        y_pred_val = []
-        for i, sub_data in enumerate(x_val_m):
-            print('Val: Predicting ID %s' % val_ids[i])
-            this_pred = model.predict_proba(sub_data)
-            # Keep only probability of class one
-            this_pred = this_pred[..., 1]
-            y_pred_val.append(this_pred)
+        # Transform to numpy arrays
+        x_train = np.concatenate(x_train, axis=0)
+        y_train = np.concatenate(y_train, axis=0)
+        x_val = np.concatenate(x_val, axis=0)
+        y_val = np.concatenate(y_val, axis=0)
 
-        _, y_val_m = dataset.get_subset_data(
-            val_ids, augmented_page=False, border_size=0,
-            which_expert=which_expert, verbose=False)
-        pages_val = dataset.get_subset_pages(val_ids, verbose=False)
+        # Shuffle training set
+        x_train, y_train = data_manipulation.shuffle_data(
+            x_train, y_train, seed=seed)
 
-        val_af1 = metrics.average_f1_with_list(
-            y_val_m, y_pred_val, pages_val,
-            fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5)
-        print('Validation AF1: %1.6f' % val_af1)
+        print('Training set shape', x_train.shape, y_train.shape)
+        print('Validation set shape', x_val.shape, y_val.shape)
 
-        metric_dict = {
-            'description': 'using lstm size equal to %s' % lstm_size,
-            'val_seed': seed,
-            'database': dataset_name,
-            'val_af1': float(val_af1)
-        }
-        with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
-            json.dump(metric_dict, outfile)
+        # Start grid search
+        for lstm_size, fc_size in parameters_list:
+            # Path to save results of run
+            logdir = os.path.join(
+                results_folder,
+                '%s_train_%s' % (experiment_name, dataset_name),
+                'lstm_%s_fc_%s' % (lstm_size, fc_size),
+                'seed%d' % id_try
+            )
+            print('This run directory: %s' % logdir)
 
-        print('')
+            # Grid params
+            params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
+            params[param_keys.FC_UNITS] = fc_size
+
+            # Create model
+            model = WaveletBLSTM(params, logdir=logdir)
+
+            # Train model
+            model.fit(x_train, y_train, x_val, y_val)
+
+            # ----- Obtain AF1 metric
+            x_val_m, _ = dataset.get_subset_data(
+                val_ids, augmented_page=False, border_size=border_size,
+                which_expert=which_expert, verbose=False)
+
+            y_pred_val = []
+            for i, sub_data in enumerate(x_val_m):
+                print('Val: Predicting ID %s' % val_ids[i])
+                this_pred = model.predict_proba(sub_data)
+                # Keep only probability of class one
+                this_pred = this_pred[..., 1]
+                y_pred_val.append(this_pred)
+
+            _, y_val_m = dataset.get_subset_data(
+                val_ids, augmented_page=False, border_size=0,
+                which_expert=which_expert, verbose=False)
+            pages_val = dataset.get_subset_pages(val_ids, verbose=False)
+
+            val_af1 = metrics.average_f1_with_list(
+                y_val_m, y_pred_val, pages_val,
+                fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5)
+            print('Validation AF1: %1.6f' % val_af1)
+
+            metric_dict = {
+                'description': 'using lstm size equal to %s' % lstm_size,
+                'val_seed': seed,
+                'database': dataset_name,
+                'val_af1': float(val_af1)
+            }
+            with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
+                json.dump(metric_dict, outfile)
+
+            print('')

@@ -17,7 +17,7 @@ Idea para ajustar threshold (otro hiperparametro mas)
 
 [ ] Decidir por cross-validation mirando AF1 en validacion:
 a.x BN o BRN (después del cambio de bn sobre el espectrograma)
-b. Etapa convnet: resnet v1, resnet v2, o no residual.
+b. Etapa convnet: resnet v2, o no residual.
 c. Numero de unidades en LSTM.
 d. Numero de unidades FC hidden (o bien sin esta capa)
 e. Uso o no de logaritmo en espectrograma.

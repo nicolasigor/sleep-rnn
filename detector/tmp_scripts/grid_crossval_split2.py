@@ -5,6 +5,7 @@ from __future__ import print_function
 import json
 import sys
 import os
+import itertools
 
 import numpy as np
 
@@ -33,16 +34,23 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0, 1, 2, 3]
 
     # -----
     # Grid search
-    lstm_size_list = [512]
+    lstm_size_list = [128]
+    fc_size_list = [32, 64]
 
-    experiment_name = '20190405_lstm_size'
+    # Create experiment
+    parameters_list = list(itertools.product(
+        lstm_size_list,
+        fc_size_list
+    ))
+
+    experiment_name = '20190405_lstm_and_fc_size'
 
     print('Number of combinations to be evaluated: %d'
-          % len(lstm_size_list))
+          % len(parameters_list))
 
     # Select database for training
     dataset_name = constants.MASS_NAME
@@ -106,18 +114,19 @@ if __name__ == '__main__':
         print('Validation set shape', x_val.shape, y_val.shape)
 
         # Start grid search
-        for lstm_size in lstm_size_list:
+        for lstm_size, fc_size in parameters_list:
             # Path to save results of run
             logdir = os.path.join(
                 results_folder,
                 '%s_train_%s' % (experiment_name, dataset_name),
-                '%s' % lstm_size,
+                'lstm_%s_fc_%s' % (lstm_size, fc_size),
                 'seed%d' % id_try
             )
             print('This run directory: %s' % logdir)
 
             # Grid params
             params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
+            params[param_keys.FC_UNITS] = fc_size
 
             # Create model
             model = WaveletBLSTM(params, logdir=logdir)
