@@ -37,9 +37,9 @@ if __name__ == '__main__':
 
     # -----
     # Grid search
-    lstm_size_list = [64, 128, 256, 512]
+    lstm_size_list = [512]
 
-    experiment_name = '20190404_lstm_size_without_fc'
+    experiment_name = '20190405_lstm_size'
 
     print('Number of combinations to be evaluated: %d'
           % len(lstm_size_list))
@@ -65,9 +65,6 @@ if __name__ == '__main__':
     # Grid winners so far
     params[param_keys.TYPE_BATCHNORM] = constants.BN
     params[param_keys.MODEL_VERSION] = constants.V3
-
-    # Test without FC at the end
-    params[param_keys.FC_UNITS] = 0
 
     # Shorter training time
     params[param_keys.MAX_ITERS] = 20000
