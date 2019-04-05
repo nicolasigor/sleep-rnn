@@ -38,19 +38,12 @@ if __name__ == '__main__':
 
     # -----
     # Grid search
-    lstm_size_list = [512]
-    fc_size_list = [32, 64]
+    log_list = [True]
 
-    # Create experiment
-    parameters_list = list(itertools.product(
-        lstm_size_list,
-        fc_size_list
-    ))
-
-    experiment_name = '20190405_lstm_and_fc_size'
+    experiment_name = '20190406_log'
 
     print('Number of combinations to be evaluated: %d'
-          % len(parameters_list))
+          % len(log_list))
 
     # Select database for training
     dataset_name = constants.MASS_NAME
@@ -72,6 +65,10 @@ if __name__ == '__main__':
 
     # Grid winners so far
     params[param_keys.TYPE_BATCHNORM] = constants.BN
+
+    # We will use this model to compare with past runs
+    params[param_keys.INITIAL_LSTM_UNITS] = 256
+    params[param_keys.FC_UNITS] = 128
     params[param_keys.MODEL_VERSION] = constants.V3
 
     # Shorter training time
@@ -114,19 +111,18 @@ if __name__ == '__main__':
         print('Validation set shape', x_val.shape, y_val.shape)
 
         # Start grid search
-        for lstm_size, fc_size in parameters_list:
+        for use_log in log_list:
             # Path to save results of run
             logdir = os.path.join(
                 results_folder,
                 '%s_train_%s' % (experiment_name, dataset_name),
-                'lstm_%s_fc_%s' % (lstm_size, fc_size),
+                '%s' % use_log,
                 'seed%d' % id_try
             )
             print('This run directory: %s' % logdir)
 
             # Grid params
-            params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
-            params[param_keys.FC_UNITS] = fc_size
+            params[param_keys.USE_LOG] = use_log
 
             # Create model
             model = WaveletBLSTM(params, logdir=logdir)
@@ -158,9 +154,7 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description':
-                    'using lstm size equal to %s and fc size equal to %s'
-                    % (lstm_size, fc_size),
+                'description': 'use_log set to %s' % use_log,
                 'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)

@@ -248,6 +248,21 @@ def conv2d_layer(
     return outputs
 
 
+def pooling2d(inputs, pooling):
+    errors.check_valid_value(
+        pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL, None])
+    if pooling:
+        if pooling == constants.AVGPOOL:
+            outputs = tf.layers.average_pooling2d(
+                inputs=inputs, pool_size=2, strides=2)
+        else:  # MAXPOOL
+            outputs = tf.layers.max_pooling2d(
+                inputs=inputs, pool_size=2, strides=2)
+    else:
+        outputs = inputs
+    return outputs
+
+
 def conv2d_residualv2_block(
         inputs,
         filters,
@@ -436,6 +451,81 @@ def conv2d_residualv2_prebn_block(
     return outputs
 
 
+def conv2d_prebn_block(
+        inputs,
+        filters,
+        training,
+        is_first_unit=False,
+        batchnorm=None,
+        downsampling=constants.MAXPOOL,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    errors.check_valid_value(
+        downsampling, 'downsampling',
+        [constants.AVGPOOL, constants.MAXPOOL, constants.STRIDEDCONV, None])
+
+    if downsampling == constants.STRIDEDCONV:
+        strides = 2
+        pooling = None
+    else:
+        strides = 1
+        pooling = downsampling
+
+    if is_first_unit:
+        kernel_size_1 = 5
+    else:
+        kernel_size_1 = 3
+
+    kernel_size_2 = 3
+
+    with tf.variable_scope(name):
+
+        if batchnorm:
+            outputs = tf.layers.conv2d(
+                inputs=inputs, filters=filters, kernel_size=kernel_size_1,
+                padding=constants.PAD_SAME,
+                strides=strides, name='conv%d_1' % kernel_size_1, reuse=reuse,
+                kernel_initializer=kernel_init,
+                use_bias=False)
+            outputs = batchnorm_layer(
+                outputs, 'bn_1', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=kernel_size_2,
+                padding=constants.PAD_SAME,
+                strides=1, name='conv%d_2' % kernel_size_2, reuse=reuse,
+                kernel_initializer=kernel_init,
+                use_bias=False)
+            outputs = batchnorm_layer(
+                outputs, 'bn_2', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+
+            outputs = pooling2d(outputs, pooling)
+
+        else:
+            outputs = tf.layers.conv2d(
+                inputs=inputs, filters=filters, kernel_size=kernel_size_1,
+                padding=constants.PAD_SAME,
+                strides=strides, name='conv%d_1' % kernel_size_1, reuse=reuse,
+                kernel_initializer=kernel_init)
+            outputs = tf.nn.relu(outputs)
+
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=kernel_size_2,
+                padding=constants.PAD_SAME,
+                strides=1, name='conv%d_2' % kernel_size_2, reuse=reuse,
+                kernel_initializer=kernel_init)
+            outputs = tf.nn.relu(outputs)
+
+            outputs = pooling2d(outputs, pooling)
+    return outputs
+
+
 # def bn_conv3_block(
 #         inputs,
 #         filters,
@@ -489,14 +579,14 @@ def sequence_flatten(inputs, name=None):
     return outputs
 
 
-def sequence_unflatten(inputs, n_channels, name=None):
-    """ Unflattens [batch_size, time_len, width*channels] to
-    [batch_size, time_len, width, channels]"""
-    with tf.name_scope(name):
-        dims = inputs.get_shape().as_list()
-        width_dim = dims[2] // n_channels
-        outputs = tf.reshape(inputs, shape=(-1, dims[1], width_dim, n_channels))
-    return outputs
+# def sequence_unflatten(inputs, n_channels, name=None):
+#     """ Unflattens [batch_size, time_len, width*channels] to
+#     [batch_size, time_len, width, channels]"""
+#     with tf.name_scope(name):
+#         dims = inputs.get_shape().as_list()
+#         width_dim = dims[2] // n_channels
+#         outputs = tf.reshape(inputs, shape=(-1, dims[1], width_dim, n_channels))
+#     return outputs
 
 
 def swap_batch_time(inputs, name=None):

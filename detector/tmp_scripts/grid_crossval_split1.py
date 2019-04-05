@@ -158,7 +158,9 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description': 'using lstm size equal to %s' % lstm_size,
+                'description':
+                    'using lstm size equal to %s and fc size equal to %s'
+                    % (lstm_size, fc_size),
                 'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)

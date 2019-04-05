@@ -105,6 +105,7 @@ LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
 # Parameters for convolutional stage
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
+CONV_DOWNSAMPLING = 'conv_downsampling'
 # blstm parameters
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
 # Parameters for multi-stage blstm
@@ -178,6 +179,7 @@ default_params = {
     UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 16,
+    CONV_DOWNSAMPLING: constants.MAXPOOL,
     N_TIME_LEVELS: 1,
     TIME_POOLING: constants.MAXPOOL,
     DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
