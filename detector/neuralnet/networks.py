@@ -88,6 +88,7 @@ def wavelet_blstm_net_v1(
             raise NotImplementedError(
                 'Type spline for wavelet not implemented.')
 
+        # Flattening for dense part
         outputs = layers.sequence_flatten(outputs, 'flatten')
 
         # Multilayer BLSTM (2 layers)
@@ -97,6 +98,7 @@ def wavelet_blstm_net_v1(
             n_layers=2,
             num_dirs=constants.BIDIRECTIONAL,
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
+            dropout_first_lstm=None,
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
             drop_rate=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
