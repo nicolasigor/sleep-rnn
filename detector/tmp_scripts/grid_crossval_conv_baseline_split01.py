@@ -6,6 +6,7 @@ import json
 import sys
 import os
 import itertools
+import datetime
 
 import numpy as np
 
@@ -34,20 +35,20 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [0, 1]
 
     # -----
     # Grid search
-    lstm_size_list = [256]
-    fc_size_list = [32, 64]
+    conv_1d_filters_list = [256, 512]
+    conv_1d_kernel_list = [3, 5, 11]
 
     # Create experiment
     parameters_list = list(itertools.product(
-        lstm_size_list,
-        fc_size_list
+        conv_1d_filters_list,
+        conv_1d_kernel_list
     ))
 
-    experiment_name = '20190405_lstm_and_fc_size'
+    experiment_name = 'conv_baseline'
 
     print('Number of combinations to be evaluated: %d'
           % len(parameters_list))
@@ -55,6 +56,10 @@ if __name__ == '__main__':
     # Select database for training
     dataset_name = constants.MASS_NAME
     which_expert = 1
+
+    # Complement experiment folder name
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Load data
     errors.check_valid_value(
@@ -70,9 +75,8 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
 
-    # Grid winners so far
-    params[param_keys.TYPE_BATCHNORM] = constants.BN
-    params[param_keys.MODEL_VERSION] = constants.V3
+    # We are testing another version (choose best conv2d version)
+    params[param_keys.MODEL_VERSION] = constants.V3_FF_CONV
 
     # Shorter training time
     params[param_keys.MAX_ITERS] = 20000
@@ -114,19 +118,19 @@ if __name__ == '__main__':
         print('Validation set shape', x_val.shape, y_val.shape)
 
         # Start grid search
-        for lstm_size, fc_size in parameters_list:
+        for conv_1d_filters, conv_1d_kernel in parameters_list:
             # Path to save results of run
             logdir = os.path.join(
                 results_folder,
                 '%s_train_%s' % (experiment_name, dataset_name),
-                'lstm_%s_fc_%s' % (lstm_size, fc_size),
+                'filters_%s_kernel_%s' % (conv_1d_filters, conv_1d_kernel),
                 'seed%d' % id_try
             )
             print('This run directory: %s' % logdir)
 
             # Grid params
-            params[param_keys.INITIAL_LSTM_UNITS] = lstm_size
-            params[param_keys.FC_UNITS] = fc_size
+            params[param_keys.CONV_1D_FILTERS] = conv_1d_filters
+            params[param_keys.CONV_1D_KERNEL] = conv_1d_kernel
 
             # Create model
             model = WaveletBLSTM(params, logdir=logdir)
@@ -158,9 +162,8 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description':
-                    'using lstm size equal to %s and fc size equal to %s'
-                    % (lstm_size, fc_size),
+                'description': 'convolutional baseline with f %s and k %s'
+                               % (conv_1d_filters, conv_1d_kernel),
                 'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)

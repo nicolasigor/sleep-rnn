@@ -6,6 +6,7 @@ import json
 import sys
 import os
 import itertools
+import datetime
 
 import numpy as np
 
@@ -22,7 +23,7 @@ from utils import param_keys
 from utils import constants
 from utils import errors
 
-SEED_LIST = [123, 234, 345, 456]
+SEED = 123
 
 
 def get_border_size(my_p):
@@ -34,21 +35,17 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
-
-    # -----
-    # Grid search
-    downsampling_list = [
-        constants.MAXPOOL, constants.AVGPOOL, constants.STRIDEDCONV]
-
-    experiment_name = '20190406_conv_ff'
-
-    print('Number of combinations to be evaluated: %d'
-          % len(downsampling_list))
+    id_run_list = [2, 3]
+    train_size_list = [1, 3, 5, 7]
+    experiment_name = 'performance_train_size'
 
     # Select database for training
     dataset_name = constants.MASS_NAME
     which_expert = 1
+
+    # Complement experiment folder name
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Load data
     errors.check_valid_value(
@@ -64,14 +61,6 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
 
-    # Grid winners so far
-    params[param_keys.TYPE_BATCHNORM] = constants.BN
-    params[param_keys.INITIAL_LSTM_UNITS] = 256
-    params[param_keys.FC_UNITS] = 128
-
-    # We are testing another version
-    params[param_keys.MODEL_VERSION] = constants.V3_FF
-
     # Shorter training time
     params[param_keys.MAX_ITERS] = 20000
 
@@ -79,51 +68,51 @@ if __name__ == '__main__':
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
 
-    for id_try in id_try_list:
-        # Choose seed
-        seed = SEED_LIST[id_try]
-        print('\nUsing validation split seed %d' % seed)
-        # Split to form validation set
-        train_ids, val_ids = data_manipulation.split_ids_list(
-            all_train_ids, seed=seed)
-        print('Training set IDs:', train_ids)
-        print('Validation set IDs:', val_ids)
+    # Choose seed
+    print('\nUsing validation split seed %d' % SEED)
+    # Split to form validation set
+    train_ids, val_ids = data_manipulation.split_ids_list(
+        all_train_ids, seed=SEED)
+    print('Training set IDs:', train_ids)
+    print('Validation set IDs:', val_ids)
+    border_size = get_border_size(params)
+    x_val, y_val = dataset.get_subset_data(
+        val_ids, augmented_page=False, border_size=border_size,
+        which_expert=which_expert, verbose=True)
+    x_val = np.concatenate(x_val, axis=0)
+    y_val = np.concatenate(y_val, axis=0)
+    print('Validation set shape', x_val.shape, y_val.shape)
 
-        # Get data
-        border_size = get_border_size(params)
+    for train_size in train_size_list:
+        print('\nTraining set size: %d' % train_size)
+        # Get train data of certain size
+        small_train_ids = train_ids[:train_size]
         x_train, y_train = dataset.get_subset_data(
-            train_ids, augmented_page=True, border_size=border_size,
+            small_train_ids, augmented_page=True,
+            border_size=border_size,
             which_expert=which_expert, verbose=True)
-        x_val, y_val = dataset.get_subset_data(
-            val_ids, augmented_page=False, border_size=border_size,
-            which_expert=which_expert, verbose=True)
+        print('Small train set IDs:', small_train_ids)
 
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
         y_train = np.concatenate(y_train, axis=0)
-        x_val = np.concatenate(x_val, axis=0)
-        y_val = np.concatenate(y_val, axis=0)
-
         # Shuffle training set
         x_train, y_train = data_manipulation.shuffle_data(
-            x_train, y_train, seed=seed)
+            x_train, y_train, seed=SEED)
 
         print('Training set shape', x_train.shape, y_train.shape)
-        print('Validation set shape', x_val.shape, y_val.shape)
 
-        # Start grid search
-        for downsampling in downsampling_list:
+        for id_run in id_run_list:
+            print('\nRun ID %d' % id_run)
+
             # Path to save results of run
             logdir = os.path.join(
                 results_folder,
                 '%s_train_%s' % (experiment_name, dataset_name),
-                '%s' % downsampling,
-                'seed%d' % id_try
+                'size_%d' % train_size,
+                'run%d' % id_run
             )
             print('This run directory: %s' % logdir)
-
-            # Grid params
-            params[param_keys.CONV_DOWNSAMPLING] = downsampling
 
             # Create model
             model = WaveletBLSTM(params, logdir=logdir)
@@ -155,8 +144,8 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description': 'using conv downsampling %s' % downsampling,
-                'val_seed': seed,
+                'description': 'performance as a function of train size',
+                'val_seed': SEED,
                 'database': dataset_name,
                 'val_af1': float(val_af1)
             }

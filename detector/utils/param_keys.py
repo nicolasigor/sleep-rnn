@@ -114,6 +114,10 @@ TIME_POOLING = 'time_pooling'
 DUPLICATE_AFTER_DOWNSAMPLING_LSTM = 'duplicate_after_downsampling_lstm'
 # FC units in second to last layer
 FC_UNITS = 'fc_units'
+# Parameters for conv model
+CONV_1D_FILTERS = 'conv_1d_filters'
+CONV_1D_KERNEL = 'conv_1d_kernel'
+
 
 """ Loss params
 
@@ -163,7 +167,7 @@ default_params = {
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
-    MODEL_VERSION: constants.V3,
+    MODEL_VERSION: constants.V3_FF,
     BORDER_DURATION: 3,
     TYPE_BATCHNORM: constants.BN,
     TYPE_DROPOUT: constants.SEQUENCE_DROP,
@@ -179,11 +183,13 @@ default_params = {
     UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 16,
-    CONV_DOWNSAMPLING: constants.MAXPOOL,
+    CONV_DOWNSAMPLING: constants.AVGPOOL,
     N_TIME_LEVELS: 1,
-    TIME_POOLING: constants.MAXPOOL,
+    TIME_POOLING: constants.AVGPOOL,
     DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
     FC_UNITS: 128,
+    CONV_1D_FILTERS: 512,
+    CONV_1D_KERNEL: 5,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,
@@ -191,7 +197,7 @@ default_params = {
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_ITERS: 30000,
+    MAX_ITERS: 20000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
     REL_TOL_LOSS: 0.0

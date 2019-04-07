@@ -15,15 +15,15 @@ Idea para ajustar threshold (otro hiperparametro mas)
 [X] Implementacion de metrica escalar de validacion (Average F1)
 [X] Reentrenamiento y guardar evaluacion de mejor modelo en MASS e INTA luego de reparaciones
 
-[ ] Decidir por cross-validation mirando AF1 en validacion:
+[X] Decidir por cross-validation mirando AF1 en validacion:
 a.x BN o BRN (después del cambio de bn sobre el espectrograma)
-c. Numero de unidades en LSTM.
-d. Numero de unidades FC hidden (o bien sin esta capa)
--- Dejar size_factor de wavelet en 1.5 por default
-b. Etapa convnet: resnet v2, o no residual.
-e. Uso o no de logaritmo en espectrograma.
+c.x Numero de unidades en LSTM.
+d.x Numero de unidades FC hidden (o bien sin esta capa)
+-- Dejar size_factor de wavelet en 2 por default
+b.x Etapa convnet: resnet v2, o no residual.
+e.x Uso o no de logaritmo en espectrograma.
 
-[ ] Analisis de error:
+[X] Analisis de error:
 a.x Sensibilidad al postprocessing
 b.x Localizacion de falsos a lo largo de las paginas (bordes?)
 c.x IoU segun duracion de eventos reales
@@ -31,4 +31,5 @@ d.x IoU segun duracion de eventos detectados
 
 [ ] Desempeño segun el numero de registros en train 
 
+[ ] Baseline conv1D
 
