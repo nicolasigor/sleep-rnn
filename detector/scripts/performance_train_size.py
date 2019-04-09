@@ -35,7 +35,7 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_run_list = [0, 1]
+    id_run_list = [0, 1, 2, 3]
     train_size_list = [1, 3, 5, 7]
     experiment_name = 'performance_train_size'
 

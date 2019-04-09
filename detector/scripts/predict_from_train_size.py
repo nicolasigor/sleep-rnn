@@ -31,11 +31,11 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    n_seeds = 4
+    n_runs = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190408_bsf'
-    grid_folder_list = ['bsf']
+    ckpt_folder = '20190407_performance_train_size'
+    grid_folder_list = ['size_1', 'size_3', 'size_5', 'size_7']
 
     # Select database for prediction
     dataset_name = constants.MASS_NAME
@@ -58,13 +58,13 @@ if __name__ == '__main__':
     for folder_name in grid_folder_list:
         print('\nGrid setting: %s' % folder_name)
         af1_list = []
-        for k in range(n_seeds):
+        for k in range(n_runs):
             print('')
             ckpt_path = os.path.abspath(os.path.join(
                 results_path,
                 '%s_train_%s' % (ckpt_folder, dataset_name),
                 '%s' % folder_name,
-                'seed%d' % k
+                'run%d' % k
             ))
 
             # Restore params of ckpt
@@ -92,6 +92,7 @@ if __name__ == '__main__':
 
             print('Training set IDs:', train_ids)
             print('Validation set IDs:', val_ids)
+            print('Test set IDs:', test_ids)
 
             # Get data for predictions
             border_size = get_border_size(params)
@@ -134,7 +135,7 @@ if __name__ == '__main__':
                 'predictions_%s' % dataset_name,
                 '%s_train_%s' % (ckpt_folder, dataset_name),
                 '%s' % folder_name,
-                'seed%d' % k
+                'run%d' % k
             ))
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)

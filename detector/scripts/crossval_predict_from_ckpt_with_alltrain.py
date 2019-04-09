@@ -34,11 +34,11 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190408_bsf'
+    ckpt_folder = '20190407_bsf'
     grid_folder_list = ['bsf']
 
     # Select database for prediction
-    dataset_name = constants.MASS_NAME
+    dataset_name = constants.INTA_NAME
 
     # Load data
     errors.check_valid_value(
@@ -102,6 +102,10 @@ if __name__ == '__main__':
             x_test, y_test = dataset.get_subset_data(
                 test_ids, border_size=border_size, verbose=False)
 
+            # All train
+            x_alltrain, y_alltrain = dataset.get_subset_data(
+                all_train_ids, border_size=border_size, verbose=False)
+
             # Create model
             model = WaveletBLSTM(params,
                                  logdir=os.path.join('results', 'demo_predict'))
@@ -113,6 +117,8 @@ if __name__ == '__main__':
             y_pred_train = []
             y_pred_val = []
             y_pred_test = []
+
+            y_pred_alltrain = []
 
             # Start prediction
             for i, sub_data in enumerate(x_train):
@@ -128,6 +134,11 @@ if __name__ == '__main__':
                 this_pred = model.predict_proba(sub_data)
                 y_pred_test.append(this_pred)
 
+            for i, sub_data in enumerate(x_alltrain):
+                print('AllTrain: Predicting ID %s' % all_train_ids[i])
+                this_pred = model.predict_proba(sub_data)
+                y_pred_alltrain.append(this_pred)
+
             # Save predictions
             save_dir = os.path.abspath(os.path.join(
                 results_path,
@@ -141,6 +152,7 @@ if __name__ == '__main__':
             np.save(os.path.join(save_dir, 'y_pred_train.npy'), y_pred_train)
             np.save(os.path.join(save_dir, 'y_pred_val.npy'), y_pred_val)
             np.save(os.path.join(save_dir, 'y_pred_test.npy'), y_pred_test)
+            np.save(os.path.join(save_dir, 'y_pred_alltrain.npy'), y_pred_alltrain)
             print('Predictions saved at %s' % save_dir)
         print('')
         mean_af1 = np.mean(af1_list)
