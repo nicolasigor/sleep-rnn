@@ -34,7 +34,7 @@ if __name__ == '__main__':
     n_runs = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190407_performance_train_size'
+    ckpt_folder = '20190409_performance_train_size'
     grid_folder_list = ['size_1', 'size_3', 'size_5', 'size_7']
 
     # Select database for prediction

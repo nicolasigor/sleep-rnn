@@ -22,11 +22,11 @@ if __name__ == '__main__':
     dataset_name = constants.MASS_NAME
     npy_load_list = [
         os.path.join(
-            '20190407_performance_train_size_train_mass', 'size_7', 'run%d' % i)
+            '20190409_performance_train_size_train_mass', 'size_7', 'run%d' % i)
         for i in range(4)
     ]
     npy_avg_save_folder = os.path.join(
-        '20190407_performance_train_size_train_mass', 'size_7', 'avg')
+        '20190409_performance_train_size_train_mass', 'size_7', 'avg')
 
     # Load predictions
     prediction_folder = 'predictions_%s' % dataset_name
