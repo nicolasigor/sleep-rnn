@@ -14,6 +14,7 @@ results_path = os.path.join(detector_path, 'results')
 sys.path.append(detector_path)
 
 from sleep.mass import MASS
+from sleep.mass_k import MASSK
 from sleep.inta import INTA
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
@@ -34,21 +35,23 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190328_v2bn_fixed_inta_train_inta/bsf_try3'
+    ckpt_folder = '20190411_trying_kcomplex_train_massk'
 
     # Select database for prediction
-    dataset_name = constants.INTA_NAME
+    dataset_name = constants.MASSK_NAME
 
     ckpt_path = os.path.join(results_path, ckpt_folder)
 
     # Load data
     errors.check_valid_value(
         dataset_name, 'dataset_name',
-        [constants.MASS_NAME, constants.INTA_NAME])
+        [constants.MASS_NAME, constants.INTA_NAME, constants.MASSK_NAME])
     if dataset_name == constants.MASS_NAME:
         dataset = MASS(load_checkpoint=True)
-    else:
+    elif dataset_name == constants.INTA_NAME:
         dataset = INTA(load_checkpoint=True)
+    else:
+        dataset = MASSK(load_checkpoint=True)
 
     # Restore params of ckpt
     params = param_keys.default_params.copy()

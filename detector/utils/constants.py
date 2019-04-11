@@ -3,6 +3,7 @@
 # Database name
 MASS_NAME = 'mass'
 INTA_NAME = 'inta'
+MASSK_NAME = 'massk'
 
 # Database split
 TRAIN_SUBSET = 'train'

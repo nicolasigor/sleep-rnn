@@ -151,7 +151,8 @@ def average_f1_with_list(
     pages_indices_list,
     fs_real=200,
     fs_predicted=25,
-    thr=0.5
+    thr=0.5,
+    postprocess_predicted=True
 ):
     """Average F1 over several IoU values.
     
@@ -165,7 +166,7 @@ def average_f1_with_list(
     print('Preparing predictions', flush=True)
     y_pred_thr = postprocessing.generate_mark_intervals_with_list(
         pages_sequence_predicted_list, pages_indices_list, 
-        fs_predicted, fs_real, thr=thr)
+        fs_predicted, fs_real, thr=thr, postprocess=postprocess_predicted)
     # Go through several IoU values
     iou_list = np.arange(3, 9) * 0.1
     print('Considered thresholds:', iou_list)

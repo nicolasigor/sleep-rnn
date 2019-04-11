@@ -1,6 +1,5 @@
 """mass_k.py: Defines the MASS class that manipulates the MASS database."""
 
-# TODO: be able to read K-complexes and their labels.
 
 from __future__ import absolute_import
 from __future__ import division
