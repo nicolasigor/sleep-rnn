@@ -33,7 +33,7 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Path to save results of run
-    logdir = '20190411_trying_kcomplex'
+    logdir = '20190412_kc_using_angle'
     logdir = os.path.join(
         results_folder,
         '%s_train_massk' % logdir)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
 
-    # params[param_keys.MAX_ITERS] = 100
+    # params[param_keys.MAX_ITERS] = 10
 
     # Get training set ids
     print('Loading training set and splitting')
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     y_pred_test = []
     for i, sub_data in enumerate(x_test_m):
-        print('Val: Predicting ID %s' % test_ids[i])
+        print('Test: Predicting ID %s' % test_ids[i])
         this_pred = model.predict_proba(sub_data)
         # Keep only probability of class one
         this_pred = this_pred[..., 1]

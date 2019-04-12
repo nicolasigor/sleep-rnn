@@ -331,30 +331,22 @@ def wavelet_blstm_net_v3(
             outputs = layers.sequence_fc_layer(
                 outputs,
                 params[param_keys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
                 dropout=params[param_keys.TYPE_DROPOUT],
                 drop_rate=params[param_keys.DROP_RATE_HIDDEN],
                 training=training,
                 activation=tf.nn.relu,
                 name='fc_1')
 
-            # Final FC classification layer
-            logits = layers.sequence_fc_layer(
-                outputs,
-                2,
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[param_keys.TYPE_DROPOUT],
-                drop_rate=params[param_keys.DROP_RATE_OUTPUT],
-                training=training,
-                name='logits')
-        else:
-            # Final FC classification layer
-            logits = layers.sequence_fc_layer(
-                outputs,
-                2,
-                dropout=params[param_keys.TYPE_DROPOUT],
-                drop_rate=params[param_keys.DROP_RATE_OUTPUT],
-                training=training,
-                name='logits')
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            outputs,
+            2,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[param_keys.TYPE_DROPOUT],
+            drop_rate=params[param_keys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
@@ -457,30 +449,22 @@ def wavelet_blstm_net_v3_ff(
             outputs = layers.sequence_fc_layer(
                 outputs,
                 params[param_keys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
                 dropout=params[param_keys.TYPE_DROPOUT],
                 drop_rate=params[param_keys.DROP_RATE_HIDDEN],
                 training=training,
                 activation=tf.nn.relu,
                 name='fc_1')
 
-            # Final FC classification layer
-            logits = layers.sequence_fc_layer(
-                outputs,
-                2,
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[param_keys.TYPE_DROPOUT],
-                drop_rate=params[param_keys.DROP_RATE_OUTPUT],
-                training=training,
-                name='logits')
-        else:
-            # Final FC classification layer
-            logits = layers.sequence_fc_layer(
-                outputs,
-                2,
-                dropout=params[param_keys.TYPE_DROPOUT],
-                drop_rate=params[param_keys.DROP_RATE_OUTPUT],
-                training=training,
-                name='logits')
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            outputs,
+            2,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[param_keys.TYPE_DROPOUT],
+            drop_rate=params[param_keys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)

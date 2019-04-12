@@ -179,7 +179,7 @@ default_params = {
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 48,
-    LOWER_FREQ: 1,
+    LOWER_FREQ: 0.5,
     UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 16,

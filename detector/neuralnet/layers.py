@@ -169,13 +169,13 @@ def cmorlet_layer(
             cwt = tf.log(cwt + 1e-3)
         if batchnorm:
             # Unstack spectrograms
-            n_spect = len(fb_list)
+            n_spect = 2 * len(fb_list)
             cwt = tf.unstack(cwt, axis=-1)
             # cwt = sequence_flatten(cwt, name='flatten_to_bn')
             after_bn = []
             for k in range(n_spect):
                 tmp = batchnorm_layer(
-                    cwt[k], 'bn', batchnorm=batchnorm,
+                    cwt[k], 'bn_%d' % k, batchnorm=batchnorm,
                     reuse=reuse, training=training)
                 after_bn.append(tmp)
             cwt = tf.stack(after_bn, axis=-1)
