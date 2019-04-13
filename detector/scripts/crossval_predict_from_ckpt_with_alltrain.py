@@ -15,6 +15,7 @@ sys.path.append(detector_path)
 
 from sleep.mass import MASS
 from sleep.inta import INTA
+from sleep.mass_k import MASSK
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
 from utils import param_keys
@@ -34,20 +35,22 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190407_bsf'
+    ckpt_folder = '20190413_bsf_kc_using_angle'
     grid_folder_list = ['bsf']
 
     # Select database for prediction
-    dataset_name = constants.INTA_NAME
+    dataset_name = 'massk'
 
     # Load data
     errors.check_valid_value(
         dataset_name, 'dataset_name',
-        [constants.MASS_NAME, constants.INTA_NAME])
+        [constants.MASS_NAME, constants.INTA_NAME, 'massk'])
     if dataset_name == constants.MASS_NAME:
         dataset = MASS(load_checkpoint=True)
-    else:
+    elif dataset_name == constants.INTA_NAME:
         dataset = INTA(load_checkpoint=True)
+    else:
+        dataset = MASSK(load_checkpoint=True)
     # Get training set ids
     all_train_ids = dataset.train_ids
 
