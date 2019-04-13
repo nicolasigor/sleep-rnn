@@ -37,10 +37,10 @@ if __name__ == '__main__':
 
     id_try_list = [0, 1, 2, 3]
 
-    experiment_name = 'bsf'
+    experiment_name = 'bsf_ss_using_angle'
 
     # Select database for training
-    dataset_name_list = [constants.INTA_NAME]
+    dataset_name_list = [constants.MASS_NAME]
     which_expert = 1
 
     # Complement experiment folder name with date
