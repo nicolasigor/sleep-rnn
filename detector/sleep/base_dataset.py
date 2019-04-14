@@ -7,6 +7,8 @@ from __future__ import print_function
 import os
 import pickle
 
+import numpy as np
+
 from utils import constants
 from utils import errors
 from . import data_ops
@@ -88,22 +90,34 @@ class BaseDataset(object):
         # n_pages = np.sum([ind[KEY_PAGES].shape[0] for ind in self.data])
         # print("\nPages in %s dataset: %s" % (self.name, n_pages))
 
-    def get_subject_pages(self, subject_id, verbose=False):
+    def get_subject_pages(self, subject_id, whole_night=False, verbose=False):
         """Returns the indices of the N2 pages of this subject."""
         errors.check_valid_value(subject_id, 'ID', self.all_ids)
         # Look for dictionary associated with this id
         id_idx = self.all_ids.index(subject_id)
         ind_dict = self.data[id_idx]
-        # Unpack data
-        pages = ind_dict[KEY_PAGES]
-        if verbose:
-            print('Getting ID %s, %d N2 pages'
-                  % (ind_dict[KEY_ID], pages.size))
+
+        if whole_night:
+            # Unpack data
+            signal = ind_dict[KEY_EEG]
+            total_pages = int(np.ceil(signal.shape[0] / self.page_size))
+            pages = np.arange(1, total_pages - 2, dtype=np.int32)
+            if verbose:
+                print('Getting ID %s, %d whole-night pages'
+                      % (ind_dict[KEY_ID], pages.size))
+        else:
+            # Unpack data
+            pages = ind_dict[KEY_PAGES]
+
+            if verbose:
+                print('Getting ID %s, %d N2 pages'
+                      % (ind_dict[KEY_ID], pages.size))
         return pages
 
     def get_subset_pages(
             self,
             subject_id_list,
+            whole_night=False,
             verbose=False
     ):
         """Returns the list of N2 pages from a list of subjects.
@@ -111,7 +125,7 @@ class BaseDataset(object):
         subset_pages = []
         for subject_id in subject_id_list:
             n2_pages = self.get_subject_pages(
-                subject_id, verbose)
+                subject_id, whole_night, verbose)
             subset_pages.append(n2_pages)
         return subset_pages
 
@@ -121,6 +135,7 @@ class BaseDataset(object):
             augmented_page=False,
             border_size=0,
             which_expert=1,
+            whole_night=False,
             verbose=False
     ):
         """Returns segments of signal and marks from N2 pages for the given id.
@@ -134,6 +149,8 @@ class BaseDataset(object):
             which_expert: (Optional, int, defaults to 1) Which expert
                 annotations should be returned. It has to be consistent with
                 the given n_experts, in a one-based counting.
+            whole_night: (Optional, boolean, defaults to False) If true, returns
+                pages from the whole record. If false, only N2 pages are used.
             verbose: (Optional, boolean, defaults to False) Whether to print
                 what is being read.
 
@@ -157,14 +174,25 @@ class BaseDataset(object):
             total_border = self.page_size // 2 + border_size
         else:
             total_border = border_size
-        n2_signal = data_ops.extract_pages(
-            signal, n2_pages, self.page_size, border_size=total_border)
-        n2_marks = data_ops.extract_pages(
-            marks, n2_pages, self.page_size, border_size=total_border)
 
-        if verbose:
-            print('Getting ID %s, %d N2 pages, Expert %d'
-                  % (ind_dict[KEY_ID], n2_pages.size, which_expert))
+        if whole_night:
+            total_pages = int(np.ceil(signal.shape[0] / self.page_size))
+            all_pages = np.arange(1, total_pages - 2, dtype=np.int32)
+            n2_signal = data_ops.extract_pages(
+                signal, all_pages, self.page_size, border_size=total_border)
+            n2_marks = data_ops.extract_pages(
+                marks, all_pages, self.page_size, border_size=total_border)
+            if verbose:
+                print('Getting ID %s, %d whole-night pages, Expert %d'
+                      % (ind_dict[KEY_ID], n2_pages.size, which_expert))
+        else:
+            n2_signal = data_ops.extract_pages(
+                signal, n2_pages, self.page_size, border_size=total_border)
+            n2_marks = data_ops.extract_pages(
+                marks, n2_pages, self.page_size, border_size=total_border)
+            if verbose:
+                print('Getting ID %s, %d N2 pages, Expert %d'
+                      % (ind_dict[KEY_ID], n2_pages.size, which_expert))
         return n2_signal, n2_marks
 
     def get_subset_data(
@@ -173,6 +201,7 @@ class BaseDataset(object):
             augmented_page=False,
             border_size=0,
             which_expert=1,
+            whole_night=False,
             verbose=False
     ):
         """Returns the list of signals and marks from a list of subjects.
@@ -185,6 +214,7 @@ class BaseDataset(object):
                 augmented_page=augmented_page,
                 border_size=border_size,
                 which_expert=which_expert,
+                whole_night=whole_night,
                 verbose=verbose)
             subset_signals.append(n2_signal)
             subset_marks.append(n2_marks)

@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = '20190411_trying_kcomplex_train_massk'
+    whole_night = False
 
     # Select database for prediction
     dataset_name = constants.MASSK_NAME
@@ -81,11 +82,14 @@ if __name__ == '__main__':
     # Get data for predictions
     border_size = get_border_size(params)
     x_train, y_train = dataset.get_subset_data(
-        train_ids, border_size=border_size, verbose=True)
+        train_ids, border_size=border_size, verbose=True,
+        whole_night=whole_night)
     x_val, y_val = dataset.get_subset_data(
-        val_ids, border_size=border_size, verbose=True)
+        val_ids, border_size=border_size, verbose=True,
+        whole_night=whole_night)
     x_test, y_test = dataset.get_subset_data(
-        test_ids, border_size=border_size, verbose=True)
+        test_ids, border_size=border_size, verbose=True,
+        whole_night=whole_night)
 
     # Create model
     model = WaveletBLSTM(params, logdir=os.path.join('results', 'demo_predict'))
@@ -120,7 +124,19 @@ if __name__ == '__main__':
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     print('Saving predictions at %s' % save_dir)
-    np.save(os.path.join(save_dir, 'y_pred_train.npy'), y_pred_train)
-    np.save(os.path.join(save_dir, 'y_pred_val.npy'), y_pred_val)
-    np.save(os.path.join(save_dir, 'y_pred_test.npy'), y_pred_test)
+
+    if whole_night:
+        descriptor = '_whole_night_'
+    else:
+        descriptor = '_'
+
+    np.save(
+        os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
+        y_pred_train)
+    np.save(
+        os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
+        y_pred_val)
+    np.save(
+        os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
+        y_pred_test)
     print('Predictions saved')
