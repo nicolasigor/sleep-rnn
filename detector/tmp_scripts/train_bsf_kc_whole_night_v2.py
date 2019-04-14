@@ -16,6 +16,7 @@ sys.path.append(detector_path)
 
 from sleep.mass import MASS
 from sleep.inta import INTA
+from sleep.mass_k import MASSK
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
 from evaluation import metrics
@@ -51,11 +52,13 @@ if __name__ == '__main__':
         # Load data
         errors.check_valid_value(
             dataset_name, 'dataset_name',
-            [constants.MASS_NAME, constants.INTA_NAME])
+            [constants.MASS_NAME, constants.INTA_NAME, constants.MASSK_NAME])
         if dataset_name == constants.MASS_NAME:
             dataset = MASS(load_checkpoint=True)
-        else:
+        elif dataset_name == constants.INTA_NAME:
             dataset = INTA(load_checkpoint=True)
+        else:
+            dataset = MASSK(load_checkpoint=True)
 
         # Update general params
         params = param_keys.default_params.copy()
