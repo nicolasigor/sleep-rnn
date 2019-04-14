@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     id_try_list = [0]
 
-    experiment_name = 'bsf_ss_whole_night'
+    experiment_name = 'bsf_ss_whole_night_v2'
 
     # Select database for training
     dataset_name_list = [constants.MASS_NAME]
@@ -64,6 +64,10 @@ if __name__ == '__main__':
 
         # Shorter training time
         params[param_keys.MAX_ITERS] = 40000
+
+        # Experimental params
+        params[param_keys.LEARNING_RATE] = 5e-5
+        params[param_keys.CLIP_NORM] = 2
 
         # Get training set ids
         print('Loading training set and splitting')
@@ -140,7 +144,7 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description': 'BSF whole night',
+                'description': 'BSF whole night, slower training (lr and clip)',
                 'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)

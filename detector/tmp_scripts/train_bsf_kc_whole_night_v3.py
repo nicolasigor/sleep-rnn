@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     id_try_list = [0]
 
-    experiment_name = 'bsf_kc_whole_night'
+    experiment_name = 'bsf_kc_whole_night_v3'
 
     # Select database for training
     dataset_name_list = [constants.MASSK_NAME]
@@ -64,6 +64,13 @@ if __name__ == '__main__':
 
         # Shorter training time
         params[param_keys.MAX_ITERS] = 40000
+
+        # Experimental params
+        params[param_keys.LEARNING_RATE] = 1e-4
+        params[param_keys.CLIP_NORM] = 2
+        params[param_keys.TYPE_OPTIMIZER] = constants.SGD_OPTIMIZER
+        params[param_keys.MOMENTUM] = 0.9
+        params[param_keys.USE_NESTEROV_MOMENTUM] = False
 
         # Get training set ids
         print('Loading training set and splitting')
@@ -140,7 +147,7 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description': 'BSF whole night',
+                'description': 'BSF whole night, sgd with clip 2',
                 'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)
