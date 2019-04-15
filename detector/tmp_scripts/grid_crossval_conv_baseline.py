@@ -23,7 +23,7 @@ from utils import param_keys
 from utils import constants
 from utils import errors
 
-SEED = 123
+SEED_LIST = [123, 234, 345, 456]
 
 
 def get_border_size(my_p):
@@ -35,9 +35,23 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_run_list = [2]
-    train_size_list = [1, 3, 5, 7]
-    experiment_name = 'performance_train_size'
+    id_try_list = [0, 1, 2, 3]
+
+    # -----
+    # Grid search
+    conv_1d_filters_list = [256, 512]
+    conv_1d_kernel_list = [3, 5, 11]
+
+    # Create experiment
+    parameters_list = list(itertools.product(
+        conv_1d_filters_list,
+        conv_1d_kernel_list
+    ))
+
+    experiment_name = 'conv_baseline'
+
+    print('Number of combinations to be evaluated: %d'
+          % len(parameters_list))
 
     # Select database for training
     dataset_name = constants.MASS_NAME
@@ -61,6 +75,9 @@ if __name__ == '__main__':
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
 
+    # We are testing another version (choose best conv2d version)
+    params[param_keys.MODEL_VERSION] = constants.V3_FF_CONV
+
     # Shorter training time
     params[param_keys.MAX_ITERS] = 20000
 
@@ -68,51 +85,52 @@ if __name__ == '__main__':
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
 
-    # Choose seed
-    print('\nUsing validation split seed %d' % SEED)
-    # Split to form validation set
-    train_ids, val_ids = data_manipulation.split_ids_list(
-        all_train_ids, seed=SEED)
-    print('Training set IDs:', train_ids)
-    print('Validation set IDs:', val_ids)
-    border_size = get_border_size(params)
-    x_val, y_val = dataset.get_subset_data(
-        val_ids, augmented_page=False, border_size=border_size,
-        which_expert=which_expert, verbose=True)
-    x_val = np.concatenate(x_val, axis=0)
-    y_val = np.concatenate(y_val, axis=0)
-    print('Validation set shape', x_val.shape, y_val.shape)
+    for id_try in id_try_list:
+        # Choose seed
+        seed = SEED_LIST[id_try]
+        print('\nUsing validation split seed %d' % seed)
+        # Split to form validation set
+        train_ids, val_ids = data_manipulation.split_ids_list(
+            all_train_ids, seed=seed)
+        print('Training set IDs:', train_ids)
+        print('Validation set IDs:', val_ids)
 
-    for train_size in train_size_list:
-        print('\nTraining set size: %d' % train_size)
-        # Get train data of certain size
-        small_train_ids = train_ids[:train_size]
+        # Get data
+        border_size = get_border_size(params)
         x_train, y_train = dataset.get_subset_data(
-            small_train_ids, augmented_page=True,
-            border_size=border_size,
+            train_ids, augmented_page=True, border_size=border_size,
             which_expert=which_expert, verbose=True)
-        print('Small train set IDs:', small_train_ids)
+        x_val, y_val = dataset.get_subset_data(
+            val_ids, augmented_page=False, border_size=border_size,
+            which_expert=which_expert, verbose=True)
 
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
         y_train = np.concatenate(y_train, axis=0)
+        x_val = np.concatenate(x_val, axis=0)
+        y_val = np.concatenate(y_val, axis=0)
+
         # Shuffle training set
         x_train, y_train = data_manipulation.shuffle_data(
-            x_train, y_train, seed=SEED)
+            x_train, y_train, seed=seed)
 
         print('Training set shape', x_train.shape, y_train.shape)
+        print('Validation set shape', x_val.shape, y_val.shape)
 
-        for id_run in id_run_list:
-            print('\nRun ID %d' % id_run)
-
+        # Start grid search
+        for conv_1d_filters, conv_1d_kernel in parameters_list:
             # Path to save results of run
             logdir = os.path.join(
                 results_folder,
                 '%s_train_%s' % (experiment_name, dataset_name),
-                'size_%d' % train_size,
-                'run%d' % id_run
+                'filters_%s_kernel_%s' % (conv_1d_filters, conv_1d_kernel),
+                'seed%d' % id_try
             )
             print('This run directory: %s' % logdir)
+
+            # Grid params
+            params[param_keys.CONV_1D_FILTERS] = conv_1d_filters
+            params[param_keys.CONV_1D_KERNEL] = conv_1d_kernel
 
             # Create model
             model = WaveletBLSTM(params, logdir=logdir)
@@ -144,8 +162,9 @@ if __name__ == '__main__':
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {
-                'description': 'performance as a function of train size',
-                'val_seed': SEED,
+                'description': 'convolutional baseline with f %s and k %s'
+                               % (conv_1d_filters, conv_1d_kernel),
+                'val_seed': seed,
                 'database': dataset_name,
                 'val_af1': float(val_af1)
             }

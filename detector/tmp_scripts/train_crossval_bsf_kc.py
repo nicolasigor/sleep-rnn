@@ -34,7 +34,7 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0, 1, 2, 3]
 
     experiment_name = 'bsf_kc_using_angle'
 

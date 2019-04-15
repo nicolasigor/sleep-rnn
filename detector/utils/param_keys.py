@@ -158,6 +158,8 @@ MAX_ITERS = 'max_iters'
 ITERS_STATS = 'iters_stats'
 ITERS_LR_UPDATE = 'iters_lr_update'
 REL_TOL_LOSS = 'rel_tol_loss'
+LR_UPDATE_FACTOR = 'lr_update_factor'
+MAX_LR_UPDATES = 'max_lr_updates'
 
 
 # Default parameters dictionary
@@ -188,8 +190,8 @@ default_params = {
     TIME_POOLING: constants.AVGPOOL,
     DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
     FC_UNITS: 128,
-    CONV_1D_FILTERS: 512,
-    CONV_1D_KERNEL: 5,
+    CONV_1D_FILTERS: 256,
+    CONV_1D_KERNEL: 11,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,
@@ -200,5 +202,7 @@ default_params = {
     MAX_ITERS: 20000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
-    REL_TOL_LOSS: 0.0
+    REL_TOL_LOSS: 0.0,
+    LR_UPDATE_FACTOR: 0.5,
+    MAX_LR_UPDATES: None
 }

@@ -114,6 +114,9 @@ class WaveletBLSTM(BaseModel):
         rel_tol_loss = self.params[param_keys.REL_TOL_LOSS]
         iter_last_lr_update = 0
 
+        if self.params[param_keys.MAX_LR_UPDATES] is None:
+            self.params[param_keys.MAX_LR_UPDATES] = 1e15
+
         # Training loop
         nstats = self.params[param_keys.ITERS_STATS]
         for it in range(1, niters+1):
@@ -153,10 +156,16 @@ class WaveletBLSTM(BaseModel):
                 lr_criterion_2 = (it - iter_last_lr_update) >= self.params[param_keys.ITERS_LR_UPDATE]
                 lr_criterion = lr_criterion_1 and lr_criterion_2
                 if lr_criterion:
-                    new_lr = self._update_learning_rate()
-                    print('    Learning rate halving (%d). New value: %s'
-                          % (self.lr_updates, new_lr))
-                    iter_last_lr_update = it
+                    if self.lr_updates < self.params[param_keys.MAX_LR_UPDATES]:
+                        new_lr = self._update_learning_rate(
+                            self.params[param_keys.LR_UPDATE_FACTOR])
+                        print('    Learning rate update (%d). New value: %s'
+                              % (self.lr_updates, new_lr))
+                        iter_last_lr_update = it
+                    else:
+                        print('    Maximum number (%d) of learning rate '
+                              'updates reached. Stopping training.'
+                              % self.params[param_keys.MAX_LR_UPDATES])
 
         val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
         last_model = {

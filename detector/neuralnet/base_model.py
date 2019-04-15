@@ -246,15 +246,16 @@ class BaseModel(object):
                       feed_dict={self.feats_eval_ph: x_eval,
                                  self.labels_eval_ph: y_eval})
 
-    def _update_learning_rate(self, ckptdir=None):
+    def _update_learning_rate(self, update_factor, ckptdir=None):
         # Restore checkpoint
         if ckptdir:
             self.load_checkpoint(ckptdir)
-        # Reset optimizer variables
+        # Reset optimizer variables (like moving averages)
         self.sess.run(self.reset_optimizer)
-        # Half learning rate
+        # Decrease learning rate
         self.lr_updates = self.lr_updates + 1
-        new_lr = self.params[param_keys.LEARNING_RATE] / (2 ** self.lr_updates)
+        total_factor = update_factor ** self.lr_updates
+        new_lr = self.params[param_keys.LEARNING_RATE] * total_factor
         self.sess.run(tf.assign(self.learning_rate, new_lr))
         return new_lr
 
