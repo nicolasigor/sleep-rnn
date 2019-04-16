@@ -190,7 +190,12 @@ def average_f1_with_list(
     all_f1_list = [f1_vs_iou(this_y, this_y_pred, full_iou_list)
                    for (this_y, this_y_pred) 
                    in zip(y_thr, y_pred_thr)]
-    all_f1_list = np.stack(all_f1_list, axis=1)
-    average_f1 = np.mean(all_f1_list)
+    all_f1_curve = np.stack(all_f1_list, axis=1).mean(axis=1)
+    # To compute the area under the curve, we'll use trapezoidal aproximation
+    # So we need to divide by two the extremes
+    all_f1_curve[0] = all_f1_curve[0] / 2
+    all_f1_curve[-1] = all_f1_curve[-1] / 2
+    # And now we average them all
+    average_f1 = np.mean(all_f1_curve)
     print('Done')
     return average_f1

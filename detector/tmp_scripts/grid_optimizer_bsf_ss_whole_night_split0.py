@@ -36,9 +36,9 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [0, 1]
 
-    experiment_name = 'grid_optimizer_bsf_ss_whole_night'
+    experiment_name = 'grid_optimizerv2_bsf_ss_whole_night'
 
     # Select database for training
     dataset_name_list = [constants.MASS_NAME]
@@ -48,18 +48,20 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    list_criterion = [constants.LOSS_CRITERION]
-    list_lr_update_factor = [0.5, 0.1]
-    list_opt_lr_mom = [
-        (constants.ADAM_OPTIMIZER, 1e-4, 0),
-        (constants.ADAM_OPTIMIZER, 1e-5, 0)
+    list_criterion = [constants.LOSS_CRITERION, constants.METRIC_CRITERION]
+    list_opt_lr_mom_factor = [
+        (constants.SGD_OPTIMIZER, 1e-1, 0.95, 0.5),
+        (constants.SGD_OPTIMIZER, 1e-1, 0.95, 0.1),
+        (constants.ADAM_OPTIMIZER, 1e-4, 0, 0.1),
+        (constants.ADAM_OPTIMIZER, 1e-4, 0, 0.5),
+        (constants.ADAM_OPTIMIZER, 1e-5, 0, 0.1),
+        (constants.SGD_OPTIMIZER, 1e-1, 0.9, 0.1)
     ]
 
     # Create experiment
     parameters_list = list(itertools.product(
         list_criterion,
-        list_lr_update_factor,
-        list_opt_lr_mom
+        list_opt_lr_mom_factor
     ))
     print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
@@ -116,14 +118,14 @@ if __name__ == '__main__':
             print('Training set shape', x_train.shape, y_train.shape)
             print('Validation set shape', x_val.shape, y_val.shape)
 
-            for criterion, lr_update_factor, opt_lr_mom in parameters_list:
-                type_opt, lr, momentum = opt_lr_mom
+            for criterion, opt_lr_mom_factor in parameters_list:
+                type_opt, lr, momentum, lr_update_factor = opt_lr_mom_factor
 
                 params[param_keys.LR_UPDATE_CRITERION] = criterion
-                params[param_keys.LR_UPDATE_FACTOR] = lr_update_factor
                 params[param_keys.TYPE_OPTIMIZER] = type_opt
                 params[param_keys.LEARNING_RATE] = lr
                 params[param_keys.MOMENTUM] = momentum
+                params[param_keys.LR_UPDATE_FACTOR] = lr_update_factor
 
                 # Path to save results of run
                 logdir = os.path.join(
@@ -168,7 +170,7 @@ if __name__ == '__main__':
                 print('Validation AF1: %1.6f' % val_af1)
 
                 metric_dict = {
-                    'description': 'BSF whole night, grid optimizer',
+                    'description': 'BSF whole night, grid optimizer v2',
                     'val_seed': seed,
                     'database': dataset_name,
                     'val_af1': float(val_af1)
