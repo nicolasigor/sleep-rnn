@@ -166,12 +166,22 @@ def cmorlet_layer(
                 flattening=True, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
         if use_log:
-            cwt = tf.log(cwt + 1e-3)
+            # Apply log only to magnitude part of cwt
+            # Unstack spectrograms
+            n_spect = 2 * len(fb_list)
+            cwt = tf.unstack(cwt, axis=-1)
+            after_log = []
+            for k in range(n_spect):
+                if k % 2 == 0:  # 0, 2, 4, ... etc, this is magnitude
+                    tmp = tf.log(cwt[k] + 1e-3)
+                else:  # Angle remains unchanged
+                    tmp = cwt[k]
+                after_log.append(tmp)
+            cwt = tf.stack(after_log, axis=-1)
         if batchnorm:
             # Unstack spectrograms
             n_spect = 2 * len(fb_list)
             cwt = tf.unstack(cwt, axis=-1)
-            # cwt = sequence_flatten(cwt, name='flatten_to_bn')
             after_bn = []
             for k in range(n_spect):
                 tmp = batchnorm_layer(
@@ -179,8 +189,6 @@ def cmorlet_layer(
                     reuse=reuse, training=training)
                 after_bn.append(tmp)
             cwt = tf.stack(after_bn, axis=-1)
-            # cwt = sequence_unflatten(
-            #     cwt, len(fb_list), name='unflatten_from_bn')
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
     return cwt
 

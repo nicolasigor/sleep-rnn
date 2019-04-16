@@ -48,7 +48,7 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    list_use_log = [False, True]
+    list_use_log = [True, False]
 
     for dataset_name in dataset_name_list:
         # Load data
