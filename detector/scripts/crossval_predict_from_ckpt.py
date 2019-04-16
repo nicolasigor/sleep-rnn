@@ -35,11 +35,11 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190413_bsf_ss_using_angle'
+    ckpt_folder = '20190413_bsf_kc_using_angle'
     grid_folder_list = ['bsf']
 
     # Select database for prediction
-    dataset_name = 'mass'
+    dataset_name = 'massk'
 
     # Load data
     errors.check_valid_value(

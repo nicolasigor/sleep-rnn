@@ -16,7 +16,7 @@ from utils import constants
 
 if __name__ == '__main__':
 
-    set_list = ['alltrain', 'test']
+    set_list = ['test']
 
     # Set paths for single-run predictions
     dataset_name = 'massk'

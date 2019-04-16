@@ -35,11 +35,11 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190411_trying_kcomplex_train_massk'
+    ckpt_folder = ''
     whole_night = False
 
     # Select database for prediction
-    dataset_name = constants.MASSK_NAME
+    dataset_name = constants.MASS_NAME
 
     ckpt_path = os.path.join(results_path, ckpt_folder)
 

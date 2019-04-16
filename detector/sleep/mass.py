@@ -27,6 +27,8 @@ KEY_FILE_MARKS = 'file_marks'
 
 IDS_INVALID = [4, 8, 15, 16]
 IDS_TEST = [2, 6, 12, 13]
+# IDS_INVALID = []
+# IDS_TEST = [2, 6, 12, 13, 4, 8, 15, 16]
 
 
 class MASS(BaseDataset):
@@ -83,13 +85,20 @@ class MASS(BaseDataset):
             signal = data_ops.norm_clip_eeg(signal, n2_pages, self.page_size)
             marks_1 = self._read_marks(
                 path_dict['%s_1' % KEY_FILE_MARKS], fs_old)
-            marks_2 = self._read_marks(
-                path_dict['%s_2' % KEY_FILE_MARKS], fs_old)
-            print('Marks from E1: %d, Marks from E2: %d'
-                  % (marks_1.shape[0], marks_2.shape[0]))
+            n_marks_1 = marks_1.shape[0]
             # To binary sequence
             marks_1 = data_ops.inter2seq(marks_1, 0, signal_len-1)
-            marks_2 = data_ops.inter2seq(marks_2, 0, signal_len-1)
+            # The same for E2
+            if os.path.exists(path_dict['%s_2' % KEY_FILE_MARKS]):
+                marks_2 = self._read_marks(
+                    path_dict['%s_2' % KEY_FILE_MARKS], fs_old)
+                n_marks_2 = marks_2.shape[0]
+                marks_2 = data_ops.inter2seq(marks_2, 0, signal_len-1)
+            else:
+                marks_2 = None
+                n_marks_2 = 0
+            print('Marks from E1: %d, Marks from E2: %d'
+                  % (n_marks_1, n_marks_2))
             # Save data
             ind_dict = {
                 KEY_EEG: signal,
@@ -133,7 +142,7 @@ class MASS(BaseDataset):
             for key in ind_dict:
                 if key != KEY_ID:
                     if not os.path.isfile(ind_dict[key]):
-                        raise FileNotFoundError(
+                        print(
                             'File not found: %s' % ind_dict[key])
             data_path_list.append(ind_dict)
         print('%d records in %s dataset.' % (len(data_path_list), self.name))

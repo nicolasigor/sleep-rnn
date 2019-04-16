@@ -27,6 +27,8 @@ KEY_FILE_MARKS = 'file_marks'
 
 IDS_INVALID = [4, 8, 15, 16]
 IDS_TEST = [2, 6, 12, 13]
+# IDS_INVALID = []
+# IDS_TEST = [2, 6, 12, 13, 4, 8, 15, 16]
 
 
 class MASSK(BaseDataset):
