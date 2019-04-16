@@ -19,18 +19,14 @@ def seq2inter(sequence):
     """Returns the start and end samples of intervals in a binary sequence."""
     if not np.array_equal(sequence, sequence.astype(bool)):
         raise ValueError('Sequence must have binary values only')
-    intervals = []
     n = len(sequence)
-    prev_val = 0
-    for i in range(n):
-        if sequence[i] > prev_val:      # We just turned on
-            intervals.append([i, i])
-        elif sequence[i] < prev_val:    # We just turned off
-            intervals[-1][1] = i-1
-        prev_val = sequence[i]
-    if sequence[-1] == 1:
-        intervals[-1][1] = n-1
-    intervals = np.stack(intervals)
+    tmp_result = np.diff(sequence, prepend=0)
+    start_times = np.where(tmp_result == 1)[0]
+    end_times = np.where(tmp_result == -1)[0] - 1
+    # Final edge case
+    if start_times.size > end_times.size:
+        end_times = np.concatenate([end_times, [n - 1]])
+    intervals = np.stack([start_times, end_times], axis=1)
     return intervals
 
 

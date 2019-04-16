@@ -146,7 +146,9 @@ if __name__ == '__main__':
 
             val_af1 = metrics.average_f1_with_list(
                 y_val_m, y_pred_val, pages_val,
-                fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5)
+                fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5,
+                postprocess_predicted=True,
+                min_duration=0.3, min_separation=0, max_duration=4)
             print('Validation AF1: %1.6f' % val_af1)
 
             metric_dict = {

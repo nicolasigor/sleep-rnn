@@ -82,44 +82,6 @@ def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
     return by_event_metrics
 
 
-def matching_v2(events, detections):
-    # TODO: improve speed
-    # Matrix of overlap, rows are events, columns are detections
-    n_det = detections.shape[0]
-    n_gs = events.shape[0]
-    overlaps = np.zeros((n_gs, n_det))
-    for i in range(n_gs):
-        for j in range(n_det):
-            inter_samples = np.arange(
-                max(events[i, 0], detections[j, 0]),
-                min(events[i, 1], detections[j, 1]) + 1)
-            if inter_samples.size > 0:
-                intersection = inter_samples.size
-                union_samples = np.arange(
-                    min(events[i, 0], detections[j, 0]),
-                    max(events[i, 1], detections[j, 1]) + 1)
-                union = union_samples.size
-                overlaps[i, j] = intersection / union
-    # Greedy matching
-    iou_array = []  # Array for IoU for every true event (gs)
-    idx_array = []  # Array for the index associated with the true event.
-    # If no detection is found, this value is -1
-    for i in range(n_gs):
-        if np.sum(overlaps[i, :]) > 0:
-            # Find max overlap
-            max_j = np.argmax(overlaps[i, :])
-            iou_array.append(overlaps[i, max_j])
-            idx_array.append(max_j)
-            # Remove this detection for further search
-            overlaps[i, max_j] = 0
-        else:
-            iou_array.append(0)
-            idx_array.append(-1)
-    iou_array = np.array(iou_array)
-    idx_array = np.array(idx_array)
-    return iou_array, idx_array
-
-
 def matching(events, detections):
     """Returns the IoU associated with each event. Events that has no detections
     have IoU zero. events and detections are assumed to be sample-stamps, and to
@@ -129,16 +91,21 @@ def matching(events, detections):
     n_gs = events.shape[0]
     overlaps = np.zeros((n_gs, n_det))
     for i in range(n_gs):
-        for j in range(n_det):
-            inter_samples = np.arange(
-                max(events[i, 0], detections[j, 0]),
-                min(events[i, 1], detections[j, 1]) + 1)
-            if inter_samples.size > 0:
-                intersection = inter_samples.size
-                union_samples = np.arange(
-                    min(events[i, 0], detections[j, 0]),
-                    max(events[i, 1], detections[j, 1]) + 1)
-                union = union_samples.size
+        candidates = np.where(
+            (detections[:, 0] <= events[i, 1])
+            & (detections[:, 1] >= events[i, 0]))[0]
+        for j in candidates:
+            intersection = min(
+                events[i, 1], detections[j, 1]
+            ) - max(
+                events[i, 0], detections[j, 0]
+            ) + 1
+            if intersection > 0:
+                union = max(
+                    events[i, 1], detections[j, 1]
+                ) - min(
+                    events[i, 0], detections[j, 0]
+                ) + 1
                 overlaps[i, j] = intersection / union
     # Greedy matching
     iou_array = []  # Array for IoU for every true event (gs)
@@ -191,26 +158,36 @@ def average_f1_with_list(
     fs_real=200,
     fs_predicted=25,
     thr=0.5,
-    postprocess_predicted=True
+    postprocess_predicted=True,
+    min_separation=0.3,
+    min_duration=0.2,
+    max_duration=4.0,
 ):
     """Average F1 over several IoU values.
     
     The average F1 performance at fixed threshold (default 0.5) is
-    computed by averaging the F1 curve from IoU 0.3 to 0.8.
+    computed as the are under the F1 vs IoU curve.
     """
     print('Preparing labels', flush=True)
     y_thr = postprocessing.generate_mark_intervals_with_list(
         pages_sequence_real_list, pages_indices_list, 
         fs_real, fs_real, thr=None, postprocess=False)
-    print('Preparing predictions', flush=True)
+    print('Preparing predictions with thr %1.4f' % thr, flush=True)
     y_pred_thr = postprocessing.generate_mark_intervals_with_list(
         pages_sequence_predicted_list, pages_indices_list, 
-        fs_predicted, fs_real, thr=thr, postprocess=postprocess_predicted)
+        fs_predicted, fs_real, thr=thr, postprocess=postprocess_predicted,
+        min_separation=min_separation, min_duration=min_duration,
+        max_duration=max_duration)
     # Go through several IoU values
-    iou_list = np.arange(3, 9) * 0.1
-    print('Considered thresholds:', iou_list)
+    first_iou = 0
+    last_iou = 1
+    res_iou = 0.01
+    n_points = int(np.round((last_iou - first_iou) / res_iou))
+    full_iou_list = np.arange(n_points + 1) * res_iou + first_iou
+    print('Using %d IoU thresholds from %1.1f to %1.1f'
+          % (n_points + 1, first_iou, last_iou))
     print('Computing F1 values', flush=True)
-    all_f1_list = [f1_vs_iou(this_y, this_y_pred, iou_list) 
+    all_f1_list = [f1_vs_iou(this_y, this_y_pred, full_iou_list)
                    for (this_y, this_y_pred) 
                    in zip(y_thr, y_pred_thr)]
     all_f1_list = np.stack(all_f1_list, axis=1)

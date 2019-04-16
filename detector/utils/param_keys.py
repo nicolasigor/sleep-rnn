@@ -157,8 +157,9 @@ nstats: (int) Frequency in iterations to display metrics.
 MAX_ITERS = 'max_iters'
 ITERS_STATS = 'iters_stats'
 ITERS_LR_UPDATE = 'iters_lr_update'
-REL_TOL_LOSS = 'rel_tol_loss'
+REL_TOL_CRITERION = 'rel_tol_criterion'
 LR_UPDATE_FACTOR = 'lr_update_factor'
+LR_UPDATE_CRITERION = 'lr_update_criterion'
 MAX_LR_UPDATES = 'max_lr_updates'
 
 
@@ -195,14 +196,15 @@ default_params = {
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,
-    CLIP_NORM: 5,
+    CLIP_NORM: 1,
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_ITERS: 20000,
+    MAX_ITERS: 30000,
     ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
-    REL_TOL_LOSS: 0.0,
+    REL_TOL_CRITERION: 0.0,
     LR_UPDATE_FACTOR: 0.5,
-    MAX_LR_UPDATES: None
+    LR_UPDATE_CRITERION: constants.LOSS_CRITERION,
+    MAX_LR_UPDATES: 3,
 }

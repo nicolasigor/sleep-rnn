@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     id_try_list = [0]
 
-    experiment_name = 'bsf_ss_whole_night_v4'
+    experiment_name = 'grid_optimizer_bsf_ss_whole_night'
 
     # Select database for training
     dataset_name_list = [constants.MASS_NAME]
@@ -47,6 +47,21 @@ if __name__ == '__main__':
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
+
+    list_criterion = [constants.LOSS_CRITERION]
+    list_lr_update_factor = [0.5, 0.1]
+    list_opt_lr_mom = [
+        (constants.SGD_OPTIMIZER, 1e-2, 0.95),
+        (constants.SGD_OPTIMIZER, 1e-1, 0.95)
+    ]
+
+    # Create experiment
+    parameters_list = list(itertools.product(
+        list_criterion,
+        list_lr_update_factor,
+        list_opt_lr_mom
+    ))
+    print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
     for dataset_name in dataset_name_list:
         # Load data
@@ -64,16 +79,6 @@ if __name__ == '__main__':
         params = param_keys.default_params.copy()
         params[param_keys.PAGE_DURATION] = dataset.page_duration
         params[param_keys.FS] = dataset.fs
-
-        # Shorter training time
-        params[param_keys.MAX_ITERS] = 30000
-
-        # Experimental params
-        params[param_keys.LEARNING_RATE] = 1e-5
-        params[param_keys.CLIP_NORM] = 1
-        params[param_keys.TYPE_OPTIMIZER] = constants.ADAM_OPTIMIZER
-        params[param_keys.LR_UPDATE_FACTOR] = 0.5
-        params[param_keys.MAX_LR_UPDATES] = 3
 
         # Get training set ids
         print('Loading training set and splitting')
@@ -111,53 +116,64 @@ if __name__ == '__main__':
             print('Training set shape', x_train.shape, y_train.shape)
             print('Validation set shape', x_val.shape, y_val.shape)
 
-            # Path to save results of run
-            logdir = os.path.join(
-                results_folder,
-                '%s_train_%s' % (experiment_name, dataset_name),
-                'seed%d' % id_try
-            )
-            print('This run directory: %s' % logdir)
+            for criterion, lr_update_factor, opt_lr_mom in parameters_list:
+                type_opt, lr, momentum = opt_lr_mom
 
-            # Create model
-            model = WaveletBLSTM(params, logdir=logdir)
+                params[param_keys.LR_UPDATE_CRITERION] = criterion
+                params[param_keys.LR_UPDATE_FACTOR] = lr_update_factor
+                params[param_keys.TYPE_OPTIMIZER] = type_opt
+                params[param_keys.LEARNING_RATE] = lr
+                params[param_keys.MOMENTUM] = momentum
 
-            # Train model
-            model.fit(x_train, y_train, x_val, y_val)
+                # Path to save results of run
+                logdir = os.path.join(
+                    results_folder,
+                    '%s_train_%s' % (experiment_name, dataset_name),
+                    '%s_%1.1f_%s_%1.5f_%1.2f'
+                    % (criterion, lr_update_factor, type_opt, lr, momentum),
+                    'seed%d' % id_try
+                )
+                print('This run directory: %s' % logdir)
 
-            # ----- Obtain AF1 metric
-            x_val_m, _ = dataset.get_subset_data(
-                val_ids, augmented_page=False, border_size=border_size,
-                which_expert=which_expert, verbose=False, whole_night=True)
+                # Create model
+                model = WaveletBLSTM(params, logdir=logdir)
 
-            y_pred_val = []
-            for i, sub_data in enumerate(x_val_m):
-                print('Val: Predicting ID %s' % val_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                # Keep only probability of class one
-                this_pred = this_pred[..., 1]
-                y_pred_val.append(this_pred)
+                # Train model
+                model.fit(x_train, y_train, x_val, y_val)
 
-            _, y_val_m = dataset.get_subset_data(
-                val_ids, augmented_page=False, border_size=0,
-                which_expert=which_expert, verbose=False, whole_night=True)
-            pages_val = dataset.get_subset_pages(
-                val_ids, verbose=False, whole_night=True)
+                # ----- Obtain AF1 metric
+                x_val_m, _ = dataset.get_subset_data(
+                    val_ids, augmented_page=False, border_size=border_size,
+                    which_expert=which_expert, verbose=False, whole_night=True)
 
-            val_af1 = metrics.average_f1_with_list(
-                y_val_m, y_pred_val, pages_val,
-                fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5,
-                postprocess_predicted=True,
-                min_duration=0.2, min_separation=0.3, max_duration=4)
-            print('Validation AF1: %1.6f' % val_af1)
+                y_pred_val = []
+                for i, sub_data in enumerate(x_val_m):
+                    print('Val: Predicting ID %s' % val_ids[i])
+                    this_pred = model.predict_proba(sub_data)
+                    # Keep only probability of class one
+                    this_pred = this_pred[..., 1]
+                    y_pred_val.append(this_pred)
 
-            metric_dict = {
-                'description': 'BSF whole night, lr decreasing by 10',
-                'val_seed': seed,
-                'database': dataset_name,
-                'val_af1': float(val_af1)
-            }
-            with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
-                json.dump(metric_dict, outfile)
+                _, y_val_m = dataset.get_subset_data(
+                    val_ids, augmented_page=False, border_size=0,
+                    which_expert=which_expert, verbose=False, whole_night=True)
+                pages_val = dataset.get_subset_pages(
+                    val_ids, verbose=False, whole_night=True)
 
-            print('')
+                val_af1 = metrics.average_f1_with_list(
+                    y_val_m, y_pred_val, pages_val,
+                    fs_real=dataset.fs, fs_predicted=dataset.fs // 8, thr=0.5,
+                    postprocess_predicted=True,
+                    min_duration=0.2, min_separation=0.3, max_duration=4)
+                print('Validation AF1: %1.6f' % val_af1)
+
+                metric_dict = {
+                    'description': 'BSF whole night, grid optimizer',
+                    'val_seed': seed,
+                    'database': dataset_name,
+                    'val_af1': float(val_af1)
+                }
+                with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
+                    json.dump(metric_dict, outfile)
+
+                print('')

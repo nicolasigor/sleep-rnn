@@ -109,13 +109,20 @@ class WaveletBLSTM(BaseModel):
         # Improvement criterion
         model_criterion = {
             KEY_ITER: 0,
-            KEY_LOSS: 1e10
+            KEY_LOSS: 1e10,
+            KEY_F1_SCORE: 0
         }
-        rel_tol_loss = self.params[param_keys.REL_TOL_LOSS]
+        rel_tol_criterion = self.params[param_keys.REL_TOL_CRITERION]
         iter_last_lr_update = 0
 
         if self.params[param_keys.MAX_LR_UPDATES] is None:
             self.params[param_keys.MAX_LR_UPDATES] = 1e15
+
+        lr_update_criterion = self.params[param_keys.LR_UPDATE_CRITERION]
+        errors.check_valid_value(
+            lr_update_criterion,
+            'lr_update_criterion',
+            [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
 
         # Training loop
         nstats = self.params[param_keys.ITERS_STATS]
@@ -142,10 +149,15 @@ class WaveletBLSTM(BaseModel):
                 print('It %6.0d/%d - %s - %s - E.T. %1.4f s'
                       % (it, niters, loss_print, f1_print, elapsed))
 
-                improvement_criterion = val_loss < (1.0 - rel_tol_loss) * model_criterion[KEY_LOSS]
+                if lr_update_criterion == constants.LOSS_CRITERION:
+                    improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
+                else:
+                    improvement_criterion = val_metrics[KEY_F1_SCORE] > (1.0 + rel_tol_criterion) * model_criterion[KEY_F1_SCORE]
+
                 if improvement_criterion:
                     # Update last time the improvement criterion was met
                     model_criterion[KEY_LOSS] = val_loss
+                    model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
                     model_criterion[KEY_ITER] = it
 
                 # Check LR update criterion
@@ -166,6 +178,8 @@ class WaveletBLSTM(BaseModel):
                         print('    Maximum number (%d) of learning rate '
                               'updates reached. Stopping training.'
                               % self.params[param_keys.MAX_LR_UPDATES])
+
+                        break
 
         val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
         last_model = {

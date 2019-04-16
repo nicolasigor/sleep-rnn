@@ -49,6 +49,10 @@ ADAM_OPTIMIZER = 'adam_optimizer'
 SGD_OPTIMIZER = 'sgd_optimizer'
 RMSPROP_OPTIMIZER = 'rmsprop_optimizer'
 
+# Training params
+LOSS_CRITERION = 'loss_criterion'
+METRIC_CRITERION = 'metric_criterion'
+
 # Error message, parameter not in valid list
 ERROR_INVALID = 'Expected %s for %s, but %s was provided.'
 
