@@ -111,15 +111,17 @@ if __name__ == '__main__':
                 params[param_keys.USE_LOG] = use_log
 
                 if use_log:
-                    params[param_keys.MODEL_VERSION] = constants.EXPERIMENTAL
+                    model_version = constants.V3_FF
                 else:
-                    params[param_keys.MODEL_VERSION] = constants.V3_FF
+                    model_version = constants.EXPERIMENTAL
+
+                params[param_keys.MODEL_VERSION] = model_version
 
                 # Path to save results of run
                 logdir = os.path.join(
                     results_folder,
                     '%s_train_%s' % (experiment_name, dataset_name),
-                    '%s' % use_log,
+                    '%s_%s' % (use_log, model_version),
                     'seed%d' % id_try
                 )
                 print('This run directory: %s' % logdir)

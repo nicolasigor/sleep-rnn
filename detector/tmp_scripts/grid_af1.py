@@ -15,7 +15,7 @@ sys.path.append(detector_path)
 
 if __name__ == '__main__':
     n_to_show = 6
-    grid_folder = '20190416_grid_optimizer_bsf_ss_whole_night_train_mass'
+    grid_folder = '20190416_grid_use_log_experimental_train_mass'
     grid_path = os.path.join(detector_path, results_folder, grid_folder)
     grid_list = os.listdir(grid_path)
 
