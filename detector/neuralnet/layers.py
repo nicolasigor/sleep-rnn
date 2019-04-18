@@ -463,7 +463,8 @@ def conv2d_prebn_block(
         inputs,
         filters,
         training,
-        is_first_unit=False,
+        kernel_size_1 = 3,
+        kernel_size_2 = 3,
         batchnorm=None,
         downsampling=constants.MAXPOOL,
         reuse=False,
@@ -480,13 +481,6 @@ def conv2d_prebn_block(
     else:
         strides = 1
         pooling = downsampling
-
-    if is_first_unit:
-        kernel_size_1 = 5
-    else:
-        kernel_size_1 = 3
-
-    kernel_size_2 = 3
 
     with tf.variable_scope(name):
 

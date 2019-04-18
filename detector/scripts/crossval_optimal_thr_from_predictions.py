@@ -68,9 +68,11 @@ if __name__ == '__main__':
     all_train_ids = dataset.train_ids
     # Get subjects data, with the expert used for training
     all_x, all_y = dataset.get_subset_data(all_train_ids, which_expert=1,
-                                           verbose=verbose)
+                                           verbose=verbose,
+                                           whole_night=whole_night)
     print('Signals and marks loaded... ', end='', flush=True)
-    all_pages = dataset.get_subset_pages(all_train_ids, verbose=verbose)
+    all_pages = dataset.get_subset_pages(all_train_ids, verbose=verbose,
+                                         whole_night=whole_night)
     print('Pages loaded.', flush=True)
 
     # Prepare expert labels into marks

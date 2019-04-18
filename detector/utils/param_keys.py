@@ -104,6 +104,7 @@ N_SCALES = 'n_scales'
 LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
 # Parameters for convolutional stage
+INITIAL_KERNEL_SIZE = 'initial_kernel_size'
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
 CONV_DOWNSAMPLING = 'conv_downsampling'
 # blstm parameters
@@ -164,13 +165,14 @@ MAX_LR_UPDATES = 'max_lr_updates'
 
 
 # Default parameters dictionary
+# TODO: adjust optimizer params based on grid results
 default_params = {
     FS: 200,
     BATCH_SIZE: 32,
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
-    MODEL_VERSION: constants.V3_FF,
+    MODEL_VERSION: constants.EXPERIMENTAL,
     BORDER_DURATION: 3,
     TYPE_BATCHNORM: constants.BN,
     TYPE_DROPOUT: constants.SEQUENCE_DROP,
@@ -186,6 +188,7 @@ default_params = {
     UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 16,
+    INITIAL_KERNEL_SIZE: 5,
     CONV_DOWNSAMPLING: constants.AVGPOOL,
     N_TIME_LEVELS: 1,
     TIME_POOLING: constants.AVGPOOL,
@@ -206,5 +209,5 @@ default_params = {
     REL_TOL_CRITERION: 0.0,
     LR_UPDATE_FACTOR: 0.5,
     LR_UPDATE_CRITERION: constants.LOSS_CRITERION,
-    MAX_LR_UPDATES: 3,
+    MAX_LR_UPDATES: 4,
 }
