@@ -36,15 +36,16 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = '20190413_bsf_kc_using_angle'
-    grid_folder_list = ['bsf']
+    grid_folder_list = None
+    whole_night = True
 
     # Select database for prediction
-    dataset_name = 'massk'
+    dataset_name = constants.MASS_NAME
 
     # Load data
     errors.check_valid_value(
         dataset_name, 'dataset_name',
-        [constants.MASS_NAME, constants.INTA_NAME, 'massk'])
+        [constants.MASS_NAME, constants.INTA_NAME, constants.MASSK_NAME])
     if dataset_name == constants.MASS_NAME:
         dataset = MASS(load_checkpoint=True)
     elif dataset_name == constants.INTA_NAME:
@@ -56,6 +57,14 @@ if __name__ == '__main__':
 
     # Test data
     test_ids = dataset.test_ids
+
+    if grid_folder_list is None:
+        grid_folder_list = os.listdir(os.path.join(
+                results_path,
+                '%s_train_%s' % (ckpt_folder, dataset_name)
+            ))
+        print('Grid settings found:')
+        pprint.pprint(grid_folder_list)
 
     print('')
     for folder_name in grid_folder_list:
@@ -99,15 +108,19 @@ if __name__ == '__main__':
             # Get data for predictions
             border_size = get_border_size(params)
             x_train, y_train = dataset.get_subset_data(
-                train_ids, border_size=border_size, verbose=False)
+                train_ids, border_size=border_size, verbose=True,
+                whole_night=whole_night)
             x_val, y_val = dataset.get_subset_data(
-                val_ids, border_size=border_size, verbose=False)
+                val_ids, border_size=border_size, verbose=True,
+                whole_night=whole_night)
             x_test, y_test = dataset.get_subset_data(
-                test_ids, border_size=border_size, verbose=False)
+                test_ids, border_size=border_size, verbose=True,
+                whole_night=whole_night)
 
             # All train
             x_alltrain, y_alltrain = dataset.get_subset_data(
-                all_train_ids, border_size=border_size, verbose=False)
+                all_train_ids, border_size=border_size, verbose=False,
+                whole_night=whole_night)
 
             # Create model
             model = WaveletBLSTM(params,
@@ -152,10 +165,25 @@ if __name__ == '__main__':
             ))
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            np.save(os.path.join(save_dir, 'y_pred_train.npy'), y_pred_train)
-            np.save(os.path.join(save_dir, 'y_pred_val.npy'), y_pred_val)
-            np.save(os.path.join(save_dir, 'y_pred_test.npy'), y_pred_test)
-            np.save(os.path.join(save_dir, 'y_pred_alltrain.npy'), y_pred_alltrain)
+
+            if whole_night:
+                descriptor = '_whole_night_'
+            else:
+                descriptor = '_'
+
+            np.save(
+                os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
+                y_pred_train)
+            np.save(
+                os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
+                y_pred_val)
+            np.save(
+                os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
+                y_pred_test)
+            np.save(
+                os.path.join(save_dir, 'y_pred%salltrain.npy' % descriptor),
+                y_pred_alltrain)
+
             print('Predictions saved at %s' % save_dir)
         print('')
         mean_af1 = np.mean(af1_list)
