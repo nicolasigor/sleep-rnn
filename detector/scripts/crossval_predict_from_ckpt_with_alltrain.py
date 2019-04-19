@@ -35,7 +35,7 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190413_bsf_kc_using_angle'
+    ckpt_folder = '20190416_grid_use_log_experimental'
     grid_folder_list = None
     whole_night = True
 
@@ -57,6 +57,11 @@ if __name__ == '__main__':
 
     # Test data
     test_ids = dataset.test_ids
+
+    if whole_night:
+        descriptor = '_whole_night_'
+    else:
+        descriptor = '_'
 
     if grid_folder_list is None:
         grid_folder_list = os.listdir(os.path.join(
@@ -107,15 +112,15 @@ if __name__ == '__main__':
 
             # Get data for predictions
             border_size = get_border_size(params)
-            x_train, y_train = dataset.get_subset_data(
-                train_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
-            x_val, y_val = dataset.get_subset_data(
-                val_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
-            x_test, y_test = dataset.get_subset_data(
-                test_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
+            # x_train, y_train = dataset.get_subset_data(
+            #     train_ids, border_size=border_size, verbose=True,
+            #     whole_night=whole_night)
+            # x_val, y_val = dataset.get_subset_data(
+            #     val_ids, border_size=border_size, verbose=True,
+            #     whole_night=whole_night)
+            # x_test, y_test = dataset.get_subset_data(
+            #     test_ids, border_size=border_size, verbose=True,
+            #     whole_night=whole_night)
 
             # All train
             x_alltrain, y_alltrain = dataset.get_subset_data(
@@ -130,25 +135,25 @@ if __name__ == '__main__':
 
             # We keep each patient separate, to see variation of performance
             # between individuals
-            y_pred_train = []
-            y_pred_val = []
-            y_pred_test = []
+            # y_pred_train = []
+            # y_pred_val = []
+            # y_pred_test = []
 
             y_pred_alltrain = []
 
             # Start prediction
-            for i, sub_data in enumerate(x_train):
-                print('Train: Predicting ID %s' % train_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_train.append(this_pred)
-            for i, sub_data in enumerate(x_val):
-                print('Val: Predicting ID %s' % val_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_val.append(this_pred)
-            for i, sub_data in enumerate(x_test):
-                print('Test: Predicting ID %s' % test_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_test.append(this_pred)
+            # for i, sub_data in enumerate(x_train):
+            #     print('Train: Predicting ID %s' % train_ids[i])
+            #     this_pred = model.predict_proba(sub_data)
+            #     y_pred_train.append(this_pred)
+            # for i, sub_data in enumerate(x_val):
+            #     print('Val: Predicting ID %s' % val_ids[i])
+            #     this_pred = model.predict_proba(sub_data)
+            #     y_pred_val.append(this_pred)
+            # for i, sub_data in enumerate(x_test):
+            #     print('Test: Predicting ID %s' % test_ids[i])
+            #     this_pred = model.predict_proba(sub_data)
+            #     y_pred_test.append(this_pred)
 
             for i, sub_data in enumerate(x_alltrain):
                 print('AllTrain: Predicting ID %s' % all_train_ids[i])
@@ -166,20 +171,15 @@ if __name__ == '__main__':
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
 
-            if whole_night:
-                descriptor = '_whole_night_'
-            else:
-                descriptor = '_'
-
-            np.save(
-                os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
-                y_pred_train)
-            np.save(
-                os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
-                y_pred_val)
-            np.save(
-                os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
-                y_pred_test)
+            # np.save(
+            #     os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
+            #     y_pred_train)
+            # np.save(
+            #     os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
+            #     y_pred_val)
+            # np.save(
+            #     os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
+            #     y_pred_test)
             np.save(
                 os.path.join(save_dir, 'y_pred%salltrain.npy' % descriptor),
                 y_pred_alltrain)

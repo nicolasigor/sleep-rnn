@@ -92,6 +92,7 @@ MODEL_VERSION = 'model_version'
 BORDER_DURATION = 'border_duration'
 TYPE_BATCHNORM = 'batchnorm'
 TYPE_DROPOUT = 'dropout'
+DROP_RATE_BEFORE_LSTM = 'drop_rate_before_lstm'
 DROP_RATE_HIDDEN = 'drop_rate_hidden'
 DROP_RATE_OUTPUT = 'drop_rate_output'
 # CWT parameters
@@ -165,7 +166,7 @@ MAX_LR_UPDATES = 'max_lr_updates'
 
 
 # Default parameters dictionary
-# TODO: adjust optimizer params based on grid results
+# TODO: adjust conv2d (filters and kernel size) based on grid results
 default_params = {
     FS: 200,
     BATCH_SIZE: 32,
@@ -176,6 +177,7 @@ default_params = {
     BORDER_DURATION: 3,
     TYPE_BATCHNORM: constants.BN,
     TYPE_DROPOUT: constants.SEQUENCE_DROP,
+    DROP_RATE_BEFORE_LSTM: 0.5,
     DROP_RATE_HIDDEN: 0.5,
     DROP_RATE_OUTPUT: 0.2,
     FB_LIST: [1.0],

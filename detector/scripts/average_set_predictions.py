@@ -16,17 +16,29 @@ from utils import constants
 
 if __name__ == '__main__':
 
-    set_list = ['test']
+    set_list = ['alltrain', 'test']
 
     # Set paths for single-run predictions
-    dataset_name = 'massk'
+
+    # ['True_experimental', 'True_v3-ff', 'False_v3-ff', 'False_experimental']
+    main_folder_name = os.path.join(
+        '20190416_grid_use_log_experimental_train_mass',
+        'False_experimental'
+    )
+    whole_night = True
+
+    dataset_name = constants.MASS_NAME
     npy_load_list = [
         os.path.join(
-            '20190413_bsf_kc_using_angle_train_massk', 'bsf', 'seed%d' % i)
+            main_folder_name, 'seed%d' % i)
         for i in range(4)
     ]
     npy_avg_save_folder = os.path.join(
-        '20190413_bsf_kc_using_angle_train_massk', 'bsf', 'avg')
+        main_folder_name, 'avg')
+    if whole_night:
+        descriptor = '_whole_night_'
+    else:
+        descriptor = '_'
 
     # Load predictions
     prediction_folder = 'predictions_%s' % dataset_name
@@ -41,7 +53,8 @@ if __name__ == '__main__':
                 results_path, prediction_folder, npy_folder))
             print('Loading from %s' % this_path)
             this_pred = np.load(
-                os.path.join(this_path, 'y_pred_%s.npy' % set_name),
+                os.path.join(
+                    this_path, 'y_pred%s%s.npy' % (descriptor, set_name)),
                 allow_pickle=True)
             pred_list.append(this_pred)
         set_size = pred_list[0].shape[0]
@@ -59,6 +72,7 @@ if __name__ == '__main__':
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         np.save(
-            os.path.join(save_path, 'y_pred_%s.npy' % set_name),
+            os.path.join(
+                save_path, 'y_pred%s%s.npy' % (descriptor, set_name)),
             avg_pred)
     print('Predictions saved at %s' % save_path)

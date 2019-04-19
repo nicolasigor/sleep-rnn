@@ -14,6 +14,7 @@ sys.path.append(detector_path)
 
 from sleep.mass import MASS
 from sleep.inta import INTA
+from sleep import postprocessing
 from neuralnet.models import WaveletBLSTM
 from evaluation import data_manipulation
 from evaluation import metrics
@@ -56,8 +57,6 @@ if __name__ == '__main__':
     params = param_keys.default_params.copy()
     params[param_keys.PAGE_DURATION] = dataset.page_duration
     params[param_keys.FS] = dataset.fs
-    params[param_keys.MODEL_VERSION] = constants.V3
-    params[param_keys.MAX_ITERS] = 100
 
     # Get training set ids
     print('Loading training set and splitting')
@@ -129,3 +128,35 @@ if __name__ == '__main__':
     }
     with open(os.path.join(model.logdir, 'metric.json'), 'w') as outfile:
         json.dump(metric_dict, outfile)
+
+    # Precision and recall for training set
+
+    x_train_m, _ = dataset.get_subset_data(
+        train_ids, augmented_page=False, border_size=border_size,
+        which_expert=which_expert, verbose=False)
+
+    y_pred_train = []
+    for i, sub_data in enumerate(x_train_m):
+        print('Train: Predicting ID %s' % train_ids[i])
+        this_pred = model.predict_proba(sub_data)
+        # Keep only probability of class one
+        this_pred = this_pred[..., 1]
+        y_pred_train.append(this_pred)
+
+    _, y_train_m = dataset.get_subset_data(
+        train_ids, augmented_page=False, border_size=0,
+        which_expert=which_expert, verbose=False)
+    pages_train = dataset.get_subset_pages(train_ids, verbose=False)
+
+    y_pred_thr = postprocessing.generate_mark_intervals_with_list(
+        y_pred_train, pages_train, 200 // 8, 200, thr=0.5,
+        min_separation=0.3, min_duration=0.2,
+        max_duration=4)
+    y_stamps = postprocessing.generate_mark_intervals_with_list(
+        y_train_m, pages_train, 200, 200, thr=None, postprocess=False)
+    be_stats = [
+        metrics.by_event_confusion(this_y, this_y_pred, iou_thr=0.3)
+        for (this_y, this_y_pred) in zip(y_stamps, y_pred_thr)]
+    for this_stat in be_stats:
+        print('Recall, Precision:', this_stat['recall'], this_stat['precision'])
+    print('')

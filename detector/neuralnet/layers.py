@@ -822,9 +822,10 @@ def multilayer_lstm_block(
         num_dirs=constants.UNIDIRECTIONAL,
         batchnorm_first_lstm=None,
         dropout_first_lstm=None,
+        drop_rate_first_lstm=0.5,
         batchnorm_rest_lstm=None,
         dropout_rest_lstm=None,
-        drop_rate=0.5,
+        drop_rate_rest_lstm=0.5,
         name=None):
     """Builds a multi-layer lstm block.
 
@@ -840,9 +841,11 @@ def multilayer_lstm_block(
             if i == 0:
                 batchnorm = batchnorm_first_lstm
                 dropout = dropout_first_lstm
+                drop_rate = drop_rate_first_lstm
             else:
                 batchnorm = batchnorm_rest_lstm
                 dropout = dropout_rest_lstm
+                drop_rate = drop_rate_rest_lstm
             outputs = lstm_layer(
                 outputs,
                 num_units=num_units,

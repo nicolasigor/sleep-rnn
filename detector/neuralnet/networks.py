@@ -100,7 +100,8 @@ def wavelet_blstm_net_v1(
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
             dropout_first_lstm=None,
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
-            drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
 
@@ -202,7 +203,8 @@ def wavelet_blstm_net_v2(
             batchnorm_first_lstm=params[param_keys.TYPE_BATCHNORM],
             dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
-            drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
 
@@ -322,7 +324,8 @@ def wavelet_blstm_net_v3(
             num_dirs=constants.BIDIRECTIONAL,
             dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
-            drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
 
@@ -440,7 +443,8 @@ def wavelet_blstm_net_v3_ff(
             num_dirs=constants.BIDIRECTIONAL,
             dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
-            drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
 
@@ -547,7 +551,8 @@ def experimental_net(
             num_dirs=constants.BIDIRECTIONAL,
             dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
             dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
-            drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
 
