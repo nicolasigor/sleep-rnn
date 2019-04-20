@@ -166,7 +166,6 @@ MAX_LR_UPDATES = 'max_lr_updates'
 
 
 # Default parameters dictionary
-# TODO: adjust conv2d (filters and kernel size) based on grid results
 default_params = {
     FS: 200,
     BATCH_SIZE: 32,
@@ -182,7 +181,7 @@ default_params = {
     DROP_RATE_OUTPUT: 0.2,
     FB_LIST: [1.0],
     TRAINABLE_WAVELET: True,
-    WAVELET_SIZE_FACTOR: 2,
+    WAVELET_SIZE_FACTOR: 1.5,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
     N_SCALES: 48,

@@ -35,7 +35,7 @@ if __name__ == '__main__':
     n_seeds = 4
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190416_grid_optimizerv2_bsf_ss_whole_night'
+    ckpt_folder = '20190420_grid_conv2d_ss_whole_night'
     grid_folder_list = None
     whole_night = True
 

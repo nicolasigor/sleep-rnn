@@ -35,9 +35,9 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results
     seed_list = [123, 234, 345, 456]
-    ckpt_folder = '20190413_bsf_ss_using_angle'
+    ckpt_folder = '20190420_grid_conv2d_ss_whole_night'
     grid_folder_list = None
-    whole_night = False
+    whole_night = True
     dataset_name = constants.MASS_NAME
     verbose = False
     # Performance settings
