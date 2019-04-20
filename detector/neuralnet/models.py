@@ -178,7 +178,8 @@ class WaveletBLSTM(BaseModel):
                         print('    Maximum number (%d) of learning rate '
                               'updates reached. Stopping training.'
                               % self.params[param_keys.MAX_LR_UPDATES])
-
+                        # Since we stop training, redefine number of iters
+                        niters = it
                         break
 
         val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
