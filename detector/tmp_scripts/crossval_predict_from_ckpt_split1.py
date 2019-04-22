@@ -32,7 +32,7 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    seed_list = [0, 1, 2, 3]
+    seed_list = [1]
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = '20190420_grid_dropout_whole_night'
