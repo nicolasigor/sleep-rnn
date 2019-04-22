@@ -37,6 +37,7 @@ if __name__ == '__main__':
     # Select database for training
     dataset_name = constants.MASS_NAME
     which_expert = 1
+    whole_night = True
 
     # Path to save results of run
     logdir = 'demo'

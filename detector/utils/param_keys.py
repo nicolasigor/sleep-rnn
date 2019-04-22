@@ -184,7 +184,7 @@ default_params = {
     WAVELET_SIZE_FACTOR: 1.5,
     TYPE_WAVELET: constants.CMORLET,
     USE_LOG: False,
-    N_SCALES: 48,
+    N_SCALES: 32,
     LOWER_FREQ: 0.5,
     UPPER_FREQ: 30,
     INITIAL_LSTM_UNITS: 256,

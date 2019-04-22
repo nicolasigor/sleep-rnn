@@ -36,9 +36,9 @@ def get_border_size(my_p):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [2, 3]
 
-    experiment_name = 'grid_conv2d_ss_whole_night'
+    experiment_name = 'grid_conv1d_ss_whole_night'
 
     # Select database for training
     dataset_name_list = [constants.MASS_NAME]
@@ -48,13 +48,13 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    initial_conv_filters_list = [16, 32, 64]
-    initial_kernel_size_list = [3, 5, 7]
+    initial_conv_filters_list = [64, 32, 16]
+    drop_rate_before_lstm_list = [0.3, 0.5]
 
     # Create experiment
     parameters_list = list(itertools.product(
         initial_conv_filters_list,
-        initial_kernel_size_list
+        drop_rate_before_lstm_list
     ))
     print('Number of combinations to be evaluated: %d' % len(parameters_list))
 
@@ -74,6 +74,9 @@ if __name__ == '__main__':
         params = param_keys.default_params.copy()
         params[param_keys.PAGE_DURATION] = dataset.page_duration
         params[param_keys.FS] = dataset.fs
+
+        # Model specification
+        params[param_keys.MODEL_VERSION] = constants.V4
 
         # Get training set ids
         print('Loading training set and splitting')
@@ -111,17 +114,17 @@ if __name__ == '__main__':
             print('Training set shape', x_train.shape, y_train.shape)
             print('Validation set shape', x_val.shape, y_val.shape)
 
-            for initial_conv_filters, initial_kernel_size in parameters_list:
+            for initial_conv_filters, drop_rate_before_lstm in parameters_list:
 
                 params[param_keys.INITIAL_CONV_FILTERS] = initial_conv_filters
-                params[param_keys.INITIAL_KERNEL_SIZE] = initial_kernel_size
+                params[param_keys.DROP_RATE_BEFORE_LSTM] = drop_rate_before_lstm
 
                 # Path to save results of run
                 logdir = os.path.join(
                     results_folder,
                     '%s_train_%s' % (experiment_name, dataset_name),
-                    'filters_%d_size_%d'
-                    % (initial_conv_filters, initial_kernel_size),
+                    'filters_%d_drop_%s'
+                    % (initial_conv_filters, drop_rate_before_lstm),
                     'seed%d' % id_try
                 )
                 print('This run directory: %s' % logdir)

@@ -583,6 +583,116 @@ def experimental_net(
         return logits, probabilities
 
 
+def wavelet_blstm_net_v4(
+        inputs,
+        params,
+        training,
+        name='model_v4'
+):
+    errors.check_valid_value(
+        params[param_keys.TYPE_WAVELET], param_keys.TYPE_WAVELET,
+        [constants.CMORLET, constants.SPLINE])
+
+    with tf.variable_scope(name):
+        # CWT stage
+        border_crop = int(
+            params[param_keys.BORDER_DURATION] * params[param_keys.FS])
+        if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
+            outputs = layers.cmorlet_layer(
+                inputs,
+                params[param_keys.FB_LIST],
+                params[param_keys.FS],
+                lower_freq=params[param_keys.LOWER_FREQ],
+                upper_freq=params[param_keys.UPPER_FREQ],
+                n_scales=params[param_keys.N_SCALES],
+                stride=1,
+                size_factor=params[param_keys.WAVELET_SIZE_FACTOR],
+                border_crop=border_crop,
+                use_log=params[param_keys.USE_LOG],
+                training=training,
+                trainable_wavelet=params[param_keys.TRAINABLE_WAVELET],
+                batchnorm=params[param_keys.TYPE_BATCHNORM],
+                name='spectrum')
+        else:
+            raise NotImplementedError(
+                'Type spline for wavelet not implemented.')
+
+        # ReLU after CWT
+        outputs = tf.nn.relu(outputs)
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # 1D convolutions
+
+        # Convolutional stage (standard feed-forward)
+        init_filters = params[param_keys.INITIAL_CONV_FILTERS]
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            init_filters,
+            training,
+            kernel_size_1=params[param_keys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[param_keys.TYPE_BATCHNORM],
+            downsampling=params[param_keys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1')
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            init_filters * 2,
+            training,
+            batchnorm=params[param_keys.TYPE_BATCHNORM],
+            downsampling=params[param_keys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2')
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            init_filters * 4,
+            training,
+            batchnorm=params[param_keys.TYPE_BATCHNORM],
+            downsampling=params[param_keys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_3')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[param_keys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[param_keys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[param_keys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[param_keys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[param_keys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[param_keys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[param_keys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[param_keys.TYPE_DROPOUT],
+                drop_rate=params[param_keys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            outputs,
+            2,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[param_keys.TYPE_DROPOUT],
+            drop_rate=params[param_keys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+        return logits, probabilities
+
+
 def wavelet_conv_net_v3(
         inputs,
         params,
