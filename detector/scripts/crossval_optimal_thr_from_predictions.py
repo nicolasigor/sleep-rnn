@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results
     seed_list = [123, 234, 345, 456]
-    ckpt_folder = '20190420_grid_conv2d_ss_whole_night'
+    ckpt_folder = '20190420_grid_dropout_whole_night'
     grid_folder_list = None
     whole_night = True
     dataset_name = constants.MASS_NAME
@@ -188,8 +188,14 @@ if __name__ == '__main__':
     print('')
     for j, folder_name in enumerate(grid_folder_list):
         max_idx = np.argmax(np.array(crossval_af1_mean[folder_name]))
-        print('%s: Optimum at %1.4f with value %1.4f +- %1.4f' % (
-            folder_name,
-            thr_list[max_idx],
-            crossval_af1_mean[folder_name][max_idx],
-            crossval_af1_std[folder_name][max_idx]))
+        # print('%s: Optimum at %1.4f with value %1.4f +- %1.4f' % (
+        #     folder_name,
+        #     thr_list[max_idx],
+        #     crossval_af1_mean[folder_name][max_idx],
+        #     crossval_af1_std[folder_name][max_idx]))
+
+        print('Val AF1 %1.4f +- %1.4f (mu %1.4f) for setting %s'
+              % (crossval_af1_mean[folder_name][max_idx],
+                 crossval_af1_std[folder_name][max_idx],
+                 thr_list[max_idx],
+                 folder_name))
