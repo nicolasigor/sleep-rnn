@@ -35,9 +35,9 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190420_grid_dropout_whole_night_train_mass/beforelstm_0.3_hidden_0.5_output_0.0/seed0'
+    ckpt_folder = 'demo_dice_train_mass'
     whole_night = True
-    personalized = True
+    personalized = False
 
     # Select database for prediction
     dataset_name = constants.MASS_NAME

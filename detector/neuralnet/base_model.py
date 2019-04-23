@@ -168,7 +168,7 @@ class BaseModel(object):
 
         self.ind_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='%s/spectrum' % model_name)
         self.ind_variables = [var for var in self.ind_variables if 'moving' in var.name]
-        print(self.ind_variables)
+        # print(self.ind_variables)
 
         # Evaluation metrics
         self.batch_metrics_dict, self.batch_metrics_summ = self._batch_metrics_fn()

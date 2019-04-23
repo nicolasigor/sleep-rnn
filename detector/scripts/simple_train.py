@@ -73,10 +73,10 @@ if __name__ == '__main__':
     border_size = get_border_size(params)
     x_train, y_train = dataset.get_subset_data(
         train_ids, augmented_page=True, border_size=border_size,
-        which_expert=which_expert, verbose=True)
+        which_expert=which_expert, verbose=True, whole_night=whole_night)
     x_val, y_val = dataset.get_subset_data(
         val_ids, augmented_page=False, border_size=border_size,
-        which_expert=which_expert, verbose=True)
+        which_expert=which_expert, verbose=True, whole_night=whole_night)
 
     # Transform to numpy arrays
     x_train = np.concatenate(x_train, axis=0)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # ----- Obtain AF1 metric
     x_val_m, _ = dataset.get_subset_data(
         val_ids, augmented_page=False, border_size=border_size,
-        which_expert=which_expert, verbose=False)
+        which_expert=which_expert, verbose=False, whole_night=whole_night)
 
     y_pred_val = []
     for i, sub_data in enumerate(x_val_m):
@@ -113,8 +113,9 @@ if __name__ == '__main__':
 
     _, y_val_m = dataset.get_subset_data(
         val_ids, augmented_page=False, border_size=0,
-        which_expert=which_expert, verbose=False)
-    pages_val = dataset.get_subset_pages(val_ids, verbose=False)
+        which_expert=which_expert, verbose=False, whole_night=whole_night)
+    pages_val = dataset.get_subset_pages(val_ids, verbose=False,
+                                         whole_night=whole_night)
 
     val_af1 = metrics.average_f1_with_list(
         y_val_m, y_pred_val, pages_val,
@@ -134,7 +135,7 @@ if __name__ == '__main__':
 
     x_train_m, _ = dataset.get_subset_data(
         train_ids, augmented_page=False, border_size=border_size,
-        which_expert=which_expert, verbose=False)
+        which_expert=which_expert, verbose=False, whole_night=whole_night)
 
     y_pred_train = []
     for i, sub_data in enumerate(x_train_m):
@@ -146,8 +147,9 @@ if __name__ == '__main__':
 
     _, y_train_m = dataset.get_subset_data(
         train_ids, augmented_page=False, border_size=0,
-        which_expert=which_expert, verbose=False)
-    pages_train = dataset.get_subset_pages(train_ids, verbose=False)
+        which_expert=which_expert, verbose=False, whole_night=whole_night)
+    pages_train = dataset.get_subset_pages(train_ids, verbose=False,
+                                           whole_night=whole_night)
 
     y_pred_thr = postprocessing.generate_mark_intervals_with_list(
         y_pred_train, pages_train, 200 // 8, 200, thr=0.5,
