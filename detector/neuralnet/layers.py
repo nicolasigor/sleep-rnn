@@ -178,6 +178,9 @@ def cmorlet_layer(
                     tmp = cwt[k]
                 after_log.append(tmp)
             cwt = tf.stack(after_log, axis=-1)
+
+        cwt_prebn = cwt
+
         if batchnorm:
             # Unstack spectrograms
             n_spect = 2 * len(fb_list)
@@ -190,7 +193,7 @@ def cmorlet_layer(
                 after_bn.append(tmp)
             cwt = tf.stack(after_bn, axis=-1)
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
-    return cwt
+    return cwt, cwt_prebn
 
 
 def conv2d_layer(

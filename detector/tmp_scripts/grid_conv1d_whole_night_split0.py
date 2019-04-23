@@ -48,8 +48,8 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    initial_conv_filters_list = [64, 32, 16]
-    drop_rate_before_lstm_list = [0.3, 0.5]
+    initial_conv_filters_list = [64, 32]
+    drop_rate_before_lstm_list = [0.0, 0.3, 0.5]
 
     # Create experiment
     parameters_list = list(itertools.product(

@@ -257,9 +257,9 @@ class WaveletBLSTM(BaseModel):
         else:
             model_fn = networks.dummy_net
 
-        logits, probabilities = model_fn(
+        logits, probabilities, cwt_prebn = model_fn(
             self.feats, self.params, self.training_ph)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
     def _loss_fn(self):
         type_loss = self.params[param_keys.TYPE_LOSS]

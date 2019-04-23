@@ -35,8 +35,9 @@ def get_border_size(my_p):
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = ''
-    whole_night = False
+    ckpt_folder = '20190420_grid_dropout_whole_night_train_mass/beforelstm_0.3_hidden_0.5_output_0.0/seed0'
+    whole_night = True
+    personalized = True
 
     # Select database for prediction
     dataset_name = constants.MASS_NAME
@@ -105,21 +106,26 @@ if __name__ == '__main__':
     # Start prediction
     for i, sub_data in enumerate(x_train):
         print('Train: Predicting ID %s' % train_ids[i])
-        this_pred = model.predict_proba(sub_data)
+        this_pred = model.predict_proba(sub_data, personalize=personalized)
         y_pred_train.append(this_pred)
     for i, sub_data in enumerate(x_val):
         print('Val: Predicting ID %s' % val_ids[i])
-        this_pred = model.predict_proba(sub_data)
+        this_pred = model.predict_proba(sub_data, personalize=personalized)
         y_pred_val.append(this_pred)
     for i, sub_data in enumerate(x_test):
         print('Test: Predicting ID %s' % test_ids[i])
-        this_pred = model.predict_proba(sub_data)
+        this_pred = model.predict_proba(sub_data, personalize=personalized)
         y_pred_test.append(this_pred)
 
     # Save predictions
+    if personalized:
+        prediction_folder = 'predictions_%s_personalized' % dataset_name
+    else:
+        prediction_folder = 'predictions_%s' % dataset_name
+
     save_dir = os.path.join(
         results_path,
-        'predictions_%s' % dataset_name,
+        prediction_folder,
         ckpt_folder)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)

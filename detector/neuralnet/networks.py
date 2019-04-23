@@ -69,7 +69,7 @@ def wavelet_blstm_net_v1(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -115,7 +115,7 @@ def wavelet_blstm_net_v1(
             name='logits')
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_blstm_net_v2(
@@ -146,7 +146,7 @@ def wavelet_blstm_net_v2(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -228,7 +228,7 @@ def wavelet_blstm_net_v2(
             name='logits')
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_blstm_net_v3(
@@ -260,7 +260,7 @@ def wavelet_blstm_net_v3(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -353,7 +353,7 @@ def wavelet_blstm_net_v3(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_blstm_net_v3_ff(
@@ -385,7 +385,7 @@ def wavelet_blstm_net_v3_ff(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -472,7 +472,7 @@ def wavelet_blstm_net_v3_ff(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def experimental_net(
@@ -490,7 +490,7 @@ def experimental_net(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -580,7 +580,7 @@ def experimental_net(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_blstm_net_v4(
@@ -598,7 +598,7 @@ def wavelet_blstm_net_v4(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -690,7 +690,7 @@ def wavelet_blstm_net_v4(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_conv_net_v3(
@@ -722,7 +722,7 @@ def wavelet_conv_net_v3(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -859,7 +859,7 @@ def wavelet_conv_net_v3(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 def wavelet_conv_net_v3_ff(
@@ -891,7 +891,7 @@ def wavelet_conv_net_v3_ff(
         border_crop = int(
             params[param_keys.BORDER_DURATION] * params[param_keys.FS])
         if params[param_keys.TYPE_WAVELET] == constants.CMORLET:
-            outputs = layers.cmorlet_layer(
+            outputs, cwt_prebn = layers.cmorlet_layer(
                 inputs,
                 params[param_keys.FB_LIST],
                 params[param_keys.FS],
@@ -1022,7 +1022,7 @@ def wavelet_conv_net_v3_ff(
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
-        return logits, probabilities
+        return logits, probabilities, cwt_prebn
 
 
 #

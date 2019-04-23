@@ -12,6 +12,7 @@ import numpy as np
 import tensorflow as tf
 
 from utils import param_keys
+from utils import constants
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -134,11 +135,40 @@ class BaseModel(object):
             self.feats, self.labels = self.iterator.get_next()
 
         # Model prediction
-        self.logits, self.probabilities = self._model_fn()
+        self.logits, self.probabilities, self.cwt_prebn = self._model_fn()
 
         # Add training operations
         self.loss, self.loss_sum = self._loss_fn()
         self.train_step, self.reset_optimizer, self.grad_norm_summ = self._optimizer_fn()
+
+        # BN after CWT stuff
+        model_version = params[param_keys.MODEL_VERSION]
+        if model_version == constants.V1:
+            model_name = 'model_v1'
+        elif model_version == constants.V2:
+            model_name = 'model_v2'
+        elif model_version == constants.V3:
+            model_name = 'model_v3'
+        elif model_version == constants.V3_FF:
+            model_name = 'model_v3_ff'
+        elif model_version == constants.V3_CONV:
+            model_name = 'model_v3_conv'
+        elif model_version == constants.V3_FF_CONV:
+            model_name = 'model_v3_ff_conv'
+        elif model_version == constants.EXPERIMENTAL:
+            model_name = 'experimental'
+        elif model_version == constants.V4:
+            model_name = 'model_v4'
+        else:
+            model_name = 'dummy'
+
+        # self.personalize = tf.get_collection(
+        #     tf.GraphKeys.UPDATE_OPS,
+        #     scope='%s/spectrum' % model_name)
+
+        self.ind_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='%s/spectrum' % model_name)
+        self.ind_variables = [var for var in self.ind_variables if 'moving' in var.name]
+        print(self.ind_variables)
 
         # Evaluation metrics
         self.batch_metrics_dict, self.batch_metrics_summ = self._batch_metrics_fn()
@@ -178,8 +208,12 @@ class BaseModel(object):
         with open(os.path.join(self.logdir, 'params.json'), 'w') as outfile:
             json.dump(self.params, outfile)
 
-    def predict_proba(self, x):
+    def predict_proba(self, x, personalize=False):
         """Predicts the class probabilities over the data x."""
+
+        if personalize:
+            self._personalize_bn(x)
+
         niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
         niters = int(niters)
         probabilities_list = []
@@ -196,6 +230,39 @@ class BaseModel(object):
             probabilities_list.append(probabilities)
         final_probabilities = np.concatenate(probabilities_list, axis=0)
         return final_probabilities
+
+    def _personalize_bn(self, x):
+        cwt_list = []
+        niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = int(niters)
+        for i in range(niters):
+            start_index = i * self.params[param_keys.BATCH_SIZE]
+            end_index = (i + 1) * self.params[param_keys.BATCH_SIZE]
+            batch = x[start_index:end_index]
+            cwt = self.sess.run(
+                self.cwt_prebn,
+                feed_dict={
+                    self.feats: batch,
+                    self.training_ph: False
+                })
+            cwt_list.append(cwt)
+        cwt_list = np.concatenate(cwt_list, axis=0)
+        # print(cwt_list.shape)
+        n_channels = cwt_list.shape[-1]
+        # print(n_channels)
+        for k in range(n_channels):
+            # Compute statistics
+            new_mean = cwt_list[..., k].mean(axis=(0, 1))
+            new_variance = cwt_list[..., k].var(axis=(0, 1))
+            # print(new_mean.shape, new_variance.shape)
+            # Select right variables
+            my_vars = [var for var in self.ind_variables if 'bn_%d' % k in var.name]
+            old_mean = [var for var in my_vars if 'mean' in var.name][0]
+            old_variance = [var for var in my_vars if 'variance' in var.name][0]
+            # print(old_mean, old_variance)
+            # Update variables
+            self.sess.run(tf.assign(old_mean, new_mean))
+            self.sess.run(tf.assign(old_variance, new_variance))
 
     def evaluate(self, x, y):
         """Evaluates the model, averaging evaluation metrics over batches."""
@@ -283,7 +350,8 @@ class BaseModel(object):
         """This method has to be implemented"""
         logits = None
         probabilities = None
-        return logits, probabilities
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
 
     def _loss_fn(self):
         """This method has to be implemented"""
