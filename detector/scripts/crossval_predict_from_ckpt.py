@@ -35,7 +35,7 @@ if __name__ == '__main__':
     seed_list = [0, 1, 2, 3]
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190420_grid_dropout_whole_night'
+    ckpt_folder = '20190423_grid_conv1d_ss_whole_night'
     grid_folder_list = None
     whole_night = True
 
