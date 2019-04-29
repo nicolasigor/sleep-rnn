@@ -1,2 +1,0 @@
-from sleep_data.sleep_data_mass import SleepDataMASS
-from sleep_data.sleep_data_inta import SleepDataINTA
