@@ -34,11 +34,9 @@ detector/results
 detector/checkpoint*
 detector/falcondata
 
-data/
 
 dataset/
 datasets
-data
 dataset
 
 # External tool builders
