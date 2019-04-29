@@ -21,7 +21,7 @@ KEY_MARKS = 'marks'
 
 
 class BaseDataset(object):
-    """This is a base class sleep spindle datasets.
+    """This is a base class for sleep micro-events datasets.
     It provides the option to load and create checkpoints of the processed
     data, and provides methods to query data from specific ids or entire
     subsets.

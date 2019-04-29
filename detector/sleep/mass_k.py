@@ -63,7 +63,7 @@ class MASSK(BaseDataset):
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
         test_ids = IDS_TEST
         train_ids = [i for i in valid_ids if i not in test_ids]
-        super().__init__(PATH_MASS_RELATIVE, load_checkpoint, 'mass_k', 2,
+        super().__init__(PATH_MASS_RELATIVE, load_checkpoint, 'mass_k', 1,
                          train_ids, test_ids)
 
     def _load_from_files(self):
