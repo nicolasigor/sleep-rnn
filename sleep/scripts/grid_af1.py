@@ -3,20 +3,22 @@ from __future__ import division
 from __future__ import print_function
 
 import json
-import sys
 import os
+import sys
 
 import numpy as np
 
-detector_path = '..'
-results_folder = 'results'
-sys.path.append(detector_path)
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(project_root)
+
+RESULTS_PATH = os.path.join(project_root, 'sleep', 'results')
 
 
 if __name__ == '__main__':
     n_to_show = 30
     grid_folder = '20190423_grid_conv1d_ss_whole_night_train_mass'
-    grid_path = os.path.join(detector_path, results_folder, grid_folder)
+    grid_path = os.path.join(RESULTS_PATH, grid_folder)
     grid_list = os.listdir(grid_path)
 
     grid_name_list = []
@@ -47,4 +49,7 @@ if __name__ == '__main__':
 
     for idx in idx_sorted[:n_to_show]:
         print('Val AF1 %1.4f +- %1.4f for setting %s'
-              % (grid_results_mean_list[idx], grid_results_std_list[idx],  grid_name_list[idx]))
+              % (
+                  grid_results_mean_list[idx],
+                  grid_results_std_list[idx],
+                  grid_name_list[idx]))

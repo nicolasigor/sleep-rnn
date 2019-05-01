@@ -10,6 +10,16 @@ TRAIN_SUBSET = 'train'
 VAL_SUBSET = 'val'
 TEST_SUBSET = 'test'
 
+# Metric keys
+F1_SCORE = 'f1_score'
+PRECISION = 'precision'
+RECALL = 'recall'
+TP = 'tp'
+FP = 'fp'
+FN = 'fn'
+MEAN_ALL_IOU = 'mean_all_iou'
+MEAN_NONZERO_IOU = 'mean_nonzero_iou'
+
 # Type of padding
 PAD_SAME = 'same'
 PAD_VALID = 'valid'

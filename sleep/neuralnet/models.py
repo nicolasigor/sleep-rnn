@@ -11,7 +11,7 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from sleep.utils import param_keys
+from sleep.utils import pkeys
 from sleep.utils import constants
 from sleep.utils import checks
 from .base_model import BaseModel
@@ -40,7 +40,7 @@ class WaveletBLSTM(BaseModel):
 
         Feat and label shapes can be obtained from params for this model.
         """
-        self.params = param_keys.default_params
+        self.params = pkeys.default_params
         self.params.update(params)  # Overwrite defaults
         border_size = self.get_border_size()
         page_size = self.get_page_size()
@@ -57,14 +57,14 @@ class WaveletBLSTM(BaseModel):
             params, logdir)
 
     def get_border_size(self):
-        border_duration = self.params[param_keys.BORDER_DURATION]
-        fs = self.params[param_keys.FS]
+        border_duration = self.params[pkeys.BORDER_DURATION]
+        fs = self.params[pkeys.FS]
         border_size = fs * border_duration
         return border_size
 
     def get_page_size(self):
-        page_duration = self.params[param_keys.PAGE_DURATION]
-        fs = self.params[param_keys.FS]
+        page_duration = self.params[pkeys.PAGE_DURATION]
+        fs = self.params[pkeys.FS]
         page_size = fs * page_duration
         return page_size
 
@@ -87,16 +87,16 @@ class WaveletBLSTM(BaseModel):
         """Fits the model to the training data."""
         x_train, y_train, x_val, y_val = self.check_train_inputs(
             x_train, y_train, x_val, y_val)
-        iter_per_epoch = x_train.shape[0] // self.params[param_keys.BATCH_SIZE]
-        niters = self.params[param_keys.MAX_ITERS]
+        iter_per_epoch = x_train.shape[0] // self.params[pkeys.BATCH_SIZE]
+        niters = self.params[pkeys.MAX_ITERS]
 
         print('\nBeginning training at logdir "%s"' % self.logdir)
         print('Batch size %d, Iters per epoch %d, '
               'Training examples %d, Max iterations %d' %
-              (self.params[param_keys.BATCH_SIZE],
+              (self.params[pkeys.BATCH_SIZE],
                iter_per_epoch,
                x_train.shape[0], niters))
-        print('Initial learning rate:', self.params[param_keys.LEARNING_RATE])
+        print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         start_time = time.time()
 
         self._initialize_variables()
@@ -112,20 +112,20 @@ class WaveletBLSTM(BaseModel):
             KEY_LOSS: 1e10,
             KEY_F1_SCORE: 0
         }
-        rel_tol_criterion = self.params[param_keys.REL_TOL_CRITERION]
+        rel_tol_criterion = self.params[pkeys.REL_TOL_CRITERION]
         iter_last_lr_update = 0
 
-        if self.params[param_keys.MAX_LR_UPDATES] is None:
-            self.params[param_keys.MAX_LR_UPDATES] = 1e15
+        if self.params[pkeys.MAX_LR_UPDATES] is None:
+            self.params[pkeys.MAX_LR_UPDATES] = 1e15
 
-        lr_update_criterion = self.params[param_keys.LR_UPDATE_CRITERION]
+        lr_update_criterion = self.params[pkeys.LR_UPDATE_CRITERION]
         checks.check_valid_value(
             lr_update_criterion,
             'lr_update_criterion',
             [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
 
         # Training loop
-        nstats = self.params[param_keys.ITERS_STATS]
+        nstats = self.params[pkeys.ITERS_STATS]
         for it in range(1, niters+1):
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
@@ -163,21 +163,21 @@ class WaveletBLSTM(BaseModel):
                 # Check LR update criterion
 
                 # The model has not improved enough
-                lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= self.params[param_keys.ITERS_LR_UPDATE]
+                lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= self.params[pkeys.ITERS_LR_UPDATE]
                 # The last lr update is far enough
-                lr_criterion_2 = (it - iter_last_lr_update) >= self.params[param_keys.ITERS_LR_UPDATE]
+                lr_criterion_2 = (it - iter_last_lr_update) >= self.params[pkeys.ITERS_LR_UPDATE]
                 lr_criterion = lr_criterion_1 and lr_criterion_2
                 if lr_criterion:
-                    if self.lr_updates < self.params[param_keys.MAX_LR_UPDATES]:
+                    if self.lr_updates < self.params[pkeys.MAX_LR_UPDATES]:
                         new_lr = self._update_learning_rate(
-                            self.params[param_keys.LR_UPDATE_FACTOR])
+                            self.params[pkeys.LR_UPDATE_FACTOR])
                         print('    Learning rate update (%d). New value: %s'
                               % (self.lr_updates, new_lr))
                         iter_last_lr_update = it
                     else:
                         print('    Maximum number (%d) of learning rate '
                               'updates reached. Stopping training.'
-                              % self.params[param_keys.MAX_LR_UPDATES])
+                              % self.params[pkeys.MAX_LR_UPDATES])
                         # Since we stop training, redefine number of iters
                         niters = it
                         break
@@ -224,7 +224,7 @@ class WaveletBLSTM(BaseModel):
         return feat, label
 
     def _model_fn(self):
-        model_version = self.params[param_keys.MODEL_VERSION]
+        model_version = self.params[pkeys.MODEL_VERSION]
         checks.check_valid_value(
             model_version, 'model_version',
             [
@@ -262,21 +262,21 @@ class WaveletBLSTM(BaseModel):
         return logits, probabilities, cwt_prebn
 
     def _loss_fn(self):
-        type_loss = self.params[param_keys.TYPE_LOSS]
+        type_loss = self.params[pkeys.TYPE_LOSS]
         checks.check_valid_value(
             type_loss, 'type_loss',
             [constants.CROSS_ENTROPY_LOSS, constants.DICE_LOSS])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
             loss, loss_summ = losses.cross_entropy_loss_fn(
-                self.logits, self.labels, self.params[param_keys.CLASS_WEIGHTS])
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
         return loss,loss_summ
 
     def _optimizer_fn(self):
-        type_optimizer = self.params[param_keys.TYPE_OPTIMIZER]
+        type_optimizer = self.params[pkeys.TYPE_OPTIMIZER]
         checks.check_valid_value(
             type_optimizer, 'type_optimizer',
             [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER,
@@ -285,17 +285,17 @@ class WaveletBLSTM(BaseModel):
         if type_optimizer == constants.ADAM_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
                 self.loss, self.learning_rate,
-                self.params[param_keys.CLIP_NORM])
+                self.params[pkeys.CLIP_NORM])
         elif type_optimizer == constants.RMSPROP_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.rmsprop_optimizer_fn(
-                self.loss, self.learning_rate, self.params[param_keys.MOMENTUM],
-                self.params[param_keys.CLIP_NORM])
+                self.loss, self.learning_rate, self.params[pkeys.MOMENTUM],
+                self.params[pkeys.CLIP_NORM])
         else:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.sgd_optimizer_fn(
                 self.loss, self.learning_rate,
-                self.params[param_keys.MOMENTUM],
-                self.params[param_keys.CLIP_NORM],
-                self.params[param_keys.USE_NESTEROV_MOMENTUM])
+                self.params[pkeys.MOMENTUM],
+                self.params[pkeys.CLIP_NORM],
+                self.params[pkeys.USE_NESTEROV_MOMENTUM])
         return train_step, reset_optimizer_op, grad_norm_summ
 
     def _batch_metrics_fn(self):

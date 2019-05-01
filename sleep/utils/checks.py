@@ -6,8 +6,6 @@ from __future__ import print_function
 
 import os
 
-from . import constants
-
 
 def check_valid_value(value, name, valid_list):
     """Raises a ValueError exception if value not in valid_list"""

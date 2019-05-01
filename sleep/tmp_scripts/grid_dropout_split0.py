@@ -1,3 +1,5 @@
+
+# TODO: refactor
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -22,7 +24,7 @@ from sleep.data.old_inta_ss import IntaSS
 from sleep.data.old_mass_kc import MassKC
 from sleep.neuralnet.models import WaveletBLSTM
 from sleep.data import data_manipulation, metrics
-from sleep.utils import param_keys
+from sleep.utils import pkeys
 from sleep.utils import constants
 from sleep.utils import checks
 
@@ -30,8 +32,8 @@ SEED_LIST = [123, 234, 345, 456]
 
 
 def get_border_size(my_p):
-    border_duration = my_p[param_keys.BORDER_DURATION]
-    fs = my_p[param_keys.FS]
+    border_duration = my_p[pkeys.BORDER_DURATION]
+    fs = my_p[pkeys.FS]
     border_size = fs * border_duration
     return border_size
 
@@ -76,9 +78,9 @@ if __name__ == '__main__':
             dataset = MassKC(load_checkpoint=True)
 
         # Update general params
-        params = param_keys.default_params.copy()
-        params[param_keys.PAGE_DURATION] = dataset.page_duration
-        params[param_keys.FS] = dataset.fs
+        params = pkeys.default_params.copy()
+        params[pkeys.PAGE_DURATION] = dataset.page_duration
+        params[pkeys.FS] = dataset.fs
 
         # Get training set ids
         print('Loading training set and splitting')
@@ -120,9 +122,9 @@ if __name__ == '__main__':
 
             for drop_rate_before_lstm, drop_rate_hidden, drop_rate_output in parameters_list:
 
-                params[param_keys.DROP_RATE_BEFORE_LSTM] = drop_rate_before_lstm
-                params[param_keys.DROP_RATE_HIDDEN] = drop_rate_hidden
-                params[param_keys.DROP_RATE_OUTPUT] = drop_rate_output
+                params[pkeys.DROP_RATE_BEFORE_LSTM] = drop_rate_before_lstm
+                params[pkeys.DROP_RATE_HIDDEN] = drop_rate_hidden
+                params[pkeys.DROP_RATE_OUTPUT] = drop_rate_output
 
                 # Path to save results of run
                 logdir = os.path.join(

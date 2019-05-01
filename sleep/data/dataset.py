@@ -19,7 +19,7 @@ KEY_ALL_PAGES = 'all_pages'
 KEY_MARKS = 'marks'
 
 
-class SubjectDataset(object):
+class Dataset(object):
     """This is a base class for data micro-events datasets.
     It provides the option to load and create checkpoints of the processed
     data, and provides methods to query data from specific ids or entire

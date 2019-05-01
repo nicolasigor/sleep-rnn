@@ -6,8 +6,8 @@ from __future__ import print_function
 
 import numpy as np
 
+from sleep.utils import constants
 from .data_ops import inter2seq
-from . import postprocessing
 
 
 def by_sample_confusion(events, detections, input_is_binary=False):
@@ -28,8 +28,12 @@ def by_sample_confusion(events, detections, input_is_binary=False):
     recall = tp / (tp + fn)
     f1_score = 2 * precision * recall / (precision + recall)
     by_sample_metrics = {
-        'tp': tp, 'fp': fp, 'fn': fn,
-        'precision': precision, 'recall': recall, 'f1_score': f1_score
+        constants.TP: tp,
+        constants.FP: fp,
+        constants.FN: fn,
+        constants.PRECISION: precision,
+        constants.RECALL: recall,
+        constants.F1_SCORE: f1_score
     }
     return by_sample_metrics
 
@@ -62,22 +66,32 @@ def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
     """
     if iou_array is None:
         iou_array, _ = matching(events, detections)
+    n_detections = detections.shape[0]
+    n_events = events.shape[0]
     mean_all_iou = np.mean(iou_array)
     # First, remove the zero iou_array entries
     iou_array = iou_array[iou_array > 0]
     mean_nonzero_iou = np.mean(iou_array)
     # Now, give credit only for iou >= iou_thr
     tp = np.sum((iou_array >= iou_thr).astype(int))
-    n_detections = detections.shape[0]
-    n_events = events.shape[0]
+    fp = n_detections - tp
+    fn = n_events - tp
     precision = tp / n_detections
     recall = tp / n_events
+
+    # f1-score is 2 * precision * recall / (precision + recall),
+    # but considering the case tp=0, a more stable formula is:
     f1_score = 2 * tp / (n_detections + n_events)
-    # f1_score = 2 * precision * recall / (precision + recall)
+
     by_event_metrics = {
-        'tp': tp, 'n_detections': n_detections, 'n_events': n_events,
-        'precision': precision, 'recall': recall, 'f1_score': f1_score,
-        'mean_all_iou': mean_all_iou, 'mean_nonzero_iou': mean_nonzero_iou
+        constants.TP: tp,
+        constants.FP: fp,
+        constants.FN: fn,
+        constants.PRECISION: precision,
+        constants.RECALL: recall,
+        constants.F1_SCORE: f1_score,
+        constants.MEAN_ALL_IOU: mean_all_iou,
+        constants.MEAN_NONZERO_IOU: mean_nonzero_iou
     }
     return by_event_metrics
 
@@ -127,8 +141,14 @@ def matching(events, detections):
     return iou_array, idx_array
 
 
-def f1_vs_iou(events, detections, iou_thr_list, verbose=False):
-    f1_list = []
+def metric_vs_iou(
+        events,
+        detections,
+        iou_thr_list,
+        metric_name=constants.F1_SCORE,
+        verbose=False
+):
+    metric_list = []
     if verbose:
         print('Matching events... ', end='', flush=True)
     this_iou_data, _ = matching(events, detections)
@@ -136,66 +156,87 @@ def f1_vs_iou(events, detections, iou_thr_list, verbose=False):
         print('Done', flush=True)
     for iou_thr in iou_thr_list:
         if verbose:
-            print('Processing IoU threshold %1.1f... ' % iou_thr, end='',
-                  flush=True)
+            print(
+                'Processing IoU threshold %1.1f... ' % iou_thr,
+                end='', flush=True)
         this_stat = by_event_confusion(
             events, detections,
             iou_thr=iou_thr, iou_array=this_iou_data)
-        f1 = this_stat['f1_score']
-        f1_list.append(f1)
+        metric = this_stat[metric_name]
+        metric_list.append(metric)
         if verbose:
-            print('F1 obtained: %1.4f' % f1, flush=True)
+            print('%s obtained: %1.4f' % (metric_name, metric), flush=True)
     if verbose:
         print('Done')
-    f1_list = np.array(f1_list)
-    return f1_list
+    metric_list = np.array(metric_list)
+    return metric_list
 
 
-def average_f1_with_list(
-    pages_sequence_real_list, 
-    pages_sequence_predicted_list, 
-    pages_indices_list,
-    fs_real=200,
-    fs_predicted=25,
-    thr=0.5,
-    postprocess_predicted=True,
-    min_separation=0.3,
-    min_duration=0.2,
-    max_duration=4.0,
+def metric_vs_iou_with_list(
+        events_list,
+        detections_list,
+        iou_thr_list,
+        metric_name=constants.F1_SCORE,
+        verbose=False
+):
+    all_metric_list = []
+    for events, detections in zip(events_list, detections_list):
+        metric_list = metric_vs_iou(
+            events, detections, iou_thr_list,
+            metric_name=metric_name, verbose=verbose)
+        all_metric_list.append(metric_list)
+    all_metric_curve = np.stack(all_metric_list, axis=1).mean(axis=1)
+    return all_metric_curve
+
+
+def average_metric(
+        events,
+        detections,
+        metric_name=constants.F1_SCORE,
+        verbose=False
 ):
     """Average F1 over several IoU values.
-    
-    The average F1 performance at fixed threshold (default 0.5) is
-    computed as the are under the F1 vs IoU curve.
+
+    The average F1 performance is
+    computed as the area under the F1 vs IoU curve.
     """
-    print('Preparing labels', flush=True)
-    y_thr = postprocessing.generate_mark_intervals_with_list(
-        pages_sequence_real_list, pages_indices_list, 
-        fs_real, fs_real, thr=None, postprocess=False)
-    print('Preparing predictions with thr %1.4f' % thr, flush=True)
-    y_pred_thr = postprocessing.generate_mark_intervals_with_list(
-        pages_sequence_predicted_list, pages_indices_list, 
-        fs_predicted, fs_real, thr=thr, postprocess=postprocess_predicted,
-        min_separation=min_separation, min_duration=min_duration,
-        max_duration=max_duration)
     # Go through several IoU values
     first_iou = 0
     last_iou = 1
     res_iou = 0.01
     n_points = int(np.round((last_iou - first_iou) / res_iou))
     full_iou_list = np.arange(n_points + 1) * res_iou + first_iou
-    print('Using %d IoU thresholds from %1.1f to %1.1f'
-          % (n_points + 1, first_iou, last_iou))
-    print('Computing F1 values', flush=True)
-    all_f1_list = [f1_vs_iou(this_y, this_y_pred, full_iou_list)
-                   for (this_y, this_y_pred) 
-                   in zip(y_thr, y_pred_thr)]
-    all_f1_curve = np.stack(all_f1_list, axis=1).mean(axis=1)
+    if verbose:
+        print('Using %d IoU thresholds from %1.1f to %1.1f'
+              % (n_points + 1, first_iou, last_iou))
+        print('Computing %s values' % metric_name, flush=True)
+
+    metric_list = metric_vs_iou(
+        events, detections, full_iou_list,
+        metric_name=metric_name, verbose=verbose)
+
     # To compute the area under the curve, we'll use trapezoidal aproximation
     # So we need to divide by two the extremes
-    all_f1_curve[0] = all_f1_curve[0] / 2
-    all_f1_curve[-1] = all_f1_curve[-1] / 2
+    metric_list[0] = metric_list[0] / 2
+    metric_list[-1] = metric_list[-1] / 2
     # And now we average them all
-    average_f1 = np.mean(all_f1_curve)
-    print('Done')
-    return average_f1
+    avg_metric = np.mean(metric_list)
+    if verbose:
+        print('Done')
+    return avg_metric
+
+
+def average_metric_with_list(
+        events_list,
+        detections_list,
+        metric_name=constants.F1_SCORE,
+        verbose=False
+):
+    all_avg_list = []
+    for events, detections in zip(events_list, detections_list):
+        avg_metric = average_metric(
+            events, detections,
+            metric_name=metric_name, verbose=verbose)
+        all_avg_list.append(avg_metric)
+    all_avg = np.mean(all_avg_list)
+    return all_avg

@@ -11,7 +11,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from sleep.utils import param_keys
+from sleep.utils import pkeys
 from sleep.utils import constants
 from . import feeding
 
@@ -65,7 +65,7 @@ class BaseModel(object):
             self.logdir = logdir
         else:
             self.logdir = os.path.join(PATH_TO_PROJECT, logdir)
-        self.params = param_keys.default_params.copy()
+        self.params = pkeys.default_params.copy()
         self.params.update(params)  # Overwrite defaults
 
         # Create directory of logs
@@ -102,7 +102,7 @@ class BaseModel(object):
         # Learning rate variable
         with tf.variable_scope('learning_rate'):
             self.learning_rate = tf.Variable(
-                self.params[param_keys.LEARNING_RATE], trainable=False,
+                self.params[pkeys.LEARNING_RATE], trainable=False,
                 name='lr')
             self.lr_summ = tf.summary.scalar('lr', self.learning_rate)
             self.lr_updates = 0
@@ -112,16 +112,16 @@ class BaseModel(object):
             self.iterator_train = feeding.get_iterator_splitted(
                 (self.feats_train_1_ph, self.labels_train_1_ph),
                 (self.feats_train_2_ph, self.labels_train_2_ph),
-                batch_size=self.params[param_keys.BATCH_SIZE],
-                shuffle_buffer_size=self.params[param_keys.SHUFFLE_BUFFER_SIZE],
+                batch_size=self.params[pkeys.BATCH_SIZE],
+                shuffle_buffer_size=self.params[pkeys.SHUFFLE_BUFFER_SIZE],
                 map_fn=self._train_map_fn,
-                prefetch_buffer_size=self.params[param_keys.PREFETCH_BUFFER_SIZE],
+                prefetch_buffer_size=self.params[pkeys.PREFETCH_BUFFER_SIZE],
                 name='iter_train')
 
             # Evaluation iterator
             self.iterator_eval = feeding.get_iterator(
                 (self.feats_eval_ph, self.labels_eval_ph),
-                batch_size=self.params[param_keys.BATCH_SIZE],
+                batch_size=self.params[pkeys.BATCH_SIZE],
                 shuffle_buffer_size=0,
                 map_fn=self._eval_map_fn,
                 prefetch_buffer_size=1,
@@ -142,7 +142,7 @@ class BaseModel(object):
         self.train_step, self.reset_optimizer, self.grad_norm_summ = self._optimizer_fn()
 
         # BN after CWT stuff
-        model_version = params[param_keys.MODEL_VERSION]
+        model_version = params[pkeys.MODEL_VERSION]
         if model_version == constants.V1:
             model_name = 'model_v1'
         elif model_version == constants.V2:
@@ -208,18 +208,14 @@ class BaseModel(object):
         with open(os.path.join(self.logdir, 'params.json'), 'w') as outfile:
             json.dump(self.params, outfile)
 
-    def predict_proba(self, x, personalize=False):
+    def predict_proba(self, x):
         """Predicts the class probabilities over the data x."""
-
-        if personalize:
-            self._personalize_bn(x)
-
-        niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
         probabilities_list = []
         for i in range(niters):
-            start_index = i*self.params[param_keys.BATCH_SIZE]
-            end_index = (i+1)*self.params[param_keys.BATCH_SIZE]
+            start_index = i*self.params[pkeys.BATCH_SIZE]
+            end_index = (i+1)*self.params[pkeys.BATCH_SIZE]
             batch = x[start_index:end_index]
             probabilities = self.sess.run(
                 self.probabilities,
@@ -229,15 +225,32 @@ class BaseModel(object):
                 })
             probabilities_list.append(probabilities)
         final_probabilities = np.concatenate(probabilities_list, axis=0)
+
+        # Keep only probability of class 1
+        final_probabilities = final_probabilities[..., 1]
+
         return final_probabilities
+
+    def predict_proba_with_list(self, x_list, verbose=False):
+        """Predicts the class probabilities over a list of data x."""
+        probabilities_list = []
+        for i, x in enumerate(x_list):
+            if verbose:
+                print('Predicting %d / %d ... '
+                      % (i+1, len(x_list)), end='', flush=True)
+            this_pred = self.predict_proba(x)
+            probabilities_list.append(this_pred)
+            if verbose:
+                print('Done', flush=True)
+        return probabilities_list
 
     def _personalize_bn(self, x):
         cwt_list = []
-        niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
         for i in range(niters):
-            start_index = i * self.params[param_keys.BATCH_SIZE]
-            end_index = (i + 1) * self.params[param_keys.BATCH_SIZE]
+            start_index = i * self.params[pkeys.BATCH_SIZE]
+            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
             batch = x[start_index:end_index]
             cwt = self.sess.run(
                 self.cwt_prebn,
@@ -267,7 +280,7 @@ class BaseModel(object):
     def evaluate(self, x, y):
         """Evaluates the model, averaging evaluation metrics over batches."""
         self._init_iterator_eval(x, y)
-        niters = np.ceil(x.shape[0] / self.params[param_keys.BATCH_SIZE])
+        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
         metrics_list = []
         for i in range(niters):
@@ -322,7 +335,7 @@ class BaseModel(object):
         # Decrease learning rate
         self.lr_updates = self.lr_updates + 1
         total_factor = update_factor ** self.lr_updates
-        new_lr = self.params[param_keys.LEARNING_RATE] * total_factor
+        new_lr = self.params[pkeys.LEARNING_RATE] * total_factor
         self.sess.run(tf.assign(self.learning_rate, new_lr))
         return new_lr
 

@@ -11,8 +11,8 @@ import numpy as np
 import pyedflib
 
 from . import data_ops
-from .subject_dataset import SubjectDataset
-from .subject_dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
+from .dataset import Dataset
+from .dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
 
 PATH_MASS_RELATIVE = 'mass'
 PATH_REC = 'register'
@@ -29,7 +29,7 @@ IDS_TEST = [2, 6, 12, 13]
 # IDS_TEST = [2, 6, 12, 13, 4, 8, 15, 16]
 
 
-class MassKC(SubjectDataset):
+class MassKC(Dataset):
     """This is a class to manipulate the MASS data EEG dataset.
     For K-complex events
 

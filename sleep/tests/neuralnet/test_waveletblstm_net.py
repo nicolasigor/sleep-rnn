@@ -11,15 +11,15 @@ detector_path = '../../..'
 sys.path.append(detector_path)
 
 from sleep.neuralnet.networks import dummy_net as wavelet_blstm_net
-from sleep.utils import param_keys
+from sleep.utils import pkeys
 
 
 if __name__ == '__main__':
     # Parameters
-    params = param_keys.default_params.copy()
-    fs = params[param_keys.FS]
-    page_size = params[param_keys.PAGE_DURATION] * fs
-    border_size = params[param_keys.BORDER_DURATION] * fs
+    params = pkeys.default_params.copy()
+    fs = params[pkeys.FS]
+    page_size = params[pkeys.PAGE_DURATION] * fs
+    border_size = params[pkeys.BORDER_DURATION] * fs
     input_length = int(page_size + 2*border_size)
 
     # Build computational

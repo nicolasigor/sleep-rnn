@@ -9,11 +9,11 @@ sys.path.append(detector_path)
 
 from sleep.neuralnet.models import WaveletBLSTM
 from sleep.utils import constants
-from sleep.utils import param_keys
+from sleep.utils import pkeys
 
 
 if __name__ == '__main__':
     # Parameters
-    params = param_keys.default_params.copy()
-    params[param_keys.MODEL_VERSION] = constants.DUMMY
+    params = pkeys.default_params.copy()
+    params[pkeys.MODEL_VERSION] = constants.DUMMY
     model = WaveletBLSTM(params)

@@ -2,75 +2,71 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import sys
 import json
-import pprint
+import os
+from pprint import pprint
+import sys
 
 import numpy as np
 
-detector_path = '..'
-results_path = os.path.join(detector_path, 'results')
-sys.path.append(detector_path)
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(project_root)
 
-from sleep.mass import MASS
-from sleep.mass_k import MASSK
-from sleep.inta import INTA
-from neuralnet.models import WaveletBLSTM
-from evaluation import data_manipulation
-from utils import param_keys
-from utils import constants
-from utils import errors
+from sleep.data.inta_ss import IntaSS
+from sleep.data.mass_kc import MassKC
+from sleep.data.mass_ss import MassSS
+from sleep.data import postprocessing, data_ops, metrics
+from sleep.neuralnet.models import WaveletBLSTM
+from sleep.utils import pkeys
+from sleep.utils import checks
+from sleep.utils import constants
 
+RESULTS_PATH = os.path.join(project_root, 'sleep', 'results')
 SEED = 123
-
-
-def get_border_size(my_p):
-    border_duration = my_p[param_keys.BORDER_DURATION]
-    fs = my_p[param_keys.FS]
-    border_size = fs * border_duration
-    return border_size
 
 
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = 'demo_dice_train_mass'
+    dataset_name = constants.MASS_SS_NAME
     whole_night = True
-    personalized = False
-
-    # Select database for prediction
-    dataset_name = constants.MASS_NAME
-
-    ckpt_path = os.path.join(results_path, ckpt_folder)
+    verbose = True
 
     # Load data
-    errors.check_valid_value(
+    checks.check_valid_value(
         dataset_name, 'dataset_name',
-        [constants.MASS_NAME, constants.INTA_NAME, constants.MASSK_NAME])
-    if dataset_name == constants.MASS_NAME:
-        dataset = MASS(load_checkpoint=True)
-    elif dataset_name == constants.INTA_NAME:
-        dataset = INTA(load_checkpoint=True)
+        [
+            constants.MASS_KC_NAME,
+            constants.MASS_SS_NAME,
+            constants.INTA_SS_NAME
+        ])
+    if dataset_name == constants.MASS_SS_NAME:
+        dataset = MassSS(load_checkpoint=True)
+    elif dataset_name == constants.MASS_KC_NAME:
+        dataset = MassKC(load_checkpoint=True)
     else:
-        dataset = MASSK(load_checkpoint=True)
+        dataset = IntaSS(load_checkpoint=True)
+
+    ckpt_path = os.path.join(RESULTS_PATH, ckpt_folder)
 
     # Restore params of ckpt
-    params = param_keys.default_params.copy()
+    params = pkeys.default_params.copy()
     filename = os.path.join(ckpt_path, 'params.json')
     with open(filename, 'r') as infile:
         # Overwrite previous defaults with run's params
         params.update(json.load(infile))
 
     print('Restoring from %s' % ckpt_path)
-    pprint.pprint(params)
+    pprint(params)
 
     # Get training set ids
     print('Loading training set and splitting')
     all_train_ids = dataset.train_ids
 
     # Split to form validation set
-    train_ids, val_ids = data_manipulation.split_ids_list(
+    train_ids, val_ids = data_ops.split_ids_list(
         all_train_ids, seed=SEED)
     print('Training set IDs:', train_ids)
     print('Validation set IDs:', val_ids)
@@ -80,17 +76,23 @@ if __name__ == '__main__':
     test_ids = dataset.test_ids
     print('Testing set IDs:', test_ids)
 
-    # Get data for predictions
-    border_size = get_border_size(params)
-    x_train, y_train = dataset.get_subset_data(
-        train_ids, border_size=border_size, verbose=True,
-        whole_night=whole_night)
-    x_val, y_val = dataset.get_subset_data(
-        val_ids, border_size=border_size, verbose=True,
-        whole_night=whole_night)
-    x_test, y_test = dataset.get_subset_data(
-        test_ids, border_size=border_size, verbose=True,
-        whole_night=whole_night)
+    # Get data
+    border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
+    x_train, _ = dataset.get_subset_data(
+        train_ids,
+        border_size=border_size,
+        whole_night=whole_night,
+        verbose=verbose)
+    x_val, _ = dataset.get_subset_data(
+        val_ids,
+        border_size=border_size,
+        whole_night=whole_night,
+        verbose=verbose)
+    x_test, _ = dataset.get_subset_data(
+        test_ids,
+        border_size=border_size,
+        whole_night=whole_night,
+        verbose=verbose)
 
     # Create model
     model = WaveletBLSTM(params, logdir=os.path.join('results', 'demo_predict'))
@@ -99,32 +101,18 @@ if __name__ == '__main__':
 
     # We keep each patient separate, to see variation of performance
     # between individuals
-    y_pred_train = []
-    y_pred_val = []
-    y_pred_test = []
-
-    # Start prediction
-    for i, sub_data in enumerate(x_train):
-        print('Train: Predicting ID %s' % train_ids[i])
-        this_pred = model.predict_proba(sub_data, personalize=personalized)
-        y_pred_train.append(this_pred)
-    for i, sub_data in enumerate(x_val):
-        print('Val: Predicting ID %s' % val_ids[i])
-        this_pred = model.predict_proba(sub_data, personalize=personalized)
-        y_pred_val.append(this_pred)
-    for i, sub_data in enumerate(x_test):
-        print('Test: Predicting ID %s' % test_ids[i])
-        this_pred = model.predict_proba(sub_data, personalize=personalized)
-        y_pred_test.append(this_pred)
+    print('Predicting Training set')
+    y_pred_train = model.predict_proba_with_list(x_train, verbose=verbose)
+    print('Predicting Validation set')
+    y_pred_val = model.predict_proba_with_list(x_val, verbose=verbose)
+    print('Predicting Test set')
+    y_pred_test = model.predict_proba_with_list(x_test, verbose=verbose)
+    print('Done sets.')
 
     # Save predictions
-    if personalized:
-        prediction_folder = 'predictions_%s_personalized' % dataset_name
-    else:
-        prediction_folder = 'predictions_%s' % dataset_name
-
+    prediction_folder = 'predictions_%s' % dataset_name
     save_dir = os.path.join(
-        results_path,
+        RESULTS_PATH,
         prediction_folder,
         ckpt_folder)
     if not os.path.exists(save_dir):

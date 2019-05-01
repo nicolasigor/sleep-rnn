@@ -164,6 +164,16 @@ LR_UPDATE_CRITERION = 'lr_update_criterion'
 MAX_LR_UPDATES = 'max_lr_updates'
 
 
+""" Postprocessing params 
+"""
+SS_MIN_SEPARATION = 'ss_min_separation'
+SS_MIN_DURATION = 'ss_min_duration'
+SS_MAX_DURATION = 'ss_max_duration'
+KC_MIN_SEPARATION = 'kc_min_separation'
+KC_MIN_DURATION = 'kc_min_duration'
+KC_MAX_DURATION = 'kc_max_duration'
+
+
 # Default parameters dictionary
 default_params = {
     FS: 200,
@@ -209,4 +219,10 @@ default_params = {
     LR_UPDATE_FACTOR: 0.5,
     LR_UPDATE_CRITERION: constants.LOSS_CRITERION,
     MAX_LR_UPDATES: 4,
+    SS_MIN_SEPARATION: 0.3,
+    SS_MIN_DURATION: 0.2,
+    SS_MAX_DURATION: 4.0,
+    KC_MIN_SEPARATION: None,
+    KC_MIN_DURATION: 0.3,
+    KC_MAX_DURATION: None
 }

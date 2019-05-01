@@ -6,18 +6,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
 import os
+import sys
 
 import numpy as np
 import pyedflib
 
-detector_path = '..'
-sys.path.append(detector_path)
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(project_root)
 
-from sleep.data_ops import PATH_DATA
-from sleep.inta import NAMES, PATH_INTA_RELATIVE, PATH_MARKS, PATH_REC
-from sleep import data_ops
+from sleep.data.data_ops import PATH_DATA
+from sleep.data.inta_ss import NAMES, PATH_INTA_RELATIVE, PATH_MARKS, PATH_REC
+from sleep.data import data_ops
 
 
 if __name__ == '__main__':

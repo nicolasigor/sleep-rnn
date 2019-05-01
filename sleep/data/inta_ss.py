@@ -12,8 +12,8 @@ import pyedflib
 
 from . import data_ops
 from . import postprocessing
-from .subject_dataset import SubjectDataset
-from .subject_dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
+from .dataset import Dataset
+from .dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
 
 PATH_INTA_RELATIVE = 'inta'
 PATH_REC = 'register'
@@ -40,7 +40,7 @@ NAMES = [
     'TAGO061203']
 
 
-class IntaSS(SubjectDataset):
+class IntaSS(Dataset):
     """This is a class to manipulate the INTA data EEG dataset.
 
     Expected directory tree inside DATA folder (see data_ops.py):

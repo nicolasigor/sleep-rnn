@@ -9,8 +9,8 @@ project_root = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(project_root)
 
-from sleep.data.mass_ss import MassSS
 from sleep.data.mass_kc import MassKC
+from sleep.data.mass_ss import MassSS
 from sleep.data.inta_ss import IntaSS
 
 
