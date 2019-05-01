@@ -1,35 +1,29 @@
-# TODO: refactor (combine with alltrain version
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import sys
 import json
-import pprint
+import os
+from pprint import pprint
+import sys
 
 import numpy as np
 
-detector_path = '..'
-results_path = os.path.join(detector_path, 'results')
-sys.path.append(detector_path)
+project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
+results_folder = 'results'
+sys.path.append(project_root)
 
-from sleep.mass import MASS
-from sleep.inta import INTA
-from sleep.mass_k import MASSK
-from neuralnet.models import WaveletBLSTM
-from evaluation import data_manipulation
-from utils import param_keys
-from utils import constants
-from utils import errors
+from sleep.data.inta_ss import IntaSS
+from sleep.data.mass_kc import MassKC
+from sleep.data.mass_ss import MassSS
+from sleep.data import data_ops
+from sleep.neuralnet.models import WaveletBLSTM
+from sleep.utils import constants
+from sleep.utils import checks
+from sleep.utils import pkeys
 
-
-def get_border_size(my_p):
-    border_duration = my_p[param_keys.BORDER_DURATION]
-    fs = my_p[param_keys.FS]
-    border_size = fs * border_duration
-    return border_size
+RESULTS_PATH = os.path.join(project_root, 'sleep', 'results')
 
 
 if __name__ == '__main__':
@@ -37,143 +31,161 @@ if __name__ == '__main__':
     seed_list = [0, 1, 2, 3]
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190423_grid_conv1d_ss_whole_night'
+    ckpt_folder = '20190430_bsf'
     grid_folder_list = None
     whole_night = True
 
     # Select database for prediction
-    dataset_name = constants.MASS_NAME
+    dataset_name_list = [
+        constants.MASS_SS_NAME,
+        constants.MASS_KC_NAME
+    ]
+    which_expert = 1
+    verbose = True
 
-    # Load data
-    errors.check_valid_value(
-        dataset_name, 'dataset_name',
-        [constants.MASS_NAME, constants.INTA_NAME, constants.MASSK_NAME])
-    if dataset_name == constants.MASS_NAME:
-        dataset = MASS(load_checkpoint=True)
-    elif dataset_name == constants.INTA_NAME:
-        dataset = INTA(load_checkpoint=True)
+    if whole_night:
+        descriptor = '_whole_night_'
     else:
-        dataset = MASSK(load_checkpoint=True)
-    # Get training set ids
-    all_train_ids = dataset.train_ids
+        descriptor = '_'
 
-    # Test data
-    test_ids = dataset.test_ids
+    for dataset_name in dataset_name_list:
 
-    if grid_folder_list is None:
-        grid_folder_list = os.listdir(os.path.join(
-                results_path,
-                '%s_train_%s' % (ckpt_folder, dataset_name)
-            ))
-        print('Grid settings found:')
-        pprint.pprint(grid_folder_list)
+        print('\nModel predicting on %s%s' % (dataset_name, descriptor))
 
-    print('')
-    for folder_name in grid_folder_list:
-        print('\nGrid setting: %s' % folder_name)
-        af1_list = []
-        for k in seed_list:
-            print('')
-            ckpt_path = os.path.abspath(os.path.join(
-                results_path,
-                '%s_train_%s' % (ckpt_folder, dataset_name),
-                '%s' % folder_name,
-                'seed%d' % k
-            ))
+        # Load data
+        checks.check_valid_value(
+            dataset_name, 'dataset_name',
+            [
+                constants.MASS_KC_NAME,
+                constants.MASS_SS_NAME,
+                constants.INTA_SS_NAME
+            ])
+        if dataset_name == constants.MASS_SS_NAME:
+            dataset = MassSS(load_checkpoint=True)
+        elif dataset_name == constants.MASS_KC_NAME:
+            dataset = MassKC(load_checkpoint=True)
+        else:
+            dataset = IntaSS(load_checkpoint=True)
 
-            # Restore params of ckpt
-            params = param_keys.default_params.copy()
-            filename = os.path.join(ckpt_path, 'params.json')
-            with open(filename, 'r') as infile:
-                # Overwrite previous defaults with run's params
-                params.update(json.load(infile))
+        # Get training set ids
+        all_train_ids = dataset.train_ids
 
-            print('Restoring from %s' % ckpt_path)
-            # pprint.pprint(params)
+        # Test data
+        test_ids = dataset.test_ids
 
-            # Restore seed
-            filename = os.path.join(ckpt_path, 'metric.json')
-            with open(filename, 'r') as infile:
-                metric_dict = json.load(infile)
-                this_seed = metric_dict['val_seed']
-                print('Validation split seed: %d' % this_seed)
-                this_af1 = metric_dict['val_af1']
-                af1_list.append(this_af1)
+        if grid_folder_list is None:
 
-            # Split to form validation set
-            train_ids, val_ids = data_manipulation.split_ids_list(
-                all_train_ids, seed=this_seed)
+            grid_folder_list = os.listdir(os.path.join(
+                    RESULTS_PATH,
+                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name)
+                ))
+            print('Grid settings found:')
+            pprint(grid_folder_list)
 
-            print('Training set IDs:', train_ids)
-            print('Validation set IDs:', val_ids)
-
-            # Get data for predictions
-            border_size = get_border_size(params)
-            x_train, y_train = dataset.get_subset_data(
-                train_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
-            x_val, y_val = dataset.get_subset_data(
-                val_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
-            x_test, y_test = dataset.get_subset_data(
-                test_ids, border_size=border_size, verbose=True,
-                whole_night=whole_night)
-
-            # Create model
-            model = WaveletBLSTM(params,
-                                 logdir=os.path.join('results', 'demo_predict'))
-            # Load checkpoint
-            model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
-
-            # We keep each patient separate, to see variation of performance
-            # between individuals
-            y_pred_train = []
-            y_pred_val = []
-            y_pred_test = []
-
-            # Start prediction
-            for i, sub_data in enumerate(x_train):
-                print('Train: Predicting ID %s' % train_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_train.append(this_pred)
-            for i, sub_data in enumerate(x_val):
-                print('Val: Predicting ID %s' % val_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_val.append(this_pred)
-            for i, sub_data in enumerate(x_test):
-                print('Test: Predicting ID %s' % test_ids[i])
-                this_pred = model.predict_proba(sub_data)
-                y_pred_test.append(this_pred)
-
-            # Save predictions
-            save_dir = os.path.abspath(os.path.join(
-                results_path,
-                'predictions_%s' % dataset_name,
-                '%s_train_%s' % (ckpt_folder, dataset_name),
-                '%s' % folder_name,
-                'seed%d' % k
-            ))
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-
-            if whole_night:
-                descriptor = '_whole_night_'
-            else:
-                descriptor = '_'
-
-            np.save(
-                os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
-                y_pred_train)
-            np.save(
-                os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
-                y_pred_val)
-            np.save(
-                os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
-                y_pred_test)
-            print('Predictions saved at %s' % save_dir)
         print('')
-        mean_af1 = np.mean(af1_list)
-        std_af1 = np.std(af1_list)
-        print('Val-AF1 List:', af1_list)
-        print('Mean: %1.4f' % mean_af1)
-        print('Std: %1.4f' % std_af1)
+        for folder_name in grid_folder_list:
+            print('\nGrid setting: %s' % folder_name)
+            af1_list = []
+            for k in seed_list:
+                print('')
+                ckpt_path = os.path.abspath(os.path.join(
+                    RESULTS_PATH,
+                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name),
+                    '%s' % folder_name,
+                    'seed%d' % k
+                ))
+
+                # Restore params of ckpt
+                params = pkeys.default_params.copy()
+                filename = os.path.join(ckpt_path, 'params.json')
+                with open(filename, 'r') as infile:
+                    # Overwrite previous defaults with run's params
+                    params.update(json.load(infile))
+
+                print('Restoring from %s' % ckpt_path)
+
+                # Restore seed
+                filename = os.path.join(ckpt_path, 'metric.json')
+                with open(filename, 'r') as infile:
+                    metric_dict = json.load(infile)
+                    this_seed = metric_dict['val_seed']
+                    print('Validation split seed: %d' % this_seed)
+                    this_af1 = metric_dict['val_af1']
+                    af1_list.append(this_af1)
+
+                # Split to form validation set
+                train_ids, val_ids = data_ops.split_ids_list(
+                    all_train_ids, seed=this_seed)
+
+                print('Training set IDs:', train_ids)
+                print('Validation set IDs:', val_ids)
+
+                # Get data for predictions
+                border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
+
+                x_train, _ = dataset.get_subset_data(
+                    train_ids,
+                    border_size=border_size,
+                    which_expert=which_expert,
+                    whole_night=whole_night,
+                    verbose=verbose)
+                x_val, _ = dataset.get_subset_data(
+                    val_ids,
+                    border_size=border_size,
+                    which_expert=which_expert,
+                    whole_night=whole_night,
+                    verbose=verbose)
+                x_test, _ = dataset.get_subset_data(
+                    test_ids,
+                    border_size=border_size,
+                    which_expert=which_expert,
+                    whole_night=whole_night,
+                    verbose=verbose)
+
+                # Create model
+                model = WaveletBLSTM(
+                    params,
+                    logdir=os.path.join('results', 'demo_predict'))
+
+                # Load checkpoint
+                model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
+
+                # We keep each patient separate, to see variation of performance
+                # between individuals
+                print('Predicting Train', flush=True)
+                y_pred_train = model.predict_proba_with_list(
+                    x_train, verbose=verbose)
+                print('Predicting Val', flush=True)
+                y_pred_val = model.predict_proba_with_list(
+                    x_val, verbose=verbose)
+                print('Predicting Test', flush=True)
+                y_pred_test = model.predict_proba_with_list(
+                    x_test, verbose=verbose)
+
+                # Save predictions
+                save_dir = os.path.abspath(os.path.join(
+                    RESULTS_PATH,
+                    'predictions_%s' % dataset_name,
+                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name),
+                    '%s' % folder_name,
+                    'seed%d' % k
+                ))
+
+                checks.ensure_directory(save_dir)
+
+                np.save(
+                    os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
+                    y_pred_train)
+                np.save(
+                    os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
+                    y_pred_val)
+                np.save(
+                    os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
+                    y_pred_test)
+                print('Predictions saved at %s' % save_dir)
+            print('')
+            mean_af1 = np.mean(af1_list)
+            std_af1 = np.std(af1_list)
+            print('Val-AF1 List:', af1_list)
+            print('Mean: %1.4f' % mean_af1)
+            print('Std: %1.4f' % std_af1)
