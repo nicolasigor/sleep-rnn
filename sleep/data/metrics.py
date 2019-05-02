@@ -219,8 +219,8 @@ def average_metric(
     # So we need to divide by two the extremes
     metric_list[0] = metric_list[0] / 2
     metric_list[-1] = metric_list[-1] / 2
-    # And now we average them all
-    avg_metric = np.mean(metric_list)
+    # And now we compute the AUC
+    avg_metric = np.sum(metric_list * res_iou)
     if verbose:
         print('Done')
     return avg_metric
