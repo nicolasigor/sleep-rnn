@@ -182,6 +182,7 @@ class Dataset(object):
             which_expert=1,
             whole_night=False,
             normalize_clip=True,
+            debug_force_n2=False,
             verbose=False
     ):
         """Returns segments of signal and marks from pages for the given id.
@@ -232,7 +233,11 @@ class Dataset(object):
             total_border = border_size
 
         if normalize_clip:
-            signal = data_ops.norm_clip_eeg(signal, pages, self.page_size)
+            if debug_force_n2:
+                n2_pages = ind_dict[KEY_USEFUL_PAGES]
+                signal = data_ops.norm_clip_eeg(signal, n2_pages, self.page_size)
+            else:
+                signal = data_ops.norm_clip_eeg(signal, pages, self.page_size)
 
         # Extract segments
         signal = data_ops.extract_pages(
@@ -253,6 +258,7 @@ class Dataset(object):
             which_expert=1,
             whole_night=False,
             normalize_clip=True,
+            debug_force_n2=False,
             verbose=False
     ):
         """Returns the list of signals and marks from a list of subjects.
@@ -267,6 +273,7 @@ class Dataset(object):
                 which_expert,
                 whole_night,
                 normalize_clip,
+                debug_force_n2,
                 verbose)
             subset_signals.append(signal)
             subset_marks.append(marks)

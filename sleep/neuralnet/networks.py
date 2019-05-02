@@ -476,7 +476,6 @@ def experimental_net(
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             name='spectrum')
 
-
         # Experimental feature
         outputs = tf.nn.relu(outputs)
 
