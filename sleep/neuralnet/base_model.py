@@ -208,7 +208,7 @@ class BaseModel(object):
         with open(os.path.join(self.logdir, 'params.json'), 'w') as outfile:
             json.dump(self.params, outfile)
 
-    def predict_proba(self, x):
+    def predict_proba(self, x, with_augmented_page=False):
         """Predicts the class probabilities over the data x."""
         niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
@@ -217,12 +217,45 @@ class BaseModel(object):
             start_index = i*self.params[pkeys.BATCH_SIZE]
             end_index = (i+1)*self.params[pkeys.BATCH_SIZE]
             batch = x[start_index:end_index]
-            probabilities = self.sess.run(
-                self.probabilities,
-                feed_dict={
-                    self.feats: batch,
-                    self.training_ph: False
-                })
+
+            if with_augmented_page:
+                page_size = self.params[pkeys.PAGE_DURATION] * self.params[pkeys.FS]
+                border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+                input_size = page_size + 2 * border_size
+                start_left = int(page_size / 4)
+                end_left = int(start_left + input_size)
+                start_right = int(3 * page_size / 4)
+                end_right = int(start_right + input_size)
+
+                batch_left = batch[:, start_left:end_left]
+                batch_right = batch[:, start_right:end_right]
+
+                proba_left = self.sess.run(
+                    self.probabilities,
+                    feed_dict={
+                        self.feats: batch_left,
+                        self.training_ph: False
+                    })
+                proba_right = self.sess.run(
+                    self.probabilities,
+                    feed_dict={
+                        self.feats: batch_right,
+                        self.training_ph: False
+                    })
+                # Keep central half of each
+                length_out = proba_left.shape[1]
+                start_crop = int(length_out / 4)
+                end_crop = int(3 * length_out / 4)
+                crop_left = proba_left[:, start_crop:end_crop, :]
+                crop_right = proba_right[:, start_crop:end_crop, :]
+                probabilities = np.concatenate([crop_left, crop_right], axis=1)
+            else:
+                probabilities = self.sess.run(
+                    self.probabilities,
+                    feed_dict={
+                        self.feats: batch,
+                        self.training_ph: False
+                    })
             probabilities_list.append(probabilities)
         final_probabilities = np.concatenate(probabilities_list, axis=0)
 
@@ -231,14 +264,16 @@ class BaseModel(object):
 
         return final_probabilities
 
-    def predict_proba_with_list(self, x_list, verbose=False):
+    def predict_proba_with_list(
+            self, x_list, verbose=False, with_augmented_page=False):
         """Predicts the class probabilities over a list of data x."""
         probabilities_list = []
         for i, x in enumerate(x_list):
             if verbose:
                 print('Predicting %d / %d ... '
                       % (i+1, len(x_list)), end='', flush=True)
-            this_pred = self.predict_proba(x)
+            this_pred = self.predict_proba(
+                x, with_augmented_page=with_augmented_page)
             probabilities_list.append(this_pred)
             if verbose:
                 print('Done', flush=True)

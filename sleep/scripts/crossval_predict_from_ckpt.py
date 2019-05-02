@@ -7,6 +7,9 @@ import os
 from pprint import pprint
 import sys
 
+# TF logging control
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import numpy as np
 
 project_root = os.path.abspath(
@@ -31,16 +34,19 @@ if __name__ == '__main__':
     seed_list = [0, 1, 2, 3]
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190430_bsf'
-    grid_folder_list = None
-    whole_night = True
-
+    ckpt_folder = '20190501_bsf'
+    whole_night = False
     # Select database for prediction
     dataset_name_list = [
         constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
+
+    with_augmented_page = True
+    debug_force_n2stats = False
+    debug_force_activitystats = False
     which_expert = 1
+    grid_folder_list = None
     verbose = True
 
     if whole_night:
@@ -123,23 +129,36 @@ if __name__ == '__main__':
                 # Get data for predictions
                 border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
 
+                # Testing something
+                if not whole_night:
+                    debug_force_n2stats = True
+
                 x_train, _ = dataset.get_subset_data(
                     train_ids,
                     border_size=border_size,
+                    augmented_page=with_augmented_page,
                     which_expert=which_expert,
-                    whole_night=whole_night,
+                    whole_night=True,
+                    debug_force_n2stats=debug_force_n2stats,
+                    debug_force_activitystats=debug_force_activitystats,
                     verbose=verbose)
                 x_val, _ = dataset.get_subset_data(
                     val_ids,
                     border_size=border_size,
+                    augmented_page=with_augmented_page,
                     which_expert=which_expert,
-                    whole_night=whole_night,
+                    whole_night=True,
+                    debug_force_n2stats=debug_force_n2stats,
+                    debug_force_activitystats=debug_force_activitystats,
                     verbose=verbose)
                 x_test, _ = dataset.get_subset_data(
                     test_ids,
                     border_size=border_size,
+                    augmented_page=with_augmented_page,
                     which_expert=which_expert,
-                    whole_night=whole_night,
+                    whole_night=True,
+                    debug_force_n2stats=debug_force_n2stats,
+                    debug_force_activitystats=debug_force_activitystats,
                     verbose=verbose)
 
                 # Create model
@@ -154,13 +173,16 @@ if __name__ == '__main__':
                 # between individuals
                 print('Predicting Train', flush=True)
                 y_pred_train = model.predict_proba_with_list(
-                    x_train, verbose=verbose)
+                    x_train, verbose=verbose,
+                    with_augmented_page=with_augmented_page)
                 print('Predicting Val', flush=True)
                 y_pred_val = model.predict_proba_with_list(
-                    x_val, verbose=verbose)
+                    x_val, verbose=verbose,
+                    with_augmented_page=with_augmented_page)
                 print('Predicting Test', flush=True)
                 y_pred_test = model.predict_proba_with_list(
-                    x_test, verbose=verbose)
+                    x_test, verbose=verbose,
+                    with_augmented_page=with_augmented_page)
 
                 # Save predictions
                 save_dir = os.path.abspath(os.path.join(

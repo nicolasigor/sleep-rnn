@@ -7,6 +7,9 @@ import json
 import os
 import sys
 
+# TF logging control
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import numpy as np
 
 project_root = os.path.abspath(
@@ -31,15 +34,18 @@ if __name__ == '__main__':
 
     id_try_list = [0, 1, 2, 3]
 
-    experiment_name = 'bsf'
+    experiment_name = 'bsf_norm_activity'
     dataset_name_list = [
+        constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
     whole_night = False
+    debug_force_activitystats = True
 
-    description_str = 'bsf'
+    description_str = 'bsf normalizing with pages with true events'
     which_expert = 1
     verbose = False
+    with_augmented_page = True
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -96,6 +102,7 @@ if __name__ == '__main__':
                 border_size=border_size,
                 which_expert=which_expert,
                 whole_night=whole_night,
+                debug_force_activitystats=debug_force_activitystats,
                 verbose=verbose)
             x_val, y_val = dataset.get_subset_data(
                 val_ids,
@@ -103,6 +110,7 @@ if __name__ == '__main__':
                 border_size=border_size,
                 which_expert=which_expert,
                 whole_night=whole_night,
+                debug_force_activitystats=debug_force_activitystats,
                 verbose=verbose)
 
             # Transform to numpy arrays
@@ -146,29 +154,43 @@ if __name__ == '__main__':
             # ----- Obtain AF1 metric
             x_val_m, _ = dataset.get_subset_data(
                 val_ids,
-                augmented_page=False,
+                augmented_page=with_augmented_page,
                 border_size=border_size,
                 which_expert=which_expert,
-                whole_night=whole_night,
+                whole_night=True,
+                debug_force_activitystats=debug_force_activitystats,
                 verbose=verbose)
             pages_val = dataset.get_subset_pages(
                 val_ids,
                 whole_night=whole_night,
                 verbose=verbose)
+            wholenight_pages_val = dataset.get_subset_pages(
+                val_ids,
+                whole_night=True,
+                verbose=verbose)
 
             print('Predicting Validation set')
-            y_pred_val = model.predict_proba_with_list(x_val_m, verbose=verbose)
+            y_pred_val = model.predict_proba_with_list(
+                x_val_m, verbose=verbose,
+                with_augmented_page=with_augmented_page)
             print('Done set')
 
             y_pred_val_stamps = postprocessing.generate_mark_intervals_with_list(
                 y_pred_val,
-                pages_val,
+                wholenight_pages_val,
                 fs_input=200 // 8,
                 fs_output=200,
                 thr=0.5,
                 min_separation=min_separation,
                 min_duration=min_duration,
                 max_duration=max_duration)
+
+            if not whole_night:
+                # Keep only N2 stamps
+                y_pred_val_stamps = [data_ops.extract_pages_with_stamps(
+                    this_y_pred_stamps, this_pages, dataset.page_size)
+                    for (this_y_pred_stamps, this_pages)
+                    in zip(y_pred_val_stamps, pages_val)]
 
             y_val_stamps = dataset.get_subset_stamps(
                 val_ids,

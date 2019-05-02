@@ -28,12 +28,13 @@ SEED_LIST = [123, 234, 345, 456]
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results
-    ckpt_folder = '20190430_bsf'
+    ckpt_folder = '20190501_bsf'
     grid_folder_list = None
-    whole_night = True
+    whole_night = False
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
     verbose = False
+
     # Performance settings
     res_thr = 0.02
     start_thr = 0.3
@@ -61,15 +62,11 @@ if __name__ == '__main__':
     print('Loading train set... ', end='', flush=True)
     all_train_ids = dataset.train_ids
     # Get subjects data, with the expert used for training
-    _, all_y = dataset.get_subset_data(
-        all_train_ids,
-        which_expert=which_expert,
-        verbose=verbose,
-        whole_night=whole_night)
-
     print('Signals and marks loaded... ', end='', flush=True)
     all_pages = dataset.get_subset_pages(
         all_train_ids, verbose=verbose, whole_night=whole_night)
+    all_wholenight_pages = dataset.get_subset_pages(
+        all_train_ids, verbose=verbose, whole_night=True)
     print('Pages loaded.', flush=True)
 
     # Prepare expert labels into marks
@@ -98,7 +95,7 @@ if __name__ == '__main__':
 
     # Load predictions (probability vectors for each page),
     # 200/factor resolution (default factor 8)
-    set_list = ['val']
+    set_list = [constants.VAL_SUBSET]
     y_pred = {}
     n_seeds = len(SEED_LIST)
 
@@ -132,6 +129,7 @@ if __name__ == '__main__':
     # Adjust thr
     n_thr = int(np.round((end_thr - start_thr) / res_thr + 1))
     thr_list = [start_thr + res_thr * i for i in range(n_thr)]
+    thr_list = np.asarray(thr_list)
     # print(thr_list)
     print('Number of thresholds to be evaluated: %d' % len(thr_list))
 
@@ -153,22 +151,23 @@ if __name__ == '__main__':
         crossval_af1_mean[folder_name] = []
         crossval_af1_std[folder_name] = []
         for thr in thr_list:
-            print('\nUsing thr %1.4f' % thr)
+            print('Processing thr %1.4f' % thr)
             val_af1 = []
             for k, seed in enumerate(SEED_LIST):
                 # Prepare expert labels
                 _, val_ids = data_ops.split_ids_list(
-                    all_train_ids, seed=seed)
-                print(val_ids)
+                    all_train_ids, seed=seed, verbose=verbose)
+                if verbose:
+                    print('Val IDs:', val_ids)
                 val_idx = [all_train_ids.index(this_id) for this_id in val_ids]
                 y_thr = [all_y_stamps[i] for i in val_idx]
                 pages = [all_pages[i] for i in val_idx]
-                # Prepare model predictions
-                # print('Preparing predictions', flush=True)
+                wholenight_pages = [all_wholenight_pages[i] for i in val_idx]
 
+                # Prepare model predictions
                 y_pred_thr = postprocessing.generate_mark_intervals_with_list(
-                    y_pred[folder_name][k]['val'],
-                    pages,
+                    y_pred[folder_name][k][constants.VAL_SUBSET],
+                    wholenight_pages,
                     fs_input=200 // 8,
                     fs_output=200,
                     thr=thr,
@@ -177,7 +176,12 @@ if __name__ == '__main__':
                     max_duration=max_duration)
 
                 # Go through several IoU values
-                # print('Computing F1 Curve... ', flush=True, end='')
+                if not whole_night:
+                    # Keep only N2 stamps
+                    y_pred_thr = [data_ops.extract_pages_with_stamps(
+                        this_y_pred_thr, this_pages, dataset.page_size
+                    ) for (this_y_pred_thr, this_pages)
+                        in zip(y_pred_thr, pages)]
 
                 val_af1_at_thr = metrics.average_metric_with_list(
                     y_thr,
@@ -191,17 +195,15 @@ if __name__ == '__main__':
         print('Done')
 
     # Search optimum
-    print('')
+    print('\nReport for %s%strain_%s' % (ckpt_folder, descriptor, dataset_name))
     for j, folder_name in enumerate(grid_folder_list):
-        max_idx = np.argmax(np.array(crossval_af1_mean[folder_name]))
-        # print('%s: Optimum at %1.4f with value %1.4f +- %1.4f' % (
-        #     folder_name,
-        #     thr_list[max_idx],
-        #     crossval_af1_mean[folder_name][max_idx],
-        #     crossval_af1_std[folder_name][max_idx]))
+        max_idx = np.argmax(np.array(crossval_af1_mean[folder_name])).item()
+        half_idx = np.where(np.isclose(thr_list, 0.5))[0].item()
 
-        print('Val AF1 %1.4f +- %1.4f (mu %1.4f) for setting %s'
+        print('Val AF1 %1.4f +- %1.4f (mu %1.4f). %1.4f +- %1.4f (mu 0.5) for setting %s'
               % (crossval_af1_mean[folder_name][max_idx],
                  crossval_af1_std[folder_name][max_idx],
                  thr_list[max_idx],
+                 crossval_af1_mean[folder_name][half_idx],
+                 crossval_af1_std[folder_name][half_idx],
                  folder_name))

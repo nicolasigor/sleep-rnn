@@ -182,7 +182,8 @@ class Dataset(object):
             which_expert=1,
             whole_night=False,
             normalize_clip=True,
-            debug_force_n2=False,
+            debug_force_n2stats=False,
+            debug_force_activitystats=False,
             verbose=False
     ):
         """Returns segments of signal and marks from pages for the given id.
@@ -233,11 +234,25 @@ class Dataset(object):
             total_border = border_size
 
         if normalize_clip:
-            if debug_force_n2:
-                n2_pages = ind_dict[KEY_USEFUL_PAGES]
-                signal = data_ops.norm_clip_eeg(signal, n2_pages, self.page_size)
+            if debug_force_activitystats:
+                print('Forcing activity normalization')
+                # Normalize using stats from pages with true events.
+                tmp_pages = ind_dict[KEY_ALL_PAGES]
+                activity = data_ops.extract_pages(
+                    marks, tmp_pages,
+                    self.page_size, border_size=0)
+                activity = activity.sum(axis=1)
+                activity = np.where(activity > 0)[0]
+                tmp_pages = tmp_pages[activity]
+                signal = data_ops.norm_clip_eeg(
+                    signal, tmp_pages, self.page_size)
             else:
-                signal = data_ops.norm_clip_eeg(signal, pages, self.page_size)
+                if debug_force_n2stats:
+                    print('Forcing N2 normalization')
+                    n2_pages = ind_dict[KEY_USEFUL_PAGES]
+                    signal = data_ops.norm_clip_eeg(signal, n2_pages, self.page_size)
+                else:
+                    signal = data_ops.norm_clip_eeg(signal, pages, self.page_size)
 
         # Extract segments
         signal = data_ops.extract_pages(
@@ -258,7 +273,8 @@ class Dataset(object):
             which_expert=1,
             whole_night=False,
             normalize_clip=True,
-            debug_force_n2=False,
+            debug_force_n2stats=False,
+            debug_force_activitystats=False,
             verbose=False
     ):
         """Returns the list of signals and marks from a list of subjects.
@@ -273,7 +289,8 @@ class Dataset(object):
                 which_expert,
                 whole_night,
                 normalize_clip,
-                debug_force_n2,
+                debug_force_n2stats,
+                debug_force_activitystats,
                 verbose)
             subset_signals.append(signal)
             subset_marks.append(marks)
