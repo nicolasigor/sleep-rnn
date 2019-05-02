@@ -129,7 +129,9 @@ if __name__ == '__main__':
                 # Get data for predictions
                 border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
 
-                # Testing something
+                # If we need to predict over N2, then we predict over whole
+                # night but forcing N2 normalization to keep the same
+                # normalization used for training
                 if not whole_night:
                     debug_force_n2stats = True
 
