@@ -230,28 +230,10 @@ class WaveletBLSTM(BaseModel):
             [
                 constants.DUMMY,
                 constants.V1,
-                constants.V2,
-                constants.V3,
-                constants.V3_FF,
-                constants.V3_CONV,
-                constants.V3_FF_CONV,
-                constants.EXPERIMENTAL,
                 constants.V4
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
-        elif model_version == constants.V2:
-            model_fn = networks.wavelet_blstm_net_v2
-        elif model_version == constants.V3:
-            model_fn = networks.wavelet_blstm_net_v3
-        elif model_version == constants.V3_FF:
-            model_fn = networks.wavelet_blstm_net_v3_ff
-        elif model_version == constants.V3_CONV:
-            model_fn = networks.wavelet_conv_net_v3
-        elif model_version == constants.V3_FF_CONV:
-            model_fn = networks.wavelet_conv_net_v3_ff
-        elif model_version == constants.EXPERIMENTAL:
-            model_fn = networks.experimental_net
         elif model_version == constants.V4:
             model_fn = networks.wavelet_blstm_net_v4
         else:

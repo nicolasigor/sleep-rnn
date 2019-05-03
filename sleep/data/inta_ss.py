@@ -13,7 +13,7 @@ import pyedflib
 from . import data_ops
 from . import postprocessing
 from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
+from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS
 
 PATH_INTA_RELATIVE = 'inta'
 PATH_REC = 'register'
@@ -108,7 +108,7 @@ class IntaSS(Dataset):
             # Save data
             ind_dict = {
                 KEY_EEG: signal,
-                KEY_USEFUL_PAGES: useful_pages,
+                KEY_N2_PAGES: useful_pages,
                 KEY_ALL_PAGES: all_pages,
                 '%s_1' % KEY_MARKS: marks_1
             }

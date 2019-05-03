@@ -34,31 +34,30 @@ if __name__ == '__main__':
 
     id_try_list = [0, 1, 2, 3]
 
-    experiment_name = 'bsf_norm_activity'
+    # ----- Experiment settings
+    experiment_name = 'bsf'
+    task_mode = constants.N2_RECORD
     dataset_name_list = [
         constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
-    whole_night = False
-    debug_force_activitystats = True
-
-    description_str = 'bsf normalizing with pages with true events'
+    description_str = 'bsf'
     which_expert = 1
-    verbose = False
-    with_augmented_page = True
+    predict_with_augmented_page = True
+    verbose = True
+    # -----
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    if whole_night:
-        descriptor = '_whole_night_'
-    else:
-        descriptor = '_'
+    checks.check_valid_value(
+        task_mode, 'task_mode',
+        [constants.WN_RECORD, constants.N2_RECORD])
 
     for dataset_name in dataset_name_list:
 
-        print('\nModel training on %s%s' % (dataset_name, descriptor))
+        print('\nModel training on %s_%s' % (dataset_name, task_mode))
 
         # Load data
         checks.check_valid_value(
@@ -84,6 +83,16 @@ if __name__ == '__main__':
         print('Loading training set and splitting')
         all_train_ids = dataset.train_ids
 
+        # Parameters for postprocessing
+        if dataset_name in [constants.MASS_SS_NAME, constants.INTA_SS_NAME]:
+            min_separation = params[pkeys.SS_MIN_SEPARATION]
+            min_duration = params[pkeys.SS_MIN_DURATION]
+            max_duration = params[pkeys.SS_MAX_DURATION]
+        else:
+            min_separation = params[pkeys.KC_MIN_SEPARATION]
+            min_duration = params[pkeys.KC_MIN_DURATION]
+            max_duration = params[pkeys.KC_MAX_DURATION]
+
         for id_try in id_try_list:
             # Choose seed
             seed = SEED_LIST[id_try]
@@ -94,23 +103,25 @@ if __name__ == '__main__':
             print('Training set IDs:', train_ids)
             print('Validation set IDs:', val_ids)
 
-            # Get data
+            # Get data for training
             border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
             x_train, y_train = dataset.get_subset_data(
                 train_ids,
                 augmented_page=True,
                 border_size=border_size,
                 which_expert=which_expert,
-                whole_night=whole_night,
-                debug_force_activitystats=debug_force_activitystats,
+                pages_subset=task_mode,
+                normalize_clip=True,
+                normalization_mode=task_mode,
                 verbose=verbose)
             x_val, y_val = dataset.get_subset_data(
                 val_ids,
                 augmented_page=True,
                 border_size=border_size,
                 which_expert=which_expert,
-                whole_night=whole_night,
-                debug_force_activitystats=debug_force_activitystats,
+                pages_subset=task_mode,
+                normalize_clip=True,
+                normalization_mode=task_mode,
                 verbose=verbose)
 
             # Transform to numpy arrays
@@ -129,7 +140,7 @@ if __name__ == '__main__':
             # Path to save results of run
             logdir = os.path.join(
                 RESULTS_PATH,
-                '%s%strain_%s' % (experiment_name, descriptor, dataset_name),
+                '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
                 'bsf',
                 'seed%d' % id_try
             )
@@ -141,43 +152,32 @@ if __name__ == '__main__':
             # Train model
             model.fit(x_train_np, y_train_np, x_val_np, y_val_np)
 
-            # Get metrics
-            if dataset_name in [constants.MASS_SS_NAME, constants.INTA_SS_NAME]:
-                min_separation = params[pkeys.SS_MIN_SEPARATION]
-                min_duration = params[pkeys.SS_MIN_DURATION]
-                max_duration = params[pkeys.SS_MAX_DURATION]
-            else:
-                min_separation = params[pkeys.KC_MIN_SEPARATION]
-                min_duration = params[pkeys.KC_MIN_DURATION]
-                max_duration = params[pkeys.KC_MAX_DURATION]
-
             # ----- Obtain AF1 metric
             x_val_m, _ = dataset.get_subset_data(
                 val_ids,
-                augmented_page=with_augmented_page,
+                augmented_page=predict_with_augmented_page,
                 border_size=border_size,
                 which_expert=which_expert,
-                whole_night=True,
-                debug_force_activitystats=debug_force_activitystats,
-                verbose=verbose)
-            pages_val = dataset.get_subset_pages(
-                val_ids,
-                whole_night=whole_night,
-                verbose=verbose)
-            wholenight_pages_val = dataset.get_subset_pages(
-                val_ids,
-                whole_night=True,
+                pages_subset=constants.WN_RECORD,
+                normalize_clip=True,
+                normalization_mode=task_mode,
                 verbose=verbose)
 
             print('Predicting Validation set')
             y_pred_val = model.predict_proba_with_list(
-                x_val_m, verbose=verbose,
-                with_augmented_page=with_augmented_page)
+                x_val_m,
+                verbose=verbose,
+                with_augmented_page=predict_with_augmented_page)
             print('Done set')
 
+            # Postprocessing
+            wn_pages_val = dataset.get_subset_pages(
+                val_ids,
+                pages_subset=constants.WN_RECORD,
+                verbose=verbose)
             y_pred_val_stamps = postprocessing.generate_mark_intervals_with_list(
                 y_pred_val,
-                wholenight_pages_val,
+                wn_pages_val,
                 fs_input=200 // 8,
                 fs_output=200,
                 thr=0.5,
@@ -185,17 +185,21 @@ if __name__ == '__main__':
                 min_duration=min_duration,
                 max_duration=max_duration)
 
-            if not whole_night:
+            if task_mode == constants.N2_RECORD:
                 # Keep only N2 stamps
+                n2_pages_val = dataset.get_subset_pages(
+                    val_ids,
+                    pages_subset=constants.N2_RECORD,
+                    verbose=verbose)
                 y_pred_val_stamps = [data_ops.extract_pages_with_stamps(
                     this_y_pred_stamps, this_pages, dataset.page_size)
                     for (this_y_pred_stamps, this_pages)
-                    in zip(y_pred_val_stamps, pages_val)]
+                    in zip(y_pred_val_stamps, n2_pages_val)]
 
             y_val_stamps = dataset.get_subset_stamps(
                 val_ids,
                 which_expert=which_expert,
-                whole_night=whole_night,
+                pages_subset=task_mode,
                 verbose=verbose)
 
             val_af1_at_half_thr = metrics.average_metric_with_list(
@@ -209,6 +213,7 @@ if __name__ == '__main__':
                 'description': description_str,
                 'val_seed': seed,
                 'database': dataset_name,
+                'task_mode': task_mode,
                 'val_af1': float(val_af1_at_half_thr)
             }
             with open(os.path.join(model.logdir, 'metric.json'),

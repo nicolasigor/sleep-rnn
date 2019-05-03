@@ -145,18 +145,6 @@ class BaseModel(object):
         model_version = params[pkeys.MODEL_VERSION]
         if model_version == constants.V1:
             model_name = 'model_v1'
-        elif model_version == constants.V2:
-            model_name = 'model_v2'
-        elif model_version == constants.V3:
-            model_name = 'model_v3'
-        elif model_version == constants.V3_FF:
-            model_name = 'model_v3_ff'
-        elif model_version == constants.V3_CONV:
-            model_name = 'model_v3_conv'
-        elif model_version == constants.V3_FF_CONV:
-            model_name = 'model_v3_ff_conv'
-        elif model_version == constants.EXPERIMENTAL:
-            model_name = 'experimental'
         elif model_version == constants.V4:
             model_name = 'model_v4'
         else:

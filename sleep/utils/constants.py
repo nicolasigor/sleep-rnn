@@ -10,6 +10,10 @@ TRAIN_SUBSET = 'train'
 VAL_SUBSET = 'val'
 TEST_SUBSET = 'test'
 
+# Task mode
+N2_RECORD = 'n2'
+WN_RECORD = 'wn'
+
 # Metric keys
 F1_SCORE = 'f1_score'
 PRECISION = 'precision'
@@ -62,10 +66,4 @@ METRIC_CRITERION = 'metric_criterion'
 # Model versions
 DUMMY = 'dummy'
 V1 = 'v1'
-V2 = 'v2'
-V3 = 'v3'
-V3_FF = 'v3-ff'
-V3_CONV = 'v3-conv'
-V3_FF_CONV = 'v3-ff-conv'
-EXPERIMENTAL = 'experimental'
 V4 = 'v4'

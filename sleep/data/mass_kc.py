@@ -12,7 +12,7 @@ import pyedflib
 
 from . import data_ops
 from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_USEFUL_PAGES, KEY_ALL_PAGES, KEY_MARKS
+from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS
 
 PATH_MASS_RELATIVE = 'mass'
 PATH_REC = 'register'
@@ -97,7 +97,7 @@ class MassKC(Dataset):
             # Save data
             ind_dict = {
                 KEY_EEG: signal,
-                KEY_USEFUL_PAGES: useful_pages,
+                KEY_N2_PAGES: useful_pages,
                 KEY_ALL_PAGES: all_pages,
                 '%s_1' % KEY_MARKS: marks_1
             }

@@ -90,12 +90,13 @@ initial_lstm_units: (int) Number of units for lstm layers. If multi stage
 FS = 'fs'
 MODEL_VERSION = 'model_version'
 BORDER_DURATION = 'border_duration'
+# Regularization
 TYPE_BATCHNORM = 'batchnorm'
 TYPE_DROPOUT = 'dropout'
 DROP_RATE_BEFORE_LSTM = 'drop_rate_before_lstm'
 DROP_RATE_HIDDEN = 'drop_rate_hidden'
 DROP_RATE_OUTPUT = 'drop_rate_output'
-# CWT parameters
+# CWT stage
 FB_LIST = 'fb_list'
 TRAINABLE_WAVELET = 'trainable_wavelet'
 WAVELET_SIZE_FACTOR = 'wavelet_size_factor'
@@ -103,21 +104,15 @@ USE_LOG = 'use_log'
 N_SCALES = 'n_scales'
 LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
-# Parameters for convolutional stage
+USE_RELU = 'use_relu'
+# Convolutional stage
 INITIAL_KERNEL_SIZE = 'initial_kernel_size'
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
 CONV_DOWNSAMPLING = 'conv_downsampling'
-# blstm parameters
+# blstm stage
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
-# Parameters for multi-stage blstm
-N_TIME_LEVELS = 'n_time_levels'
-TIME_POOLING = 'time_pooling'
-DUPLICATE_AFTER_DOWNSAMPLING_LSTM = 'duplicate_after_downsampling_lstm'
 # FC units in second to last layer
 FC_UNITS = 'fc_units'
-# Parameters for conv model
-CONV_1D_FILTERS = 'conv_1d_filters'
-CONV_1D_KERNEL = 'conv_1d_kernel'
 
 
 """ Loss params
@@ -181,7 +176,7 @@ default_params = {
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
-    MODEL_VERSION: constants.EXPERIMENTAL,
+    MODEL_VERSION: constants.V4,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,
     TYPE_DROPOUT: constants.SEQUENCE_DROP,
@@ -195,16 +190,12 @@ default_params = {
     N_SCALES: 48,
     LOWER_FREQ: 0.5,
     UPPER_FREQ: 30,
+    USE_RELU: True,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 16,
     INITIAL_KERNEL_SIZE: 5,
     CONV_DOWNSAMPLING: constants.AVGPOOL,
-    N_TIME_LEVELS: 1,
-    TIME_POOLING: constants.AVGPOOL,
-    DUPLICATE_AFTER_DOWNSAMPLING_LSTM: False,
     FC_UNITS: 128,
-    CONV_1D_FILTERS: 256,
-    CONV_1D_KERNEL: 11,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,
@@ -213,7 +204,7 @@ default_params = {
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
     MAX_ITERS: 30000,
-    ITERS_STATS: 50,
+    ITERS_STATS: 100,
     ITERS_LR_UPDATE: 1000,
     REL_TOL_CRITERION: 0.0,
     LR_UPDATE_FACTOR: 0.5,

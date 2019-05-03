@@ -31,32 +31,29 @@ RESULTS_PATH = os.path.join(project_root, 'sleep', 'results')
 
 if __name__ == '__main__':
 
-    seed_list = [0, 1, 2, 3]
+    id_try_list = [0, 1, 2, 3]
 
+    # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190502_bsf_norm_activity'
-    whole_night = True
-    # Select database for prediction
+    ckpt_folder = '20190503_bsf'
+    task_mode = constants.N2_RECORD
     dataset_name_list = [
         constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
-
-    with_augmented_page = True
-    debug_force_n2stats = False
-    debug_force_activitystats = True
     which_expert = 1
+    predict_with_augmented_page = True
+    verbose = False
     grid_folder_list = None
-    verbose = True
+    # -----
 
-    if whole_night:
-        descriptor = '_whole_night_'
-    else:
-        descriptor = '_'
+    checks.check_valid_value(
+        task_mode, 'task_mode',
+        [constants.WN_RECORD, constants.N2_RECORD])
 
     for dataset_name in dataset_name_list:
 
-        print('\nModel predicting on %s%s' % (dataset_name, descriptor))
+        print('\nModel predicting on %s_%s' % (dataset_name, task_mode))
 
         # Load data
         checks.check_valid_value(
@@ -83,7 +80,7 @@ if __name__ == '__main__':
 
             grid_folder_list = os.listdir(os.path.join(
                     RESULTS_PATH,
-                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name)
+                    '%s_%s_train_%s' % (ckpt_folder, task_mode, dataset_name)
                 ))
             print('Grid settings found:')
             pprint(grid_folder_list)
@@ -92,11 +89,11 @@ if __name__ == '__main__':
         for folder_name in grid_folder_list:
             print('\nGrid setting: %s' % folder_name)
             af1_list = []
-            for k in seed_list:
+            for k in id_try_list:
                 print('')
                 ckpt_path = os.path.abspath(os.path.join(
                     RESULTS_PATH,
-                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name),
+                    '%s_%s_train_%s' % (ckpt_folder, task_mode, dataset_name),
                     '%s' % folder_name,
                     'seed%d' % k
                 ))
@@ -126,86 +123,59 @@ if __name__ == '__main__':
                 print('Training set IDs:', train_ids)
                 print('Validation set IDs:', val_ids)
 
-                # Get data for predictions
-                border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
-
-                # If we need to predict over N2, then we predict over whole
-                # night but forcing N2 normalization to keep the same
-                # normalization used for training
-                if not whole_night:
-                    debug_force_n2stats = True
-
-                x_train, _ = dataset.get_subset_data(
-                    train_ids,
-                    border_size=border_size,
-                    augmented_page=with_augmented_page,
-                    which_expert=which_expert,
-                    whole_night=True,
-                    debug_force_n2stats=debug_force_n2stats,
-                    debug_force_activitystats=debug_force_activitystats,
-                    verbose=verbose)
-                x_val, _ = dataset.get_subset_data(
-                    val_ids,
-                    border_size=border_size,
-                    augmented_page=with_augmented_page,
-                    which_expert=which_expert,
-                    whole_night=True,
-                    debug_force_n2stats=debug_force_n2stats,
-                    debug_force_activitystats=debug_force_activitystats,
-                    verbose=verbose)
-                x_test, _ = dataset.get_subset_data(
-                    test_ids,
-                    border_size=border_size,
-                    augmented_page=with_augmented_page,
-                    which_expert=which_expert,
-                    whole_night=True,
-                    debug_force_n2stats=debug_force_n2stats,
-                    debug_force_activitystats=debug_force_activitystats,
-                    verbose=verbose)
-
                 # Create model
                 model = WaveletBLSTM(
                     params,
                     logdir=os.path.join('results', 'demo_predict'))
-
                 # Load checkpoint
                 model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
 
-                # We keep each patient separate, to see variation of performance
-                # between individuals
-                print('Predicting Train', flush=True)
-                y_pred_train = model.predict_proba_with_list(
-                    x_train, verbose=verbose,
-                    with_augmented_page=with_augmented_page)
-                print('Predicting Val', flush=True)
-                y_pred_val = model.predict_proba_with_list(
-                    x_val, verbose=verbose,
-                    with_augmented_page=with_augmented_page)
-                print('Predicting Test', flush=True)
-                y_pred_test = model.predict_proba_with_list(
-                    x_test, verbose=verbose,
-                    with_augmented_page=with_augmented_page)
+                # Get data for predictions
+                border_size = params[pkeys.BORDER_DURATION] * params[pkeys.FS]
+
+                ids_dict = {
+                    constants.TRAIN_SUBSET: train_ids,
+                    constants.VAL_SUBSET: val_ids,
+                    constants.TEST_SUBSET: test_ids
+                }
 
                 # Save predictions
                 save_dir = os.path.abspath(os.path.join(
                     RESULTS_PATH,
                     'predictions_%s' % dataset_name,
-                    '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name),
+                    '%s_%s_train_%s' % (ckpt_folder, task_mode, dataset_name),
                     '%s' % folder_name,
                     'seed%d' % k
                 ))
-
                 checks.ensure_directory(save_dir)
 
-                np.save(
-                    os.path.join(save_dir, 'y_pred%strain.npy' % descriptor),
-                    y_pred_train)
-                np.save(
-                    os.path.join(save_dir, 'y_pred%sval.npy' % descriptor),
-                    y_pred_val)
-                np.save(
-                    os.path.join(save_dir, 'y_pred%stest.npy' % descriptor),
-                    y_pred_test)
+                # If we need to predict over N2, then we predict over whole
+                # night and then, after postprocessing, we keep N2 pages only
+
+                for key in ids_dict.keys():
+                    x, _ = dataset.get_subset_data(
+                        ids_dict[key],
+                        augmented_page=predict_with_augmented_page,
+                        border_size=border_size,
+                        which_expert=which_expert,
+                        pages_subset=constants.WN_RECORD,
+                        normalize_clip=True,
+                        normalization_mode=task_mode,
+                        verbose=verbose)
+
+                    # We keep each patient separate, to see variation of
+                    # performance between individuals
+                    print('Predicting %s' % key, flush=True)
+                    y_pred = model.predict_proba_with_list(
+                        x,
+                        verbose=verbose,
+                        with_augmented_page=predict_with_augmented_page)
+
+                    np.save(
+                        os.path.join(
+                            save_dir, 'y_pred_%s_%s.npy' % (task_mode, key)),
+                        y_pred)
+
                 print('Predictions saved at %s' % save_dir)
             print('')
             mean_af1 = np.mean(af1_list)

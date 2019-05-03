@@ -27,13 +27,16 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    # Set checkpoint from where to restore, relative to results
-    ckpt_folder = '20190502_bsf_norm_activity'
-    grid_folder_list = None
-    whole_night = False
-    dataset_name = constants.MASS_KC_NAME
+    # ----- Prediction settings
+    # Set checkpoint from where to restore, relative to results dir
+    ckpt_folder = '20190503_bsf'
+    task_mode = constants.N2_RECORD
+    dataset_name = constants.MASS_SS_NAME
+
     which_expert = 1
     verbose = False
+    grid_folder_list = None
+    # -----
 
     # Performance settings
     res_thr = 0.02
@@ -58,15 +61,23 @@ if __name__ == '__main__':
     else:
         dataset = IntaSS(load_checkpoint=True)
 
+    checks.check_valid_value(
+        task_mode, 'task_mode',
+        [constants.WN_RECORD, constants.N2_RECORD])
+
     # Get training set ids
     print('Loading train set... ', end='', flush=True)
     all_train_ids = dataset.train_ids
     # Get subjects data, with the expert used for training
     print('Signals and marks loaded... ', end='', flush=True)
-    all_pages = dataset.get_subset_pages(
-        all_train_ids, verbose=verbose, whole_night=whole_night)
-    all_wholenight_pages = dataset.get_subset_pages(
-        all_train_ids, verbose=verbose, whole_night=True)
+    all_wn_pages = dataset.get_subset_pages(
+            all_train_ids,
+            pages_subset=constants.WN_RECORD,
+            verbose=verbose)
+    all_n2_pages = dataset.get_subset_pages(
+        all_train_ids,
+        pages_subset=constants.N2_RECORD,
+        verbose=verbose)
     print('Pages loaded.', flush=True)
 
     # Prepare expert labels into marks
@@ -74,19 +85,17 @@ if __name__ == '__main__':
     all_y_stamps = dataset.get_subset_stamps(
         all_train_ids,
         which_expert=which_expert,
-        whole_night=whole_night,
+        pages_subset=task_mode,
         verbose=verbose)
     print('Done')
 
-    if whole_night:
-        descriptor = '_whole_night_'
-    else:
-        descriptor = '_'
+    full_ckpt_folder = '%s_%s_train_%s' \
+                       % (ckpt_folder, task_mode, dataset_name)
 
     if grid_folder_list is None:
         grid_folder_list = os.listdir(os.path.join(
             RESULTS_PATH,
-            '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name)
+            full_ckpt_folder
         ))
         print('Grid settings found:')
         pprint(grid_folder_list)
@@ -112,7 +121,7 @@ if __name__ == '__main__':
             ckpt_path = os.path.abspath(os.path.join(
                 RESULTS_PATH,
                 'predictions_%s' % dataset_name,
-                '%s%strain_%s' % (ckpt_folder, descriptor, dataset_name),
+                full_ckpt_folder,
                 '%s' % folder_name,
                 'seed%d' % k
             ))
@@ -120,8 +129,8 @@ if __name__ == '__main__':
             this_dict = {}
             for set_name in set_list:
                 this_dict[set_name] = np.load(
-                    os.path.join(ckpt_path, 'y_pred%s%s.npy'
-                                 % (descriptor, set_name)),
+                    os.path.join(
+                        ckpt_path, 'y_pred_%s_%s.npy' % (task_mode, set_name)),
                     allow_pickle=True)
             y_pred[folder_name].append(this_dict)
     print('\nDone')
@@ -161,13 +170,13 @@ if __name__ == '__main__':
                     print('Val IDs:', val_ids)
                 val_idx = [all_train_ids.index(this_id) for this_id in val_ids]
                 y_thr = [all_y_stamps[i] for i in val_idx]
-                pages = [all_pages[i] for i in val_idx]
-                wholenight_pages = [all_wholenight_pages[i] for i in val_idx]
+                n2_pages = [all_n2_pages[i] for i in val_idx]
+                wn_pages = [all_wn_pages[i] for i in val_idx]
 
                 # Prepare model predictions
                 y_pred_thr = postprocessing.generate_mark_intervals_with_list(
                     y_pred[folder_name][k][constants.VAL_SUBSET],
-                    wholenight_pages,
+                    wn_pages,
                     fs_input=200 // 8,
                     fs_output=200,
                     thr=thr,
@@ -175,13 +184,13 @@ if __name__ == '__main__':
                     min_duration=min_duration,
                     max_duration=max_duration)
 
-                # Go through several IoU values
-                if not whole_night:
+                if task_mode == constants.N2_RECORD:
                     # Keep only N2 stamps
-                    y_pred_thr = [data_ops.extract_pages_with_stamps(
-                        this_y_pred_thr, this_pages, dataset.page_size
-                    ) for (this_y_pred_thr, this_pages)
-                        in zip(y_pred_thr, pages)]
+                    y_pred_thr = [
+                        data_ops.extract_pages_with_stamps(
+                            this_y_pred_thr, this_pages, dataset.page_size)
+                        for (this_y_pred_thr, this_pages)
+                        in zip(y_pred_thr, n2_pages)]
 
                 val_af1_at_thr = metrics.average_metric_with_list(
                     y_thr,
@@ -195,15 +204,16 @@ if __name__ == '__main__':
         print('Done')
 
     # Search optimum
-    print('\nReport for %s%strain_%s' % (ckpt_folder, descriptor, dataset_name))
+    print('\nVal AF1 report for %s' % full_ckpt_folder)
     for j, folder_name in enumerate(grid_folder_list):
         max_idx = np.argmax(np.array(crossval_af1_mean[folder_name])).item()
         half_idx = np.where(np.isclose(thr_list, 0.5))[0].item()
 
-        print('Val AF1 %1.4f +- %1.4f (mu %1.4f). %1.4f +- %1.4f (mu 0.5) for setting %s'
-              % (crossval_af1_mean[folder_name][max_idx],
+        print('%1.4f +- %1.4f (mu 0.5), '
+              '%1.4f +- %1.4f (mu %1.3f). for setting %s'
+              % (crossval_af1_mean[folder_name][half_idx],
+                 crossval_af1_std[folder_name][half_idx],
+                 crossval_af1_mean[folder_name][max_idx],
                  crossval_af1_std[folder_name][max_idx],
                  thr_list[max_idx],
-                 crossval_af1_mean[folder_name][half_idx],
-                 crossval_af1_std[folder_name][half_idx],
                  folder_name))
