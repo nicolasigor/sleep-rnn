@@ -28,7 +28,7 @@ SEED_LIST = [123, 234, 345, 456]
 if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results
-    ckpt_folder = '20190501_bsf'
+    ckpt_folder = '20190502_bsf_norm_activity'
     grid_folder_list = None
     whole_night = False
     dataset_name = constants.MASS_KC_NAME
