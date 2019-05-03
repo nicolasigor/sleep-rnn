@@ -34,8 +34,8 @@ if __name__ == '__main__':
     seed_list = [0, 1, 2, 3]
 
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190501_bsf'
-    whole_night = False
+    ckpt_folder = '20190430_bsf'
+    whole_night = True
     # Select database for prediction
     dataset_name_list = [
         constants.MASS_SS_NAME,

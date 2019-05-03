@@ -31,7 +31,7 @@ if __name__ == '__main__':
     ckpt_folder = '20190501_bsf'
     grid_folder_list = None
     whole_night = False
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.MASS_KC_NAME
     which_expert = 1
     verbose = False
 
