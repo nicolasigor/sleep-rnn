@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = '20190502_bsf_norm_activity'
-    whole_night = True
+    whole_night = False
     # Select database for prediction
     dataset_name_list = [
         constants.MASS_SS_NAME,
