@@ -8,6 +8,8 @@ import os
 import sys
 
 # TF logging control
+import sleep.data.loader
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import numpy as np
@@ -19,6 +21,7 @@ from sleep.data import utils
 from sleep.detection import metrics
 from sleep.detection.feeder_dataset import FeederDataset
 from sleep.neuralnet.models import WaveletBLSTM
+from sleep.data.loader import load_dataset
 from sleep.common import constants
 from sleep.common import pkeys
 
@@ -49,7 +52,7 @@ if __name__ == '__main__':
 
     for dataset_name in dataset_name_list:
         print('\nModel training on %s_%s' % (dataset_name, task_mode))
-        dataset = utils.load_dataset(dataset_name)
+        dataset = load_dataset(dataset_name)
         # Get training set ids
         all_train_ids = dataset.train_ids
         for id_try in id_try_list:
