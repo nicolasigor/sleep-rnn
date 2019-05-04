@@ -9,10 +9,10 @@ import pickle
 
 import numpy as np
 
-from sleep.common import checks
+from sleep.common import pkeys
 from sleep.common import constants
+from sleep.common import checks
 from . import utils
-from .utils import PATH_DATA
 
 KEY_EEG = 'signal'
 KEY_N2_PAGES = 'n2_pages'
@@ -32,12 +32,11 @@ class Dataset(object):
             self,
             dataset_dir,
             load_checkpoint,
-            name,
-            train_ids,
-            test_ids,
+            dataset_name,
+            all_ids,
+            event_name,
             n_experts=1,
-            fs=200,
-            page_duration=20
+            params=None,
     ):
         """Constructor.
 
@@ -46,55 +45,56 @@ class Dataset(object):
                This path can be absolute, or relative to the project root.
             load_checkpoint: (Boolean). Whether to load from a checkpoint or to
                load from scratch using the original files of the dataset.
-            name: (String) Name of the dataset. This name will be used for
+            dataset_name: (String) Name of the dataset. This name will be used for
                checkpoints.
             n_experts: (Int) Number of available data experts for data
                 spindle annotations.
-            train_ids: (list of int) List of IDs corresponding to the train
-                subset subjects.
-            test_ids: (list of int) List of IDs corresponding to the test
-                subset subjects.
+            all_ids: (list of int) List of available IDs.
         """
         # Save attributes
         if os.path.isabs(dataset_dir):
             self.dataset_dir = dataset_dir
         else:
-            self.dataset_dir = os.path.join(PATH_DATA, dataset_dir)
+            self.dataset_dir = os.path.join(utils.PATH_DATA, dataset_dir)
         # We verify that the directory exists
         checks.check_directory(self.dataset_dir)
 
         self.load_checkpoint = load_checkpoint
-        self.name = name
+        self.dataset_name = dataset_name
+        self.event_name = event_name
         self.n_experts = n_experts
         self.ckpt_dir = os.path.abspath(os.path.join(
-            self.dataset_dir, '..', 'ckpt_%s' % self.name))
+            self.dataset_dir, '..', 'ckpt_%s' % self.dataset_name))
         self.ckpt_file = os.path.join(
-            self.ckpt_dir, '%s.pickle' % self.name)
-        self.train_ids = list(train_ids)
-        self.test_ids = list(test_ids)
-        self.all_ids = self.train_ids + self.test_ids
-        self.train_ids.sort()
-        self.test_ids.sort()
+            self.ckpt_dir, '%s.pickle' % self.dataset_name)
+        self.all_ids = all_ids
         self.all_ids.sort()
-        print('Dataset %s with %d patients.' % (self.name, len(self.all_ids)))
-        print('Train size: %d. Test size: %d'
-              % (len(self.train_ids), len(self.test_ids)))
-        print('Train subjects: \n', self.train_ids)
-        print('Test subjects: \n', self.test_ids)
+        print('Dataset %s with %d patients.'
+              % (self.dataset_name, len(self.all_ids)))
 
         # events and data EEG related parameters
-        self.fs = fs  # Sampling frequency [Hz] to be used (not the original)
-        self.page_duration = page_duration  # Time of window page [s]
+        self.params = pkeys.default_params.copy()
+        if params is not None:
+            self.params.update(params)  # Overwrite defaults
+
+        # Sampling frequency [Hz] to be used (not the original)
+        self.fs = self.params[pkeys.FS]
+        # Time of window page [s]
+        self.page_duration = self.params[pkeys.PAGE_DURATION]
         self.page_size = int(self.page_duration * self.fs)
 
         # Data loading
         self.data = self._load_data()
 
+    def get_ids(self):
+        return self.all_ids
+
     def get_subject_pages(
             self,
             subject_id,
             pages_subset=constants.WN_RECORD,
-            verbose=False):
+            verbose=False
+    ):
         """Returns the indices of the pages of this subject."""
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         checks.check_valid_value(
@@ -129,12 +129,26 @@ class Dataset(object):
             subset_pages.append(pages)
         return subset_pages
 
+    def get_pages(
+            self,
+            pages_subset=constants.WN_RECORD,
+            verbose=False
+    ):
+        """Returns the list of pages from all subjects."""
+        subset_pages = self.get_subset_pages(
+            self.all_ids,
+            pages_subset=pages_subset,
+            verbose=verbose
+        )
+        return subset_pages
+
     def get_subject_stamps(
             self,
             subject_id,
             which_expert=1,
             pages_subset=constants.WN_RECORD,
-            verbose=False):
+            verbose=False
+    ):
         """Returns the sample-stamps of marks of this subject."""
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i + 1) for i in range(self.n_experts)]
@@ -177,6 +191,21 @@ class Dataset(object):
                 pages_subset=pages_subset,
                 verbose=verbose)
             subset_marks.append(marks)
+        return subset_marks
+
+    def get_stamps(
+            self,
+            which_expert=1,
+            pages_subset=constants.WN_RECORD,
+            verbose=False
+    ):
+        """Returns the list of stamps from all subjects."""
+        subset_marks = self.get_subset_stamps(
+            self.all_ids,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            verbose=verbose
+        )
         return subset_marks
 
     def get_subject_data(
@@ -309,6 +338,37 @@ class Dataset(object):
             subset_marks.append(marks)
         return subset_signals, subset_marks
 
+    def get_data(
+            self,
+            augmented_page=False,
+            border_size=0,
+            which_expert=1,
+            pages_subset=constants.WN_RECORD,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            verbose=False
+    ):
+        """Returns the list of signals and marks from all subjects.
+        """
+        subset_signals, subset_marks = self.get_subset_data(
+            self.all_ids,
+            augmented_page=augmented_page,
+            border_size=border_size,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            verbose=verbose
+        )
+        return subset_signals, subset_marks
+
+    def get_sub_dataset(self, subject_id_list):
+        """Data structure of a subset of subjects"""
+        data_subset = {}
+        for pat_id in subject_id_list:
+            data_subset[pat_id] = self.data[pat_id]
+        return data_subset
+
     def save_checkpoint(self):
         """Saves a pickle file containing the loaded data."""
         os.makedirs(self.ckpt_dir, exist_ok=True)
@@ -325,10 +385,10 @@ class Dataset(object):
         else:
             if self.load_checkpoint:
                 print("A checkpoint doesn't exist at %s."
-                      " Loading from files instead." % self.ckpt_file)
+                      " Loading from source instead." % self.ckpt_file)
             else:
-                print('Loading from files.')
-            data = self._load_from_files()
+                print('Loading from source.')
+            data = self._load_from_source()
         print('Loaded')
         return data
 
@@ -342,7 +402,7 @@ class Dataset(object):
         """Checks whether the pickle file with the checkpoint exists."""
         return os.path.isfile(self.ckpt_file)
 
-    def _load_from_files(self):
+    def _load_from_source(self):
         """Loads and return the data from files and transforms it appropriately.
         This is just a template for the specific implementation of the dataset.
         the value of the key KEY_ID has to be an integer.

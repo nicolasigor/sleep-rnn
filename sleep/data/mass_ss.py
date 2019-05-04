@@ -10,6 +10,7 @@ import time
 import numpy as np
 import pyedflib
 
+from sleep.common import constants
 from . import utils
 from . import stamp_correction
 from .dataset import Dataset
@@ -53,7 +54,7 @@ class MassSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, load_checkpoint=False):
+    def __init__(self, params=None, load_checkpoint=False):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -66,17 +67,25 @@ class MassSS(Dataset):
         self.max_ss_duration = 3  # Maximum duration of SS in seconds
 
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
-        test_ids = IDS_TEST
-        train_ids = [i for i in valid_ids if i not in test_ids]
+        self.test_ids = IDS_TEST
+        self.train_ids = [i for i in valid_ids if i not in self.test_ids]
+
+        print('Train size: %d. Test size: %d'
+              % (len(self.train_ids), len(self.test_ids)))
+        print('Train subjects: \n', self.train_ids)
+        print('Test subjects: \n', self.test_ids)
+
         super().__init__(
             dataset_dir=PATH_MASS_RELATIVE,
             load_checkpoint=load_checkpoint,
-            name='mass_ss',
-            train_ids=train_ids,
-            test_ids=test_ids,
-            n_experts=2)
+            dataset_name=constants.MASS_SS_NAME,
+            all_ids=self.train_ids + self.test_ids,
+            event_name=constants.SPINDLE,
+            n_experts=2,
+            params=params
+        )
 
-    def _load_from_files(self):
+    def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()
         data = {}
@@ -149,7 +158,7 @@ class MassSS(Dataset):
                     print(
                         'File not found: %s' % ind_dict[key])
             data_paths[subject_id] = ind_dict
-        print('%d records in %s dataset.' % (len(data_paths), self.name))
+        print('%d records in %s dataset.' % (len(data_paths), self.dataset_name))
         print('Subject IDs: %s' % self.all_ids)
         return data_paths
 

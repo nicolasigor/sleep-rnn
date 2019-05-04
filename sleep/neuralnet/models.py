@@ -14,6 +14,8 @@ import tensorflow as tf
 from sleep.common import pkeys
 from sleep.common import constants
 from sleep.common import checks
+from sleep.data import utils
+from sleep.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
 from . import networks
@@ -40,8 +42,9 @@ class WaveletBLSTM(BaseModel):
 
         Feat and label shapes can be obtained from params for this model.
         """
-        self.params = pkeys.default_params
-        self.params.update(params)  # Overwrite defaults
+        self.params = pkeys.default_params.copy()
+        if params is not None:
+            self.params.update(params)  # Overwrite defaults
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         augmented_input_length = 2*(page_size + border_size)
@@ -83,8 +86,32 @@ class WaveletBLSTM(BaseModel):
             y_val = y_val[:, border_size:-border_size:time_stride]
         return x_train, y_train, x_val, y_val
 
-    def fit(self, x_train, y_train, x_val, y_val):
+    def fit(self, data_train: FeederDataset, data_val: FeederDataset):
         """Fits the model to the training data."""
+        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        x_train, y_train = data_train.get_data_for_training(
+            border_size=border_size,
+            verbose=False)
+        x_val, y_val = data_val.get_data_for_training(
+            border_size=border_size,
+            verbose=False)
+
+        print('Train N', len(x_train))
+        print('Val N', len(x_val))
+
+        # Transform to numpy arrays
+        x_train_np = np.concatenate(x_train, axis=0)
+        y_train_np = np.concatenate(y_train, axis=0)
+        x_val_np = np.concatenate(x_val, axis=0)
+        y_val_np = np.concatenate(y_val, axis=0)
+
+        # Shuffle training set
+        x_train_np, y_train_np = utils.shuffle_data(
+            x_train_np, y_train_np, seed=0)
+
+        print('Training set shape', x_train_np.shape, y_train_np.shape)
+        print('Validation set shape', x_val_np.shape, y_val_np.shape)
+
         x_train, y_train, x_val, y_val = self.check_train_inputs(
             x_train, y_train, x_val, y_val)
         iter_per_epoch = x_train.shape[0] // self.params[pkeys.BATCH_SIZE]

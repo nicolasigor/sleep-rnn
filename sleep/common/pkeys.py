@@ -169,6 +169,9 @@ KC_MIN_SEPARATION = 'kc_min_separation'
 KC_MIN_DURATION = 'kc_min_duration'
 KC_MAX_DURATION = 'kc_max_duration'
 
+"""Inference params"""
+PREDICT_WITH_AUGMENTED_PAGE = 'predict_with_augmented_page'
+
 
 # Default parameters dictionary
 default_params = {
@@ -217,5 +220,6 @@ default_params = {
     SS_MAX_DURATION: 4.0,
     KC_MIN_SEPARATION: None,
     KC_MIN_DURATION: 0.3,
-    KC_MAX_DURATION: None
+    KC_MAX_DURATION: None,
+    PREDICT_WITH_AUGMENTED_PAGE: True
 }

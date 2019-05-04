@@ -12,13 +12,15 @@ from sleep.data.utils import seq2stamp_with_pages, extract_pages_for_stamps
 
 class PostProcessor(object):
 
-    def __init__(self, params, event_name):
+    def __init__(self, event_name, params=None):
         checks.check_valid_value(
             event_name, 'event_name',
             [constants.SPINDLE, constants.KCOMPLEX])
 
-        self.params = params
         self.event_name = event_name
+        self.params = pkeys.default_params.copy()
+        if params is not None:
+            self.params.update(params)
 
     def proba2stamps(
             self,

@@ -13,6 +13,8 @@ import tensorflow as tf
 
 from sleep.common import pkeys
 from sleep.common import constants
+from sleep.detection.feeder_dataset import FeederDataset
+from sleep.detection.predicted_dataset import PredictedDataset
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -66,7 +68,8 @@ class BaseModel(object):
         else:
             self.logdir = os.path.join(PATH_TO_PROJECT, logdir)
         self.params = pkeys.default_params.copy()
-        self.params.update(params)  # Overwrite defaults
+        if params is not None:
+            self.params.update(params)  # Overwrite defaults
 
         # Create directory of logs
         if not os.path.exists(self.logdir):
@@ -195,6 +198,27 @@ class BaseModel(object):
         # Save the parameters used to define this model
         with open(os.path.join(self.logdir, 'params.json'), 'w') as outfile:
             json.dump(self.params, outfile)
+
+    def predict_dataset(self, data_inference: FeederDataset, verbose=False):
+        with_augmented_page = self.params[pkeys.PREDICT_WITH_AUGMENTED_PAGE]
+        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        x_val, _ = data_inference.get_data_for_prediction(
+            border_size=border_size,
+            predict_with_augmented_page=with_augmented_page,
+            verbose=False)
+        print('Predicting val size', len(x_val))
+        probabilies_list = self.predict_proba_with_list(
+            x_val, verbose=verbose, with_augmented_page=with_augmented_page)
+        # Now create PredictedDataset object
+        probabilities_dict = {}
+        all_ids = data_inference.get_ids()
+        for k, sub_id in enumerate(all_ids):
+            probabilities_dict[sub_id] = probabilies_list[k]
+        prediction = PredictedDataset(
+            data_inference,
+            probabilities_dict,
+            params=self.params)
+        return prediction
 
     def predict_proba(self, x, with_augmented_page=False):
         """Predicts the class probabilities over the data x."""
@@ -370,7 +394,7 @@ class BaseModel(object):
     def _initialize_variables(self):
         self.sess.run(self.init_op)
 
-    def fit(self, x_train, y_train, x_val, y_val):
+    def fit(self, data_train, data_val):
         """This method has to be implemented."""
         pass
 

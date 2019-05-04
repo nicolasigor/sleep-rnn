@@ -10,6 +10,7 @@ import time
 import numpy as np
 import pyedflib
 
+from sleep.common import constants
 from . import utils
 from .dataset import Dataset
 from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS
@@ -50,7 +51,7 @@ class MassKC(Dataset):
         |__ ...
     """
 
-    def __init__(self, load_checkpoint=False):
+    def __init__(self, params=None, load_checkpoint=False):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -59,16 +60,18 @@ class MassKC(Dataset):
         self.n2_id = '2'  # Character for N2 identification in hypnogram
 
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
-        test_ids = IDS_TEST
-        train_ids = [i for i in valid_ids if i not in test_ids]
+        self.test_ids = IDS_TEST
+        self.train_ids = [i for i in valid_ids if i not in self.test_ids]
         super().__init__(
             dataset_dir=PATH_MASS_RELATIVE,
             load_checkpoint=load_checkpoint,
-            name='mass_kc',
-            train_ids=train_ids,
-            test_ids=test_ids)
+            dataset_name=constants.MASS_KC_NAME,
+            all_ids=self.train_ids + self.test_ids,
+            event_name=constants.KCOMPLEX,
+            params=params
+        )
 
-    def _load_from_files(self):
+    def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()
         data = {}
@@ -133,7 +136,7 @@ class MassKC(Dataset):
                     print(
                         'File not found: %s' % ind_dict[key])
             data_paths[subject_id] = ind_dict
-        print('%d records in %s dataset.' % (len(data_paths), self.name))
+        print('%d records in %s dataset.' % (len(data_paths), self.dataset_name))
         print('Subject IDs: %s' % self.all_ids)
         return data_paths
 
