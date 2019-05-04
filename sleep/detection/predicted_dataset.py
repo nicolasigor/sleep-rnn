@@ -85,7 +85,11 @@ class PredictedDataset(Dataset):
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
 
+        print('Old first stamps (expert)', self.data[self.all_ids[0]][stamp_key].shape)
+
+
         for k, sub_id in enumerate(self.all_ids):
             print('Keys Id ', sub_id)
             print(self.data[sub_id].keys())
             self.data[sub_id][stamp_key] = stamps_list[k]
+        print('New first stamps (expert)', self.data[self.all_ids[0]][stamp_key].shape)
