@@ -11,8 +11,8 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from sleep.utils import pkeys
-from sleep.utils import constants
+from sleep.common import pkeys
+from sleep.common import constants
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -49,7 +49,7 @@ class BaseModel(object):
             label_eval_shape: (iterable) Shape of the labels of a single
                 example that is the input to the evaluation iterator.
             params: (dict) Dictionary of parameters to configure the model.
-                See utils.model_keys for more details.
+                See common.model_keys for more details.
             logdir: (optional, string, defaults to 'logs') Directory of the
                 model. This path can be absolute, or relative to project root.
         """

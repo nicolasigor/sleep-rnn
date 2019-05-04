@@ -11,9 +11,9 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from sleep.utils import pkeys
-from sleep.utils import constants
-from sleep.utils import checks
+from sleep.common import pkeys
+from sleep.common import constants
+from sleep.common import checks
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
 from . import networks

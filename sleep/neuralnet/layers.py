@@ -10,8 +10,8 @@ import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
 from .spectrum import compute_cwt
-from sleep.utils import constants
-from sleep.utils import checks
+from sleep.common import constants
+from sleep.common import checks
 
 
 def batchnorm_layer(

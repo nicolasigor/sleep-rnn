@@ -9,10 +9,10 @@ import pickle
 
 import numpy as np
 
-from sleep.utils import checks
-from sleep.utils import constants
-from . import data_ops
-from .data_ops import PATH_DATA
+from sleep.common import checks
+from sleep.common import constants
+from . import utils
+from .utils import PATH_DATA
 
 KEY_EEG = 'signal'
 KEY_N2_PAGES = 'n2_pages'
@@ -153,7 +153,7 @@ class Dataset(object):
             pages = ind_dict[KEY_N2_PAGES]
 
         # Get stamps that are inside selected pages
-        marks = data_ops.extract_pages_with_stamps(
+        marks = utils.extract_pages_for_stamps(
             marks, pages, self.page_size)
 
         if verbose:
@@ -238,7 +238,7 @@ class Dataset(object):
             pages = ind_dict[KEY_N2_PAGES]
 
         # Transform stamps into sequence
-        marks = data_ops.inter2seq(marks, 0, signal.shape[0] - 1)
+        marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
 
         # Compute border to be added
         if augmented_page:
@@ -253,26 +253,26 @@ class Dataset(object):
                           'pages containing true events.')
                 # Normalize using stats from pages with true events.
                 tmp_pages = ind_dict[KEY_ALL_PAGES]
-                activity = data_ops.extract_pages(
+                activity = utils.extract_pages(
                     marks, tmp_pages,
                     self.page_size, border_size=0)
                 activity = activity.sum(axis=1)
                 activity = np.where(activity > 0)[0]
                 tmp_pages = tmp_pages[activity]
-                signal = data_ops.norm_clip_eeg(
+                signal = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size)
             else:
                 if verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
-                signal = data_ops.norm_clip_eeg(
+                signal = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size)
 
         # Extract segments
-        signal = data_ops.extract_pages(
+        signal = utils.extract_pages(
             signal, pages, self.page_size, border_size=total_border)
-        marks = data_ops.extract_pages(
+        marks = utils.extract_pages(
             marks, pages, self.page_size, border_size=total_border)
 
         if verbose:

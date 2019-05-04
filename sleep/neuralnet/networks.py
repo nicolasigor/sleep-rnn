@@ -8,9 +8,9 @@ import tensorflow as tf
 
 from . import layers
 
-from sleep.utils import constants
-from sleep.utils import checks
-from sleep.utils import pkeys
+from sleep.common import constants
+from sleep.common import checks
+from sleep.common import pkeys
 
 
 def dummy_net(
@@ -56,7 +56,7 @@ def wavelet_blstm_net_v1(
 
     Args:
         inputs: (2d tensor) input tensor of shape [batch_size, time_len]
-        params: (dict) Parameters to configure the model (see utils.param_keys)
+        params: (dict) Parameters to configure the model (see common.param_keys)
         training: (boolean) Indicates if it is the training phase or not.
         name: (Optional, string, defaults to 'model') A name for the network.
     """
@@ -159,7 +159,7 @@ def wavelet_blstm_net_v4(
 
     Args:
         inputs: (2d tensor) input tensor of shape [batch_size, time_len]
-        params: (dict) Parameters to configure the model (see utils.param_keys)
+        params: (dict) Parameters to configure the model (see common.param_keys)
         training: (boolean) Indicates if it is the training phase or not.
         name: (Optional, string, defaults to 'model_v4') A name for the network.
     """

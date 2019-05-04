@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from sleep.utils import constants
+from sleep.common import constants
 
 
 def get_iterator_splitted(

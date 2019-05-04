@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from sleep.utils import constants
+from sleep.common import constants
 
 
 def cross_entropy_loss_fn(logits, labels, class_weights):

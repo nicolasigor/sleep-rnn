@@ -10,8 +10,8 @@ import time
 import numpy as np
 import pyedflib
 
-from . import data_ops
-from . import postprocessing
+from . import utils
+from . import stamp_correction
 from .dataset import Dataset
 from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS
 
@@ -33,7 +33,7 @@ IDS_TEST = [2, 6, 12, 13]
 class MassSS(Dataset):
     """This is a class to manipulate the MASS data EEG dataset.
 
-    Expected directory tree inside DATA folder (see data_ops.py):
+    Expected directory tree inside DATA folder (see utils.py):
 
     PATH_MASS_RELATIVE
     |__ PATH_REC
@@ -87,7 +87,7 @@ class MassSS(Dataset):
             path_dict = data_paths[subject_id]
 
             # Read data
-            signal, fs_old = self._read_eeg(
+            signal = self._read_eeg(
                 path_dict[KEY_FILE_EEG])
             signal_len = signal.shape[0]
 
@@ -99,9 +99,9 @@ class MassSS(Dataset):
             print('Whole-night pages: %d' % all_pages.shape[0])
 
             marks_1 = self._read_marks(
-                path_dict['%s_1' % KEY_FILE_MARKS], fs_old)
+                path_dict['%s_1' % KEY_FILE_MARKS])
             marks_2 = self._read_marks(
-                path_dict['%s_2' % KEY_FILE_MARKS], fs_old)
+                path_dict['%s_2' % KEY_FILE_MARKS])
             print('Marks SS from E1: %d, Marks SS from E2: %d'
                   % (marks_1.shape[0], marks_2.shape[0]))
 
@@ -160,20 +160,21 @@ class MassSS(Dataset):
             channel_to_extract = channel_names.index(self.channel)
             signal = file.readSignal(channel_to_extract)
             fs_old = file.samplefrequency(channel_to_extract)
-            fs_old_round = int(np.round(fs_old))
-
             # Check
             print('Channel extracted: %s' % file.getLabel(channel_to_extract))
-        signal = data_ops.broad_filter(signal, fs_old)
-        # We need an integer fs_old, that's why we use the rounded version. This
-        # has the effect of slightly elongate the annotations of data spindles.
-        # We provide the original fs_old so we can fix this when we read the
-        # annotations. This fix is not made for the hypnogram because the effect
-        # there is negligible.
-        signal = data_ops.resample_eeg(signal, fs_old_round, self.fs)
-        return signal, fs_old
 
-    def _read_marks(self, path_marks_file, fs_old):
+        fs_old_round = int(np.round(fs_old))
+        # Transform the original fs frequency with decimals to rounded version
+        signal = utils.resample_signal_linear(
+            signal, fs_old=fs_old, fs_new=fs_old_round)
+        # Broand bandpass filter to signal
+        signal = utils.broad_filter(signal, fs_old)
+        # Now resample to the required frequency
+        signal = utils.resample_signal(
+            signal, fs_old=fs_old_round, fs_new=self.fs)
+        return signal
+
+    def _read_marks(self, path_marks_file):
         """Loads data spindle annotations from 'path_marks_file'.
         Marks with a duration outside feasible boundaries are removed.
         Returns the sample-stamps of each mark."""
@@ -183,18 +184,14 @@ class MassSS(Dataset):
         durations = np.array(annotations[1])
         offsets = onsets + durations
         marks_time = np.stack((onsets, offsets), axis=1)  # time-stamps
-        # Events are slightly longer due to the resampling using a
-        # rounded fs_old.
-        # Apparent sample frequency
-        fs_new = fs_old * self.fs / np.round(fs_old)
         # Transforms to sample-stamps
-        marks = np.round(marks_time * fs_new).astype(np.int32)
+        marks = np.round(marks_time * self.fs).astype(np.int32)
         # Combine marks that are too close according to standards
-        marks = postprocessing.combine_close_marks(
-            marks, fs_new, self.min_ss_duration)
+        marks = stamp_correction.combine_close_stamps(
+            marks, self.fs, self.min_ss_duration)
         # Fix durations that are outside standards
-        marks = postprocessing.filter_duration_marks(
-            marks, fs_new, self.min_ss_duration, self.max_ss_duration)
+        marks = stamp_correction.filter_duration_stamps(
+            marks, self.fs, self.min_ss_duration, self.max_ss_duration)
         return marks
 
     def _read_states(self, path_states_file, signal_length):
