@@ -100,17 +100,17 @@ class WaveletBLSTM(BaseModel):
         print('Val N', len(x_val))
 
         # Transform to numpy arrays
-        x_train_np = np.concatenate(x_train, axis=0)
-        y_train_np = np.concatenate(y_train, axis=0)
-        x_val_np = np.concatenate(x_val, axis=0)
-        y_val_np = np.concatenate(y_val, axis=0)
+        x_train = np.concatenate(x_train, axis=0)
+        y_train = np.concatenate(y_train, axis=0)
+        x_val = np.concatenate(x_val, axis=0)
+        y_val = np.concatenate(y_val, axis=0)
 
         # Shuffle training set
-        x_train_np, y_train_np = utils.shuffle_data(
-            x_train_np, y_train_np, seed=0)
+        x_train, y_train = utils.shuffle_data(
+            x_train, y_train, seed=0)
 
-        print('Training set shape', x_train_np.shape, y_train_np.shape)
-        print('Validation set shape', x_val_np.shape, y_val_np.shape)
+        print('Training set shape', x_train.shape, y_train.shape)
+        print('Validation set shape', x_val.shape, y_val.shape)
 
         x_train, y_train, x_val, y_val = self.check_train_inputs(
             x_train, y_train, x_val, y_val)
