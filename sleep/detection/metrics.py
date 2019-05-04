@@ -157,7 +157,7 @@ def metric_vs_iou(
     for iou_thr in iou_thr_list:
         if verbose:
             print(
-                'Processing IoU threshold %1.1f... ' % iou_thr,
+                'Processing IoU threshold %1.4f... ' % iou_thr,
                 end='', flush=True)
         this_stat = by_event_confusion(
             events, detections,

@@ -29,7 +29,7 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [0]
 
     # ----- Experiment settings
     experiment_name = 'bsf'
@@ -94,7 +94,7 @@ if __name__ == '__main__':
             print('Detections', len(detections_val), detections_val[0].shape)
             print('Events', len(events_val), events_val[0].shape)
             val_af1_at_half_thr = metrics.average_metric_with_list(
-                events_val, detections_val, verbose=verbose)
+                events_val, detections_val, verbose=True)
             print('Validation AF1 with thr 0.5: %1.6f' % val_af1_at_half_thr)
 
             metric_dict = {
