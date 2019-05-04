@@ -38,7 +38,7 @@ class PredictedDataset(Dataset):
 
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
-        ids_proba = list(self.probabilities_dict.keys)
+        ids_proba = list(self.probabilities_dict.keys())
         ids_data = dataset.all_ids
         ids_proba.sort()
         if ids_data != ids_proba:
