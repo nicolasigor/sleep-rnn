@@ -33,14 +33,14 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     experiment_name = 'bsf'
-    task_mode = constants.WN_RECORD
+    task_mode = constants.N2_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
 
-    description_str = 'bsf'
+    description_str = 'bsf after refactoring feeding and postprocessing'
     which_expert = 1
     verbose = True
     # -----

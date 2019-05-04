@@ -59,11 +59,9 @@ class PredictedDataset(Dataset):
 
     def _update_stamps(self):
 
-        print('Producing probability list')
         probabilities_list = []
         for sub_id in self.all_ids:
             probabilities_list.append(self.probabilities_dict[sub_id])
-        print('Probability list size', len(probabilities_list))
 
         wn_pages_val = self.get_pages(pages_subset=constants.WN_RECORD)
         if self.task_mode == constants.N2_RECORD:
@@ -72,24 +70,14 @@ class PredictedDataset(Dataset):
                 pages_subset=constants.N2_RECORD)
         else:
             n2_pages_val = None
-        print('WN pages list size', len(wn_pages_val))
 
-        print('Thr', self.probability_threshold)
         stamps_list = self.postprocessor.proba2stamps_with_list(
             probabilities_list,
             wn_pages_val,
             pages_indices_subset=n2_pages_val,
             thr=self.probability_threshold)
-        print('Size stamp list', len(stamps_list))
-        print('First stamp', stamps_list[0].shape)
+
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
-
-        print('Old first stamps (expert)', self.data[self.all_ids[0]][stamp_key].shape)
-
-
         for k, sub_id in enumerate(self.all_ids):
-            print('Keys Id ', sub_id)
-            print(self.data[sub_id].keys())
             self.data[sub_id][stamp_key] = stamps_list[k]
-        print('New first stamps (expert)', self.data[self.all_ids[0]][stamp_key].shape)

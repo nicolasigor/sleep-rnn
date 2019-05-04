@@ -200,7 +200,6 @@ class Dataset(object):
             verbose=False
     ):
         """Returns the list of stamps from all subjects."""
-        print(self.all_ids)
         subset_marks = self.get_subset_stamps(
             self.all_ids,
             which_expert=which_expert,
