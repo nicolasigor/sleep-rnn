@@ -7,8 +7,6 @@ from __future__ import print_function
 
 import numpy as np
 
-from .utils import seq2stamp_with_pages
-
 
 def combine_close_stamps(marks, fs, min_separation):
     """Combines contiguous marks that are too close to each other. Marks are
