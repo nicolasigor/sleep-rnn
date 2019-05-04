@@ -367,7 +367,7 @@ class Dataset(object):
         """Data structure of a subset of subjects"""
         data_subset = {}
         for pat_id in subject_id_list:
-            data_subset[pat_id] = self.data[pat_id]
+            data_subset[pat_id] = self.data[pat_id].copy()
         return data_subset
 
     def save_checkpoint(self):
