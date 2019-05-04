@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     description_str = 'bsf'
     which_expert = 1
-    verbose = False
+    verbose = True
     # -----
 
     # Complement experiment folder name with date
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             params = pkeys.default_params.copy()
             params[pkeys.MAX_ITERS] = 100
             model = WaveletBLSTM(params, logdir=logdir)
-            model.fit(data_train, data_val)
+            model.fit(data_train, data_val, verbose=verbose)
 
             # Validation metrics
             print('Predicting Validation set')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             print('Done set')
 
             # ----- Obtain AF1 metric
-            detections_val = prediction_val.get_stamps(thr=0.5)
+            detections_val = prediction_val.get_stamps()
             events_val = data_val.get_stamps()
             print('Detections', len(detections_val), detections_val[0].shape)
             print('Events', len(events_val), events_val[0].shape)

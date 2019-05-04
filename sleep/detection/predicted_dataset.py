@@ -53,8 +53,8 @@ class PredictedDataset(Dataset):
         data = self.parent_dataset.get_sub_dataset(self.all_ids)
         return data
 
-    def set_probability_threshold(self, new_thr):
-        self.probability_threshold = new_thr
+    def set_probability_threshold(self, new_probability_threshold):
+        self.probability_threshold = new_probability_threshold
         self._update_stamps()
 
     def _update_stamps(self):

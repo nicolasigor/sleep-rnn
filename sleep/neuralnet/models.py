@@ -86,15 +86,19 @@ class WaveletBLSTM(BaseModel):
             y_val = y_val[:, border_size:-border_size:time_stride]
         return x_train, y_train, x_val, y_val
 
-    def fit(self, data_train: FeederDataset, data_val: FeederDataset):
+    def fit(
+            self,
+            data_train: FeederDataset,
+            data_val: FeederDataset,
+            verbose=False):
         """Fits the model to the training data."""
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
         x_train, y_train = data_train.get_data_for_training(
             border_size=border_size,
-            verbose=False)
+            verbose=verbose)
         x_val, y_val = data_val.get_data_for_training(
             border_size=border_size,
-            verbose=False)
+            verbose=verbose)
 
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
