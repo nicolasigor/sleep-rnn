@@ -206,7 +206,6 @@ class BaseModel(object):
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
             verbose=False)
-        print('Predicting val size', len(x_val))
         probabilies_list = self.predict_proba_with_list(
             x_val, verbose=verbose, with_augmented_page=with_augmented_page)
         # Now create PredictedDataset object

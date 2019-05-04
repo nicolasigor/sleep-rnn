@@ -20,14 +20,6 @@ class PredictedDataset(Dataset):
     ):
 
         """Constructor"""
-        self.parent_dataset = dataset
-        self.task_mode = dataset.task_mode
-        self.probabilities_dict = probabilities_dict
-        self.postprocessor = PostProcessor(
-            event_name=dataset.event_name, params=params)
-        self.probability_threshold = None
-        self.set_probability_threshold(0.5)
-
         super().__init__(
             dataset_dir=dataset.dataset_dir,
             load_checkpoint=False,
@@ -38,6 +30,13 @@ class PredictedDataset(Dataset):
             params=dataset.params
         )
 
+        self.parent_dataset = dataset
+        self.task_mode = dataset.task_mode
+        self.probabilities_dict = probabilities_dict
+        self.postprocessor = PostProcessor(
+            event_name=dataset.event_name, params=params)
+        self.probability_threshold = None
+
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
         ids_proba = list(self.probabilities_dict.keys)
@@ -47,6 +46,8 @@ class PredictedDataset(Dataset):
             raise ValueError(
                 'IDs mismatch: IDs from predictions are %s '
                 'but IDs from given dataset are %s' % (ids_proba, ids_data))
+
+        self.set_probability_threshold(0.5)
 
     def _load_from_source(self):
         """Loads the data from source."""

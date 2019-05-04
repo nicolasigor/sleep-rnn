@@ -24,6 +24,7 @@ from sleep.common import pkeys
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
 
+# TODO refactor based on bsf_train_crossval.py
 if __name__ == '__main__':
 
     # ----- Prediction settings

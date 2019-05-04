@@ -26,7 +26,7 @@ from sleep.common import pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 
-
+# TODO refactor based on bsf_train_crossval.py
 if __name__ == '__main__':
 
     id_try_list = [0, 1, 2, 3]

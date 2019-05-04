@@ -96,9 +96,6 @@ class WaveletBLSTM(BaseModel):
             border_size=border_size,
             verbose=False)
 
-        print('Train N', len(x_train))
-        print('Val N', len(x_val))
-
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
         y_train = np.concatenate(y_train, axis=0)
