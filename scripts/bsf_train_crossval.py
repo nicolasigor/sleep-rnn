@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
             # Create and train model
             params = pkeys.default_params.copy()
-            params[pkeys.MAX_ITERS] = 200
+            params[pkeys.MAX_ITERS] = 100
             model = WaveletBLSTM(params, logdir=logdir)
             model.fit(data_train, data_val)
 

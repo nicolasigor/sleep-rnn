@@ -18,6 +18,12 @@ class PredictedDataset(Dataset):
             probabilities_dict,
             params=None
     ):
+        self.parent_dataset = dataset
+        self.task_mode = dataset.task_mode
+        self.probabilities_dict = probabilities_dict
+        self.postprocessor = PostProcessor(
+            event_name=dataset.event_name, params=params)
+        self.probability_threshold = None
 
         """Constructor"""
         super().__init__(
@@ -29,13 +35,6 @@ class PredictedDataset(Dataset):
             n_experts=1,
             params=dataset.params
         )
-
-        self.parent_dataset = dataset
-        self.task_mode = dataset.task_mode
-        self.probabilities_dict = probabilities_dict
-        self.postprocessor = PostProcessor(
-            event_name=dataset.event_name, params=params)
-        self.probability_threshold = None
 
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
