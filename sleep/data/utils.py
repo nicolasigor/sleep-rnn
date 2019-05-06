@@ -76,6 +76,21 @@ def seq2stamp_with_pages(pages_sequence, pages_indices):
     return stamps
 
 
+def pages2seq(pages_data, pages_indices):
+    if pages_data.shape[0] != pages_indices.shape[0]:
+        raise ValueError('Shape mismatch. Inputs need the same number of rows.')
+
+    page_size = pages_data.shape[1]
+    max_page = np.max(pages_indices)
+    max_size = (max_page + 1) * page_size
+    global_sequence = np.zeros(max_size, dtype=pages_data.dtype)
+    for i, page in enumerate(pages_indices):
+        sample_start = page * page_size
+        sample_end = (page + 1) * page_size
+        global_sequence[sample_start:sample_end] = pages_data[i, :]
+    return global_sequence
+
+
 def broad_filter(signal, fs, lowcut=0.1, highcut=35):
     """Returns filtered signal sampled at fs Hz, with a [lowcut, highcut] Hz
     bandpass."""

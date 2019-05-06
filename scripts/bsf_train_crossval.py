@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     experiment_name = 'bsf'
-    task_mode = constants.WN_RECORD
+    task_mode = constants.N2_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME,
@@ -63,10 +63,10 @@ if __name__ == '__main__':
                 all_train_ids, seed=seed)
             print('Training set IDs:', train_ids)
             data_train = FeederDataset(
-                dataset, train_ids, task_mode, which_expert=1)
+                dataset, train_ids, task_mode, which_expert=which_expert)
             print('Validation set IDs:', val_ids)
             data_val = FeederDataset(
-                dataset, val_ids, task_mode, which_expert=1)
+                dataset, val_ids, task_mode, which_expert=which_expert)
 
             # Path to save results of run
             logdir = os.path.join(

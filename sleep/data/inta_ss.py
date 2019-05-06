@@ -107,11 +107,11 @@ class IntaSS(Dataset):
                 path_dict[KEY_FILE_EEG])
             signal_len = signal.shape[0]
 
-            useful_pages = self._read_states(
+            n2_pages = self._read_states(
                 path_dict[KEY_FILE_STATES], signal_len)
             total_pages = int(np.ceil(signal_len / self.page_size))
-            all_pages = np.arange(1, total_pages - 2, dtype=np.int32)
-            print('N2 pages: %d' % useful_pages.shape[0])
+            all_pages = np.arange(1, total_pages - 2, dtype=np.int16)
+            print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
 
             marks_1 = self._read_marks(
@@ -121,7 +121,7 @@ class IntaSS(Dataset):
             # Save data
             ind_dict = {
                 KEY_EEG: signal,
-                KEY_N2_PAGES: useful_pages,
+                KEY_N2_PAGES: n2_pages,
                 KEY_ALL_PAGES: all_pages,
                 '%s_1' % KEY_MARKS: marks_1
             }
@@ -169,6 +169,7 @@ class IntaSS(Dataset):
             # Check
             print('Channel extracted: %s' % file.getLabel(self.channel))
         signal = utils.broad_filter(signal, self.fs)
+        signal = signal.astype(np.float32)
         return signal
 
     def _read_marks(self, path_marks_file):
@@ -199,7 +200,7 @@ class IntaSS(Dataset):
         onsets_original = n2_pages_original * self.original_page_duration
         offsets_original = (n2_pages_original + 1) * self.original_page_duration
         total_pages = int(np.ceil(signal_length / self.page_size))
-        n2_pages_onehot = np.zeros(total_pages, dtype=np.int32)
+        n2_pages_onehot = np.zeros(total_pages, dtype=np.int16)
         for i in range(total_pages):
             onset_new_page = i * self.page_duration
             offset_new_page = (i + 1) * self.page_duration
@@ -217,7 +218,7 @@ class IntaSS(Dataset):
             (n2_pages != 0)
             & (n2_pages != last_page)
             & (n2_pages != last_page - 1)]
-        n2_pages = n2_pages.astype(np.int32)
+        n2_pages = n2_pages.astype(np.int16)
         return n2_pages
 
     def _repair_stamps(self):

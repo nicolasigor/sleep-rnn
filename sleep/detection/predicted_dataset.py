@@ -4,7 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from sleep.data.dataset import Dataset, KEY_MARKS
+from sleep.data.dataset import Dataset
+from sleep.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
 from sleep.common import constants
 from .feeder_dataset import FeederDataset
 from .postprocessor import PostProcessor
@@ -16,7 +17,8 @@ class PredictedDataset(Dataset):
             self,
             dataset: FeederDataset,
             probabilities_dict,
-            params=None
+            params=None,
+            verbose=False
     ):
         self.parent_dataset = dataset
         self.task_mode = dataset.task_mode
@@ -33,7 +35,8 @@ class PredictedDataset(Dataset):
             all_ids=dataset.all_ids,
             event_name=dataset.event_name,
             n_experts=1,
-            params=dataset.params
+            params=dataset.params,
+            verbose=verbose
         )
 
         # Check that subject ids in probabilities are the same as the ones
@@ -50,7 +53,20 @@ class PredictedDataset(Dataset):
 
     def _load_from_source(self):
         """Loads the data from source."""
-        data = self.parent_dataset.get_sub_dataset(self.all_ids)
+        original_data = self.parent_dataset.get_sub_dataset(self.all_ids)
+        self.parent_dataset = None
+
+        # Extract only necessary stuff
+        data = {}
+        for sub_id in self.all_ids:
+            pat_dict = {
+                KEY_EEG: None,
+                KEY_N2_PAGES: original_data[sub_id][KEY_N2_PAGES],
+                KEY_ALL_PAGES: original_data[sub_id][KEY_ALL_PAGES],
+                '%s_%d' % (KEY_MARKS, 1): None
+            }
+            data[sub_id] = pat_dict
+
         return data
 
     def set_probability_threshold(self, new_probability_threshold):
@@ -58,12 +74,10 @@ class PredictedDataset(Dataset):
         self._update_stamps()
 
     def _update_stamps(self):
-
         probabilities_list = []
         for sub_id in self.all_ids:
             probabilities_list.append(self.probabilities_dict[sub_id])
 
-        wn_pages_val = self.get_pages(pages_subset=constants.WN_RECORD)
         if self.task_mode == constants.N2_RECORD:
             # Keep only N2 stamps
             n2_pages_val = self.get_pages(
@@ -73,11 +87,22 @@ class PredictedDataset(Dataset):
 
         stamps_list = self.postprocessor.proba2stamps_with_list(
             probabilities_list,
-            wn_pages_val,
-            pages_indices_subset=n2_pages_val,
+            pages_indices_subset_list=n2_pages_val,
             thr=self.probability_threshold)
 
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
         for k, sub_id in enumerate(self.all_ids):
             self.data[sub_id][stamp_key] = stamps_list[k]
+
+    def get_subject_probabilities(self, subject_id):
+        return self.probabilities_dict[subject_id]
+
+    def get_subset_probabilities(self, subject_ids):
+        proba_list = []
+        for sub_id in subject_ids:
+            proba_list.append(self.get_subject_probabilities(sub_id))
+        return proba_list
+
+    def get_probabilities(self):
+        return self.get_subset_probabilities(self.all_ids)

@@ -15,7 +15,9 @@ class FeederDataset(Dataset):
             dataset: Dataset,
             sub_ids,
             task_mode,
-            which_expert=1):
+            which_expert=1,
+            verbose=False
+    ):
 
         """Constructor"""
         checks.check_valid_value(
@@ -33,12 +35,14 @@ class FeederDataset(Dataset):
             all_ids=sub_ids,
             event_name=dataset.event_name,
             n_experts=dataset.n_experts,
-            params=dataset.params
+            params=dataset.params,
+            verbose=verbose
         )
 
     def _load_from_source(self):
         """Loads the data from source."""
         data = self.parent_dataset.get_sub_dataset(self.all_ids)
+        self.parent_dataset = None
         return data
 
     def get_data_for_training(

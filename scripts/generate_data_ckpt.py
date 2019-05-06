@@ -16,12 +16,13 @@ from sleep.data.inta_ss import IntaSS
 if __name__ == '__main__':
 
     datasets_class = [MassSS, MassKC, IntaSS]
+    repair_inta = False
 
     for k, data_class in enumerate(datasets_class):
         # Create checkpoint and load to check
         print('')
         if k == 2:
-            dataset = data_class(repair_stamps=True)
+            dataset = data_class(repair_stamps=repair_inta)
         else:
             dataset = data_class()
         dataset.save_checkpoint()

@@ -8,6 +8,7 @@ from sleep.common import checks, constants, pkeys
 from sleep.data.stamp_correction import filter_duration_stamps
 from sleep.data.stamp_correction import combine_close_stamps
 from sleep.data.utils import seq2stamp_with_pages, extract_pages_for_stamps
+from sleep.data.utils import seq2stamp
 
 
 class PostProcessor(object):
@@ -24,8 +25,8 @@ class PostProcessor(object):
 
     def proba2stamps(
             self,
-            pages_sequence,
-            pages_indices,
+            proba_data,
+            pages_indices=None,
             pages_indices_subset=None,
             thr=0.5):
         """
@@ -36,14 +37,16 @@ class PostProcessor(object):
         # Thresholding
         if thr is None:
             # We assume that sequence is already binary
-            pages_sequence_bin = pages_sequence
+            proba_data_bin = proba_data
         else:
-            pages_sequence_bin = (pages_sequence >= thr).astype(np.int32)
+            proba_data_bin = (proba_data >= thr).astype(np.int32)
 
         # Transformation to stamps
-        stamps = seq2stamp_with_pages(
-            pages_sequence_bin, pages_indices)
-
+        if pages_indices is None:
+            stamps = seq2stamp(proba_data_bin)
+        else:
+            stamps = seq2stamp_with_pages(
+                proba_data_bin, pages_indices)
         # Postprocessing
         # Note that when min_separation, min_duration, or max_duration is None,
         # that postprocessing doesn't happen.
@@ -73,27 +76,38 @@ class PostProcessor(object):
 
         if pages_indices_subset is not None:
             page_size = int(self.params[pkeys.PAGE_DURATION] * fs_output)
-            stamps = [
-                extract_pages_for_stamps(
-                    this_stamps, this_pages, page_size)
-                for (this_stamps, this_pages)
-                in zip(stamps, pages_indices_subset)]
+            stamps = extract_pages_for_stamps(
+                stamps, pages_indices_subset, page_size)
 
         return stamps
 
     def proba2stamps_with_list(
             self,
             pages_sequence_list,
-            pages_indices_list,
-            pages_indices_subset=None,
+            pages_indices_list=None,
+            pages_indices_subset_list=None,
             thr=0.5):
+
+        if pages_indices_list is None:
+            pages_indices_list = [None] * len(pages_sequence_list)
+        if pages_indices_subset_list is None:
+            pages_indices_subset_list = [None] * len(pages_sequence_list)
+
         stamps_list = [
             self.proba2stamps(
-                pages_sequence, pages_indices,
+                pages_sequence,
+                pages_indices,
                 pages_indices_subset=pages_indices_subset,
                 thr=thr)
-            for (pages_sequence, pages_indices)
-            in zip(pages_sequence_list, pages_indices_list)]
+            for (
+                pages_sequence,
+                pages_indices,
+                pages_indices_subset)
+            in zip(
+                pages_sequence_list,
+                pages_indices_list,
+                pages_indices_subset_list)]
+
         return stamps_list
 
     def _upsample_stamps(self, stamps):

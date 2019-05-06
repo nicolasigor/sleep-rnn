@@ -37,6 +37,7 @@ class Dataset(object):
             event_name,
             n_experts=1,
             params=None,
+            verbose=True
     ):
         """Constructor.
 
@@ -69,8 +70,9 @@ class Dataset(object):
             self.ckpt_dir, '%s.pickle' % self.dataset_name)
         self.all_ids = all_ids
         self.all_ids.sort()
-        print('Dataset %s with %d patients.'
-              % (self.dataset_name, len(self.all_ids)))
+        if verbose:
+            print('Dataset %s with %d patients.'
+                  % (self.dataset_name, len(self.all_ids)))
 
         # events and data EEG related parameters
         self.params = pkeys.default_params.copy()
@@ -84,7 +86,7 @@ class Dataset(object):
         self.page_size = int(self.page_duration * self.fs)
 
         # Data loading
-        self.data = self._load_data()
+        self.data = self._load_data(verbose=verbose)
 
     def get_ids(self):
         return self.all_ids
@@ -377,19 +379,22 @@ class Dataset(object):
                 self.data, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print('Checkpoint saved at %s' % self.ckpt_file)
 
-    def _load_data(self):
+    def _load_data(self, verbose):
         """Loads data either from a checkpoint or from scratch."""
         if self.load_checkpoint and self._exists_checkpoint():
-            print('Loading from checkpoint... ', flush=True, end='')
+            if verbose:
+                print('Loading from checkpoint... ', flush=True, end='')
             data = self._load_from_checkpoint()
         else:
-            if self.load_checkpoint:
-                print("A checkpoint doesn't exist at %s."
-                      " Loading from source instead." % self.ckpt_file)
-            else:
-                print('Loading from source.')
+            if verbose:
+                if self.load_checkpoint:
+                    print("A checkpoint doesn't exist at %s."
+                          " Loading from source instead." % self.ckpt_file)
+                else:
+                    print('Loading from source.')
             data = self._load_from_source()
-        print('Loaded')
+        if verbose:
+            print('Loaded')
         return data
 
     def _load_from_checkpoint(self):

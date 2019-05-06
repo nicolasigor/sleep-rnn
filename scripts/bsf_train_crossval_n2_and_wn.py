@@ -43,7 +43,7 @@ if __name__ == '__main__':
         constants.MASS_KC_NAME
     ]
 
-    description_str = 'bsf after refactoring feeding and postprocessing'
+    description_str = 'bsf'
     which_expert = 1
     verbose = True
     # -----

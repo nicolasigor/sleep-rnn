@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
+import pickle
 from pprint import pprint
 
 import numpy as np
@@ -11,11 +12,9 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data.inta_ss import IntaSS
-from sleep.data.mass_kc import MassKC
-from sleep.data.mass_ss import MassSS
+from sleep.data.loader import load_dataset
 from sleep.data import utils
-from sleep.detection.postprocessor import PostProcessor
+from sleep.detection.feeder_dataset import FeederDataset
 from sleep.detection import metrics
 from sleep.common import constants
 from sleep.common import checks
@@ -24,14 +23,15 @@ from sleep.common import pkeys
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
 
-# TODO refactor based on bsf_train_crossval.py
+
 if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190503_bsf'
-    task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+
+    ckpt_folder = '20190504_bsf'
+    task_mode = constants.WN_RECORD
+    dataset_name = constants.MASS_KC_NAME
 
     which_expert = 1
     verbose = False
@@ -47,46 +47,11 @@ if __name__ == '__main__':
     # -----------------------------------------------------------
 
     # Load data
-    checks.check_valid_value(
-        dataset_name, 'dataset_name',
-        [
-            constants.MASS_KC_NAME,
-            constants.MASS_SS_NAME,
-            constants.INTA_SS_NAME
-        ])
-    if dataset_name == constants.MASS_SS_NAME:
-        dataset = MassSS(load_checkpoint=True)
-    elif dataset_name == constants.MASS_KC_NAME:
-        dataset = MassKC(load_checkpoint=True)
-    else:
-        dataset = IntaSS(load_checkpoint=True)
-
-    checks.check_valid_value(
-        task_mode, 'task_mode',
-        [constants.WN_RECORD, constants.N2_RECORD])
+    dataset = load_dataset(dataset_name)
 
     # Get training set ids
     print('Loading train set... ', end='', flush=True)
     all_train_ids = dataset.train_ids
-    # Get subjects data, with the expert used for training
-    print('Signals and marks loaded... ', end='', flush=True)
-    all_wn_pages = dataset.get_subset_pages(
-            all_train_ids,
-            pages_subset=constants.WN_RECORD,
-            verbose=verbose)
-    all_n2_pages = dataset.get_subset_pages(
-        all_train_ids,
-        pages_subset=constants.N2_RECORD,
-        verbose=verbose)
-    print('Pages loaded.', flush=True)
-
-    # Prepare expert labels into marks
-    print('Preparing labels... ', end='', flush=True)
-    all_y_stamps = dataset.get_subset_stamps(
-        all_train_ids,
-        which_expert=which_expert,
-        pages_subset=task_mode,
-        verbose=verbose)
     print('Done')
 
     full_ckpt_folder = '%s_%s_train_%s' \
@@ -102,16 +67,14 @@ if __name__ == '__main__':
 
     print('')
 
-    # Load predictions (probability vectors for each page),
-    # 200/factor resolution (default factor 8)
-    set_list = [constants.VAL_SUBSET]
-    y_pred = {}
+    # Load predictions
+    predictions_dict = {}
     n_seeds = len(SEED_LIST)
 
     for j, folder_name in enumerate(grid_folder_list):
 
         print('\nGrid setting: %s' % folder_name)
-        y_pred[folder_name] = []
+        predictions_dict[folder_name] = []
         for k in range(n_seeds):
             print('\n%d / %d' % (k+1, n_seeds))
             if j == 0:
@@ -127,12 +90,12 @@ if __name__ == '__main__':
             ))
             print('Loading predictions from %s' % ckpt_path)
             this_dict = {}
-            for set_name in set_list:
-                this_dict[set_name] = np.load(
-                    os.path.join(
-                        ckpt_path, 'y_pred_%s_%s.npy' % (task_mode, set_name)),
-                    allow_pickle=True)
-            y_pred[folder_name].append(this_dict)
+            filename = os.path.join(
+                    ckpt_path,
+                    'prediction_%s_%s.pkl' % (task_mode, constants.VAL_SUBSET))
+            with open(filename, 'rb') as handle:
+                this_pred = pickle.load(handle)
+            predictions_dict[folder_name].append(this_pred)
     print('\nDone')
 
     # Adjust thr
@@ -143,13 +106,6 @@ if __name__ == '__main__':
     print('Number of thresholds to be evaluated: %d' % len(thr_list))
 
     # ---------------- Compute performance
-    params = pkeys.default_params.copy()
-    if dataset_name in [constants.MASS_SS_NAME, constants.INTA_SS_NAME]:
-        event_name = constants.SPINDLE
-    else:
-        event_name = constants.KCOMPLEX
-    postprocessor = PostProcessor(params, event_name)
-
     crossval_af1_mean = {}
     crossval_af1_std = {}
     for folder_name in grid_folder_list:
@@ -160,33 +116,23 @@ if __name__ == '__main__':
             print('Processing thr %1.4f' % thr)
             val_af1 = []
             for k, seed in enumerate(SEED_LIST):
-                # Prepare expert labels
+                # Validation split
                 _, val_ids = utils.split_ids_list(
                     all_train_ids, seed=seed, verbose=verbose)
                 if verbose:
                     print('Val IDs:', val_ids)
-                val_idx = [all_train_ids.index(this_id) for this_id in val_ids]
-                y_thr = [all_y_stamps[i] for i in val_idx]
-                wn_pages = [all_wn_pages[i] for i in val_idx]
-                if task_mode == constants.N2_RECORD:
-                    n2_pages = [all_n2_pages[i] for i in val_idx]
-                else:
-                    n2_pages = None
-
+                # Prepare expert labels
+                data_val = FeederDataset(
+                    dataset, val_ids, task_mode, which_expert=which_expert)
+                events_val = data_val.get_stamps()
                 # Prepare model predictions
-                y_pred_thr = postprocessor.proba2stamps_with_list(
-                    y_pred[folder_name][k][constants.VAL_SUBSET],
-                    wn_pages,
-                    pages_indices_subset=n2_pages,
-                    thr=thr)
-
+                prediction_val = predictions_dict[folder_name][k]
+                prediction_val.set_probability_threshold(thr)
+                detections_val = prediction_val.get_stamps()
+                # Compute AF1
                 val_af1_at_thr = metrics.average_metric_with_list(
-                    y_thr,
-                    y_pred_thr,
-                    verbose=verbose)
-
+                    events_val, detections_val, verbose=False)
                 val_af1.append(val_af1_at_thr)
-
             crossval_af1_mean[folder_name].append(np.mean(val_af1))
             crossval_af1_std[folder_name].append(np.std(val_af1))
         print('Done')

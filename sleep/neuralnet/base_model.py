@@ -15,6 +15,7 @@ from sleep.common import pkeys
 from sleep.common import constants
 from sleep.detection.feeder_dataset import FeederDataset
 from sleep.detection.predicted_dataset import PredictedDataset
+from sleep.data.utils import pages2seq
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -212,7 +213,12 @@ class BaseModel(object):
         probabilities_dict = {}
         all_ids = data_inference.get_ids()
         for k, sub_id in enumerate(all_ids):
-            probabilities_dict[sub_id] = probabilies_list[k]
+            this_proba = probabilies_list[k]
+            # Transform to whole-night probability vector
+            this_proba = pages2seq(
+                this_proba,
+                data_inference.get_subject_pages(sub_id, constants.WN_RECORD))
+            probabilities_dict[sub_id] = this_proba
         prediction = PredictedDataset(
             data_inference,
             probabilities_dict,
@@ -272,6 +278,9 @@ class BaseModel(object):
 
         # Keep only probability of class 1
         final_probabilities = final_probabilities[..., 1]
+
+        # Transform to float16 precision
+        final_probabilities = final_probabilities.astype(np.float16)
 
         return final_probabilities
 

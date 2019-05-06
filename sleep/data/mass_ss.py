@@ -100,11 +100,11 @@ class MassSS(Dataset):
                 path_dict[KEY_FILE_EEG])
             signal_len = signal.shape[0]
 
-            useful_pages = self._read_states(
+            n2_pages = self._read_states(
                 path_dict[KEY_FILE_STATES], signal_len)
             total_pages = int(np.ceil(signal_len / self.page_size))
-            all_pages = np.arange(1, total_pages - 2, dtype=np.int32)
-            print('N2 pages: %d' % useful_pages.shape[0])
+            all_pages = np.arange(1, total_pages - 2, dtype=np.int16)
+            print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
 
             marks_1 = self._read_marks(
@@ -117,7 +117,7 @@ class MassSS(Dataset):
             # Save data
             ind_dict = {
                 KEY_EEG: signal,
-                KEY_N2_PAGES: useful_pages,
+                KEY_N2_PAGES: n2_pages,
                 KEY_ALL_PAGES: all_pages,
                 '%s_1' % KEY_MARKS: marks_1,
                 '%s_2' % KEY_MARKS: marks_2
@@ -181,6 +181,7 @@ class MassSS(Dataset):
         # Now resample to the required frequency
         signal = utils.resample_signal(
             signal, fs_old=fs_old_round, fs_new=self.fs)
+        signal = signal.astype(np.float32)
         return signal
 
     def _read_marks(self, path_marks_file):
@@ -215,7 +216,7 @@ class MassSS(Dataset):
         total_annots = len(stages_char)
         # Total pages not necessarily equal to total_annots
         total_pages = int(np.ceil(signal_length / self.page_size))
-        n2_pages_onehot = np.zeros(total_pages, dtype=np.int32)
+        n2_pages_onehot = np.zeros(total_pages, dtype=np.int16)
         for i in range(total_annots):
             if stages_char[i] == self.n2_id:
                 page_idx = int(np.round(onsets[i] / self.page_duration))
@@ -229,5 +230,5 @@ class MassSS(Dataset):
             (n2_pages != 0)
             & (n2_pages != last_page)
             & (n2_pages != last_page - 1)]
-        n2_pages = n2_pages.astype(np.int32)
+        n2_pages = n2_pages.astype(np.int16)
         return n2_pages
