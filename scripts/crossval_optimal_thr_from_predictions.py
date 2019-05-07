@@ -21,16 +21,16 @@ from sleep.common import checks
 from sleep.common import pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
-SEED_LIST = [123, 234, 345, 456]
-
+# SEED_LIST = [123, 234, 345, 456]
+SEED_LIST = [123]
 
 if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190504_bsf'
-    task_mode = constants.WN_RECORD
+    ckpt_folder = '20190506_bsf'
+    task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_KC_NAME
 
     which_expert = 1

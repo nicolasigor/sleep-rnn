@@ -19,7 +19,7 @@ from sleep.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
 from . import networks
-from . import losses, optimizers, metrics
+from . import losses, optimizers, metrics, augmentations
 
 # Metrics dict
 KEY_TP = 'tp'
@@ -73,7 +73,7 @@ class WaveletBLSTM(BaseModel):
 
     def check_train_inputs(self, x_train, y_train, x_val, y_val):
         """Ensures that validation data has the proper shape."""
-        time_stride = 8
+        time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         crop_size = page_size + 2 * border_size
@@ -237,7 +237,7 @@ class WaveletBLSTM(BaseModel):
         This method is used to preprocess features and labels of single
         examples with a random cropping
         """
-        time_stride = 8
+        time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         crop_size = page_size + 2 * border_size
@@ -249,6 +249,24 @@ class WaveletBLSTM(BaseModel):
         # Throw borders for labels, skipping steps
         label_cast = stack_crop[1, border_size:-border_size:time_stride]
         label = tf.cast(label_cast, dtype=tf.int32)
+        # Apply data augmentation
+        feat, label = self._augmentation_fn(feat, label)
+        return feat, label
+
+    def _augmentation_fn(self, feat, label):
+        rescale_proba = self.params[pkeys.AUG_RESCALE_NORMAL_PROBA]
+        rescale_std = self.params[pkeys.AUG_RESCALE_NORMAL_STD]
+        noise_proba = self.params[pkeys.AUG_GAUSSIAN_NOISE_PROBA]
+        noise_std = self.params[pkeys.AUG_GAUSSIAN_NOISE_STD]
+        print('rescale proba, std:', rescale_proba, rescale_std)
+        print('noise proba, std:', noise_proba, noise_std)
+
+        feat = augmentations.rescale_normal(
+            feat, rescale_proba, rescale_std)
+
+        feat = augmentations.gaussian_noise(
+            feat, noise_proba, noise_std)
+
         return feat, label
 
     def _model_fn(self):

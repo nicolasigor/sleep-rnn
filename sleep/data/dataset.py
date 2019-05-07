@@ -88,6 +88,85 @@ class Dataset(object):
         # Data loading
         self.data = self._load_data(verbose=verbose)
 
+    def get_subject_signal(
+            self,
+            subject_id,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        checks.check_valid_value(subject_id, 'ID', self.all_ids)
+        valid_experts = [(i + 1) for i in range(self.n_experts)]
+        checks.check_valid_value(which_expert, 'which_expert', valid_experts)
+        checks.check_valid_value(
+            normalization_mode, 'normalization_mode',
+            [constants.N2_RECORD, constants.WN_RECORD])
+
+        ind_dict = self.data[subject_id]
+
+        # Unpack data
+        signal = ind_dict[KEY_EEG]
+        marks = ind_dict['%s_%d' % (KEY_MARKS, which_expert)]
+
+        if normalize_clip:
+            if normalization_mode == constants.WN_RECORD:
+                if verbose:
+                    print('Normalization with stats from '
+                          'pages containing true events.')
+                # Normalize using stats from pages with true events.
+                tmp_pages = ind_dict[KEY_ALL_PAGES]
+                activity = utils.extract_pages(
+                    marks, tmp_pages,
+                    self.page_size, border_size=0)
+                activity = activity.sum(axis=1)
+                activity = np.where(activity > 0)[0]
+                tmp_pages = tmp_pages[activity]
+                signal, _ = utils.norm_clip_signal(
+                    signal, tmp_pages, self.page_size)
+            else:
+                if verbose:
+                    print('Normalization with stats from '
+                          'N2 pages.')
+                n2_pages = ind_dict[KEY_N2_PAGES]
+                signal, _ = utils.norm_clip_signal(
+                    signal, n2_pages, self.page_size)
+        return signal
+
+    def get_subset_signals(
+            self,
+            subject_id_list,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        subset_signals = []
+        for subject_id in subject_id_list:
+            signal = self.get_subject_signal(
+                subject_id,
+                normalize_clip=normalize_clip,
+                normalization_mode=normalization_mode,
+                which_expert=which_expert,
+                verbose=verbose)
+            subset_signals.append(signal)
+        return subset_signals
+
+    def get_signals(
+            self,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        subset_signals = self.get_subset_signals(
+            self.all_ids,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            which_expert=which_expert,
+            verbose=verbose)
+        return subset_signals
+
     def get_ids(self):
         return self.all_ids
 
@@ -290,14 +369,14 @@ class Dataset(object):
                 activity = activity.sum(axis=1)
                 activity = np.where(activity > 0)[0]
                 tmp_pages = tmp_pages[activity]
-                signal = utils.norm_clip_signal(
+                signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size)
             else:
                 if verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
-                signal = utils.norm_clip_signal(
+                signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size)
 
         # Extract segments

@@ -16,6 +16,11 @@ BATCH_SIZE = 'batch_size'
 SHUFFLE_BUFFER_SIZE = 'shuffle_buffer_size'
 PREFETCH_BUFFER_SIZE = 'prefetch_buffer_size'
 PAGE_DURATION = 'page_duration'
+AUG_RESCALE_NORMAL_PROBA = 'aug_rescale_normal_proba'
+AUG_RESCALE_NORMAL_STD = 'aug_rescale_normal_std'
+AUG_GAUSSIAN_NOISE_PROBA = 'aug_gaussian_noise_proba'
+AUG_GAUSSIAN_NOISE_STD = 'aug_gaussian_noise_std'
+
 
 """ Model params
 time_resolution_factor: (int) The original sampling frequency for the labels
@@ -180,6 +185,10 @@ default_params = {
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
+    AUG_RESCALE_NORMAL_PROBA: 0,
+    AUG_RESCALE_NORMAL_STD: 0.01,
+    AUG_GAUSSIAN_NOISE_PROBA: 0,
+    AUG_GAUSSIAN_NOISE_STD: 0.01,
     MODEL_VERSION: constants.V4,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,

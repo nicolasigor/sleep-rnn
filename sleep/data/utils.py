@@ -167,8 +167,12 @@ def norm_clip_signal(signal, pages_indices, page_size, clip_value=10):
 
     # Now clip to clip_value (only if clip is not None)
     if clip_value:
+        clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)
         norm_signal = np.clip(norm_signal, -clip_value, clip_value)
-    return norm_signal
+    else:
+        clip_mask = None
+
+    return norm_signal, clip_mask
 
 
 def power_spectrum(signal, fs):
