@@ -4,12 +4,10 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from sleep.common import constants
-
 
 def rescale_normal(feat, probability, std=0.01):
     with tf.variable_scope('rescale_normal'):
-        uniform_random = tf.random.uniform([], 0, 1.0)
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
         new_feat = tf.cond(
             aug_condition,
@@ -23,13 +21,12 @@ def rescale_normal(feat, probability, std=0.01):
 def gaussian_noise(feat, probability, std=0.01):
     """Noise is relative to each value"""
     with tf.variable_scope('gaussian_noise'):
-        uniform_random = tf.random.uniform([], 0, 1.0)
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
-        sampled_noise = tf.cond(
+        new_feat = tf.cond(
             aug_condition,
-            lambda: tf.random.normal(
-                tf.shape(feat), mean=0.0, stddev=std),
-            lambda: 0
+            lambda: feat * (1.0 + tf.random.normal(
+                tf.shape(feat), mean=0.0, stddev=std)),
+            lambda: feat
         )
-        new_feat = feat * (1 + sampled_noise)
     return new_feat
