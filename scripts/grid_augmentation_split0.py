@@ -50,7 +50,7 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Parameter list
-    rescale_proba_list = [0.0, 0.3, 0.5, 0.8]
+    rescale_proba_list = [0.0, 0.3]
     noise_proba_list = [0.0, 0.3, 0.5, 0.8]
 
     for dataset_name in dataset_name_list:

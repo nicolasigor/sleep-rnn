@@ -56,7 +56,8 @@ class Dataset(object):
         if os.path.isabs(dataset_dir):
             self.dataset_dir = dataset_dir
         else:
-            self.dataset_dir = os.path.join(utils.PATH_DATA, dataset_dir)
+            self.dataset_dir = os.path.abspath(
+                os.path.join(utils.PATH_DATA, dataset_dir))
         # We verify that the directory exists
         checks.check_directory(self.dataset_dir)
 
