@@ -33,14 +33,14 @@ if __name__ == '__main__':
     id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_aug'
+    experiment_name = 'bsf_aug_different'
     task_mode = constants.WN_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf testing data augmentation'
+    description_str = 'bsf data augmentation, std 0.05 rescale, std 0.01 noise'
     which_expert = 1
     verbose = True
     # -----
@@ -50,8 +50,8 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Parameter list
-    rescale_proba_list = [0.0, 0.3]
-    noise_proba_list = [0.0, 0.3, 0.5, 0.8]
+    rescale_proba_list = [0.0]
+    noise_proba_list = [0.0, 0.5, 1.0]
 
     for dataset_name in dataset_name_list:
 
@@ -82,6 +82,9 @@ if __name__ == '__main__':
                 # Grid parameters
                 params[pkeys.AUG_RESCALE_NORMAL_PROBA] = rescale_proba
                 params[pkeys.AUG_GAUSSIAN_NOISE_PROBA] = noise_proba
+
+                params[pkeys.AUG_RESCALE_NORMAL_STD] = 0.05
+                params[pkeys.AUG_GAUSSIAN_NOISE_STD] = 0.01
 
                 # Path to save results of run
                 logdir = os.path.join(

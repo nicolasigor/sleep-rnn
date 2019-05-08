@@ -5,7 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-def rescale_normal(feat, probability, std=0.01):
+def rescale_normal(feat, probability, std):
     with tf.variable_scope('rescale_normal'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
@@ -18,7 +18,7 @@ def rescale_normal(feat, probability, std=0.01):
     return new_feat
 
 
-def gaussian_noise(feat, probability, std=0.01):
+def gaussian_noise(feat, probability, std):
     """Noise is relative to each value"""
     with tf.variable_scope('gaussian_noise'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
