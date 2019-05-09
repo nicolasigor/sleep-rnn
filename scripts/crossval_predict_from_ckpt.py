@@ -29,11 +29,11 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190508_bsf_aug_std_0_05'
+    ckpt_folder = '20190508_bsf_aug_different'
     task_mode = constants.WN_RECORD
     dataset_name_list = [
         constants.MASS_SS_NAME

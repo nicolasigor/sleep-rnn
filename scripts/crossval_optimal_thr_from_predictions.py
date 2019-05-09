@@ -20,8 +20,9 @@ from sleep.detection import metrics
 from sleep.common import constants
 
 RESULTS_PATH = os.path.join(project_root, 'results')
-# SEED_LIST = [123, 234, 345, 456]
-SEED_LIST = [123]
+SEED_LIST = [123, 234, 345, 456]
+# SEED_LIST = [123]
+
 
 if __name__ == '__main__':
 

@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     experiment_name = 'bsf_with_aug'
-    task_mode = constants.N2_RECORD
+    task_mode = constants.WN_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME,

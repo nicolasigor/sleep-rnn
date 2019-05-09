@@ -261,11 +261,12 @@ class WaveletBLSTM(BaseModel):
         print('rescale proba, std:', rescale_proba, rescale_std)
         print('noise proba, std:', noise_proba, noise_std)
 
-        feat = augmentations.rescale_normal(
-            feat, rescale_proba, rescale_std)
-
-        feat = augmentations.gaussian_noise(
-            feat, noise_proba, noise_std)
+        if rescale_proba > 0:
+            feat = augmentations.rescale_normal(
+                feat, rescale_proba, rescale_std)
+        if noise_proba > 0:
+            feat = augmentations.gaussian_noise(
+                feat, noise_proba, noise_std)
 
         return feat, label
 
