@@ -14,7 +14,8 @@ from sleep.common import constants
 from . import utils
 from . import stamp_correction
 from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS
+from .dataset import KEY_EEG, KEY_MARKS
+from .dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
 
 PATH_MASS_RELATIVE = 'mass'
 PATH_REC = 'register'
@@ -60,6 +61,10 @@ class MassSS(Dataset):
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
         # In MASS, we need to index by name since not all the lists are
         # sorted equally
+
+        # Hypnogram parameters
+        self.state_ids = np.array(['1', '2', '3', '4', 'R', 'W', '?'])
+        self.unknown_id = '?'  # Character for unknown state in hypnogram
         self.n2_id = '2'  # Character for N2 identification in hypnogram
 
         # Sleep spindles characteristics
@@ -100,12 +105,13 @@ class MassSS(Dataset):
                 path_dict[KEY_FILE_EEG])
             signal_len = signal.shape[0]
 
-            n2_pages = self._read_states(
+            n2_pages, hypnogram = self._read_states(
                 path_dict[KEY_FILE_STATES], signal_len)
             total_pages = int(np.ceil(signal_len / self.page_size))
             all_pages = np.arange(1, total_pages - 2, dtype=np.int16)
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
+            print('Hypnogram pages: %d' % hypnogram.shape[0])
 
             marks_1 = self._read_marks(
                 path_dict['%s_1' % KEY_FILE_MARKS])
@@ -120,7 +126,8 @@ class MassSS(Dataset):
                 KEY_N2_PAGES: n2_pages,
                 KEY_ALL_PAGES: all_pages,
                 '%s_1' % KEY_MARKS: marks_1,
-                '%s_2' % KEY_MARKS: marks_2
+                '%s_2' % KEY_MARKS: marks_2,
+                KEY_HYPNOGRAM: hypnogram
             }
             data[subject_id] = ind_dict
             print('Loaded ID %d (%02d/%02d ready). Time elapsed: %1.4f [s]'
@@ -208,21 +215,46 @@ class MassSS(Dataset):
         """Loads hypnogram from 'path_states_file'. Only n2 pages are returned.
         First, last and second to last pages of the hypnogram are ignored, since
         there is no enough context."""
-        with pyedflib.EdfReader(path_states_file) as file:
-            annotations = file.readAnnotations()
-        onsets = np.array(annotations[0])
-        stages_str = annotations[2]
-        stages_char = [single_annot[-1] for single_annot in stages_str]
-        total_annots = len(stages_char)
         # Total pages not necessarily equal to total_annots
         total_pages = int(np.ceil(signal_length / self.page_size))
-        n2_pages_onehot = np.zeros(total_pages, dtype=np.int16)
-        for i in range(total_annots):
-            if stages_char[i] == self.n2_id:
-                page_idx = int(np.round(onsets[i] / self.page_duration))
-                if page_idx < total_pages:
-                    n2_pages_onehot[page_idx] = 1
-        n2_pages = np.where(n2_pages_onehot == 1)[0]
+
+        with pyedflib.EdfReader(path_states_file) as file:
+            annotations = file.readAnnotations()
+
+        onsets = np.array(annotations[0])
+        durations = np.round(np.array(annotations[1]))
+        stages_str = annotations[2]
+        # keep only 20s durations
+        valid_idx = (durations == self.page_duration)
+        onsets = onsets[valid_idx]
+        onsets_pages = np.floor(onsets / self.page_duration).astype(np.int32)
+        stages_str = stages_str[valid_idx]
+        stages_char = [single_annot[-1] for single_annot in stages_str]
+
+        # Build complete hypnogram
+        total_annots = len(stages_char)
+
+        not_unkown_ids = [
+            state_id for state_id in self.state_ids
+            if state_id != self.unknown_id]
+        not_unkown_state_dict = {}
+        for state_id in not_unkown_ids:
+            state_idx = np.where(
+                [stages_char[i] == state_id for i in range(total_annots)])[0]
+            not_unkown_state_dict[state_id] = onsets_pages[state_idx]
+        hypnogram = []
+        for page in range(total_pages):
+            state_not_found = True
+            for state_id in not_unkown_ids:
+                if page in not_unkown_state_dict[state_id] and state_not_found:
+                    hypnogram.append(state_id)
+                    state_not_found = False
+            if state_not_found:
+                hypnogram.append(self.unknown_id)
+        hypnogram = np.asarray(hypnogram)
+
+        # Extract N2 pages
+        n2_pages = np.where(hypnogram == self.n2_id)[0]
         # Drop first, last and second to last page of the whole registers
         # if they where selected.
         last_page = total_pages - 1
@@ -231,4 +263,4 @@ class MassSS(Dataset):
             & (n2_pages != last_page)
             & (n2_pages != last_page - 1)]
         n2_pages = n2_pages.astype(np.int16)
-        return n2_pages
+        return n2_pages, hypnogram

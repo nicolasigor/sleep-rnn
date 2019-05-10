@@ -18,6 +18,7 @@ KEY_EEG = 'signal'
 KEY_N2_PAGES = 'n2_pages'
 KEY_ALL_PAGES = 'all_pages'
 KEY_MARKS = 'marks'
+KEY_HYPNOGRAM = 'hypnogram'
 
 
 class Dataset(object):
@@ -290,6 +291,47 @@ class Dataset(object):
         )
         return subset_marks
 
+    def get_subject_hypnogram(
+            self,
+            subject_id,
+            verbose=False
+    ):
+        """Returns the hypogram of this subject."""
+        checks.check_valid_value(subject_id, 'ID', self.all_ids)
+
+        ind_dict = self.data[subject_id]
+
+        hypno = ind_dict[KEY_HYPNOGRAM]
+
+        if verbose:
+            print('Getting Hypnogram of ID %s' % subject_id)
+        return hypno
+
+    def get_subset_hypnograms(
+            self,
+            subject_id_list,
+            verbose=False
+    ):
+        """Returns the list of hypograms from a list of subjects."""
+        subset_hypnos = []
+        for subject_id in subject_id_list:
+            hypno = self.get_subject_hypnogram(
+                subject_id,
+                verbose=verbose)
+            subset_hypnos.append(hypno)
+        return subset_hypnos
+
+    def get_hypnograms(
+            self,
+            verbose=False
+    ):
+        """Returns the list of hypograms from all subjects."""
+        subset_hypnos = self.get_subset_hypnograms(
+            self.all_ids,
+            verbose=verbose
+        )
+        return subset_hypnos
+
     def get_subject_data(
             self,
             subject_id,
@@ -500,7 +542,9 @@ class Dataset(object):
             pat_dict = {
                 KEY_EEG: None,
                 KEY_N2_PAGES: None,
-                KEY_ALL_PAGES: None}
+                KEY_ALL_PAGES: None,
+                KEY_HYPNOGRAM: None
+            }
             for i in range(self.n_experts):
                 pat_dict.update(
                     {'%s_%d' % (KEY_MARKS, i+1): None})
