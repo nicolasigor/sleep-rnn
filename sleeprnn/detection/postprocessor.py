@@ -4,11 +4,11 @@ from __future__ import print_function
 
 import numpy as np
 
-from sleep.common import checks, constants, pkeys
-from sleep.data.stamp_correction import filter_duration_stamps
-from sleep.data.stamp_correction import combine_close_stamps
-from sleep.data.utils import seq2stamp_with_pages, extract_pages_for_stamps
-from sleep.data.utils import seq2stamp
+from sleeprnn.common import checks, constants, pkeys
+from sleeprnn.data.stamp_correction import filter_duration_stamps
+from sleeprnn.data.stamp_correction import combine_close_stamps
+from sleeprnn.data.utils import seq2stamp_with_pages, extract_pages_for_stamps
+from sleeprnn.data.utils import seq2stamp
 
 
 class PostProcessor(object):

@@ -7,7 +7,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from sleep.common import constants
+from sleeprnn.common import constants
 
 
 def generic_optimizer_fn(optimizer, loss, clip_norm):

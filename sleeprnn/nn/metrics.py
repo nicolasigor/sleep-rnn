@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from sleep.common import constants
+from sleeprnn.common import constants
 
 
 def confusion_matrix(logits, labels):

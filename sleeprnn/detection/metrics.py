@@ -6,8 +6,8 @@ from __future__ import print_function
 
 import numpy as np
 
-from sleep.common import constants
-from sleep.data.utils import stamp2seq
+from sleeprnn.common import constants
+from sleeprnn.data.utils import stamp2seq
 
 
 def by_sample_confusion(events, detections, input_is_binary=False):

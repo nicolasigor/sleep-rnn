@@ -4,9 +4,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from sleep.data.dataset import Dataset
-from sleep.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
-from sleep.common import constants
+from sleeprnn.data.dataset import Dataset
+from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
+from sleeprnn.common import constants
 from .feeder_dataset import FeederDataset
 from .postprocessor import PostProcessor
 

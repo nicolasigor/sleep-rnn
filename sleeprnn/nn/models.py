@@ -11,11 +11,11 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from sleep.common import pkeys
-from sleep.common import constants
-from sleep.common import checks
-from sleep.data import utils
-from sleep.detection.feeder_dataset import FeederDataset
+from sleeprnn.common import pkeys
+from sleeprnn.common import constants
+from sleeprnn.common import checks
+from sleeprnn.data import utils
+from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
 from . import networks

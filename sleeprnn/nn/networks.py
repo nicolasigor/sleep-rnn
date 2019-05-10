@@ -8,9 +8,9 @@ import tensorflow as tf
 
 from . import layers
 
-from sleep.common import constants
-from sleep.common import checks
-from sleep.common import pkeys
+from sleeprnn.common import constants
+from sleeprnn.common import checks
+from sleeprnn.common import pkeys
 
 
 def dummy_net(

@@ -10,7 +10,7 @@ import time
 import numpy as np
 import pyedflib
 
-from sleep.common import constants
+from sleeprnn.common import constants
 from . import utils
 from . import stamp_correction
 from .dataset import Dataset

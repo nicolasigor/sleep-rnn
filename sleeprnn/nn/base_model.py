@@ -11,11 +11,11 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from sleep.common import pkeys
-from sleep.common import constants
-from sleep.detection.feeder_dataset import FeederDataset
-from sleep.detection.predicted_dataset import PredictedDataset
-from sleep.data.utils import pages2seq
+from sleeprnn.common import pkeys
+from sleeprnn.common import constants
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.detection.predicted_dataset import PredictedDataset
+from sleeprnn.data.utils import pages2seq
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)

@@ -9,9 +9,9 @@ import pickle
 
 import numpy as np
 
-from sleep.common import pkeys
-from sleep.common import constants
-from sleep.common import checks
+from sleeprnn.common import pkeys
+from sleeprnn.common import constants
+from sleeprnn.common import checks
 from . import utils
 
 KEY_EEG = 'signal'

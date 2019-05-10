@@ -2,10 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from sleep.common import checks, constants
-from sleep.data.inta_ss import IntaSS
-from sleep.data.mass_kc import MassKC
-from sleep.data.mass_ss import MassSS
+from sleeprnn.common import checks, constants
+from .inta_ss import IntaSS
+from .mass_kc import MassKC
+from .mass_ss import MassSS
 
 
 def load_dataset(dataset_name, load_checkpoint=True, params=None):

@@ -4,8 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from sleep.data.dataset import Dataset
-from sleep.common import constants, checks
+from sleeprnn.data.dataset import Dataset
+from sleeprnn.common import constants, checks
 
 
 class FeederDataset(Dataset):
