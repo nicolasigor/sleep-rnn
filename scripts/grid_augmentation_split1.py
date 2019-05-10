@@ -30,7 +30,7 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
     experiment_name = 'bsf_aug_rescale_uniform_v2'
