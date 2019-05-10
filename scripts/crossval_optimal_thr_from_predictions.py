@@ -13,11 +13,11 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data.loader import load_dataset
-from sleep.data import utils
-from sleep.detection.feeder_dataset import FeederDataset
-from sleep.detection import metrics
-from sleep.common import constants
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.data import utils
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.detection import metrics
+from sleeprnn.common import constants
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
@@ -29,9 +29,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190508_bsf_aug_std_0_05'
-    task_mode = constants.WN_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    ckpt_folder = '20190509_bsf_with_aug'
+    task_mode = constants.N2_RECORD
+    dataset_name = constants.MASS_KC_NAME
 
     which_expert = 1
     verbose = False

@@ -16,13 +16,13 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data import utils
-from sleep.detection import metrics
-from sleep.detection.feeder_dataset import FeederDataset
-from sleep.neuralnet.models import WaveletBLSTM
-from sleep.data.loader import load_dataset
-from sleep.common import constants
-from sleep.common import pkeys
+from sleeprnn.data import utils
+from sleeprnn.detection import metrics
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.nn.models import WaveletBLSTM
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.common import constants
+from sleeprnn.common import pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]

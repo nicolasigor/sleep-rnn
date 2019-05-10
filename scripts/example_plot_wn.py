@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data.loader import load_dataset
-from sleep.data import utils
-from sleep.detection.feeder_dataset import FeederDataset
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.data import utils
+from sleeprnn.detection.feeder_dataset import FeederDataset
 
 SEED_LIST = [123, 234, 345, 456]
 

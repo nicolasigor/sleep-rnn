@@ -7,6 +7,7 @@ import os
 import pickle
 from pprint import pprint
 import sys
+import itertools
 
 # TF logging control
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -16,13 +17,13 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data import utils
-from sleep.detection.feeder_dataset import FeederDataset
-from sleep.neuralnet.models import WaveletBLSTM
-from sleep.data.loader import load_dataset
-from sleep.common import constants
-from sleep.common import pkeys
-from sleep.common import checks
+from sleeprnn.data import utils
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.nn.models import WaveletBLSTM
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.common import constants
+from sleeprnn.common import pkeys
+from sleeprnn.common import checks
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 
@@ -33,8 +34,10 @@ if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190508_bsf_aug_different'
-    task_mode = constants.WN_RECORD
+    ckpt_folder = '20190510_bsf_aug_rescale_uniform'
+    task_mode_list = [
+        constants.WN_RECORD
+    ]
     dataset_name_list = [
         constants.MASS_SS_NAME
     ]
@@ -43,7 +46,8 @@ if __name__ == '__main__':
     grid_folder_list = None
     # -----
 
-    for dataset_name in dataset_name_list:
+    for dataset_name, task_mode in itertools.product(
+            dataset_name_list, task_mode_list):
         print('\nModel predicting on %s_%s' % (dataset_name, task_mode))
         dataset = load_dataset(dataset_name)
         # Get training set ids
@@ -104,7 +108,7 @@ if __name__ == '__main__':
                 print('Restoring model')
                 model = WaveletBLSTM(
                     params,
-                    logdir=os.path.join('results', 'demo_predict'))
+                    logdir=os.path.join(RESULTS_PATH, 'demo_predict'))
                 # Load checkpoint
                 model.load_checkpoint(
                     os.path.join(ckpt_path, 'model', 'ckpt'))

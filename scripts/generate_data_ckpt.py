@@ -8,9 +8,9 @@ import sys
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleep.data.mass_kc import MassKC
-from sleep.data.mass_ss import MassSS
-from sleep.data.inta_ss import IntaSS
+from sleeprnn.data.mass_kc import MassKC
+from sleeprnn.data.mass_ss import MassSS
+from sleeprnn.data.inta_ss import IntaSS
 
 
 if __name__ == '__main__':
