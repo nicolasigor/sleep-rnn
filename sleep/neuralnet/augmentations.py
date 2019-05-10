@@ -30,3 +30,16 @@ def gaussian_noise(feat, probability, std):
             lambda: feat
         )
     return new_feat
+
+
+def rescale_uniform(feat, probability, intensity):
+    with tf.variable_scope('rescale_uniform'):
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: feat * tf.random.uniform(
+                [], 1.0 - intensity, 1.0 + intensity),
+            lambda: feat
+        )
+    return new_feat
