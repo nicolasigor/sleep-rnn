@@ -258,8 +258,13 @@ class WaveletBLSTM(BaseModel):
         rescale_std = self.params[pkeys.AUG_RESCALE_NORMAL_STD]
         noise_proba = self.params[pkeys.AUG_GAUSSIAN_NOISE_PROBA]
         noise_std = self.params[pkeys.AUG_GAUSSIAN_NOISE_STD]
+
+        rescale_unif_proba = self.params[pkeys.AUG_RESCALE_UNIFORM_PROBA]
+        rescale_unif_intens = self.params[pkeys.AUG_RESCALE_UNIFORM_INTENSITY]
+
         print('rescale proba, std:', rescale_proba, rescale_std)
         print('noise proba, std:', noise_proba, noise_std)
+        print('rescale unif proba, intens:', rescale_unif_proba, rescale_unif_intens)
 
         if rescale_proba > 0:
             feat = augmentations.rescale_normal(
@@ -267,6 +272,10 @@ class WaveletBLSTM(BaseModel):
         if noise_proba > 0:
             feat = augmentations.gaussian_noise(
                 feat, noise_proba, noise_std)
+
+        if rescale_unif_proba > 0:
+            feat = augmentations.rescale_uniform(
+                feat, rescale_unif_proba, rescale_unif_intens)
 
         return feat, label
 
