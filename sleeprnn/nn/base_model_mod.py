@@ -243,12 +243,16 @@ class BaseModelMod(object):
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
         x_val, _ = data_inference.get_data_for_prediction(
             border_size=border_size,
-            predict_with_augmented_page=with_augmented_page,
+            predict_with_augmented_page=False,
             verbose=False)
         sub_id_list = data_inference.get_ids()
-
         for single_x, single_id in zip(x_val, sub_id_list):
             self._update_cwt_stats(single_x, single_id)
+
+        x_val, _ = data_inference.get_data_for_prediction(
+            border_size=border_size,
+            predict_with_augmented_page=with_augmented_page,
+            verbose=False)
 
         probabilies_list = self.predict_proba_with_list(
             x_val, sub_id_list,

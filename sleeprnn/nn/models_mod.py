@@ -97,12 +97,14 @@ class WaveletBLSTMMod(BaseModelMod):
         # Compute stats from CWT
         x_train, _ = data_train.get_data_for_prediction(
             border_size=border_size,
+            predict_with_augmented_page=False,
             verbose=verbose)
 
         ids_train = data_train.get_ids()
 
         x_val, _ = data_val.get_data_for_prediction(
             border_size=border_size,
+            predict_with_augmented_page=False,
             verbose=verbose)
 
         ids_val = data_val.get_ids()
