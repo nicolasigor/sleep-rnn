@@ -270,3 +270,13 @@ def shuffle_data(x, y, seed=None):
     x = x[random_idx]
     y = y[random_idx]
     return x, y
+
+
+def shuffle_data_with_ids(x, y, sub_ids, seed=None):
+    """Shuffles data assuming that they are numpy arrays."""
+    n_examples = x.shape[0]
+    random_idx = np.random.RandomState(seed=seed).permutation(n_examples)
+    x = x[random_idx]
+    y = y[random_idx]
+    sub_ids = sub_ids[random_idx]
+    return x, y, sub_ids

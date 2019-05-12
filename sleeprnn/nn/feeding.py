@@ -56,14 +56,23 @@ def get_iterator_splitted(
     return iterator
 
 
-def _combine_batch_fn(feat_label_1, feat_label_2):
+def _combine_batch_fn(tensors_1, tensors_2):
     """Takes a tuple of (feat, label) from two sources and concatenates them
     along the batch dimension to form a single tuple."""
-    feat_1, label_1 = feat_label_1
-    feat_2, label_2 = feat_label_2
-    feat = tf.concat([feat_1, feat_2], axis=0)
-    label = tf.concat([label_1, label_2], axis=0)
-    return feat, label
+    n_tensors = len(tensors_1)
+
+    combined_tensors = []
+    for k in range(n_tensors):
+        tensor_from_1 = tensors_1[k]
+        tensor_from_2 = tensors_2[k]
+        this_combined = tf.concat([tensor_from_1, tensor_from_2], axis=0)
+        combined_tensors.append(this_combined)
+    combined_tensors = tuple(combined_tensors)
+    # feat_1, label_1 = feat_label_1
+    # feat_2, label_2 = feat_label_2
+    # feat = tf.concat([feat_1, feat_2], axis=0)
+    # label = tf.concat([label_1, label_2], axis=0)
+    return combined_tensors
 
 
 def get_iterator(
