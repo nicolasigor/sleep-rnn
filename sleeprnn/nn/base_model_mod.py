@@ -398,6 +398,33 @@ class BaseModelMod(object):
         # print(sub_ids)
         return cwt
 
+    def _normalize_cwt_4real(self, cwt, sub_ids):
+        sub_ids = np.asarray(sub_ids)
+        if sub_ids.ndim == 0:
+            # This means that the same id applies to the whole batch
+            sub_ids = np.stack([sub_ids] * cwt.shape[0])
+
+        # Now for each example there is a sub id
+        # Let's collect the necessary stats
+        batch_mean = []
+        batch_var = []
+        for single_id in sub_ids:
+            this_mean, this_var = self.cwt_stats_dict[single_id]
+            # These arrays have shape [n_freq, n_channels]
+            batch_mean.append(this_mean)
+            batch_var.append(this_var)
+        # Here we'll have shape [batch, n_freq, n_channels]
+        batch_mean = np.stack(batch_mean, axis=0)
+        batch_var = np.stack(batch_var, axis=0)
+        # Now we add dummy dimension in time dimension
+        batch_mean = np.expand_dims(batch_mean, 1)
+        batch_var = np.expand_dims(batch_var, 1)
+        # Now we have shape [batch, 1, n_freq, n_channels]
+        # Broadcasting should be enough
+        print('Mean and var for batch', batch_mean.shape, batch_var.shape)
+        cwt = (cwt - batch_mean) / np.sqrt(batch_var + 1e-3)
+        return cwt
+
     def evaluate(self, x, y, sub_ids):
         """Evaluates the model, averaging evaluation metrics over batches."""
         self._init_iterator_eval(x, y, sub_ids)
