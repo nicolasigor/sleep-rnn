@@ -193,15 +193,17 @@ class WaveletBLSTMMod(BaseModelMod):
             [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
 
         # Training loop
+        print('Starting training loop')
         nstats = self.params[pkeys.ITERS_STATS]
         for it in range(1, niters+1):
+            print(it)
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
                 # Report stuff
                 # Training report is batch report
-
-                batch_cwt_train, batch_sub_ids_train = self.sess.run(
-                    [self.cwt_prebn, self.sub_ids],
+                print('Preparing eval report for train')
+                batch_cwt_train, batch_labels_train, batch_sub_ids_train = self.sess.run(
+                    [self.cwt_prebn, self.labels, self.sub_ids],
                     feed_dict={self.training_ph: False,
                                self.handle_ph: self.handle_train})
                 batch_cwt_train = self._normalize_cwt(batch_cwt_train, batch_sub_ids_train)
@@ -209,9 +211,11 @@ class WaveletBLSTMMod(BaseModelMod):
                 train_loss, train_metrics, train_summ = self.sess.run(
                     [self.loss, self.batch_metrics_dict, self.merged],
                     feed_dict={self.training_ph: False,
-                               self.cwt_prebn: batch_cwt_train})
+                               self.cwt_prebn: batch_cwt_train,
+                               self.labels: batch_labels_train})
 
                 self.train_writer.add_summary(train_summ, it)
+                print('Preparing eval report for val')
                 # Validation report is entire set
                 val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, sub_ids_val)
                 self.val_writer.add_summary(val_summ, it)

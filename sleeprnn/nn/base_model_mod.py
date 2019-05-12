@@ -406,8 +406,8 @@ class BaseModelMod(object):
         metrics_list = []
         for i in range(niters):
 
-            batch_cwt, batch_sub_ids = self.sess.run(
-                [self.cwt_prebn, self.sub_ids],
+            batch_cwt, batch_labels, batch_sub_ids = self.sess.run(
+                [self.cwt_prebn, self.labels, self.sub_ids],
                 feed_dict={self.training_ph: False,
                            self.handle_ph: self.handle_eval})
 
@@ -416,7 +416,8 @@ class BaseModelMod(object):
             eval_metrics = self.sess.run(
                 self.eval_metrics_dict,
                 feed_dict={self.training_ph: False,
-                           self.cwt_prebn: batch_cwt})
+                           self.cwt_prebn: batch_cwt,
+                           self.labels: batch_labels})
 
             metrics_list.append(eval_metrics)
         # Average
@@ -477,17 +478,21 @@ class BaseModelMod(object):
         return new_lr
 
     def _single_train_iteration(self):
-        batch_cwt, batch_ids = self.sess.run(
-            [self.cwt_prebn, self.sub_ids],
+        print('Retrieving training batch')
+        batch_cwt, batch_labels, batch_ids = self.sess.run(
+            [self.cwt_prebn, self.labels, self.sub_ids],
             feed_dict={self.training_ph: True,
                        self.handle_ph: self.handle_train})
 
         batch_cwt = self._normalize_cwt(batch_cwt, batch_ids)
 
+        print('Reentering normalized batch')
+
         self.sess.run(
             self.train_step,
             feed_dict={self.training_ph: True,
-                       self.cwt_prebn: batch_cwt})
+                       self.cwt_prebn: batch_cwt,
+                       self.labels: batch_labels})
 
     def _initialize_variables(self):
         self.sess.run(self.init_op)
