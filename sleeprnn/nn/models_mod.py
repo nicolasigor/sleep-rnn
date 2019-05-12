@@ -196,12 +196,12 @@ class WaveletBLSTMMod(BaseModelMod):
         print('Starting training loop')
         nstats = self.params[pkeys.ITERS_STATS]
         for it in range(1, niters+1):
-            print(it)
+            # print(it)
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
                 # Report stuff
                 # Training report is batch report
-                print('Preparing eval report for train')
+                # print('Preparing eval report for train')
                 batch_cwt_train, batch_labels_train, batch_sub_ids_train = self.sess.run(
                     [self.cwt_prebn, self.labels, self.sub_ids],
                     feed_dict={self.training_ph: False,
@@ -215,7 +215,7 @@ class WaveletBLSTMMod(BaseModelMod):
                                self.labels: batch_labels_train})
 
                 self.train_writer.add_summary(train_summ, it)
-                print('Preparing eval report for val')
+                # print('Preparing eval report for val')
                 # Validation report is entire set
                 val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, sub_ids_val)
                 self.val_writer.add_summary(val_summ, it)

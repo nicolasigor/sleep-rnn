@@ -394,8 +394,8 @@ class BaseModelMod(object):
             self.sess.run(tf.assign(old_variance, new_variance))
 
     def _normalize_cwt(self, cwt, sub_ids):
-        print('Not normalizing cwt of shape', cwt.shape)
-        print(sub_ids)
+        # print('Not normalizing cwt of shape', cwt.shape)
+        # print(sub_ids)
         return cwt
 
     def evaluate(self, x, y, sub_ids):
@@ -478,7 +478,7 @@ class BaseModelMod(object):
         return new_lr
 
     def _single_train_iteration(self):
-        print('Retrieving training batch')
+        # print('Retrieving training batch')
         batch_cwt, batch_labels, batch_ids = self.sess.run(
             [self.cwt_prebn, self.labels, self.sub_ids],
             feed_dict={self.training_ph: True,
@@ -486,7 +486,7 @@ class BaseModelMod(object):
 
         batch_cwt = self._normalize_cwt(batch_cwt, batch_ids)
 
-        print('Reentering normalized batch')
+        # print('Reentering normalized batch')
 
         self.sess.run(
             self.train_step,
