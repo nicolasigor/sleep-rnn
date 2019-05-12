@@ -422,7 +422,7 @@ class BaseModelMod(object):
         batch_var = np.expand_dims(batch_var, 1)
         # Now we have shape [batch, 1, n_freq, n_channels]
         # Broadcasting should be enough
-        print('Mean and var for batch', batch_mean.shape, batch_var.shape)
+        # print('Mean and var for batch', batch_mean.shape, batch_var.shape)
         cwt = (cwt - batch_mean) / np.sqrt(batch_var + 1e-3)
         return cwt
 
