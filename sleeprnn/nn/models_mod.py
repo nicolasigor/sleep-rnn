@@ -94,6 +94,8 @@ class WaveletBLSTMMod(BaseModelMod):
         """Fits the model to the training data."""
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
 
+        self._initialize_variables()
+
         # Compute stats from CWT
         x_train, _ = data_train.get_data_for_prediction(
             border_size=border_size,
@@ -166,8 +168,6 @@ class WaveletBLSTMMod(BaseModelMod):
                x_train.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         start_time = time.time()
-
-        self._initialize_variables()
 
         # split set into two parts
         x_train_1, y_train_1, sub_ids_train_1, x_train_2, y_train_2, sub_ids_train_2 = self._split_train(

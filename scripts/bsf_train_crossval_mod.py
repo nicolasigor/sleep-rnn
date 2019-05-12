@@ -82,6 +82,7 @@ if __name__ == '__main__':
             params = pkeys.default_params.copy()
 
             params[pkeys.MAX_ITERS] = max_iters
+            params[pkeys.TRAINABLE_WAVELET] = False
 
             model = WaveletBLSTMMod(params, logdir=logdir)
             model.fit(data_train, data_val, verbose=verbose)
