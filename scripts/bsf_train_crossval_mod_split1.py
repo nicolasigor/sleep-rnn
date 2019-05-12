@@ -32,14 +32,14 @@ if __name__ == '__main__':
     id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_mod_sanity_check'
+    experiment_name = 'bsf_mod_implemented'
     task_mode = constants.N2_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf cwt modification, sanity check'
+    description_str = 'bsf cwt modification'
     which_expert = 1
     verbose = True
 

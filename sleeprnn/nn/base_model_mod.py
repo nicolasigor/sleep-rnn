@@ -396,6 +396,7 @@ class BaseModelMod(object):
     def _normalize_cwt(self, cwt, sub_ids):
         # print('Not normalizing cwt of shape', cwt.shape)
         # print(sub_ids)
+        cwt = self._normalize_cwt_4real(cwt, sub_ids)
         return cwt
 
     def _normalize_cwt_4real(self, cwt, sub_ids):

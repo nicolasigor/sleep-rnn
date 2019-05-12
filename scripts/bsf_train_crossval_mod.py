@@ -32,18 +32,18 @@ if __name__ == '__main__':
     id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_mod_sanity_check'
+    experiment_name = 'bsf_mod_sanity_check_implemented'
     task_mode = constants.N2_RECORD
 
     dataset_name_list = [
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf cwt modification, sanity check'
+    description_str = 'bsf cwt modification, sanity check with implementation'
     which_expert = 1
     verbose = True
 
-    max_iters = 30000  # For debugging reasons
+    max_iters = 200  # For debugging reasons
     # -----
 
     # Complement experiment folder name with date
