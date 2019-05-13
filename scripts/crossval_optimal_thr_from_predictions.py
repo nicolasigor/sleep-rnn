@@ -29,8 +29,8 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190512_bsf_mod_sanity_check'
-    task_mode = constants.N2_RECORD
+    ckpt_folder = '20190510_bsf_aug_rescale_uniform_v2'
+    task_mode = constants.WN_RECORD
     dataset_name = constants.MASS_SS_NAME
 
     which_expert = 1
