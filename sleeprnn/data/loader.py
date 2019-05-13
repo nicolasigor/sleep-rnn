@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pickle
+
 from sleeprnn.common import checks, constants
 from .inta_ss import IntaSS
 from .mass_kc import MassKC
@@ -24,3 +26,19 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None):
     else:
         dataset = IntaSS(load_checkpoint=load_checkpoint, params=params)
     return dataset
+
+
+def replace_submodule_in_module(module, old_submodule, new_submodule):
+    module_splitted = module.split(".")
+    if old_submodule in module_splitted:
+        idx_name = module_splitted.index(old_submodule)
+        module_splitted[idx_name] = new_submodule
+    new_module = ".".join(module_splitted)
+    return new_module
+
+
+class RefactorUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        module = replace_submodule_in_module(module, 'sleep', 'sleeprnn')
+        module = replace_submodule_in_module(module, 'neuralnet', 'nn')
+        return super().find_class(module, name)

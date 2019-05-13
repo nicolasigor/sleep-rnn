@@ -32,7 +32,7 @@ if __name__ == '__main__':
     id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_with_aug'
+    experiment_name = 'bsf'
     task_mode = constants.N2_RECORD
 
     dataset_name_list = [
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         constants.MASS_KC_NAME
     ]
 
-    description_str = 'bsf with augmentation of rescaling only'
+    description_str = 'bsf'
     which_expert = 1
     verbose = True
     # -----

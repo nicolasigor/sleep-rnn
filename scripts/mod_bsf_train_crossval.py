@@ -29,10 +29,10 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_mod_implemented'
+    experiment_name = 'bsf_mod'
     task_mode = constants.N2_RECORD
 
     dataset_name_list = [
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     which_expert = 1
     verbose = True
 
-    max_iters = 30000  # For debugging reasons
+    max_iters = 200  # For debugging reasons
     # -----
 
     # Complement experiment folder name with date

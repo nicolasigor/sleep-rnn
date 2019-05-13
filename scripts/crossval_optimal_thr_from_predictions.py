@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
-import pickle
+
 from pprint import pprint
 import time
 
@@ -13,7 +13,7 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.data.loader import load_dataset, RefactorUnpickler
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
@@ -29,9 +29,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190509_bsf_with_aug'
+    ckpt_folder = '20190512_bsf_mod_sanity_check'
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_KC_NAME
+    dataset_name = constants.MASS_SS_NAME
 
     which_expert = 1
     verbose = False
@@ -82,7 +82,7 @@ if __name__ == '__main__':
                     ckpt_path,
                     'prediction_%s_%s.pkl' % (task_mode, constants.VAL_SUBSET))
             with open(filename, 'rb') as handle:
-                this_pred = pickle.load(handle)
+                this_pred = RefactorUnpickler(handle).load()
             predictions_dict[folder_name].append(this_pred)
             print('Loaded seed %d/%d from %s' % (k + 1, n_seeds, ckpt_path))
     print('Done\n')
