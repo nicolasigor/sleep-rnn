@@ -33,10 +33,10 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     experiment_name = 'bsf_cwt_norm'
-    task_mode = constants.WN_RECORD
+    task_mode = constants.N2_RECORD
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
     description_str = 'bsf cwt modification, full bsf'

@@ -36,7 +36,7 @@ if __name__ == '__main__':
     task_mode = constants.N2_RECORD
 
     dataset_name_list = [
-        constants.MASS_SS_NAME, constants.MASS_KC_NAME
+        constants.MASS_SS_NAME
     ]
 
     description_str = 'bsf cwt modification, full bsf'
