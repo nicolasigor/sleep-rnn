@@ -28,7 +28,7 @@ class PredictedDataset(Dataset):
         self.probability_threshold = None
 
         """Constructor"""
-        super().__init__(
+        super(PredictedDataset, self).__init__(
             dataset_dir=dataset.dataset_dir,
             load_checkpoint=False,
             dataset_name='%s_predicted' % dataset.dataset_name,

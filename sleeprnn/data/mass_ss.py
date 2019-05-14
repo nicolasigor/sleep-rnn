@@ -80,7 +80,7 @@ class MassSS(Dataset):
         print('Train subjects: \n', self.train_ids)
         print('Test subjects: \n', self.test_ids)
 
-        super().__init__(
+        super(MassSS, self).__init__(
             dataset_dir=PATH_MASS_RELATIVE,
             load_checkpoint=load_checkpoint,
             dataset_name=constants.MASS_SS_NAME,

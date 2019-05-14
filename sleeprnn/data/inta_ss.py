@@ -83,7 +83,7 @@ class IntaSS(Dataset):
         valid_ids = [i for i in range(1, 12) if i not in IDS_INVALID]
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
-        super().__init__(
+        super(IntaSS, self).__init__(
             dataset_dir=PATH_INTA_RELATIVE,
             load_checkpoint=load_checkpoint,
             dataset_name=constants.INTA_SS_NAME,

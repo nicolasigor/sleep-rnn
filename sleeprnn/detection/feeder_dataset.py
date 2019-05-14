@@ -28,7 +28,7 @@ class FeederDataset(Dataset):
         self.task_mode = task_mode
         self.which_expert = which_expert
 
-        super().__init__(
+        super(FeederDataset, self).__init__(
             dataset_dir=dataset.dataset_dir,
             load_checkpoint=False,
             dataset_name='%s_subset' % dataset.dataset_name,
@@ -44,6 +44,180 @@ class FeederDataset(Dataset):
         data = self.parent_dataset.get_sub_dataset(self.all_ids)
         self.parent_dataset = None
         return data
+
+    def get_stamps(
+            self,
+            which_expert=None,
+            pages_subset=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_marks = super(FeederDataset, self).get_stamps(
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            verbose=verbose)
+        return subset_marks
+
+    def get_subset_stamps(
+            self,
+            subject_id_list,
+            which_expert=None,
+            pages_subset=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_marks = super(FeederDataset, self).get_subset_stamps(
+            subject_id_list=subject_id_list,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            verbose=verbose)
+        return subset_marks
+
+    def get_subject_stamps(
+            self,
+            subject_id,
+            which_expert=None,
+            pages_subset=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        marks = super(FeederDataset, self).get_subject_stamps(
+            subject_id=subject_id,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            verbose=verbose)
+        return marks
+
+    def get_subject_signal(
+            self,
+            subject_id,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        signal = super(FeederDataset, self).get_subject_signal(
+            subject_id=subject_id,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            which_expert=which_expert,
+            verbose=verbose
+        )
+        return signal
+
+    def get_subset_signals(
+            self,
+            subject_id_list,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_signals = super(FeederDataset, self).get_subset_signals(
+            subject_id_list=subject_id_list,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            which_expert=which_expert,
+            verbose=verbose
+        )
+        return subset_signals
+
+    def get_signals(
+            self,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            which_expert=1,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_signals = super(FeederDataset, self).get_signals(
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            which_expert=which_expert,
+            verbose=verbose
+        )
+        return subset_signals
+
+    def get_subject_data(
+            self,
+            subject_id,
+            augmented_page=False,
+            border_size=0,
+            which_expert=1,
+            pages_subset=constants.WN_RECORD,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        signal, marks = super(FeederDataset, self).get_subject_data(
+            subject_id=subject_id,
+            augmented_page=augmented_page,
+            border_size=border_size,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            verbose=verbose
+        )
+        return signal, marks
+
+    def get_subset_data(
+            self,
+            subject_id_list,
+            augmented_page=False,
+            border_size=0,
+            which_expert=1,
+            pages_subset=constants.WN_RECORD,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_signals, subset_marks = super(FeederDataset, self).get_subset_data(
+            subject_id_list=subject_id_list,
+            augmented_page=augmented_page,
+            border_size=border_size,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            verbose=verbose
+        )
+        return subset_signals, subset_marks
+
+    def get_data(
+            self,
+            augmented_page=False,
+            border_size=0,
+            which_expert=1,
+            pages_subset=constants.WN_RECORD,
+            normalize_clip=True,
+            normalization_mode=constants.WN_RECORD,
+            verbose=False
+    ):
+        if which_expert is None:
+            which_expert = self.which_expert
+        subset_signals, subset_marks = super(FeederDataset, self).get_data(
+            augmented_page=augmented_page,
+            border_size=border_size,
+            which_expert=which_expert,
+            pages_subset=pages_subset,
+            normalize_clip=normalize_clip,
+            normalization_mode=normalization_mode,
+            verbose=verbose
+        )
+        return subset_signals, subset_marks
 
     def get_data_for_training(
             self,
