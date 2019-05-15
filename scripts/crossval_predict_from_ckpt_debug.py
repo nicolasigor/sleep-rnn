@@ -13,7 +13,6 @@ import itertools
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
@@ -31,7 +30,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
@@ -126,10 +125,9 @@ if __name__ == '__main__':
 
                 # Predict
                 ids_dict = {
-                    # constants.TRAIN_SUBSET: train_ids,
-                    # constants.VAL_SUBSET: val_ids,
-                    # constants.TEST_SUBSET: test_ids
-                    constants.TEST_SUBSET: [12]
+                    constants.TRAIN_SUBSET: train_ids,
+                    constants.VAL_SUBSET: val_ids,
+                    constants.TEST_SUBSET: test_ids
                 }
                 for set_name in ids_dict.keys():
                     print('Predicting %s' % set_name, flush=True)
@@ -148,27 +146,9 @@ if __name__ == '__main__':
                             protocol=pickle.HIGHEST_PROTOCOL)
 
                 print('Predictions saved at %s' % save_dir)
-                print('')
-                mean_af1 = np.mean(af1_list)
-                std_af1 = np.std(af1_list)
-                print('Val-AF1 List:', af1_list)
-                print('Mean: %1.4f' % mean_af1)
-                print('Std: %1.4f' % std_af1)
-
-
-                    #
-                    # prediction.set_probability_threshold(0.52)
-                    # this_predicted_stamps = prediction.get_subject_stamps(
-                    #     subject_id=12, pages_subset=constants.WN_RECORD)
-                    # this_proba = prediction.get_subject_probabilities(
-                    #     subject_id=12)
-                    #
-                    # page_chosen = 52
-                    # start_time = 4000*52
-                    # end_time = start_time + 4000
-                    # start_time_down = int(start_time / 8)
-                    # end_time_down = int(end_time / 8)
-                    #
-                    # plt.plot(np.arange(start_time_down, end_time_down)/25, this_proba[start_time_down:end_time_down])
-                    # plt.show()
-                    #
+            print('')
+            mean_af1 = np.mean(af1_list)
+            std_af1 = np.std(af1_list)
+            print('Val-AF1 List:', af1_list)
+            print('Mean: %1.4f' % mean_af1)
+            print('Std: %1.4f' % std_af1)

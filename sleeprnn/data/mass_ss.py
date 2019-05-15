@@ -263,4 +263,33 @@ class MassSS(Dataset):
             & (n2_pages != last_page)
             & (n2_pages != last_page - 1)]
         n2_pages = n2_pages.astype(np.int16)
+
+        # -------------------------------------------------------------------
+        # OLD CODE: (debuG)
+        # TODO: remove the following code
+        with pyedflib.EdfReader(path_states_file) as file:
+            annotations = file.readAnnotations()
+        onsets = np.array(annotations[0])
+        stages_str = annotations[2]
+        stages_char = [single_annot[-1] for single_annot in stages_str]
+        total_annots = len(stages_char)
+        # Total pages not necessarily equal to total_annots
+        total_pages = int(np.ceil(signal_length / self.page_size))
+        n2_pages_onehot = np.zeros(total_pages, dtype=np.int32)
+        for i in range(total_annots):
+            if stages_char[i] == self.n2_id:
+                page_idx = int(np.round(onsets[i] / self.page_duration))
+                if page_idx < total_pages:
+                    n2_pages_onehot[page_idx] = 1
+        n2_pages = np.where(n2_pages_onehot == 1)[0]
+        # Drop first, last and second to last page of the whole registers
+        # if they where selected.
+        last_page = total_pages - 1
+        n2_pages = n2_pages[
+            (n2_pages != 0)
+            & (n2_pages != last_page)
+            & (n2_pages != last_page - 1)]
+
+        n2_pages = n2_pages.astype(np.int32)
+
         return n2_pages, hypnogram

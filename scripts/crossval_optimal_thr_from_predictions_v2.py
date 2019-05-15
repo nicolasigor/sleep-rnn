@@ -29,9 +29,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190504_bsf'
-    task_mode = constants.WN_RECORD
-    dataset_name = constants.MASS_KC_NAME
+    ckpt_folder = '20190506_bsf'
+    task_mode = constants.N2_RECORD
+    dataset_name = constants.MASS_SS_NAME
 
     which_expert = 1
     verbose = False
@@ -137,15 +137,6 @@ if __name__ == '__main__':
     # Search optimum
     print('\nVal AF1 report for %s' % full_ckpt_folder)
 
-    # half_idx = np.where(np.isclose(thr_list, 0.5))[0].item()
-    # metric_to_sort = [
-    #     - np.mean(
-    #         [per_seed_af1[folder_name][k][half_idx] for k in range(n_seeds)]
-    #     )
-    #     for folder_name in grid_folder_list]
-    # idx_sorted = np.argsort(metric_to_sort)
-    # grid_folder_list = [grid_folder_list[k] for k in idx_sorted]
-
     for j, folder_name in enumerate(grid_folder_list):
         seeds_half_performance = []
         seeds_best_performance = []
@@ -181,8 +172,6 @@ if __name__ == '__main__':
                 this_events, this_detections, verbose=False)
             seeds_best_performance.append(af1_at_thr)
 
-            # seeds_best_performance.append(this_af1[max_idx])
-            # seeds_half_performance.append(this_af1[half_idx])
         mean_best_performance = np.mean(seeds_best_performance).item()
         std_best_performance = np.std(seeds_best_performance).item()
         mean_half_performance = np.mean(seeds_half_performance).item()
