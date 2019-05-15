@@ -34,9 +34,9 @@ if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190506_bsf'
+    ckpt_folder = '20190504_bsf'
     task_mode_list = [
-        constants.N2_RECORD
+        constants.WN_RECORD
     ]
     dataset_name_list = [
         constants.MASS_KC_NAME,
