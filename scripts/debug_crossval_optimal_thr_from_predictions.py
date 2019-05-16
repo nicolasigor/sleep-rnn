@@ -113,6 +113,10 @@ if __name__ == '__main__':
                 events_val = data_val.get_stamps()
                 # Prepare model predictions
                 prediction_val = predictions_dict[folder_name][k]
+
+                # prediction_val.parent_dataset = data_val
+                # prediction_val._load_from_source()
+
                 prediction_val.set_probability_threshold(thr)
                 detections_val = prediction_val.get_stamps()
                 # Compute AF1

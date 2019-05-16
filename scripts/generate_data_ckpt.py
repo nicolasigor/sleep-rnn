@@ -15,7 +15,7 @@ from sleeprnn.data.inta_ss import IntaSS
 
 if __name__ == '__main__':
 
-    datasets_class = [MassSS]  # , MassKC, IntaSS]
+    datasets_class = [MassSS, MassKC]  # , IntaSS]
     repair_inta = False
 
     for k, data_class in enumerate(datasets_class):

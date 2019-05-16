@@ -220,9 +220,9 @@ class BaseModel(object):
                 data_inference.get_subject_pages(sub_id, constants.WN_RECORD))
             probabilities_dict[sub_id] = this_proba
         prediction = PredictedDataset(
-            data_inference,
-            probabilities_dict,
-            params=self.params)
+            dataset=data_inference,
+            probabilities_dict=probabilities_dict,
+            params=self.params.copy())
         return prediction
 
     def predict_proba(self, x, with_augmented_page=False):

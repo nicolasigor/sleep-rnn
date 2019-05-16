@@ -126,6 +126,10 @@ if __name__ == '__main__':
                     this_events = data_inference.get_stamps()
                     # Prepare model predictions
                     prediction_obj = predictions_dict[folder_name][k][set_name]
+
+                    prediction_obj.parent_dataset = data_inference
+                    prediction_obj._load_from_source()
+
                     prediction_obj.set_probability_threshold(thr)
                     this_detections = prediction_obj.get_stamps()
                     events_list = events_list + this_events

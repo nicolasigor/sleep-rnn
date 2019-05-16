@@ -39,7 +39,7 @@ if __name__ == '__main__':
         constants.N2_RECORD
     ]
     dataset_name_list = [
-        constants.MASS_KC_NAME
+        constants.MASS_SS_NAME
     ]
     which_expert = 1
     verbose = True
@@ -125,9 +125,9 @@ if __name__ == '__main__':
 
                 # Predict
                 ids_dict = {
-                    constants.TRAIN_SUBSET: train_ids,
+                    # constants.TRAIN_SUBSET: train_ids,
                     constants.VAL_SUBSET: val_ids,
-                    constants.TEST_SUBSET: test_ids
+                    # constants.TEST_SUBSET: test_ids
                 }
                 for set_name in ids_dict.keys():
                     print('Predicting %s' % set_name, flush=True)

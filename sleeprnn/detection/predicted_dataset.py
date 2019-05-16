@@ -35,7 +35,7 @@ class PredictedDataset(Dataset):
             all_ids=dataset.all_ids,
             event_name=dataset.event_name,
             n_experts=1,
-            params=dataset.params,
+            params=dataset.params.copy(),
             verbose=verbose
         )
 

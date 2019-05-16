@@ -199,7 +199,7 @@ class MassKC(Dataset):
         # keep only 20s durations
         valid_idx = (durations == self.page_duration)
         onsets = onsets[valid_idx]
-        onsets_pages = np.floor(onsets / self.page_duration).astype(np.int32)
+        onsets_pages = np.round(onsets / self.page_duration).astype(np.int32)
         stages_str = stages_str[valid_idx]
         stages_char = [single_annot[-1] for single_annot in stages_str]
 
@@ -235,4 +235,5 @@ class MassKC(Dataset):
             & (n2_pages != last_page)
             & (n2_pages != last_page - 1)]
         n2_pages = n2_pages.astype(np.int16)
+
         return n2_pages, hypnogram

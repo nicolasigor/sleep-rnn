@@ -35,7 +35,7 @@ class FeederDataset(Dataset):
             all_ids=sub_ids,
             event_name=dataset.event_name,
             n_experts=dataset.n_experts,
-            params=dataset.params,
+            params=dataset.params.copy(),
             verbose=verbose
         )
 
@@ -96,7 +96,7 @@ class FeederDataset(Dataset):
             subject_id,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            which_expert=None,
             verbose=False
     ):
         if which_expert is None:
@@ -115,7 +115,7 @@ class FeederDataset(Dataset):
             subject_id_list,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            which_expert=None,
             verbose=False
     ):
         if which_expert is None:
@@ -133,7 +133,7 @@ class FeederDataset(Dataset):
             self,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            which_expert=None,
             verbose=False
     ):
         if which_expert is None:
@@ -151,7 +151,7 @@ class FeederDataset(Dataset):
             subject_id,
             augmented_page=False,
             border_size=0,
-            which_expert=1,
+            which_expert=None,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
@@ -176,7 +176,7 @@ class FeederDataset(Dataset):
             subject_id_list,
             augmented_page=False,
             border_size=0,
-            which_expert=1,
+            which_expert=None,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
@@ -200,7 +200,7 @@ class FeederDataset(Dataset):
             self,
             augmented_page=False,
             border_size=0,
-            which_expert=1,
+            which_expert=None,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
