@@ -381,23 +381,34 @@ class WaveletBLSTM(BaseModel):
         activity = np.sum(activity, axis=1)
 
         # Split into pages with activity, and pages without any
-        zero_activity_idx = np.where(activity == 0)[0]
-        exists_activity_idx = np.where(activity > 0)[0]
+        # zero_activity_idx = np.where(activity == 0)[0]
+        # exists_activity_idx = np.where(activity > 0)[0]
 
         # # Sorting in ascending order (low to high)
-        # sorted_idx = np.argsort(activity)
-        # low_activity_idx = sorted_idx[:n_train//2]
-        # high_activity_idx = sorted_idx[n_train//2:]
+        sorted_idx = np.argsort(activity)
+        low_activity_idx = sorted_idx[:int(n_train/2)]
+        high_activity_idx = sorted_idx[int(n_train/2):]
 
         # Pages without any activity
-        x_train_1 = x_train[zero_activity_idx]
-        y_train_1 = y_train[zero_activity_idx]
+        # x_train_1 = x_train[zero_activity_idx]
+        # y_train_1 = y_train[zero_activity_idx]
 
         # Pages with activity
-        x_train_2 = x_train[exists_activity_idx]
-        y_train_2 = y_train[exists_activity_idx]
+        # x_train_2 = x_train[exists_activity_idx]
+        # y_train_2 = y_train[exists_activity_idx]
 
-        print('Pages without activity:', x_train_1.shape)
-        print('Pages with activity:', x_train_2.shape)
+        # print('Pages without activity:', x_train_1.shape)
+        # print('Pages with activity:', x_train_2.shape)
+
+        # Pages with low activity
+        x_train_1 = x_train[low_activity_idx]
+        y_train_1 = y_train[low_activity_idx]
+
+        # Pages with high activity
+        x_train_2 = x_train[high_activity_idx]
+        y_train_2 = y_train[high_activity_idx]
+
+        print('Pages with low activity:', x_train_1.shape)
+        print('Pages with high activity:', x_train_2.shape)
 
         return x_train_1, y_train_1, x_train_2, y_train_2
