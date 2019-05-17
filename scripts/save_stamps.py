@@ -19,13 +19,13 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    ckpt_folder = os.path.join('20190506_bsf_n2_train_mass_ss', 'bsf', 'seed0')
-    optimal_thr = 0.52
+    # ckpt_folder = os.path.join('20190506_bsf_n2_train_mass_ss', 'bsf', 'seed0')
+    # optimal_thr = 0.52
 
-    # ckpt_folder = os.path.join('20190516_bsf_n2_train_inta_ss', 'bsf', 'seed0')
-    # optimal_thr = 0.48
+    ckpt_folder = os.path.join('20190516_bsf_v2_n2_train_inta_ss', 'bsf', 'seed0')
+    optimal_thr = 0.46
 
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.INTA_SS_NAME
     task_mode = constants.N2_RECORD
     save = True
 
