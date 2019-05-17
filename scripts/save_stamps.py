@@ -21,9 +21,13 @@ if __name__ == '__main__':
 
     ckpt_folder = os.path.join('20190506_bsf_n2_train_mass_ss', 'bsf', 'seed0')
     optimal_thr = 0.52
+
+    # ckpt_folder = os.path.join('20190516_bsf_n2_train_inta_ss', 'bsf', 'seed0')
+    # optimal_thr = 0.48
+
     dataset_name = constants.MASS_SS_NAME
     task_mode = constants.N2_RECORD
-    save = False
+    save = True
 
     # Load data
     dataset = load_dataset(dataset_name)
@@ -58,7 +62,7 @@ if __name__ == '__main__':
             if dataset_name_short == 'mass':
                 filename = '%s 01-02-00%02d SpindleTapia.npy' % (dataset_name_short, single_id)
             else:
-                filename = '%s %s SpindleTapia.npy' % (dataset_name_short, NAMES[single_id])
+                filename = '%s %s SpindleTapia.npy' % (dataset_name_short, NAMES[single_id-1])
             filepath = os.path.join(RESULTS_PATH, filename)
             print('Saved at %s' % filepath)
             if save:
