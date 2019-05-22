@@ -55,10 +55,10 @@ class IntaSS(Dataset):
         |__ StagesOnly_ADGU101504.txt
         |__ ...
     |__ PATH_MARKS
-        |__ NewFixedSS_ADGU101504.txt
+        |__ NewerWinsFix_SS_ADGU101504.txt
         |__ ...
 
-    If 'NewFixed...' marks files do not exist, then you should
+    If '...Fix...' marks files do not exist, then you should
     set the 'repair_stamps' flag to True. In that case, it is expected:
 
     |__ PATH_MARKS
@@ -145,7 +145,7 @@ class IntaSS(Dataset):
                 'StagesOnly_%s.txt' % subject_name)
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
-                'NewFixedSS_%s.txt' % subject_name)
+                'NewerWinsFix_SS_%s.txt' % subject_name)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG: path_eeg_file,
@@ -222,8 +222,8 @@ class IntaSS(Dataset):
         return n2_pages
 
     def _repair_stamps(self):
-        print('Repairing INTA stamps')
-        filename_format = 'NewFixedSS_%s.txt'
+        print('Repairing INTA stamps (Newer Wins Strategy)')
+        filename_format = 'NewerWinsFix_SS_%s.txt'
         inta_folder = os.path.join(utils.PATH_DATA, PATH_INTA_RELATIVE)
         for name in NAMES:
             print('Fixing %s' % name)
@@ -243,6 +243,7 @@ class IntaSS(Dataset):
             new_data = []
             for i in range(data.shape[0]):
                 if data[i, 0] > data[i, 1]:
+                    print('Start > End time found and fixed.')
                     aux = data[i, 0]
                     data[i, 0] = data[i, 1]
                     data[i, 1] = aux
@@ -253,52 +254,60 @@ class IntaSS(Dataset):
                     print('Zero duration mark found and removed')
             data = np.stack(new_data, axis=0)
 
-            raw_marks = data[:, [0, 1]]
-            valid = data[:, 4]
-
+            # Remove stamps outside signal boundaries
             print('Loading %s' % path_eeg_file)
             with pyedflib.EdfReader(path_eeg_file) as file:
                 signal = file.readSignal(0)
                 signal_len = signal.shape[0]
+            new_data = []
+            for i in range(data.shape[0]):
+                if data[i, 1] < signal_len:
+                    new_data.append(data[i, :])
+                else:
+                    print('Stamp outside boundaries found and removed')
+            data = np.stack(new_data, axis=0)
+
+            raw_marks = data[:, [0, 1]]
+            valid = data[:, 4]
 
             print('Starting correction... ', end='', flush=True)
             # Separate according to valid value. Valid = 0 is ignored.
             raw_marks_1 = raw_marks[valid == 1]
             raw_marks_2 = raw_marks[valid == 2]
 
-            # Turn into binary sequence
-            raw_marks_1 = utils.stamp2seq(raw_marks_1, 0, signal_len - 1,
-                                          allow_early_end=True)
-            raw_marks_2 = utils.stamp2seq(raw_marks_2, 0, signal_len - 1,
-                                          allow_early_end=True)
-            # Go back to intervals
-            raw_marks_1 = utils.seq2stamp(raw_marks_1)
-            raw_marks_2 = utils.seq2stamp(raw_marks_2)
-            # In this way, overlapping intervals are now together
-
-            # Correction rule:
+            # Now we add sequentially from the end (from newer marks), and we
+            # only add marks if they don't intersect with the current set.
+            # In this way, we effectively choose newer stamps over old ones
+            # We start with valid=2, and then we continue with valid=1, to
+            # follow the correction rule:
             # Keep valid=2 always
             # Keep valid=1 only if there is no intersection with valid=2
-            final_marks = [raw_marks_2]
-            final_valid = [2 * np.ones(raw_marks_2.shape[0])]
-            for i in range(raw_marks_1.shape[0]):
-                # Check if there is any intersection
-                add_condition = True
-                for j in range(raw_marks_2.shape[0]):
-                    start_intersection = max(raw_marks_1[i, 0],
-                                             raw_marks_2[j, 0])
-                    end_intersection = min(raw_marks_1[i, 1], raw_marks_2[j, 1])
-                    intersection = end_intersection - start_intersection
-                    if intersection >= 0:
-                        add_condition = False
-                        break
-                if add_condition:
-                    final_marks.append(raw_marks_1[[i], :])
-                    final_valid.append([1])
+
+            final_marks = [raw_marks_2[-1, :]]
+            final_valid = [2]
+            for i in range(raw_marks_2.shape[0] - 2, -1, -1):
+                candidate_mark = raw_marks_2[i, :]
+                current_set = np.stack(final_marks, axis=0)
+                if not utils.stamp_intersects_set(candidate_mark, current_set):
+                    # There is no intersection
+                    final_marks.append(candidate_mark)
+                    final_valid.append(2)
+            for i in range(raw_marks_1.shape[0] - 2, -1, -1):
+                candidate_mark = raw_marks_1[i, :]
+                current_set = np.stack(final_marks, axis=0)
+                if not utils.stamp_intersects_set(candidate_mark, current_set):
+                    # There is no intersection
+                    final_marks.append(candidate_mark)
+                    final_valid.append(1)
 
             # Now concatenate everything
-            final_marks = np.concatenate(final_marks, axis=0)
-            final_valid = np.concatenate(final_valid, axis=0)
+            final_marks = np.stack(final_marks, axis=0)
+            final_valid = np.stack(final_valid, axis=0)
+
+            # And sort according to time
+            idx_sorted = np.argsort(final_marks[:, 0])
+            final_marks = final_marks[idx_sorted]
+            final_valid = final_valid[idx_sorted]
 
             # Now create array in right format
             # [start end -50 -50 valid channel]
@@ -327,3 +336,110 @@ class IntaSS(Dataset):
                 inta_folder, PATH_MARKS, filename_format % name))
             np.savetxt(path_new_marks_file, table, fmt='%d', delimiter=' ')
             print('Fixed marks saved at %s\n' % path_new_marks_file)
+
+    # def _old_repair_stamps(self):
+    #     print('Repairing INTA stamps (Fusion Strategy)')
+    #     filename_format = 'FusionFix_SS_%s.txt'
+    #     inta_folder = os.path.join(utils.PATH_DATA, PATH_INTA_RELATIVE)
+    #     for name in NAMES:
+    #         print('Fixing %s' % name)
+    #         path_marks_file = os.path.abspath(os.path.join(
+    #             inta_folder, PATH_MARKS, 'SS_%s.txt' % name))
+    #         path_eeg_file = os.path.abspath(os.path.join(
+    #             inta_folder, PATH_REC, '%s.rec' % name))
+    #
+    #         # Read marks
+    #         print('Loading %s' % path_marks_file)
+    #         data = np.loadtxt(path_marks_file)
+    #         for_this_channel = data[:, -1] == self.channel + 1
+    #         data = data[for_this_channel]
+    #         data = np.round(data).astype(np.int32)
+    #
+    #         # Remove zero duration marks, and ensure that start time<end time
+    #         new_data = []
+    #         for i in range(data.shape[0]):
+    #             if data[i, 0] > data[i, 1]:
+    #                 aux = data[i, 0]
+    #                 data[i, 0] = data[i, 1]
+    #                 data[i, 1] = aux
+    #                 new_data.append(data[i, :])
+    #             elif data[i, 0] < data[i, 1]:
+    #                 new_data.append(data[i, :])
+    #             else:  # Zero duration (equality)
+    #                 print('Zero duration mark found and removed')
+    #         data = np.stack(new_data, axis=0)
+    #
+    #         raw_marks = data[:, [0, 1]]
+    #         valid = data[:, 4]
+    #
+    #         print('Loading %s' % path_eeg_file)
+    #         with pyedflib.EdfReader(path_eeg_file) as file:
+    #             signal = file.readSignal(0)
+    #             signal_len = signal.shape[0]
+    #
+    #         print('Starting correction... ', end='', flush=True)
+    #         # Separate according to valid value. Valid = 0 is ignored.
+    #         raw_marks_1 = raw_marks[valid == 1]
+    #         raw_marks_2 = raw_marks[valid == 2]
+    #
+    #         # Turn into binary sequence
+    #         raw_marks_1 = utils.stamp2seq(raw_marks_1, 0, signal_len - 1,
+    #                                       allow_early_end=True)
+    #         raw_marks_2 = utils.stamp2seq(raw_marks_2, 0, signal_len - 1,
+    #                                       allow_early_end=True)
+    #         # Go back to intervals
+    #         raw_marks_1 = utils.seq2stamp(raw_marks_1)
+    #         raw_marks_2 = utils.seq2stamp(raw_marks_2)
+    #         # In this way, overlapping intervals are now together
+    #
+    #         # Correction rule:
+    #         # Keep valid=2 always
+    #         # Keep valid=1 only if there is no intersection with valid=2
+    #         final_marks = [raw_marks_2]
+    #         final_valid = [2 * np.ones(raw_marks_2.shape[0])]
+    #         for i in range(raw_marks_1.shape[0]):
+    #             # Check if there is any intersection
+    #             add_condition = True
+    #             for j in range(raw_marks_2.shape[0]):
+    #                 start_intersection = max(raw_marks_1[i, 0],
+    #                                          raw_marks_2[j, 0])
+    #                 end_intersection = min(raw_marks_1[i,1], raw_marks_2[j,1])
+    #                 intersection = end_intersection - start_intersection
+    #                 if intersection >= 0:
+    #                     add_condition = False
+    #                     break
+    #             if add_condition:
+    #                 final_marks.append(raw_marks_1[[i], :])
+    #                 final_valid.append([1])
+    #
+    #         # Now concatenate everything
+    #         final_marks = np.concatenate(final_marks, axis=0)
+    #         final_valid = np.concatenate(final_valid, axis=0)
+    #
+    #         # Now create array in right format
+    #         # [start end -50 -50 valid channel]
+    #         channel_for_txt = self.channel + 1
+    #         number_for_txt = -50
+    #         n_marks = final_marks.shape[0]
+    #         channel_column = channel_for_txt * np.ones(n_marks).reshape(
+    #             [n_marks, 1])
+    #         number_column = number_for_txt * np.ones(n_marks).reshape(
+    #             [n_marks, 1])
+    #         valid_column = final_valid.reshape([n_marks, 1])
+    #         table = np.concatenate(
+    #             [final_marks,
+    #              number_column, number_column,
+    #              valid_column, channel_column],
+    #             axis=1
+    #         )
+    #         table = table.astype(np.int32)
+    #
+    #         # Now sort according to start time
+    #         table = table[table[:, 0].argsort()]
+    #         print('Done')
+    #
+    #         # Now save into a file
+    #         path_new_marks_file = os.path.abspath(os.path.join(
+    #             inta_folder, PATH_MARKS, filename_format % name))
+    #         np.savetxt(path_new_marks_file, table, fmt='%d', delimiter=' ')
+    #         print('Fixed marks saved at %s\n' % path_new_marks_file)

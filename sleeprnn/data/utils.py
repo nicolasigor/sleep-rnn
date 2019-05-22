@@ -280,3 +280,19 @@ def shuffle_data_with_ids(x, y, sub_ids, seed=None):
     y = y[random_idx]
     sub_ids = sub_ids[random_idx]
     return x, y, sub_ids
+
+
+def stamp_intersects_set(single_stamp, set_stamps):
+    """ Assumes shape (2, 1) for single stamp and (N, 2) for set_stamps"""
+    candidates = np.where(
+        (set_stamps[:, 0] <= single_stamp[1])
+        & (set_stamps[:, 1] >= single_stamp[0]))[0]
+    for j in candidates:
+        intersection = min(
+            single_stamp[1], set_stamps[j, 1]
+        ) - max(
+            single_stamp[0], set_stamps[j, 0]
+        ) + 1
+        if intersection > 0:
+            return True
+    return False
