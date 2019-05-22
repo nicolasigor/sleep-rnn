@@ -127,11 +127,11 @@ class WaveletBLSTM(BaseModel):
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         start_time = time.time()
 
-        self._initialize_variables()
-
         # split set into two parts
         x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(
             x_train, y_train)
+
+        self._initialize_variables()
         self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
 
         # Improvement criterion
@@ -250,7 +250,7 @@ class WaveletBLSTM(BaseModel):
         label_cast = stack_crop[1, border_size:-border_size:time_stride]
         label = tf.cast(label_cast, dtype=tf.int32)
         # Apply data augmentation
-        feat, label = self._augmentation_fn(feat, label)
+        # feat, label = self._augmentation_fn(feat, label)
         return feat, label
 
     def _augmentation_fn(self, feat, label):
