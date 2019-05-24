@@ -97,18 +97,14 @@ class WaveletBLSTMMod(BaseModelMod):
         self._initialize_variables()
 
         # Compute stats from CWT
-        x_train, _ = data_train.get_data_for_prediction(
+        x_train = data_train.get_data_for_stats(
             border_size=border_size,
-            predict_with_augmented_page=False,
             verbose=verbose)
-
         ids_train = data_train.get_ids()
 
-        x_val, _ = data_val.get_data_for_prediction(
+        x_val = data_val.get_data_for_stats(
             border_size=border_size,
-            predict_with_augmented_page=False,
             verbose=verbose)
-
         ids_val = data_val.get_ids()
 
         for single_x, single_id in zip(x_train, ids_train):
@@ -302,7 +298,7 @@ class WaveletBLSTMMod(BaseModelMod):
         label_cast = stack_crop[1, border_size:-border_size:time_stride]
         label = tf.cast(label_cast, dtype=tf.int32)
         # Apply data augmentation
-        feat, label = self._augmentation_fn(feat, label)
+        # feat, label = self._augmentation_fn(feat, label)
         return feat, label, sub_ids
 
     def _augmentation_fn(self, feat, label):

@@ -213,9 +213,9 @@ def apply_wavelets(
                                     + tf.square(out_imag_crop))
                 out_angle = tf.atan2(out_imag_crop, out_real_crop)
                 out_concat = tf.concat([out_power, out_angle], axis=1)
-                # [batch, 1, time_len, n_scales]->[batch, time_len, n_scales, 1]
+                # [batch, 2, time_len, n_scales]->[batch, time_len, n_scales, 2]
                 single_scalogram = tf.transpose(out_concat, perm=[0, 2, 3, 1])
                 scalograms_list.append(single_scalogram)
-        # Get all scalograms in shape [batch, time_len, n_scales, n_scalograms]
+        # Get all scalograms in shape [batch, time_len, n_scales,2*n_scalograms]
         scalograms = tf.concat(scalograms_list, -1)
     return scalograms

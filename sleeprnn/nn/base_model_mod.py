@@ -233,6 +233,14 @@ class BaseModelMod(object):
         cwt_mean = cwt_list.mean(axis=(0, 1))
         cwt_variance = cwt_list.var(axis=(0, 1))
 
+        # -----------
+        # Overwrite stats for phase channel so it is not changed
+        for k in range(cwt_mean.shape[-1]):
+            if k % 2 == 1:  # 1, 3, 5, .... etc it is phase channel
+                cwt_mean[..., k] = 0
+                cwt_variance[..., k] = 1
+        # -----------
+
         # Shape (n_scales, n_channels)
         self.cwt_stats_dict.update(
             {sub_id: (cwt_mean, cwt_variance)}
@@ -241,9 +249,9 @@ class BaseModelMod(object):
     def predict_dataset(self, data_inference: FeederDataset, verbose=False):
         with_augmented_page = self.params[pkeys.PREDICT_WITH_AUGMENTED_PAGE]
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
-        x_val, _ = data_inference.get_data_for_prediction(
+        # Update CWT stats
+        x_val = data_inference.get_data_for_stats(
             border_size=border_size,
-            predict_with_augmented_page=False,
             verbose=False)
         sub_id_list = data_inference.get_ids()
         for single_x, single_id in zip(x_val, sub_id_list):
@@ -360,38 +368,38 @@ class BaseModelMod(object):
                 print('Done', flush=True)
         return probabilities_list
 
-    def _personalize_bn(self, x):
-        cwt_list = []
-        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
-        niters = int(niters)
-        for i in range(niters):
-            start_index = i * self.params[pkeys.BATCH_SIZE]
-            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
-            batch = x[start_index:end_index]
-            cwt = self.sess.run(
-                self.cwt_prebn,
-                feed_dict={
-                    self.feats: batch,
-                    self.training_ph: False
-                })
-            cwt_list.append(cwt)
-        cwt_list = np.concatenate(cwt_list, axis=0)
-        # print(cwt_list.shape)
-        n_channels = cwt_list.shape[-1]
-        # print(n_channels)
-        for k in range(n_channels):
-            # Compute statistics
-            new_mean = cwt_list[..., k].mean(axis=(0, 1))
-            new_variance = cwt_list[..., k].var(axis=(0, 1))
-            # print(new_mean.shape, new_variance.shape)
-            # Select right variables
-            my_vars = [var for var in self.ind_variables if 'bn_%d' % k in var.name]
-            old_mean = [var for var in my_vars if 'mean' in var.name][0]
-            old_variance = [var for var in my_vars if 'variance' in var.name][0]
-            # print(old_mean, old_variance)
-            # Update variables
-            self.sess.run(tf.assign(old_mean, new_mean))
-            self.sess.run(tf.assign(old_variance, new_variance))
+    # def _personalize_bn(self, x):
+    #     cwt_list = []
+    #     niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
+    #     niters = int(niters)
+    #     for i in range(niters):
+    #         start_index = i * self.params[pkeys.BATCH_SIZE]
+    #         end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
+    #         batch = x[start_index:end_index]
+    #         cwt = self.sess.run(
+    #             self.cwt_prebn,
+    #             feed_dict={
+    #                 self.feats: batch,
+    #                 self.training_ph: False
+    #             })
+    #         cwt_list.append(cwt)
+    #     cwt_list = np.concatenate(cwt_list, axis=0)
+    #     # print(cwt_list.shape)
+    #     n_channels = cwt_list.shape[-1]
+    #     # print(n_channels)
+    #     for k in range(n_channels):
+    #         # Compute statistics
+    #         new_mean = cwt_list[..., k].mean(axis=(0, 1))
+    #         new_variance = cwt_list[..., k].var(axis=(0, 1))
+    #         # print(new_mean.shape, new_variance.shape)
+    #         # Select right variables
+    #         my_vars = [var for var in self.ind_variables if 'bn_%d' % k in var.name]
+    #         old_mean = [var for var in my_vars if 'mean' in var.name][0]
+    #         old_variance = [var for var in my_vars if 'variance' in var.name][0]
+    #         # print(old_mean, old_variance)
+    #         # Update variables
+    #         self.sess.run(tf.assign(old_mean, new_mean))
+    #         self.sess.run(tf.assign(old_variance, new_variance))
 
     def _normalize_cwt(self, cwt, sub_ids):
         # print('Not normalizing cwt of shape', cwt.shape)
@@ -421,7 +429,7 @@ class BaseModelMod(object):
         batch_mean = np.expand_dims(batch_mean, 1)
         batch_var = np.expand_dims(batch_var, 1)
         # Now we have shape [batch, 1, n_freq, n_channels]
-        # Broadcasting should be enough
+        # Broadcasting should be enough across time dimension
         # print('Mean and var for batch', batch_mean.shape, batch_var.shape)
         cwt = (cwt - batch_mean) / np.sqrt(batch_var + 1e-3)
         return cwt

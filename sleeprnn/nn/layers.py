@@ -171,7 +171,7 @@ def cmorlet_layer(
             after_log = []
             for k in range(n_spect):
                 if k % 2 == 0:  # 0, 2, 4, ... etc, this is magnitude
-                    tmp = tf.log(cwt[k] + 1e-3)
+                    tmp = tf.log(cwt[k] + 1e-8)
                 else:  # Angle remains unchanged
                     tmp = cwt[k]
                 after_log.append(tmp)
