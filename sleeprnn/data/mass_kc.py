@@ -67,6 +67,12 @@ class MassKC(Dataset):
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
+
+        print('Train size: %d. Test size: %d'
+              % (len(self.train_ids), len(self.test_ids)))
+        print('Train subjects: \n', self.train_ids)
+        print('Test subjects: \n', self.test_ids)
+
         super(MassKC, self).__init__(
             dataset_dir=PATH_MASS_RELATIVE,
             load_checkpoint=load_checkpoint,
