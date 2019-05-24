@@ -33,8 +33,7 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    max_iters = 100  # For debugging reasons
-    id_try_list = [0]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
     experiment_name = 'grid_mod'
@@ -109,7 +108,6 @@ if __name__ == '__main__':
 
                     # Create and train model
                     params = pkeys.default_params.copy()
-                    params[pkeys.MAX_ITERS] = max_iters
                     params[pkeys.TRAINABLE_WAVELET] = trainable_wavelet
                     params[pkeys.USE_LOG] = use_log
 

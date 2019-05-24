@@ -252,7 +252,7 @@ class BaseModelMod(object):
         # Update CWT stats
         x_val = data_inference.get_data_for_stats(
             border_size=border_size,
-            verbose=False)
+            verbose=True)
         sub_id_list = data_inference.get_ids()
         for single_x, single_id in zip(x_val, sub_id_list):
             self._update_cwt_stats(single_x, single_id)
