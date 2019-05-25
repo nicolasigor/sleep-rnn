@@ -69,7 +69,7 @@ class IntaSS(Dataset):
     def __init__(self, params=None, load_checkpoint=False, repair_stamps=False):
         """Constructor"""
         # INTA parameters
-        self.channel = 0  # Channel for SS marks, first is F4-C4
+        self.channel = 2  # Channel for SS, first is F4-C4, third is F3-C3
         self.n2_id = 3  # Character for N2 identification in hypnogram
         self.original_page_duration = 30  # Time of window page [s]
 
@@ -231,6 +231,7 @@ class IntaSS(Dataset):
         print('Repairing INTA stamps (Newer Wins Strategy)')
         filename_format = 'NewerWinsFix_SS_%s.txt'
         inta_folder = os.path.join(utils.PATH_DATA, PATH_INTA_RELATIVE)
+        channel_for_txt = self.channel + 1
         for name in NAMES:
             print('Fixing %s' % name)
             path_marks_file = os.path.abspath(os.path.join(
@@ -241,7 +242,7 @@ class IntaSS(Dataset):
             # Read marks
             print('Loading %s' % path_marks_file)
             data = np.loadtxt(path_marks_file)
-            for_this_channel = data[:, -1] == self.channel + 1
+            for_this_channel = data[:, -1] == channel_for_txt
             data = data[for_this_channel]
             data = np.round(data).astype(np.int32)
 
@@ -276,10 +277,14 @@ class IntaSS(Dataset):
             raw_marks = data[:, [0, 1]]
             valid = data[:, 4]
 
-            print('Starting correction... ', end='', flush=True)
+            print('Starting correction... ', flush=True)
             # Separate according to valid value. Valid = 0 is ignored.
+
             raw_marks_1 = raw_marks[valid == 1]
             raw_marks_2 = raw_marks[valid == 2]
+
+            print('Originally: %d marks with valid=1, %d marks with valid=2'
+                  % (len(raw_marks_1), len(raw_marks_2)))
 
             # Now we add sequentially from the end (from newer marks), and we
             # only add marks if they don't intersect with the current set.
@@ -289,22 +294,46 @@ class IntaSS(Dataset):
             # Keep valid=2 always
             # Keep valid=1 only if there is no intersection with valid=2
 
-            final_marks = [raw_marks_2[-1, :]]
-            final_valid = [2]
-            for i in range(raw_marks_2.shape[0] - 2, -1, -1):
-                candidate_mark = raw_marks_2[i, :]
-                current_set = np.stack(final_marks, axis=0)
-                if not utils.stamp_intersects_set(candidate_mark, current_set):
-                    # There is no intersection
-                    final_marks.append(candidate_mark)
-                    final_valid.append(2)
-            for i in range(raw_marks_1.shape[0] - 2, -1, -1):
-                candidate_mark = raw_marks_1[i, :]
-                current_set = np.stack(final_marks, axis=0)
-                if not utils.stamp_intersects_set(candidate_mark, current_set):
-                    # There is no intersection
-                    final_marks.append(candidate_mark)
-                    final_valid.append(1)
+            n_v1 = 0
+            n_v2 = 0
+
+            if len(raw_marks_2) > 0:
+                final_marks = [raw_marks_2[-1, :]]
+                final_valid = [2]
+                n_v2 += 1
+                for i in range(raw_marks_2.shape[0] - 2, -1, -1):
+                    candidate_mark = raw_marks_2[i, :]
+                    current_set = np.stack(final_marks, axis=0)
+                    if not utils.stamp_intersects_set(candidate_mark, current_set):
+                        # There is no intersection
+                        final_marks.append(candidate_mark)
+                        final_valid.append(2)
+                        n_v2 += 1
+                for i in range(raw_marks_1.shape[0] - 1, -1, -1):
+                    candidate_mark = raw_marks_1[i, :]
+                    current_set = np.stack(final_marks, axis=0)
+                    if not utils.stamp_intersects_set(candidate_mark,
+                                                      current_set):
+                        # There is no intersection
+                        final_marks.append(candidate_mark)
+                        final_valid.append(1)
+                        n_v1 += 1
+            else:
+                print('There is no valid=2 marks.')
+                final_marks = [raw_marks_1[-1, :]]
+                final_valid = [1]
+                n_v1 += 1
+                for i in range(raw_marks_1.shape[0] - 2, -1, -1):
+                    candidate_mark = raw_marks_1[i, :]
+                    current_set = np.stack(final_marks, axis=0)
+                    if not utils.stamp_intersects_set(candidate_mark,
+                                                      current_set):
+                        # There is no intersection
+                        final_marks.append(candidate_mark)
+                        final_valid.append(1)
+                        n_v1 += 1
+
+            print('Finally: %d with valid=1, %d with valid=2' % (n_v1, n_v2))
 
             # Now concatenate everything
             final_marks = np.stack(final_marks, axis=0)
@@ -317,7 +346,7 @@ class IntaSS(Dataset):
 
             # Now create array in right format
             # [start end -50 -50 valid channel]
-            channel_for_txt = self.channel + 1
+
             number_for_txt = -50
             n_marks = final_marks.shape[0]
             channel_column = channel_for_txt * np.ones(n_marks).reshape(
@@ -335,7 +364,7 @@ class IntaSS(Dataset):
 
             # Now sort according to start time
             table = table[table[:, 0].argsort()]
-            print('Done')
+            print('Done. %d marks for channel %d' % (n_marks, channel_for_txt))
 
             # Now save into a file
             path_new_marks_file = os.path.abspath(os.path.join(

@@ -34,16 +34,16 @@ if __name__ == '__main__':
     id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_v6'
+    experiment_name = 'bsf_ch3'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.INTA_SS_NAME
     ]
 
-    description_str = 'bsf with modified pooling'
+    description_str = 'bsf'
     which_expert = 1
     verbose = True
     # -----
@@ -88,7 +88,6 @@ if __name__ == '__main__':
 
                 # Create and train model
                 params = pkeys.default_params.copy()
-                params[pkeys.MODEL_VERSION] = constants.V6
                 model = WaveletBLSTM(params, logdir=logdir)
                 model.fit(data_train, data_val, verbose=verbose)
 
