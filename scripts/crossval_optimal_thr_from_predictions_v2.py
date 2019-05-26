@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190524_bsf_v6'
+    ckpt_folder = '20190525_bsf_v4'
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
 
@@ -62,6 +62,7 @@ if __name__ == '__main__':
             'predictions_%s' % dataset_name,
             full_ckpt_folder
         ))
+        grid_folder_list.sort()
         print('Grid settings found inside %s:' % full_ckpt_folder)
         pprint(grid_folder_list)
     print('')
