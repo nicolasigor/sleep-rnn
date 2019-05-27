@@ -288,7 +288,8 @@ class WaveletBLSTM(BaseModel):
                 constants.V1,
                 constants.V4,
                 constants.V5,
-                constants.V6
+                constants.V6,
+                constants.V7
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -298,6 +299,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v5
         elif model_version == constants.V6:
             model_fn = networks.wavelet_blstm_net_v6
+        elif model_version == constants.V7:
+            model_fn = networks.wavelet_blstm_net_v7
         else:
             model_fn = networks.dummy_net
 

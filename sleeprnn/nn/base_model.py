@@ -155,6 +155,8 @@ class BaseModel(object):
             model_name = 'model_v5'
         elif model_version == constants.V6:
             model_name = 'model_v6'
+        elif model_version == constants.V7:
+            model_name = 'model_v7'
         else:
             model_name = 'dummy'
 

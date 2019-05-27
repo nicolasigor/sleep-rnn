@@ -69,7 +69,7 @@ class IntaSS(Dataset):
     def __init__(self, params=None, load_checkpoint=False, repair_stamps=False):
         """Constructor"""
         # INTA parameters
-        self.channel = 2  # Channel for SS, first is F4-C4, third is F3-C3
+        self.channel = 0  # Channel for SS, first is F4-C4, third is F3-C3
         self.n2_id = 3  # Character for N2 identification in hypnogram
         self.original_page_duration = 30  # Time of window page [s]
 

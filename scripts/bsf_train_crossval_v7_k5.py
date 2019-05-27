@@ -34,7 +34,7 @@ if __name__ == '__main__':
     id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_v4'
+    experiment_name = 'bsf_v7_k5'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -92,6 +92,11 @@ if __name__ == '__main__':
 
                     # Create and train model
                     params = pkeys.default_params.copy()
+
+                    params[pkeys.MODEL_VERSION] = constants.V7
+                    params[pkeys.INITIAL_KERNEL_SIZE] = 5
+                    params[pkeys.INITIAL_CONV_FILTERS] = 32
+
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
 
