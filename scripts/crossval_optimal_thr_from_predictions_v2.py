@@ -29,9 +29,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190525_bsf_v4'
+    ckpt_folder = '20190525_bsf_ch3'
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.INTA_SS_NAME
 
     which_expert = 1
     verbose = False
