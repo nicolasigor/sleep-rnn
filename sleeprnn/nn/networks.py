@@ -652,3 +652,306 @@ def wavelet_blstm_net_v7(
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
         return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v8(
+        inputs,
+        params,
+        training,
+        name='model_v8'
+):
+    """ Wavelet transform, conv, and BLSTM to make a prediction.
+
+    This models first computes the CWT to form scalograms, and then this
+    scalograms are processed by a standard convolutional stage
+    (pre-activation BN). After this, the outputs is flatten and is passed to
+    a 2-layers BLSTM.
+    The final classification is made with a 2 layers FC with 2 outputs.
+
+    Args:
+        inputs: (2d tensor) input tensor of shape [batch_size, time_len]
+        params: (dict) Parameters to configure the model (see common.param_keys)
+        training: (boolean) Indicates if it is the training phase or not.
+        name: (Optional, string, defaults to 'model_v8') A name for the network.
+    """
+    print('Using model V8')
+    with tf.variable_scope(name):
+        # CWT stage
+        border_crop = int(
+            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+
+        outputs, cwt_prebn = layers.cmorlet_layer(
+            inputs,
+            params[pkeys.FB_LIST],
+            params[pkeys.FS],
+            lower_freq=params[pkeys.LOWER_FREQ],
+            upper_freq=params[pkeys.UPPER_FREQ],
+            n_scales=params[pkeys.N_SCALES],
+            stride=1,
+            size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
+            border_crop=border_crop,
+            use_log=params[pkeys.USE_LOG],
+            training=training,
+            trainable_wavelet=params[pkeys.TRAINABLE_WAVELET],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            name='spectrum')
+
+        if params[pkeys.USE_RELU]:
+            outputs = tf.nn.relu(outputs)
+
+        # Split magnitude and phase
+        outputs_magnitude = outputs[..., 0:1]
+        outputs_phase = outputs[..., 1:]
+
+        # MAGNITUDE PATH
+
+        # Convolutional stage (standard feed-forward)
+        init_filters = params[pkeys.INITIAL_CONV_FILTERS]
+        outputs_magnitude = layers.conv2d_prebn_block(
+            outputs_magnitude,
+            init_filters,
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1_mag')
+        outputs_magnitude = layers.conv2d_prebn_block(
+            outputs_magnitude,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2_mag')
+        outputs_magnitude = layers.conv2d_prebn_block(
+            outputs_magnitude,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_3_mag')
+
+        # PHASE PATH
+
+        # Convolutional stage (standard feed-forward)
+        init_filters = params[pkeys.INITIAL_CONV_FILTERS]
+        outputs_phase = layers.conv2d_prebn_block(
+            outputs_phase,
+            init_filters,
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1_pha')
+        outputs_phase = layers.conv2d_prebn_block(
+            outputs_phase,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2_pha')
+        outputs_phase = layers.conv2d_prebn_block(
+            outputs_phase,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_3_pha')
+
+        # Now concatenate magnitude and phase paths
+        outputs = tf.concat([outputs_magnitude, outputs_phase], axis=-1)
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            outputs,
+            2,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+        return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v9(
+        inputs,
+        params,
+        training,
+        name='model_v9'
+):
+    """ Wavelet transform, conv, and BLSTM to make a prediction.
+
+    This models first computes the CWT to form scalograms, and then this
+    scalograms are processed by a standard convolutional stage
+    (pre-activation BN). After this, the outputs is flatten and is passed to
+    a 2-layers BLSTM.
+    The final classification is made with a 2 layers FC with 2 outputs.
+
+    Args:
+        inputs: (2d tensor) input tensor of shape [batch_size, time_len]
+        params: (dict) Parameters to configure the model (see common.param_keys)
+        training: (boolean) Indicates if it is the training phase or not.
+        name: (Optional, string, defaults to 'model_v9') A name for the network.
+    """
+    print('Using model V9')
+    with tf.variable_scope(name):
+        # CWT stage
+        border_crop = int(
+            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+
+        outputs, cwt_prebn = layers.cmorlet_layer(
+            inputs,
+            params[pkeys.FB_LIST],
+            params[pkeys.FS],
+            lower_freq=params[pkeys.LOWER_FREQ],
+            upper_freq=params[pkeys.UPPER_FREQ],
+            n_scales=params[pkeys.N_SCALES],
+            stride=1,
+            size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
+            border_crop=border_crop,
+            use_log=params[pkeys.USE_LOG],
+            training=training,
+            trainable_wavelet=params[pkeys.TRAINABLE_WAVELET],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            name='spectrum')
+
+        if params[pkeys.USE_RELU]:
+            outputs = tf.nn.relu(outputs)
+
+        # Split magnitude and phase
+        outputs_magnitude = outputs[..., 0:1]
+        outputs_phase = outputs[..., 1:]
+
+        # MAGNITUDE PATH
+
+        # Convolutional stage (standard feed-forward)
+        init_filters = params[pkeys.INITIAL_CONV_FILTERS]
+        outputs_magnitude = layers.conv2d_prebn_block(
+            outputs_magnitude,
+            init_filters,
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1_mag')
+        outputs_magnitude = layers.conv2d_prebn_block(
+            outputs_magnitude,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2_mag')
+
+        # PHASE PATH
+
+        # Convolutional stage (standard feed-forward)
+        init_filters = params[pkeys.INITIAL_CONV_FILTERS]
+        outputs_phase = layers.conv2d_prebn_block(
+            outputs_phase,
+            init_filters,
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1_pha')
+        outputs_phase = layers.conv2d_prebn_block(
+            outputs_phase,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2_pha')
+
+        # Now concatenate magnitude and phase paths
+        outputs = tf.concat([outputs_magnitude, outputs_phase], axis=-1)
+
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            init_filters,
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_3')
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_fc_layer(
+            outputs,
+            2,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+        return logits, probabilities, cwt_prebn
