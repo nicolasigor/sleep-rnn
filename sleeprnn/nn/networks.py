@@ -902,8 +902,8 @@ def wavelet_blstm_net_v8(
             params[pkeys.FS],
             lower_freq=params[pkeys.LOWER_FREQ],
             upper_freq=params[pkeys.UPPER_FREQ],
-            n_scales=params[pkeys.N_SCALES],
-            stride=1,
+            n_scales=32,  # params[pkeys.N_SCALES],
+            stride=2,
             size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
             border_crop=border_crop,
             use_log=params[pkeys.USE_LOG],
@@ -925,29 +925,20 @@ def wavelet_blstm_net_v8(
         init_filters = params[pkeys.INITIAL_CONV_FILTERS]
         outputs_magnitude = layers.conv2d_prebn_block(
             outputs_magnitude,
-            init_filters,
+            16,
             training,
-            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1_mag')
         outputs_magnitude = layers.conv2d_prebn_block(
             outputs_magnitude,
-            init_filters,
+            32,
             training,
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_2_mag')
-        outputs_magnitude = layers.conv2d_prebn_block(
-            outputs_magnitude,
-            init_filters,
-            training,
-            batchnorm=params[pkeys.TYPE_BATCHNORM],
-            downsampling=params[pkeys.CONV_DOWNSAMPLING],
-            kernel_init=tf.initializers.he_normal(),
-            name='convblock_3_mag')
 
         # PHASE PATH
 
@@ -955,29 +946,20 @@ def wavelet_blstm_net_v8(
         init_filters = params[pkeys.INITIAL_CONV_FILTERS]
         outputs_phase = layers.conv2d_prebn_block(
             outputs_phase,
-            init_filters,
+            16,
             training,
-            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1_pha')
         outputs_phase = layers.conv2d_prebn_block(
             outputs_phase,
-            init_filters,
+            32,
             training,
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_2_pha')
-        outputs_phase = layers.conv2d_prebn_block(
-            outputs_phase,
-            init_filters,
-            training,
-            batchnorm=params[pkeys.TYPE_BATCHNORM],
-            downsampling=params[pkeys.CONV_DOWNSAMPLING],
-            kernel_init=tf.initializers.he_normal(),
-            name='convblock_3_pha')
 
         # Now concatenate magnitude and phase paths
         outputs = tf.concat([outputs_magnitude, outputs_phase], axis=-1)
@@ -1057,8 +1039,8 @@ def wavelet_blstm_net_v9(
             params[pkeys.FS],
             lower_freq=params[pkeys.LOWER_FREQ],
             upper_freq=params[pkeys.UPPER_FREQ],
-            n_scales=params[pkeys.N_SCALES],
-            stride=1,
+            n_scales=32,  # params[pkeys.N_SCALES],
+            stride=2,
             size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
             border_crop=border_crop,
             use_log=params[pkeys.USE_LOG],
@@ -1080,21 +1062,12 @@ def wavelet_blstm_net_v9(
         init_filters = params[pkeys.INITIAL_CONV_FILTERS]
         outputs_magnitude = layers.conv2d_prebn_block(
             outputs_magnitude,
-            init_filters,
+            16,
             training,
-            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1_mag')
-        outputs_magnitude = layers.conv2d_prebn_block(
-            outputs_magnitude,
-            init_filters,
-            training,
-            batchnorm=params[pkeys.TYPE_BATCHNORM],
-            downsampling=params[pkeys.CONV_DOWNSAMPLING],
-            kernel_init=tf.initializers.he_normal(),
-            name='convblock_2_mag')
 
         # PHASE PATH
 
@@ -1102,33 +1075,24 @@ def wavelet_blstm_net_v9(
         init_filters = params[pkeys.INITIAL_CONV_FILTERS]
         outputs_phase = layers.conv2d_prebn_block(
             outputs_phase,
-            init_filters,
+            16,
             training,
-            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1_pha')
-        outputs_phase = layers.conv2d_prebn_block(
-            outputs_phase,
-            init_filters,
-            training,
-            batchnorm=params[pkeys.TYPE_BATCHNORM],
-            downsampling=params[pkeys.CONV_DOWNSAMPLING],
-            kernel_init=tf.initializers.he_normal(),
-            name='convblock_2_pha')
 
         # Now concatenate magnitude and phase paths
         outputs = tf.concat([outputs_magnitude, outputs_phase], axis=-1)
 
         outputs = layers.conv2d_prebn_block(
             outputs,
-            init_filters,
+            32,
             training,
             batchnorm=params[pkeys.TYPE_BATCHNORM],
             downsampling=params[pkeys.CONV_DOWNSAMPLING],
             kernel_init=tf.initializers.he_normal(),
-            name='convblock_3')
+            name='convblock_2')
 
         # Flattening for dense part
         outputs = layers.sequence_flatten(outputs, 'flatten')

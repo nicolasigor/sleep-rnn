@@ -43,7 +43,7 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf, separation mag and pha, concat after last conv2d'
+    description_str = 'bsf, separation mag and pha, concat before last conv2d'
     which_expert = 1
     verbose = True
     # -----
