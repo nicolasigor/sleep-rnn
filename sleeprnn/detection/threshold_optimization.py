@@ -3,8 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from numba import jit, prange
 
 from sleeprnn.detection import metrics
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.detection.predicted_dataset import PredictedDataset
 
 
 def get_optimal_threshold(

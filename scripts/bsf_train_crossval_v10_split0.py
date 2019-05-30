@@ -31,10 +31,10 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_v8'
+    experiment_name = 'bsf_v10'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf, separation mag and pha, concat before lstm'
+    description_str = 'bsf'
     which_expert = 1
     verbose = True
     # -----
@@ -88,7 +88,6 @@ if __name__ == '__main__':
 
                 # Create and train model
                 params = pkeys.default_params.copy()
-                params[pkeys.MODEL_VERSION] = constants.V8
                 model = WaveletBLSTM(params, logdir=logdir)
                 model.fit(data_train, data_val, verbose=verbose)
 
