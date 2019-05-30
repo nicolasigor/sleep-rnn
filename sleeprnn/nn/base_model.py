@@ -160,7 +160,11 @@ class BaseModel(object):
         elif model_version == constants.V8:
             model_name = 'model_v8'
         elif model_version == constants.V9:
-            model_name = 'model_v9'
+            model_name = 'model_v9',
+        elif model_version == constants.V7lite:
+            model_name = 'model_v7_lite',
+        elif model_version == constants.DEBUG:
+            model_name = 'model_debug'
         else:
             model_name = 'dummy'
 
