@@ -167,6 +167,8 @@ class BaseModel(object):
             model_name = 'model_v7_litebig'
         elif model_version == constants.V10:
             model_name = 'model_v10'
+        elif model_version == constants.V11:
+            model_name = 'model_v11'
         elif model_version == constants.DEBUG:
             model_name = 'model_debug'
         else:

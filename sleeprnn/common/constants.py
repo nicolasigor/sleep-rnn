@@ -80,3 +80,4 @@ V9 = 'v9'
 V7lite = 'v7lite'
 V7litebig = 'v7litebig'
 V10 = 'v10'
+V11 = 'v11'  # Time-domain

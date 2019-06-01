@@ -119,6 +119,10 @@ CONV_DOWNSAMPLING = 'conv_downsampling'
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
 # FC units in second to last layer
 FC_UNITS = 'fc_units'
+# Time-domain convolutional params
+TIME_CONV_FILTERS_1 = 'time_conv_filters_1'
+TIME_CONV_FILTERS_2 = 'time_conv_filters_2'
+TIME_CONV_FILTERS_3 = 'time_conv_filters_3'
 
 
 """ Loss params
@@ -212,6 +216,9 @@ default_params = {
     INITIAL_KERNEL_SIZE: 3,
     CONV_DOWNSAMPLING: constants.AVGPOOL,
     FC_UNITS: 128,
+    TIME_CONV_FILTERS_1: 32,
+    TIME_CONV_FILTERS_2: 32,
+    TIME_CONV_FILTERS_3: 32,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,
