@@ -31,10 +31,10 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_v11'
+    experiment_name = 'bsf_v12'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -49,14 +49,9 @@ if __name__ == '__main__':
     # -----
 
     filter_sizes_list = [
-        (64, 128, 256),
-        (64, 128, 128),
-        (64, 64, 128),
-        (64, 64, 64),
-        (32, 64, 128),
-        (32, 64, 64),
-        (32, 32, 64),
-        (32, 32, 32)
+        (128, 256),
+        (64, 128),
+        (32, 64),
     ]
 
     # Complement experiment folder name with date
@@ -92,24 +87,22 @@ if __name__ == '__main__':
 
                     filter_size_1 = filter_sizes[0]
                     filter_size_2 = filter_sizes[1]
-                    filter_size_3 = filter_sizes[2]
 
                     # Path to save results of run
                     logdir = os.path.join(
                         RESULTS_PATH,
                         '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
-                        'filters_%d_%d_%d' % filter_sizes,
+                        'filters_%d_%d' % filter_sizes,
                         'seed%d' % id_try
                     )
                     print('This run directory: %s' % logdir)
 
                     # Create and train model
                     params = pkeys.default_params.copy()
-                    params[pkeys.MODEL_VERSION] = constants.V11
+                    params[pkeys.MODEL_VERSION] = constants.V12
 
-                    params[pkeys.TIME_CONV_FILTERS_1] = filter_size_1
-                    params[pkeys.TIME_CONV_FILTERS_2] = filter_size_2
-                    params[pkeys.TIME_CONV_FILTERS_3] = filter_size_3
+                    params[pkeys.CWT_CONV_FILTERS_1] = filter_size_1
+                    params[pkeys.CWT_CONV_FILTERS_2] = filter_size_2
 
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
@@ -121,7 +114,7 @@ if __name__ == '__main__':
                         'predictions_%s' % dataset_name,
                         '%s_%s_train_%s'
                         % (experiment_name, task_mode, dataset_name),
-                        'bsf',
+                        'filters_%d_%d' % filter_sizes,
                         'seed%d' % id_try
                     ))
                     checks.ensure_directory(save_dir)

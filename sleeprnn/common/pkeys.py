@@ -123,6 +123,10 @@ FC_UNITS = 'fc_units'
 TIME_CONV_FILTERS_1 = 'time_conv_filters_1'
 TIME_CONV_FILTERS_2 = 'time_conv_filters_2'
 TIME_CONV_FILTERS_3 = 'time_conv_filters_3'
+# cwt domain convolutional params
+CWT_CONV_FILTERS_1 = 'cwt_conv_filters_1'
+CWT_CONV_FILTERS_2 = 'cwt_conv_filters_2'
+CWT_CONV_FILTERS_3 = 'cwt_conv_filters_3'
 
 
 """ Loss params
@@ -213,6 +217,9 @@ default_params = {
     USE_RELU: True,
     INITIAL_LSTM_UNITS: 256,
     INITIAL_CONV_FILTERS: 32,
+    CWT_CONV_FILTERS_1: 32,
+    CWT_CONV_FILTERS_2: 32,
+    CWT_CONV_FILTERS_3: 32,
     INITIAL_KERNEL_SIZE: 3,
     CONV_DOWNSAMPLING: constants.AVGPOOL,
     FC_UNITS: 128,

@@ -11,8 +11,6 @@ import sys
 # TF logging control
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import numpy as np
-
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
@@ -31,7 +29,7 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
     experiment_name = 'bsf_v10'
@@ -40,7 +38,7 @@ if __name__ == '__main__':
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
     description_str = 'bsf'

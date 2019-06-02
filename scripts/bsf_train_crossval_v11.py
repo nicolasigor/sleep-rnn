@@ -31,7 +31,7 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 4]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
     experiment_name = 'bsf_v11'
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
     description_str = 'bsf'
@@ -50,13 +50,7 @@ if __name__ == '__main__':
 
     filter_sizes_list = [
         (64, 128, 256),
-        (64, 128, 128),
-        (64, 64, 128),
-        (64, 64, 64),
         (32, 64, 128),
-        (32, 64, 64),
-        (32, 32, 64),
-        (32, 32, 32)
     ]
 
     # Complement experiment folder name with date
@@ -121,7 +115,7 @@ if __name__ == '__main__':
                         'predictions_%s' % dataset_name,
                         '%s_%s_train_%s'
                         % (experiment_name, task_mode, dataset_name),
-                        'bsf',
+                        'filters_%d_%d_%d' % filter_sizes,
                         'seed%d' % id_try
                     ))
                     checks.ensure_directory(save_dir)
