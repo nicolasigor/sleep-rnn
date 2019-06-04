@@ -112,30 +112,17 @@ if __name__ == '__main__':
     ]
     print('predicted_y', [this_data.shape for this_data in predicted_y])
 
-    # Dictionary for saving
+    # Saving
     for k, sub_id in enumerate(data_inference.get_ids()):
-        lrp_dataset_dict = {
-            'x': x[k],
-            'y': y[k],
-            'stamps': stamps[k],
-            'pages': pages[k],
-            'cwt': cwt[k],
-            'predicted_stamps': predicted_stamps[k],
-            'predicted_y': predicted_y[k]
-        }
-        # pprint(lrp_dataset_dict)
-
-    #
-    #
-    #
-    #
-    #
-    # filename = os.path.join(
-    #     save_dir,
-    #     'prediction_%s_%s.pkl' % (task_mode, set_name))
-    # with open(filename, 'wb') as handle:
-    #     pickle.dump(
-    #         prediction,
-    #         handle,
-    #         protocol=pickle.HIGHEST_PROTOCOL)
-    #
+        filename = 'data_s%02d' % sub_id
+        np.savez_compressed(
+            filename,
+            x=x[k].astype(np.float32),
+            y=y[k].astype(np.int32),
+            stamps=stamps[k].astype(np.int32),
+            pages=pages[k].astype(np.int16),
+            cwt=cwt[k].astype(np.float32),
+            predicted_stamps=predicted_stamps[k].astype(np.int32),
+            predicted_y=predicted_y[k].astype(np.float16)
+        )
+        print('%s saved.' % filename, flush=True)
