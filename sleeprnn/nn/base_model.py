@@ -314,6 +314,11 @@ class BaseModel(object):
             self, x_list, verbose=False, with_augmented_page=False):
         """Predicts the class probabilities over a list of data x."""
         probabilities_list = []
+        if verbose:
+            if with_augmented_page:
+                print('Predicting with augmented page')
+            else:
+                print('Predicting with regular size page')
         for i, x in enumerate(x_list):
             if verbose:
                 print('Predicting %d / %d ... '
@@ -324,6 +329,24 @@ class BaseModel(object):
             if verbose:
                 print('Done', flush=True)
         return probabilities_list
+
+    def compute_cwt(self, x):
+        cwt_list = []
+        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
+        niters = int(niters)
+        for i in range(niters):
+            start_index = i * self.params[pkeys.BATCH_SIZE]
+            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
+            batch = x[start_index:end_index]
+            cwt = self.sess.run(
+                self.cwt_prebn,
+                feed_dict={
+                    self.feats: batch,
+                    self.training_ph: False
+                })
+            cwt_list.append(cwt)
+        cwt_list = np.concatenate(cwt_list, axis=0)
+        return cwt_list
 
     def _personalize_bn(self, x):
         cwt_list = []

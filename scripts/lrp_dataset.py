@@ -1,0 +1,134 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import json
+import os
+import pickle
+from pprint import pprint
+import sys
+import itertools
+
+# TF logging control
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+import numpy as np
+
+project_root = os.path.abspath('..')
+sys.path.append(project_root)
+
+from sleeprnn.data import utils
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.nn.models import WaveletBLSTM
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.common import constants
+from sleeprnn.common import pkeys
+from sleeprnn.common import checks
+
+RESULTS_PATH = os.path.join(project_root, 'results')
+
+
+if __name__ == '__main__':
+
+    which_seed = 0
+    save_dir = os.path.join(RESULTS_PATH, 'lrp_dataset')
+    checks.ensure_directory(save_dir)
+
+    # ----- Prediction settings
+    # Set checkpoint from where to restore, relative to results dir
+    ckpt_folder = os.path.join('20190530_bsf_v10_n2_train_mass_ss', 'bsf')
+    task_mode = constants.N2_RECORD
+    dataset_name = constants.MASS_SS_NAME
+    which_expert = 1
+    verbose = True
+    # -----
+    ckpt_path = os.path.join(
+        RESULTS_PATH, ckpt_folder, 'seed%d' % which_seed)
+
+    print('\nModel predicting on %s_%s' % (dataset_name, task_mode))
+    dataset = load_dataset(dataset_name)
+    test_ids = dataset.test_ids
+    data_inference = FeederDataset(
+        dataset, test_ids, task_mode,
+        which_expert=which_expert)
+
+    # Restore params of ckpt
+    params = pkeys.default_params.copy()
+    filename = os.path.join(ckpt_path, 'params.json')
+    with open(filename, 'r') as infile:
+        # Overwrite previous defaults with run's params
+        params.update(json.load(infile))
+    print('Restoring from %s' % ckpt_path)
+
+    # Obtain data
+    print('Getting input and output data')
+    border_size = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+    x, y = data_inference.get_data(
+        border_size=border_size, pages_subset=task_mode,
+        normalization_mode=task_mode, verbose=verbose)
+    pages = data_inference.get_pages(pages_subset=task_mode, verbose=verbose)
+
+    # Labels are downsampled by 8 and without border
+    down_factor = params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
+    y = [this_y[:, border_size:-border_size:down_factor] for this_y in y]
+    stamps = data_inference.get_stamps()
+
+    print('x', [this_data.shape for this_data in x])
+    print('y', [this_data.shape for this_data in y])
+    print('pages', [this_data.shape for this_data in pages])
+    print('stamps', [this_data.shape for this_data in stamps])
+
+    print('Ready')
+
+    # Create model
+    print('Restoring model')
+    params[pkeys.PREDICT_WITH_AUGMENTED_PAGE] = False
+    model = WaveletBLSTM(
+        params, logdir=os.path.join(RESULTS_PATH, 'demo_predict'))
+    model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
+
+    # Get spectrograms
+    print('Computing CWT before batchnorm')
+    cwt = []
+    for single_x in x:
+        single_cwt = model.compute_cwt(single_x)
+        cwt.append(single_cwt)
+    print('cwt', [this_data.shape for this_data in cwt])
+
+    # Predict
+    print('Predicting test set', flush=True)
+    prediction = model.predict_dataset(
+        data_inference, verbose=verbose)
+    predicted_stamps = prediction.get_stamps()
+    print('predicted_stamps', [this_data.shape for this_data in predicted_stamps])
+
+    predicted_y = prediction.get_probabilities()
+    print('predicted_y', [this_data.shape for this_data in predicted_y])
+
+    # Dictionary for saving
+    for k, sub_id in enumerate(data_inference.get_ids()):
+        lrp_dataset_dict = {
+            'x': x[k],
+            'y': y[k],
+            'stamps': stamps[k],
+            'pages': pages[k],
+            'cwt': cwt[k],
+            'predicted_stamps': predicted_stamps[k],
+            'predicted_y': predicted_y[k]
+        }
+        pprint(lrp_dataset_dict)
+
+    #
+    #
+    #
+    #
+    #
+    # filename = os.path.join(
+    #     save_dir,
+    #     'prediction_%s_%s.pkl' % (task_mode, set_name))
+    # with open(filename, 'wb') as handle:
+    #     pickle.dump(
+    #         prediction,
+    #         handle,
+    #         protocol=pickle.HIGHEST_PROTOCOL)
+    #
