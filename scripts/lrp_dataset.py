@@ -114,8 +114,8 @@ if __name__ == '__main__':
 
     # Saving
     for k, sub_id in enumerate(data_inference.get_ids()):
-        filename = 'data_s%02d' % sub_id
-        np.savez_compressed(
+        filename = os.path.join(save_dir, 'data_s%02d' % sub_id)
+        np.savez(
             filename,
             x=x[k].astype(np.float32),
             y=y[k].astype(np.int32),
