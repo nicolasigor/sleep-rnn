@@ -103,6 +103,13 @@ if __name__ == '__main__':
     print('predicted_stamps', [this_data.shape for this_data in predicted_stamps])
 
     predicted_y = prediction.get_probabilities()
+    page_size_down = int(
+        params[pkeys.PAGE_DURATION] * params[pkeys.FS] / down_factor)
+    predicted_y = [
+        utils.extract_pages(
+            single_y_hat, single_pages, page_size_down, border_size=0)
+        for (single_y_hat, single_pages) in zip(predicted_y, pages)
+    ]
     print('predicted_y', [this_data.shape for this_data in predicted_y])
 
     # Dictionary for saving
@@ -116,7 +123,7 @@ if __name__ == '__main__':
             'predicted_stamps': predicted_stamps[k],
             'predicted_y': predicted_y[k]
         }
-        pprint(lrp_dataset_dict)
+        # pprint(lrp_dataset_dict)
 
     #
     #
