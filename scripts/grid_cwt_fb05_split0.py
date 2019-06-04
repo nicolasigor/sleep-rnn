@@ -31,10 +31,9 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
-
+    id_try_list = [0]
     # ----- Experiment settings
-    experiment_name = 'bsf_v14'
+    experiment_name = 'grid_cwt_fb05'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -43,14 +42,20 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'bsf'
+    description_str = 'using initial fb as 0.5'
     which_expert = 1
     verbose = True
     # -----
 
-    filter_sizes_list = [
-        (64, 128, 256),
-        (32, 64, 128)
+    version_filters_list = [
+        (constants.V12, 32, 64, None),
+        (constants.V12, 64, 128, None),
+        (constants.V12, 128, 128, None),
+        (constants.V13, 32, 64, None),
+        (constants.V13, 64, 128, None),
+        (constants.V13, 128, 256, None),
+        (constants.V14, 32, 64, 128),
+        (constants.V14, 64, 128, 256)
     ]
 
     # Complement experiment folder name with date
@@ -82,28 +87,45 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for filter_sizes in filter_sizes_list:
+                for version_filters in version_filters_list:
 
-                    filter_size_1 = filter_sizes[0]
-                    filter_size_2 = filter_sizes[1]
-                    filter_size_3 = filter_sizes[2]
+                    model_version = version_filters[0]
+                    filter_size_1 = version_filters[1]
+                    filter_size_2 = version_filters[2]
+                    filter_size_3 = version_filters[3]
+
+                    if filter_size_3 is None:
+                        folder_name = (
+                                '%s_f_%d_%d'
+                                % (
+                                    model_version,
+                                    filter_size_1,
+                                    filter_size_2))
+                    else:
+                        folder_name = (
+                                '%s_f_%d_%d_%d'
+                                % (
+                                    model_version,
+                                    filter_size_1,
+                                    filter_size_2,
+                                    filter_size_3))
 
                     # Path to save results of run
                     logdir = os.path.join(
                         RESULTS_PATH,
                         '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
-                        'filters_%d_%d_%d' % filter_sizes,
+                        folder_name,
                         'seed%d' % id_try
                     )
                     print('This run directory: %s' % logdir)
 
                     # Create and train model
                     params = pkeys.default_params.copy()
-                    params[pkeys.MODEL_VERSION] = constants.V14
-
+                    params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.CWT_CONV_FILTERS_1] = filter_size_1
                     params[pkeys.CWT_CONV_FILTERS_2] = filter_size_2
                     params[pkeys.CWT_CONV_FILTERS_3] = filter_size_3
+                    params[pkeys.FB_LIST] = [0.5]
 
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
@@ -115,7 +137,7 @@ if __name__ == '__main__':
                         'predictions_%s' % dataset_name,
                         '%s_%s_train_%s'
                         % (experiment_name, task_mode, dataset_name),
-                        'filters_%d_%d_%d' % filter_sizes,
+                        folder_name,
                         'seed%d' % id_try
                     ))
                     checks.ensure_directory(save_dir)
