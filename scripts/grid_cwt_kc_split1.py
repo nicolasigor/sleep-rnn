@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
+import itertools
 import json
 import os
 import pickle
@@ -31,32 +32,26 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [3]
+    id_try_list = [1]
     # ----- Experiment settings
-    experiment_name = 'grid_cwt_fb05'
+    experiment_name = 'grid_cwt_kc'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
-    description_str = 'using initial fb as 0.5'
+    description_str = 'grid search for best cwt architecture'
     which_expert = 1
     verbose = True
     # -----
 
-    version_filters_list = [
-        (constants.V12, 32, 64, None),
-        (constants.V12, 64, 128, None),
-        (constants.V12, 128, 128, None),
-        (constants.V13, 32, 64, None),
-        (constants.V13, 64, 128, None),
-        (constants.V13, 128, 256, None),
-        (constants.V14, 32, 64, 128),
-        (constants.V14, 64, 128, 256)
-    ]
+    version_list = [constants.V12, constants.V13]
+    filters_list = [(32, 64), (64, 128)]
+    fb_init_list = [0.5, 1.0]
+    parameter_list = itertools.product(version_list, filters_list, fb_init_list)
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -87,28 +82,17 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for version_filters in version_filters_list:
+                for version, filters, fb_init in parameter_list:
 
-                    model_version = version_filters[0]
-                    filter_size_1 = version_filters[1]
-                    filter_size_2 = version_filters[2]
-                    filter_size_3 = version_filters[3]
+                    filter_size_1 = filters[0]
+                    filter_size_2 = filters[1]
 
-                    if filter_size_3 is None:
-                        folder_name = (
-                                '%s_f_%d_%d'
-                                % (
-                                    model_version,
-                                    filter_size_1,
-                                    filter_size_2))
-                    else:
-                        folder_name = (
-                                '%s_f_%d_%d_%d'
-                                % (
-                                    model_version,
-                                    filter_size_1,
-                                    filter_size_2,
-                                    filter_size_3))
+                    folder_name = (
+                            '%s_f_%d_%d_fb_%s'
+                            % (version,
+                               filter_size_1,
+                               filter_size_2,
+                               fb_init))
 
                     # Path to save results of run
                     logdir = os.path.join(
@@ -121,11 +105,10 @@ if __name__ == '__main__':
 
                     # Create and train model
                     params = pkeys.default_params.copy()
-                    params[pkeys.MODEL_VERSION] = model_version
+                    params[pkeys.MODEL_VERSION] = version
                     params[pkeys.CWT_CONV_FILTERS_1] = filter_size_1
                     params[pkeys.CWT_CONV_FILTERS_2] = filter_size_2
-                    params[pkeys.CWT_CONV_FILTERS_3] = filter_size_3
-                    params[pkeys.FB_LIST] = [0.5]
+                    params[pkeys.FB_LIST] = [fb_init]
 
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
