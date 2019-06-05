@@ -30,13 +30,14 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    which_seed = 0
     save_dir = os.path.join(RESULTS_PATH, 'lrp_dataset')
     checks.ensure_directory(save_dir)
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = os.path.join('20190530_bsf_v10_n2_train_mass_ss', 'bsf')
+    which_seed = 0
+    optimal_thr = 0.6
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -99,6 +100,8 @@ if __name__ == '__main__':
     print('Predicting test set', flush=True)
     prediction = model.predict_dataset(
         data_inference, verbose=verbose)
+    # Set optimal thr
+    prediction.set_probability_threshold(optimal_thr)
     predicted_stamps = prediction.get_stamps()
     print('predicted_stamps', [this_data.shape for this_data in predicted_stamps])
 
@@ -123,6 +126,7 @@ if __name__ == '__main__':
             pages=pages[k].astype(np.int16),
             cwt=cwt[k].astype(np.float32),
             predicted_stamps=predicted_stamps[k].astype(np.int32),
-            predicted_y=predicted_y[k].astype(np.float16)
+            predicted_y=predicted_y[k].astype(np.float16),
+            optimal_thr=optimal_thr
         )
         print('%s saved.' % filename, flush=True)
