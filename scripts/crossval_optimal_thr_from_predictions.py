@@ -30,9 +30,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190530_bsf_v10'
+    ckpt_folder = '20190602_bsf_v11'
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.MASS_KC_NAME
 
     which_expert = 1
     verbose = False
@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.3
-    end_thr = 0.7
+    start_thr = 0.4
+    end_thr = 0.8
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
@@ -127,6 +127,8 @@ if __name__ == '__main__':
     # Search optimum
     print('\nVal AF1 report for %s' % full_ckpt_folder)
 
+    metric_to_sort_list = []
+    str_to_show_list = []
     for j, folder_name in enumerate(grid_folder_list):
         seeds_half_performance = []
         seeds_best_performance = []
@@ -195,11 +197,22 @@ if __name__ == '__main__':
         std_half_performance = np.std(seeds_half_performance).item()
         mean_std_ap = np.mean(seeds_ap_std).item()
         mean_std_ar = np.mean(seeds_ar_std).item()
-        print('AF1 %1.4f +- %1.4f (mu 0.5), '
-              'AF1 %1.4f +- %1.4f (mu %s), '
-              'AP-STD %1.4f AR-STD %1.4f '
-              'for setting %s'
-              % (mean_half_performance, std_half_performance,
-                 mean_best_performance, std_best_performance, seeds_best_thr,
-                 mean_std_ap, mean_std_ar,
-                 folder_name))
+
+        str_to_show = (
+                'AF1 %1.4f +- %1.4f (mu 0.5), '
+                'AF1 %1.4f +- %1.4f (mu %s), '
+                'AP-STD %1.4f AR-STD %1.4f '
+                'for setting %s'
+                % (mean_half_performance, std_half_performance,
+                   mean_best_performance, std_best_performance, seeds_best_thr,
+                   mean_std_ap, mean_std_ar,
+                   folder_name))
+
+        metric_to_sort_list.append(mean_best_performance)
+        str_to_show_list.append(str_to_show)
+
+    # Sort by descending order
+    idx_sorted = np.argsort(-np.asarray(metric_to_sort_list))
+    str_to_show_list = [str_to_show_list[i] for i in idx_sorted]
+    for str_to_show in str_to_show_list:
+        print(str_to_show)

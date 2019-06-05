@@ -32,26 +32,35 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0]
     # ----- Experiment settings
-    experiment_name = 'grid_cwt_kc'
+    experiment_name = 'grid_v15_V16'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_KC_NAME
+        constants.MASS_SS_NAME
     ]
 
-    description_str = 'grid search for best cwt architecture'
+    description_str = 'grid search for best mixed architecture'
     which_expert = 1
     verbose = True
     # -----
 
-    version_list = [constants.V12, constants.V13]
-    filters_list = [(32, 64), (64, 128)]
+    version_cwtfilters_list = [
+        (constants.V15, 32, 64),
+        (constants.V15, 32, 32),
+        (constants.V16, 64, 128)
+    ]
+    timefilters_list = [
+        (64, 128, 256),
+        (32, 64, 128)
+    ]
     fb_init_list = [0.5, 1.0]
-    parameter_list = itertools.product(version_list, filters_list, fb_init_list)
+    parameter_list = itertools.product(
+        version_cwtfilters_list, timefilters_list, fb_init_list
+    )
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -82,16 +91,23 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for version, filters, fb_init in parameter_list:
+                for version_cwtfilters, timefilters, fb_init in parameter_list:
 
-                    filter_size_1 = filters[0]
-                    filter_size_2 = filters[1]
+                    version = version_cwtfilters[0]
+                    cwt_filter_size_1 = version_cwtfilters[1]
+                    cwt_filter_size_2 = version_cwtfilters[2]
+                    time_filters_size_1 = timefilters[0]
+                    time_filters_size_2 = timefilters[1]
+                    time_filters_size_3 = timefilters[2]
 
                     folder_name = (
-                            '%s_f_%d_%d_fb_%s'
+                            '%s_timef_%d_%d_%d_cwtf_%d_%d_fb_%s'
                             % (version,
-                               filter_size_1,
-                               filter_size_2,
+                               time_filters_size_1,
+                               time_filters_size_2,
+                               time_filters_size_3,
+                               cwt_filter_size_1,
+                               cwt_filter_size_2,
                                fb_init))
 
                     # Path to save results of run
@@ -106,8 +122,11 @@ if __name__ == '__main__':
                     # Create and train model
                     params = pkeys.default_params.copy()
                     params[pkeys.MODEL_VERSION] = version
-                    params[pkeys.CWT_CONV_FILTERS_1] = filter_size_1
-                    params[pkeys.CWT_CONV_FILTERS_2] = filter_size_2
+                    params[pkeys.CWT_CONV_FILTERS_1] = cwt_filter_size_1
+                    params[pkeys.CWT_CONV_FILTERS_2] = cwt_filter_size_2
+                    params[pkeys.TIME_CONV_FILTERS_1] = time_filters_size_1
+                    params[pkeys.TIME_CONV_FILTERS_2] = time_filters_size_2
+                    params[pkeys.TIME_CONV_FILTERS_3] = time_filters_size_3
                     params[pkeys.FB_LIST] = [fb_init]
 
                     model = WaveletBLSTM(params, logdir=logdir)
