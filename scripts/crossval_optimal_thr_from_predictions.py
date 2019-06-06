@@ -30,9 +30,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190602_bsf_v11'
+    ckpt_folder = '20190605_grid_v15_v16'
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_KC_NAME
+    dataset_name = constants.MASS_SS_NAME
 
     which_expert = 1
     verbose = False
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.4
+    start_thr = 0.2
     end_thr = 0.8
 
     # -----------------------------------------------------------

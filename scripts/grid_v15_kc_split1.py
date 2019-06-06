@@ -34,13 +34,13 @@ if __name__ == '__main__':
 
     id_try_list = [1]
     # ----- Experiment settings
-    experiment_name = 'grid_v15_V16'
+    experiment_name = 'grid_v15'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
     description_str = 'grid search for best mixed architecture'
@@ -51,13 +51,12 @@ if __name__ == '__main__':
     version_cwtfilters_list = [
         (constants.V15, 32, 64),
         (constants.V15, 32, 32),
-        (constants.V16, 64, 128)
     ]
     timefilters_list = [
         (64, 128, 256),
         (32, 64, 128)
     ]
-    fb_init_list = [0.5, 1.0]
+    fb_init_list = [0.5]
     parameter_list = itertools.product(
         version_cwtfilters_list, timefilters_list, fb_init_list
     )
