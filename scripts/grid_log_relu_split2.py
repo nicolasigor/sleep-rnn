@@ -7,6 +7,7 @@ import itertools
 import json
 import os
 import pickle
+from pprint import pprint
 import sys
 
 # TF logging control
@@ -32,26 +33,28 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2]
     # ----- Experiment settings
-    experiment_name = 'grid_cwt_kc'
+    experiment_name = 'grid_log_relu'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_KC_NAME
+        constants.MASS_SS_NAME
     ]
 
-    description_str = 'grid search for best cwt architecture'
+    description_str = (
+        'grid search for use_log and use_relu after cwt for hybrid')
     which_expert = 1
     verbose = True
     # -----
 
-    version_list = [constants.V12, constants.V13]
-    filters_list = [(32, 64), (64, 128)]
-    fb_init_list = [0.5, 1.0]
-    parameter_list = itertools.product(version_list, filters_list, fb_init_list)
+    use_log_list = [True, False]
+    use_relu_list = [True, False]
+    parameter_list = itertools.product(
+        use_log_list, use_relu_list
+    )
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -82,22 +85,17 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for version, filters, fb_init in parameter_list:
-
-                    filter_size_1 = filters[0]
-                    filter_size_2 = filters[1]
+                for use_log, use_relu in parameter_list:
 
                     folder_name = (
-                            '%s_f_%d_%d_fb_%s'
-                            % (version,
-                               filter_size_1,
-                               filter_size_2,
-                               fb_init))
+                            'log_%s_relu_%s'
+                            % (use_log, use_relu))
 
                     # Path to save results of run
                     logdir = os.path.join(
                         RESULTS_PATH,
-                        '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
+                        '%s_%s_train_%s' % (
+                            experiment_name, task_mode, dataset_name),
                         folder_name,
                         'seed%d' % id_try
                     )
@@ -105,10 +103,8 @@ if __name__ == '__main__':
 
                     # Create and train model
                     params = pkeys.default_params.copy()
-                    params[pkeys.MODEL_VERSION] = version
-                    params[pkeys.CWT_CONV_FILTERS_1] = filter_size_1
-                    params[pkeys.CWT_CONV_FILTERS_2] = filter_size_2
-                    params[pkeys.FB_LIST] = [fb_init]
+                    params[pkeys.USE_LOG] = use_log
+                    params[pkeys.USE_RELU] = use_relu
 
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
