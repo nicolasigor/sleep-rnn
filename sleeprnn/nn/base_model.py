@@ -230,15 +230,21 @@ class BaseModel(object):
         with open(os.path.join(self.logdir, 'params.json'), 'w') as outfile:
             json.dump(self.params, outfile)
 
-    def predict_dataset(self, data_inference: FeederDataset, verbose=False):
+    def predict_dataset(
+            self,
+            data_inference: FeederDataset,
+            verbose=False,
+            input_scale_factor=1.0  # for scaling experiment
+    ):
         with_augmented_page = self.params[pkeys.PREDICT_WITH_AUGMENTED_PAGE]
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
-        x_val, _ = data_inference.get_data_for_prediction(
+        x_inference, _ = data_inference.get_data_for_prediction(
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
             verbose=False)
+        x_inference = x_inference * input_scale_factor
         probabilies_list = self.predict_proba_with_list(
-            x_val, verbose=verbose, with_augmented_page=with_augmented_page)
+            x_inference, verbose=verbose, with_augmented_page=with_augmented_page)
         # Now create PredictedDataset object
         probabilities_dict = {}
         all_ids = data_inference.get_ids()
