@@ -242,7 +242,8 @@ class BaseModel(object):
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
             verbose=False)
-        x_inference = x_inference * input_scale_factor
+        x_inference = [
+            single_x * input_scale_factor for single_x in x_inference]
         probabilies_list = self.predict_proba_with_list(
             x_inference, verbose=verbose, with_augmented_page=with_augmented_page)
         # Now create PredictedDataset object
