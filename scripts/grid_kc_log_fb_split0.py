@@ -33,27 +33,27 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [3]
+    id_try_list = [0]
     # ----- Experiment settings
-    experiment_name = 'grid_log_relu'
+    experiment_name = 'grid_log_fb'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
     description_str = (
-        'grid search for use_log and use_relu after cwt for hybrid')
+        'grid search for use_log after cwt for hybrid')
     which_expert = 1
     verbose = True
     # -----
 
     use_log_list = [True, False]
-    use_relu_list = [True, False]
+    init_fb_list = [0.5, 1.0]
     parameter_list = itertools.product(
-        use_log_list, use_relu_list
+        use_log_list, init_fb_list
     )
 
     # Complement experiment folder name with date
@@ -85,11 +85,11 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for use_log, use_relu in parameter_list:
+                for use_log, init_fb in parameter_list:
 
                     folder_name = (
-                            'log_%s_relu_%s'
-                            % (use_log, use_relu))
+                            'log_%s_fb_%s'
+                            % (use_log, init_fb))
 
                     # Path to save results of run
                     logdir = os.path.join(
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                     # Create and train model
                     params = pkeys.default_params.copy()
                     params[pkeys.USE_LOG] = use_log
-                    params[pkeys.USE_RELU] = use_relu
+                    params[pkeys.FB_LIST] = [init_fb]
 
                     model = WaveletBLSTM(params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
