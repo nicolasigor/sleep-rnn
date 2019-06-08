@@ -52,9 +52,9 @@ if __name__ == '__main__':
 
     use_log_list = [True]
     init_fb_list = [1.0]
-    parameter_list = itertools.product(
+    parameter_list = list(itertools.product(
         use_log_list, init_fb_list
-    )
+    ))
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
