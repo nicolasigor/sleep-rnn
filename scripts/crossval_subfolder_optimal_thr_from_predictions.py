@@ -32,11 +32,18 @@ if __name__ == '__main__':
 
     ckpt_folder = '20190608_bsf_ablation'
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.INTA_SS_NAME
 
     which_expert = 1
     verbose = False
-    grid_folder_list = None
+    grid_folder_list = [
+        'v11_tf_64-128-256_cwtf_None-None/rep0',
+        'v11_tf_64-128-256_cwtf_None-None/rep1',
+        'v12_tf_None-None-None_cwtf_32-64/rep0',
+        'v12_tf_None-None-None_cwtf_32-64/rep1',
+        'v15_tf_64-128-256_cwtf_32-32/rep0',
+        'v15_tf_64-128-256_cwtf_32-32/rep1'
+    ]
     # -----
 
     # Performance settings
