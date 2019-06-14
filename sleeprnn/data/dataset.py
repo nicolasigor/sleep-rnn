@@ -341,7 +341,7 @@ class Dataset(object):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
-            verbose=False
+            verbose=False,
     ):
         """Returns segments of signal and marks from pages for the given id.
 
@@ -400,27 +400,40 @@ class Dataset(object):
             total_border = border_size
 
         if normalize_clip:
-            if normalization_mode == constants.WN_RECORD:
-                if verbose:
-                    print('Normalization with stats from '
-                          'pages containing true events.')
-                # Normalize using stats from pages with true events.
-                tmp_pages = ind_dict[KEY_ALL_PAGES]
-                activity = utils.extract_pages(
-                    marks, tmp_pages,
-                    self.page_size, border_size=0)
-                activity = activity.sum(axis=1)
-                activity = np.where(activity > 0)[0]
-                tmp_pages = tmp_pages[activity]
-                signal, _ = utils.norm_clip_signal(
-                    signal, tmp_pages, self.page_size)
+
+            # std computed from whole training set, until percentile 99
+            debug_scaling = 16.482037
+
+            if debug_scaling is not None:
+                # We assume zero-centered data. Which should be given the filter
+                std_global = float(debug_scaling)
+                signal = signal / std_global
+                clip_value = 10
+                signal = np.clip(signal, -clip_value, clip_value)
+                print('Forcing global std of %s. Signal min %1.4f max %1.4f'
+                      % (debug_scaling, signal.min(), signal.max()))
             else:
-                if verbose:
-                    print('Normalization with stats from '
-                          'N2 pages.')
-                n2_pages = ind_dict[KEY_N2_PAGES]
-                signal, _ = utils.norm_clip_signal(
-                    signal, n2_pages, self.page_size)
+                if normalization_mode == constants.WN_RECORD:
+                    if verbose:
+                        print('Normalization with stats from '
+                              'pages containing true events.')
+                    # Normalize using stats from pages with true events.
+                    tmp_pages = ind_dict[KEY_ALL_PAGES]
+                    activity = utils.extract_pages(
+                        marks, tmp_pages,
+                        self.page_size, border_size=0)
+                    activity = activity.sum(axis=1)
+                    activity = np.where(activity > 0)[0]
+                    tmp_pages = tmp_pages[activity]
+                    signal, _ = utils.norm_clip_signal(
+                        signal, tmp_pages, self.page_size)
+                else:
+                    if verbose:
+                        print('Normalization with stats from '
+                              'N2 pages.')
+                    n2_pages = ind_dict[KEY_N2_PAGES]
+                    signal, _ = utils.norm_clip_signal(
+                        signal, n2_pages, self.page_size)
 
         # Extract segments
         signal = utils.extract_pages(
@@ -442,7 +455,7 @@ class Dataset(object):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
-            verbose=False
+            verbose=False,
     ):
         """Returns the list of signals and marks from a list of subjects.
         """
@@ -457,7 +470,8 @@ class Dataset(object):
                 pages_subset=pages_subset,
                 normalize_clip=normalize_clip,
                 normalization_mode=normalization_mode,
-                verbose=verbose)
+                verbose=verbose,
+            )
             subset_signals.append(signal)
             subset_marks.append(marks)
         return subset_signals, subset_marks
