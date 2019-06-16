@@ -301,7 +301,8 @@ class WaveletBLSTM(BaseModel):
                 constants.V13,
                 constants.V14,
                 constants.V15,
-                constants.V16
+                constants.V16,
+                constants.V17
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -335,6 +336,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v15
         elif model_version == constants.V16:
             model_fn = networks.wavelet_blstm_net_v16
+        elif model_version == constants.V17:
+            model_fn = networks.wavelet_blstm_net_v17
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

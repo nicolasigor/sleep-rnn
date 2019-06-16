@@ -402,7 +402,8 @@ class Dataset(object):
         if normalize_clip:
 
             # std computed from whole training set, until percentile 99
-            debug_scaling = 16.482037
+            # debug_scaling = 16.482037
+            debug_scaling = None
 
             if debug_scaling is not None:
                 # We assume zero-centered data. Which should be given the filter

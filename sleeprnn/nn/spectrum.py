@@ -43,6 +43,41 @@ def compute_cwt(
     return cwt, wavelets
 
 
+def compute_cwt_rectangular(
+        inputs,
+        fb_list,
+        fs,
+        lower_freq,
+        upper_freq,
+        n_scales,
+        size_factor=1.0,
+        flattening=False,
+        border_crop=0,
+        stride=1,
+        trainable=False):
+    """Computes the CWT of a batch of signals with the complex Morlet wavelet.
+    Please refer to the documentation of compute_wavelets and apply_wavelets to
+    see the description of the parameters.
+    """
+    wavelets, _ = compute_wavelets(
+        fb_list=fb_list,
+        fs=fs,
+        lower_freq=lower_freq,
+        upper_freq=upper_freq,
+        n_scales=n_scales,
+        size_factor=size_factor,
+        flattening=flattening,
+        trainable=trainable,
+        name='cmorlet')
+    cwt = apply_wavelets_rectangular(
+        inputs=inputs,
+        wavelets=wavelets,
+        border_crop=border_crop,
+        stride=stride,
+        name='cwt')
+    return cwt, wavelets
+
+
 def compute_wavelets(
         fb_list,
         fs,
@@ -213,6 +248,71 @@ def apply_wavelets(
                                     + tf.square(out_imag_crop))
                 out_angle = tf.atan2(out_imag_crop, out_real_crop)
                 out_concat = tf.concat([out_power, out_angle], axis=1)
+                # [batch, 2, time_len, n_scales]->[batch, time_len, n_scales, 2]
+                single_scalogram = tf.transpose(out_concat, perm=[0, 2, 3, 1])
+                scalograms_list.append(single_scalogram)
+        # Get all scalograms in shape [batch, time_len, n_scales,2*n_scalograms]
+        scalograms = tf.concat(scalograms_list, -1)
+    return scalograms
+
+
+def apply_wavelets_rectangular(
+        inputs,
+        wavelets,
+        border_crop=0,
+        stride=1,
+        name=None):
+    """
+    CWT layer implementation in Tensorflow that returns the scalograms tensor.
+
+    Implementation of CWT in Tensorflow, aimed at providing GPU acceleration.
+    This layer use computed wavelets. It supports the computation of several
+    scalograms. Different scalograms will be stacked along the channel axis.
+
+    Args:
+        inputs: (tensor) A batch of 1D tensors of shape [batch_size, time_len].
+        wavelets: (list of tuples of arrays) A list of computed wavelet banks.
+        border_crop: (Optional, int, defaults to 0) Non-negative integer that
+            specifies the number of samples to be removed at each border at the
+            end. This parameter allows to input a longer signal than the final
+            desired size to remove border effects of the CWT.
+        stride: (Optional, int, defaults to 1) The stride of the sliding window
+            across the input. Default is 1.
+        name: (Optional, string, defaults to None) A name for the operation.
+
+    Returns:
+        Scalogram tensor.
+    """
+
+    n_scalograms = len(wavelets)
+
+    # Generate the scalograms
+    border_crop = int(border_crop/stride)
+    start = border_crop
+    if border_crop <= 0:
+        end = None
+    else:
+        end = -border_crop
+
+    if name is None:
+        name = "cwt"
+    with tf.variable_scope(name):
+        # Reshape input [batch, time_len] -> [batch, 1, time_len, 1]
+        inputs_expand = tf.expand_dims(inputs, axis=1)
+        inputs_expand = tf.expand_dims(inputs_expand, axis=3)
+        scalograms_list = []
+        for j in range(n_scalograms):
+            with tf.name_scope('%s_%d' % (name, j)):
+                bank_real, bank_imag = wavelets[j]  # n_scales filters each
+                out_real = tf.nn.conv2d(
+                    input=inputs_expand, filter=bank_real,
+                    strides=[1, 1, stride, 1], padding="SAME")
+                out_imag = tf.nn.conv2d(
+                    input=inputs_expand, filter=bank_imag,
+                    strides=[1, 1, stride, 1], padding="SAME")
+                out_real_crop = out_real[:, :, start:end, :]
+                out_imag_crop = out_imag[:, :, start:end, :]
+                out_concat = tf.concat([out_real_crop, out_imag_crop], axis=1)
                 # [batch, 2, time_len, n_scales]->[batch, time_len, n_scales, 2]
                 single_scalogram = tf.transpose(out_concat, perm=[0, 2, 3, 1])
                 scalograms_list.append(single_scalogram)
