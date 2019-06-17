@@ -42,6 +42,7 @@ class FeederDataset(Dataset):
             params=dataset.params.copy(),
             verbose=verbose
         )
+        self.global_std = dataset.global_std
 
     def _load_from_source(self):
         """Loads the data from source."""

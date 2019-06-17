@@ -3,9 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
+import itertools
 import json
 import os
 import pickle
+from pprint import pprint
 import sys
 
 # TF logging control
@@ -31,10 +33,10 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_global_std'
+    experiment_name = 'bsf'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -43,19 +45,21 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'std computed from entire training set'
+    description_str = 'str'
     which_expert = 1
     verbose = True
-    # -----
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
+    # Base parameters
+    params = pkeys.default_params.copy()
+
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
             print('\nModel training on %s_%s' % (dataset_name, task_mode))
-            dataset = load_dataset(dataset_name)
+            dataset = load_dataset(dataset_name, params=params)
 
             # Test set, used for predictions
             data_test = FeederDataset(
@@ -77,30 +81,26 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
+                folder_name = 'bsf'
+
+                base_dir = os.path.join(
+                    '%s_%s_train_%s' % (
+                        experiment_name, task_mode, dataset_name),
+                    folder_name, 'seed%d' % id_try)
+
                 # Path to save results of run
-                logdir = os.path.join(
-                    RESULTS_PATH,
-                    '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
-                    'bsf',
-                    'seed%d' % id_try
-                )
+                logdir = os.path.join(RESULTS_PATH, base_dir)
                 print('This run directory: %s' % logdir)
 
                 # Create and train model
-                params = pkeys.default_params.copy()
-                model = WaveletBLSTM(params, logdir=logdir)
+                model = WaveletBLSTM(params=params, logdir=logdir)
                 model.fit(data_train, data_val, verbose=verbose)
 
                 # --------------  Predict
                 # Save path for predictions
                 save_dir = os.path.abspath(os.path.join(
-                    RESULTS_PATH,
-                    'predictions_%s' % dataset_name,
-                    '%s_%s_train_%s'
-                    % (experiment_name, task_mode, dataset_name),
-                    'bsf',
-                    'seed%d' % id_try
-                ))
+                    RESULTS_PATH, 'predictions_%s' % dataset_name,
+                    base_dir))
                 checks.ensure_directory(save_dir)
 
                 feeders_dict = {

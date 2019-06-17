@@ -15,6 +15,8 @@ from scipy.stats import iqr
 PATH_THIS_DIR = os.path.dirname(__file__)
 PATH_DATA = os.path.join(PATH_THIS_DIR, '..', '..', 'resources', 'datasets')
 
+from sleeprnn.common import constants, checks
+
 
 def seq2stamp(sequence):
     """Returns the start and end samples of stamps in a binary sequence."""
@@ -139,7 +141,46 @@ def resample_signal_linear(signal, fs_old, fs_new):
     return signal
 
 
-def norm_clip_signal(signal, pages_indices, page_size, clip_value=10):
+def norm_clip_signal(
+        signal,
+        pages_indices,
+        page_size,
+        norm_computation=constants.NORM_IQR,
+        clip_value=10,
+        global_std=None):
+
+    checks.check_valid_value(
+        norm_computation, 'norm_computation',
+        [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL])
+
+    if norm_computation == constants.NORM_IQR:
+        norm_signal, clip_mask = norm_clip_signal_iqr(
+            signal, pages_indices, page_size, clip_value)
+    elif norm_computation == constants.NORM_STD:
+        norm_signal, clip_mask = norm_clip_signal_std(
+            signal, pages_indices, page_size, clip_value)
+    else:
+        if global_std is None:
+            raise ValueError(
+                'norm_computation is set to global, but global_std is None')
+        norm_signal, clip_mask = norm_clip_signal_global(
+            signal, global_std, clip_value)
+    return norm_signal, clip_mask
+
+
+def norm_clip_signal_global(signal, global_std, clip_value=10):
+    print('Normalizing with Global STD of %s' % global_std)
+    norm_signal = signal / global_std
+    # Now clip to clip_value (only if clip is not None)
+    if clip_value:
+        clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)
+        norm_signal = np.clip(norm_signal, -clip_value, clip_value)
+    else:
+        clip_mask = None
+    return norm_signal, clip_mask
+
+
+def norm_clip_signal_std(signal, pages_indices, page_size, clip_value=10):
     """Normalizes EEG data according to N2 pages statistics, and then clips.
 
     EEGs are very close to a Gaussian signal, but are subject to outlier values.
@@ -157,6 +198,45 @@ def norm_clip_signal(signal, pages_indices, page_size, clip_value=10):
             after normalization.
     """
     # Extract statistics only from N2 stages
+    print('Normalizing with STD after outlier removal')
+    n2_data = extract_pages(signal, pages_indices, page_size)
+    n2_signal = np.concatenate(n2_data)
+    outlier_thr = np.percentile(np.abs(n2_signal), 98)
+    tmp_signal = n2_signal[np.abs(n2_signal) <= outlier_thr]
+    signal_std = tmp_signal.std()
+
+    # Normalize entire signal, we assume zero-centered data
+    norm_signal = signal / signal_std
+
+    # Now clip to clip_value (only if clip is not None)
+    if clip_value:
+        clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)
+        norm_signal = np.clip(norm_signal, -clip_value, clip_value)
+    else:
+        clip_mask = None
+
+    return norm_signal, clip_mask
+
+
+def norm_clip_signal_iqr(signal, pages_indices, page_size, clip_value=10):
+    """Normalizes EEG data according to N2 pages statistics, and then clips.
+
+    EEGs are very close to a Gaussian signal, but are subject to outlier values.
+    To compute a more robust estimation of the underlying mean and variance of
+    pages, we compute the median and the interquartile range. These
+    estimations are used to normalize the signal with a Z-score. After
+    normalization, the signal is clipped to the [-clip_value, clip_value] range.
+
+    Args:
+        signal: 1-D array containing EEG data.
+        pages_indices: 1-D array with indices of pages of the hypnogram.
+        page_size: (int) Number of samples contained in a single page of the
+            hypnogram.
+        clip_value: (Optional, int, Defaults to 6) Value used to clip the signal
+            after normalization.
+    """
+    # Extract statistics only from N2 stages
+    print('Normalizing with IQR')
     n2_data = extract_pages(signal, pages_indices, page_size)
     n2_signal = np.concatenate(n2_data)
     signal_std = iqr(n2_signal) / 1.349

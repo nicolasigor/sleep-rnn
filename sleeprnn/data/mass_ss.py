@@ -90,6 +90,9 @@ class MassSS(Dataset):
             params=params
         )
 
+        self.global_std = self.compute_global_std(self.train_ids)
+        print('Global STD:', self.global_std)
+
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()

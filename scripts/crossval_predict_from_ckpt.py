@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import itertools
 import json
 import os
 import pickle
 from pprint import pprint
+import shutil
 import sys
-import itertools
 
 # TF logging control
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -45,6 +46,8 @@ if __name__ == '__main__':
     verbose = True
     grid_folder_list = None
     # -----
+
+    tmp_dir = os.path.join(RESULTS_PATH, 'demo_predict')
 
     for dataset_name, task_mode in itertools.product(
             dataset_name_list, task_mode_list):
@@ -106,12 +109,9 @@ if __name__ == '__main__':
 
                 # Create model
                 print('Restoring model')
-                model = WaveletBLSTM(
-                    params,
-                    logdir=os.path.join(RESULTS_PATH, 'demo_predict'))
+                model = WaveletBLSTM(params=params, logdir=tmp_dir)
                 # Load checkpoint
-                model.load_checkpoint(
-                    os.path.join(ckpt_path, 'model', 'ckpt'))
+                model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
 
                 # Save path for predictions
                 save_dir = os.path.abspath(os.path.join(
@@ -152,3 +152,7 @@ if __name__ == '__main__':
             print('Val-AF1 List:', af1_list)
             print('Mean: %1.4f' % mean_af1)
             print('Std: %1.4f' % std_af1)
+
+    # Clean tmp files
+    if os.path.exists(tmp_dir) and os.path.isdir(tmp_dir):
+        shutil.rmtree(tmp_dir)

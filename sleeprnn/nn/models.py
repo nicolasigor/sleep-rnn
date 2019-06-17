@@ -37,7 +37,7 @@ KEY_ITER = 'iteration'
 class WaveletBLSTM(BaseModel):
     """ Model that manages the implemented network."""
 
-    def __init__(self, params, logdir='logs'):
+    def __init__(self, params=None, logdir='logs'):
         """Constructor.
 
         Feat and label shapes can be obtained from params for this model.

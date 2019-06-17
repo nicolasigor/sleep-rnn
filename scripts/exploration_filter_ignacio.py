@@ -15,6 +15,7 @@ sys.path.append(project_root)
 from sleeprnn.data.loader import load_dataset
 from sleeprnn.data.utils import narrow_filter
 
+CUSTOM_COLOR = {'red': '#c62828', 'grey': '#455a64', 'blue': '#0277bd', 'green': '#43a047'}
 
 def filter_experimental(signal, lowcut, highcut, fs):
     ntaps = 41
@@ -47,9 +48,9 @@ if __name__ == '__main__':
 
     dataset = load_dataset('mass_ss')
     fs = dataset.fs
-    x = dataset.get_subject_signal(subject_id=1, normalize_clip=False)
-    y = dataset.get_subject_stamps(subject_id=1)
-    which_stamp = 337
+    x = dataset.get_subject_signal(subject_id=2, normalize_clip=False)
+    y = dataset.get_subject_stamps(subject_id=2)
+    which_stamp = 425  # 337
     center_sample = int(y[which_stamp, :].mean())
     start_sample = center_sample - 5 * fs
     end_sample = center_sample + 5 * fs
@@ -59,15 +60,20 @@ if __name__ == '__main__':
         (y[:, 1] >= start_sample) & (y[:, 0] <= end_sample)
     )[0]
 
+    time_axis = time_axis - start_sample / fs
+
     bands_to_show = [
         (12, 14)
     ]
-    fig, ax = plt.subplots(1 + len(bands_to_show), 1, figsize=(8, 4), dpi=100)
+    fig, ax = plt.subplots(1 + len(bands_to_show), 1, figsize=(8, 4), dpi=200, sharex=True)
 
-    ax[0].plot(time_axis, signal)
+    ax[0].set_title('Sleep spindle events, C3-CLE EEG channel')
+    ax[0].plot(time_axis, signal, linewidth=1.5, color=CUSTOM_COLOR['grey'])
     for to_show_stamp in useful_stamps:
-        ax[0].fill_between(y[to_show_stamp, :]/fs, 25, -25, alpha=0.3)
+        ax[0].fill_between((y[to_show_stamp, :] - start_sample)/fs, 50, -50,
+                           alpha=0.4, facecolor=CUSTOM_COLOR['blue'])
     ax[0].set_xlim([time_axis[0], time_axis[-1]])
+    ax[0].set_yticks([])
 
     for k, band in enumerate(bands_to_show):
 
@@ -75,7 +81,10 @@ if __name__ == '__main__':
         filtered_signal = narrow_filter(
             signal, lowcut=band[0], highcut=band[1], fs=fs)
 
-        ax[k + 1].plot(time_axis, filtered_signal, label='%s-%s Hz' % band)
+        ax[k + 1].plot(time_axis, filtered_signal, label='%s-%s Hz' % band,
+                       linewidth=1.5, color=CUSTOM_COLOR['grey'])
         ax[k + 1].set_xlim([time_axis[0], time_axis[-1]])
-        ax[k + 1].legend(loc='upper right', fontsize=8)
+        ax[k + 1].legend(loc='upper right', fontsize=9)
+        ax[k + 1].set_yticks([])
+    ax[-1].set_xlabel('Time [s]')
     plt.show()

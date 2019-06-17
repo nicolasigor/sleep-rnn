@@ -3,9 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
+import itertools
 import json
 import os
 import pickle
+from pprint import pprint
 import sys
 
 # TF logging control
@@ -34,31 +36,37 @@ if __name__ == '__main__':
     id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_cwt_rect'
+    experiment_name = 'cwt_rect'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
-    description_str = 'cwt uses rectangular form instead of polar'
-
-    use_relu_list = [True, False]
-
+    description_str = 'cwt rectangular instead of polar'
     which_expert = 1
     verbose = True
-    # -----
+
+    # Grid parameters
+    use_relu_list = [False, True]
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
+    # Base parameters
+    params = pkeys.default_params.copy()
+    params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_IQR
+    params[pkeys.MODEL_VERSION] = constants.V17
+    params[pkeys.CWT_CONV_FILTERS_1] = 32
+    params[pkeys.CWT_CONV_FILTERS_2] = 64
+
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
             print('\nModel training on %s_%s' % (dataset_name, task_mode))
-            dataset = load_dataset(dataset_name)
+            dataset = load_dataset(dataset_name, params=params)
 
             # Test set, used for predictions
             data_test = FeederDataset(
@@ -81,36 +89,26 @@ if __name__ == '__main__':
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
                 for use_relu in use_relu_list:
+                    folder_name = 'use_relu_%s' % use_relu
+
+                    base_dir = os.path.join(
+                        '%s_%s_train_%s' % (
+                            experiment_name, task_mode, dataset_name),
+                        folder_name, 'seed%d' % id_try)
+
                     # Path to save results of run
-                    logdir = os.path.join(
-                        RESULTS_PATH,
-                        '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
-                        'relu_%s' % use_relu,
-                        'seed%d' % id_try
-                    )
+                    logdir = os.path.join(RESULTS_PATH, base_dir)
                     print('This run directory: %s' % logdir)
 
                     # Create and train model
-                    params = pkeys.default_params.copy()
-
-                    params[pkeys.MODEL_VERSION] = constants.V17
-                    params[pkeys.CWT_CONV_FILTERS_1] = 32
-                    params[pkeys.CWT_CONV_FILTERS_2] = 64
-                    params[pkeys.USE_RELU] = use_relu
-
-                    model = WaveletBLSTM(params, logdir=logdir)
+                    model = WaveletBLSTM(params=params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
 
                     # --------------  Predict
                     # Save path for predictions
                     save_dir = os.path.abspath(os.path.join(
-                        RESULTS_PATH,
-                        'predictions_%s' % dataset_name,
-                        '%s_%s_train_%s'
-                        % (experiment_name, task_mode, dataset_name),
-                        'bsf',
-                        'seed%d' % id_try
-                    ))
+                        RESULTS_PATH, 'predictions_%s' % dataset_name,
+                        base_dir))
                     checks.ensure_directory(save_dir)
 
                     feeders_dict = {

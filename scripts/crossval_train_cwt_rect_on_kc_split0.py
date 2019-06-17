@@ -7,6 +7,7 @@ import itertools
 import json
 import os
 import pickle
+from pprint import pprint
 import sys
 
 # TF logging control
@@ -20,7 +21,6 @@ sys.path.append(project_root)
 from sleeprnn.data import utils
 from sleeprnn.detection import metrics
 from sleeprnn.detection.feeder_dataset import FeederDataset
-from sleeprnn.nn.models_mod import WaveletBLSTMMod
 from sleeprnn.nn.models import WaveletBLSTM
 from sleeprnn.data.loader import load_dataset
 from sleeprnn.common import constants
@@ -33,38 +33,40 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'grid_mod'
+    experiment_name = 'cwt_rect'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
 
-    description_str = 'cwt personalized normalization (only magnitude)'
+    description_str = 'cwt rectangular instead of polar'
     which_expert = 1
     verbose = True
 
-    use_log_list = [True, False]
-    mod_trainable_list = [
-        (WaveletBLSTMMod, False),
-        (WaveletBLSTM, True)
-    ]
-    parameters_list = list(itertools.product(use_log_list, mod_trainable_list))
-    # -----
+    # Grid parameters
+    use_relu_list = [False, True]
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
+    # Base parameters
+    params = pkeys.default_params.copy()
+    params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_IQR
+    params[pkeys.MODEL_VERSION] = constants.V17
+    params[pkeys.CWT_CONV_FILTERS_1] = 32
+    params[pkeys.CWT_CONV_FILTERS_2] = 64
+
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
             print('\nModel training on %s_%s' % (dataset_name, task_mode))
-            dataset = load_dataset(dataset_name)
+            dataset = load_dataset(dataset_name, params=params)
 
             # Test set, used for predictions
             data_test = FeederDataset(
@@ -86,44 +88,27 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for this_parameters in parameters_list:
+                for use_relu in use_relu_list:
+                    folder_name = 'use_relu_%s' % use_relu
 
-                    use_log = this_parameters[0]
-                    model_class = this_parameters[1][0]
-                    trainable_wavelet = this_parameters[1][1]
-
-                    folder_name = (
-                            'log_%s_trainfb_%s'
-                            % (use_log, trainable_wavelet))
+                    base_dir = os.path.join(
+                        '%s_%s_train_%s' % (
+                            experiment_name, task_mode, dataset_name),
+                        folder_name, 'seed%d' % id_try)
 
                     # Path to save results of run
-                    logdir = os.path.join(
-                        RESULTS_PATH,
-                        '%s_%s_train_%s'
-                        % (experiment_name, task_mode, dataset_name),
-                        folder_name,
-                        'seed%d' % id_try
-                    )
+                    logdir = os.path.join(RESULTS_PATH, base_dir)
                     print('This run directory: %s' % logdir)
 
                     # Create and train model
-                    params = pkeys.default_params.copy()
-                    params[pkeys.TRAINABLE_WAVELET] = trainable_wavelet
-                    params[pkeys.USE_LOG] = use_log
-
-                    model = model_class(params, logdir=logdir)
+                    model = WaveletBLSTM(params=params, logdir=logdir)
                     model.fit(data_train, data_val, verbose=verbose)
 
                     # --------------  Predict
                     # Save path for predictions
                     save_dir = os.path.abspath(os.path.join(
-                        RESULTS_PATH,
-                        'predictions_%s' % dataset_name,
-                        '%s_%s_train_%s'
-                        % (experiment_name, task_mode, dataset_name),
-                        folder_name,
-                        'seed%d' % id_try
-                    ))
+                        RESULTS_PATH, 'predictions_%s' % dataset_name,
+                        base_dir))
                     checks.ensure_directory(save_dir)
 
                     feeders_dict = {

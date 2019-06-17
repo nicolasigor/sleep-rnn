@@ -89,6 +89,19 @@ class Dataset(object):
 
         # Data loading
         self.data = self._load_data(verbose=verbose)
+        self.global_std = 1.0
+
+    def compute_global_std(self, subject_ids):
+        x_list = self.get_subset_signals(
+            subject_id_list=subject_ids, normalize_clip=False)
+        tmp_list = []
+        for x in x_list:
+            outlier_thr = np.percentile(np.abs(x), 99)
+            tmp_signal = x[np.abs(x) <= outlier_thr]
+            tmp_list.append(tmp_signal)
+        all_signals = np.concatenate(tmp_list)
+        global_std = all_signals.std()
+        return global_std
 
     def get_subject_signal(
             self,
@@ -125,14 +138,18 @@ class Dataset(object):
                 activity = np.where(activity > 0)[0]
                 tmp_pages = tmp_pages[activity]
                 signal, _ = utils.norm_clip_signal(
-                    signal, tmp_pages, self.page_size)
+                    signal, tmp_pages, self.page_size,
+                    norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
+                    global_std=self.global_std)
             else:
                 if verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
                 signal, _ = utils.norm_clip_signal(
-                    signal, n2_pages, self.page_size)
+                    signal, n2_pages, self.page_size,
+                    norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
+                    global_std=self.global_std)
         return signal
 
     def get_subset_signals(
@@ -400,41 +417,31 @@ class Dataset(object):
             total_border = border_size
 
         if normalize_clip:
-
-            # std computed from whole training set, until percentile 99
-            # debug_scaling = 16.482037
-            debug_scaling = None
-
-            if debug_scaling is not None:
-                # We assume zero-centered data. Which should be given the filter
-                std_global = float(debug_scaling)
-                signal = signal / std_global
-                clip_value = 10
-                signal = np.clip(signal, -clip_value, clip_value)
-                print('Forcing global std of %s. Signal min %1.4f max %1.4f'
-                      % (debug_scaling, signal.min(), signal.max()))
+            if normalization_mode == constants.WN_RECORD:
+                if verbose:
+                    print('Normalization with stats from '
+                          'pages containing true events.')
+                # Normalize using stats from pages with true events.
+                tmp_pages = ind_dict[KEY_ALL_PAGES]
+                activity = utils.extract_pages(
+                    marks, tmp_pages,
+                    self.page_size, border_size=0)
+                activity = activity.sum(axis=1)
+                activity = np.where(activity > 0)[0]
+                tmp_pages = tmp_pages[activity]
+                signal, _ = utils.norm_clip_signal(
+                    signal, tmp_pages, self.page_size,
+                    norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
+                    global_std=self.global_std)
             else:
-                if normalization_mode == constants.WN_RECORD:
-                    if verbose:
-                        print('Normalization with stats from '
-                              'pages containing true events.')
-                    # Normalize using stats from pages with true events.
-                    tmp_pages = ind_dict[KEY_ALL_PAGES]
-                    activity = utils.extract_pages(
-                        marks, tmp_pages,
-                        self.page_size, border_size=0)
-                    activity = activity.sum(axis=1)
-                    activity = np.where(activity > 0)[0]
-                    tmp_pages = tmp_pages[activity]
-                    signal, _ = utils.norm_clip_signal(
-                        signal, tmp_pages, self.page_size)
-                else:
-                    if verbose:
-                        print('Normalization with stats from '
-                              'N2 pages.')
-                    n2_pages = ind_dict[KEY_N2_PAGES]
-                    signal, _ = utils.norm_clip_signal(
-                        signal, n2_pages, self.page_size)
+                if verbose:
+                    print('Normalization with stats from '
+                          'N2 pages.')
+                n2_pages = ind_dict[KEY_N2_PAGES]
+                signal, _ = utils.norm_clip_signal(
+                    signal, n2_pages, self.page_size,
+                    norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
+                    global_std=self.global_std)
 
         # Extract segments
         signal = utils.extract_pages(

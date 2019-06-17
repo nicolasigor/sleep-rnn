@@ -38,7 +38,7 @@ class PredictedDataset(Dataset):
             params=dataset.params.copy(),
             verbose=verbose
         )
-
+        self.global_std = dataset.global_std
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
         ids_proba = list(self.probabilities_dict.keys())

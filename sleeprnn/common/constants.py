@@ -67,6 +67,11 @@ RMSPROP_OPTIMIZER = 'rmsprop_optimizer'
 LOSS_CRITERION = 'loss_criterion'
 METRIC_CRITERION = 'metric_criterion'
 
+# Normalization computation mode
+NORM_IQR = 'norm_iqr'
+NORM_STD = 'norm_std'
+NORM_GLOBAL = 'norm_global'
+
 # Model versions
 DUMMY = 'dummy'
 DEBUG = 'debug'
