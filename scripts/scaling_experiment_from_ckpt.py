@@ -77,7 +77,7 @@ if __name__ == '__main__':
     ))
     checks.ensure_directory(save_dir)
 
-    dataset = load_dataset(dataset_name)  # Create dataset
+    dataset = load_dataset(dataset_name, params=params)  # Create dataset
 
     # Predict
     print('Predictions will be saved at %s' % save_dir)
