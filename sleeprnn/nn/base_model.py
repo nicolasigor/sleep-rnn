@@ -181,6 +181,8 @@ class BaseModel(object):
             model_name = 'model_v16'
         elif model_version == constants.V17:
             model_name = 'model_v17'
+        elif model_version == constants.V18:
+            model_name = 'model_v18'
         elif model_version == constants.DEBUG:
             model_name = 'model_debug'
         else:

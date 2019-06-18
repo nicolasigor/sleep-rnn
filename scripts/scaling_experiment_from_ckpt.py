@@ -35,8 +35,8 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
     ckpt_folder = os.path.join(
-        '20190605_grid_v15_v16_n2_train_mass_ss',
-        'v15_timef_64_128_256_cwtf_32_32_fb_0.5')
+        '20190617_grid_normalization_n2_train_mass_ss',
+        'norm_global')
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -77,10 +77,11 @@ if __name__ == '__main__':
     ))
     checks.ensure_directory(save_dir)
 
+    dataset = load_dataset(dataset_name)  # Create dataset
+
     # Predict
     print('Predictions will be saved at %s' % save_dir)
     print('Predicting test set', flush=True)
-    dataset = load_dataset(dataset_name)  # Create dataset
     test_ids = dataset.test_ids  # Test data
     data_inference = FeederDataset(
         dataset, test_ids, task_mode,
@@ -95,6 +96,25 @@ if __name__ == '__main__':
         print('Prediction saved at %s')
         with open(filename, 'wb') as handle:
             pickle.dump(prediction, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Predict
+    print('Predicting train set', flush=True)
+    train_ids = dataset.train_ids  # Alltrain data
+    data_inference = FeederDataset(
+        dataset, train_ids, task_mode,
+        which_expert=which_expert)
+    for this_scale in scale_list:
+        print('Evaluating scale %1.2f' % this_scale, flush=True)
+        prediction = model.predict_dataset(
+            data_inference, verbose=verbose, input_scale_factor=this_scale)
+        filename = os.path.join(
+            save_dir,
+            'prediction_%s_train_s%1.2f.pkl' % (task_mode, this_scale))
+        print('Prediction saved at %s')
+        with open(filename, 'wb') as handle:
+            pickle.dump(prediction, handle,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+
 
 
 

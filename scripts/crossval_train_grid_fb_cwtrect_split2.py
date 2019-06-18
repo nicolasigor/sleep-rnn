@@ -33,24 +33,25 @@ SEED_LIST = [123, 234, 345, 456]
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'cwt_rect'
+    experiment_name = 'grid_fb_cwtrect'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
+        constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
 
-    description_str = 'cwt rectangular instead of polar'
+    description_str = 'fb grid. The parameter is frozen.'
     which_expert = 1
     verbose = True
 
     # Grid parameters
-    use_relu_list = [False, True]
+    fb_init_list = [0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00]
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -58,10 +59,12 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_IQR
+    params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL
     params[pkeys.MODEL_VERSION] = constants.V17
     params[pkeys.CWT_CONV_FILTERS_1] = 32
     params[pkeys.CWT_CONV_FILTERS_2] = 64
+    params[pkeys.USE_RELU] = False
+    params[pkeys.TRAINABLE_WAVELET] = False
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -88,8 +91,10 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for use_relu in use_relu_list:
-                    folder_name = 'use_relu_%s' % use_relu
+                for fb_init in fb_init_list:
+                    folder_name = 'fb_%s' % fb_init
+
+                    params[pkeys.FB_LIST] = [fb_init]
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
