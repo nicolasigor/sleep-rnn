@@ -246,6 +246,8 @@ class BaseModel(object):
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
             verbose=False)
+        if input_scale_factor != 1.0 and verbose:
+            print('Using input scale factor %s' % input_scale_factor)
         x_inference = [
             single_x * input_scale_factor for single_x in x_inference]
         probabilies_list = self.predict_proba_with_list(

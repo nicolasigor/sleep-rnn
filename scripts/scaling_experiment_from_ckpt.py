@@ -5,6 +5,7 @@ from __future__ import print_function
 import json
 import os
 import pickle
+from pprint import pprint
 import sys
 
 # TF logging control
@@ -79,6 +80,8 @@ if __name__ == '__main__':
 
     dataset = load_dataset(dataset_name, params=params)  # Create dataset
 
+    # pprint(params)
+
     # Predict
     print('Predictions will be saved at %s' % save_dir)
     print('Predicting test set', flush=True)
@@ -93,7 +96,7 @@ if __name__ == '__main__':
         filename = os.path.join(
             save_dir,
             'prediction_%s_test_s%1.2f.pkl' % (task_mode, this_scale))
-        print('Prediction saved at %s')
+        print('Prediction saved at %s' % filename)
         with open(filename, 'wb') as handle:
             pickle.dump(prediction, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -110,7 +113,7 @@ if __name__ == '__main__':
         filename = os.path.join(
             save_dir,
             'prediction_%s_train_s%1.2f.pkl' % (task_mode, this_scale))
-        print('Prediction saved at %s')
+        print('Prediction saved at %s' % filename)
         with open(filename, 'wb') as handle:
             pickle.dump(prediction, handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
