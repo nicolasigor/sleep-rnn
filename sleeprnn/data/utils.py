@@ -116,8 +116,15 @@ def narrow_filter(signal, fs, lowcut, highcut):
     filtered_signal = lfilter(b, [1.0], signal)
     filtered_signal = np.append(np.array([0, 0]), filtered_signal) - np.append(
         filtered_signal, np.array([0, 0]))
-    filtered_signal = filtered_signal[0:len(filtered_signal) - 2]
-    return filtered_signal
+    # filtered_signal = filtered_signal[0:len(filtered_signal) - 2]
+    filtered_signal = filtered_signal[1:(len(filtered_signal) - 1)]
+
+    # Shift to align phase
+    n_shift = (ntaps-1) // 2
+    filtered_signal_aligned = np.zeros(filtered_signal.shape)
+    filtered_signal_aligned[:-n_shift] = filtered_signal[n_shift:]
+
+    return filtered_signal_aligned
 
 
 def resample_signal(signal, fs_old, fs_new):

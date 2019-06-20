@@ -122,7 +122,6 @@ class Dataset(object):
 
         # Unpack data
         signal = ind_dict[KEY_EEG]
-        marks = ind_dict['%s_%d' % (KEY_MARKS, which_expert)]
 
         if normalize_clip:
             if normalization_mode == constants.WN_RECORD:
@@ -130,6 +129,9 @@ class Dataset(object):
                     print('Normalization with stats from '
                           'pages containing true events.')
                 # Normalize using stats from pages with true events.
+                marks = ind_dict['%s_%d' % (KEY_MARKS, which_expert)]
+                # Transform stamps into sequence
+                marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
                 tmp_pages = ind_dict[KEY_ALL_PAGES]
                 activity = utils.extract_pages(
                     marks, tmp_pages,

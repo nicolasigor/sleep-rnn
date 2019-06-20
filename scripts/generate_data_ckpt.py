@@ -8,6 +8,8 @@ import sys
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
+from sleeprnn.data.dreams_kc import DreamsKC
+from sleeprnn.data.dreams_ss import DreamsSS
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.inta_ss import IntaSS
@@ -15,7 +17,7 @@ from sleeprnn.data.inta_ss import IntaSS
 
 if __name__ == '__main__':
 
-    datasets_class = [MassSS, MassKC, IntaSS]
+    datasets_class = [DreamsSS, DreamsKC] # , MassSS, MassKC, IntaSS]
     repair_inta = False
 
     for data_class in datasets_class:
