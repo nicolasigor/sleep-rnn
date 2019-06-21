@@ -25,7 +25,7 @@ KEY_FILE_EEG = 'file_eeg'
 KEY_FILE_STATES = 'file_states'
 KEY_FILE_MARKS = 'file_marks'
 
-IDS_INVALID = [4]
+IDS_INVALID = [4]  # S03 is in doubt
 IDS_TEST = [2, 5, 7]
 
 

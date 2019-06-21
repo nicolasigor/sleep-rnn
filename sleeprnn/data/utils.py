@@ -350,7 +350,7 @@ def split_ids_list(subject_ids, train_fraction=0.75, seed=None, verbose=True):
     return train_ids, test_ids
 
 
-def split_ids_list_v2(subject_ids, split_id, train_fraction=0.75, verbose=True):
+def split_ids_list_v2(subject_ids, split_id, train_fraction=0.75, verbose=False):
     n_subjects = len(subject_ids)
     n_train = int(n_subjects * train_fraction)
     if verbose:

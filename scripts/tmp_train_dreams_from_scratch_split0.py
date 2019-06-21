@@ -54,7 +54,7 @@ if __name__ == '__main__':
     version_relu_list = [
         (constants.V11, None),
         (constants.V12, True),
-        (constants.V17, True)
+        (constants.V17, False)
     ]
 
     # Complement experiment folder name with date

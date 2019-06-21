@@ -18,7 +18,26 @@ def get_optimal_threshold(
         end_thr=0.7,
         verbose=False
 ):
-    n_thr = int(np.round((end_thr - start_thr) / res_thr + 1))
+
+    # Check probability boundaries
+    min_proba = 0
+    max_proba = 1
+    for predicted_dataset in predicted_dataset_list:
+        this_proba_list = predicted_dataset.get_probabilities()
+        min_allowed = np.max([np.percentile(proba, 1) for proba in this_proba_list])
+        max_allowed = np.min([np.percentile(proba, 99) for proba in this_proba_list])
+        if min_allowed > min_proba:
+            min_proba = min_allowed
+        if max_allowed < max_proba:
+            max_proba = max_allowed
+    min_proba = np.ceil(100 * min_proba) / 100
+    max_proba = np.floor(100 * max_proba) / 100
+
+    # Change start_thr and end_thr accordingly
+    start_thr = max(min_proba, start_thr)
+    end_thr = min(max_proba, end_thr)
+
+    n_thr = int(np.floor((end_thr - start_thr) / res_thr + 1))
     thr_list = np.array([start_thr + res_thr * i for i in range(n_thr)])
     thr_list = np.round(thr_list, 2)
     if verbose:

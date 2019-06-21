@@ -172,6 +172,7 @@ REL_TOL_CRITERION = 'rel_tol_criterion'
 LR_UPDATE_FACTOR = 'lr_update_factor'
 LR_UPDATE_CRITERION = 'lr_update_criterion'
 MAX_LR_UPDATES = 'max_lr_updates'
+FACTOR_INIT_LR_FINE_TUNE = 'factor_init_lr_fine_tune'
 
 
 """ Postprocessing params 
@@ -249,5 +250,6 @@ default_params = {
     KC_MIN_SEPARATION: None,
     KC_MIN_DURATION: 0.3,
     KC_MAX_DURATION: None,
-    PREDICT_WITH_AUGMENTED_PAGE: True
+    PREDICT_WITH_AUGMENTED_PAGE: True,
+    FACTOR_INIT_LR_FINE_TUNE: 1.0
 }

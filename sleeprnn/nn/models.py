@@ -90,6 +90,7 @@ class WaveletBLSTM(BaseModel):
             self,
             data_train: FeederDataset,
             data_val: FeederDataset,
+            fine_tune=False,
             verbose=False):
         """Fits the model to the training data."""
         border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
@@ -131,7 +132,16 @@ class WaveletBLSTM(BaseModel):
         x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(
             x_train, y_train)
 
-        self._initialize_variables()
+        if fine_tune:
+            init_lr = self.params[pkeys.LEARNING_RATE]
+            factor_fine_tune = self.params[pkeys.FACTOR_INIT_LR_FINE_TUNE]
+            init_lr_fine_tune = init_lr * factor_fine_tune
+            self.sess.run(self.reset_optimizer)
+            self.sess.run(tf.assign(self.learning_rate, init_lr_fine_tune))
+            print('Fine tuning with lr %s' % init_lr_fine_tune)
+        else:
+            self._initialize_variables()
+
         self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
 
         # Improvement criterion

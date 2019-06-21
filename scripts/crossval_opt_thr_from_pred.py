@@ -29,10 +29,10 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = ''
+    ckpt_folder = '20190620_11_12_17_from_scratch'
     new_split_version = True  # True from 20190620
-    task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    task_mode = constants.WN_RECORD
+    dataset_name = constants.DREAMS_KC_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
@@ -126,7 +126,9 @@ if __name__ == '__main__':
                 predicted_dataset_list,
                 res_thr=res_thr,
                 start_thr=start_thr,
-                end_thr=end_thr)
+                end_thr=end_thr,
+                verbose=verbose
+            )
             per_seed_thr[folder_name][k] = best_thr
 
     # Search optimum

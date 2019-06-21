@@ -35,13 +35,13 @@ if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = ''
+    ckpt_folder = '20190620_11_12_17_from_scratch'
     new_split_version = True  # True from 20190620
     task_mode_list = [
         constants.N2_RECORD
     ]
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.DREAMS_SS_NAME
     ]
     which_expert = 1
     verbose = True
