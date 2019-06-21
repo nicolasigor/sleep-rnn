@@ -28,7 +28,6 @@ from sleeprnn.common import checks
 from sleeprnn.common import pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
-SEED_LIST = [123, 234, 345, 456]
 
 
 if __name__ == '__main__':
@@ -68,12 +67,11 @@ if __name__ == '__main__':
             # Get training set ids
             all_train_ids = dataset.train_ids
             for id_try in id_try_list:
-                # Choose seed
-                seed = SEED_LIST[id_try]
-                print('\nUsing validation split seed %d' % seed)
+                print('\nUsing validation split %d' % id_try)
                 # Generate split
-                train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=seed)
+                train_ids, val_ids = utils.split_ids_list_v2(
+                    all_train_ids, split_id=id_try)
+
                 print('Training set IDs:', train_ids)
                 data_train = FeederDataset(
                     dataset, train_ids, task_mode, which_expert=which_expert)
@@ -135,7 +133,7 @@ if __name__ == '__main__':
 
                         metric_dict = {
                             'description': description_str,
-                            'val_seed': seed,
+                            'val_seed': id_try,
                             'database': dataset_name,
                             'task_mode': task_mode,
                             'val_af1': float(val_af1_at_half_thr)

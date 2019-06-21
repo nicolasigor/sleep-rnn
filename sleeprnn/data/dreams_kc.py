@@ -55,18 +55,9 @@ class DreamsKC(Dataset):
         # Original sampling frequency is 200Hz
 
         # Hypnogram parameters
-        # 5=wake
-        # 4=REM stage
-        # 3=sleep stage S1
-        # 2=sleep stage S2
-        # 1=sleep stage S3
-        # 0=sleep stage S4
-        # -1=sleep stage movement
-        # -2 or -3 =unknow sleep stage
-
-        self.state_ids = np.array([-3, -2, -1, 0, 1, 2, 3, 4, 5])
-        self.unknown_id = -1  # Character for others (negative numbers)
-        self.n2_id = 2  # Character for N2 identification in hypnogram
+        self.state_ids = np.array(['1', '2', '3', '4', 'R', 'W', '?'])
+        self.unknown_id = '?'  # Character for unknown state in hypnogram
+        self.n2_id = '2'  # Character for N2 identification in hypnogram
         self.original_state_interval = 5  # 5 [s]
         # We need to group in 20s after reading
 
@@ -200,8 +191,32 @@ class DreamsKC(Dataset):
         for i in range(n_pages):
             state_rk[i] = int(np.mean(state[4 * i:4 * (i + 1)]))
 
+        # 5=wake
+        # 4=REM stage
+        # 3=sleep stage S1
+        # 2=sleep stage S2
+        # 1=sleep stage S3
+        # 0=sleep stage S4
+        # -1=sleep stage movement
+        # -2 or -3 =unknow sleep stage
+
         # Replace every negative number with invalid id
-        hypnogram = np.clip(state_rk, -1, 10).astype(np.int8)
+        hypnogram_original = np.clip(state_rk, -1, 10).astype(np.int8)
+
+        map_state_code2name = {
+            5: 'W',
+            4: 'R',
+            3: '1',
+            2: '2',
+            1: '3',
+            0: '4',
+            -1: '?'}
+
+        # Create hypnogram with proper name
+        hypnogram = []
+        for value in hypnogram_original:
+            hypnogram.append(map_state_code2name[value])
+        hypnogram = np.asarray(hypnogram)
 
         # Extract N2 pages
         n2_pages = np.where(hypnogram == self.n2_id)[0]

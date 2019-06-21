@@ -350,6 +350,26 @@ def split_ids_list(subject_ids, train_fraction=0.75, seed=None, verbose=True):
     return train_ids, test_ids
 
 
+def split_ids_list_v2(subject_ids, split_id, train_fraction=0.75, verbose=True):
+    n_subjects = len(subject_ids)
+    n_train = int(n_subjects * train_fraction)
+    if verbose:
+        print('Split IDs: Total %d -- Training %d' % (n_subjects, n_train))
+    n_val = n_subjects - n_train
+    start_idx = split_id * n_val
+    epoch = int(start_idx / n_subjects)
+    random_idx_1 = np.random.RandomState(seed=epoch).permutation(n_subjects)
+    random_idx_2 = np.random.RandomState(seed=epoch+1).permutation(n_subjects)
+    random_idx = np.concatenate([random_idx_1, random_idx_2])
+    start_idx_relative = start_idx % n_subjects
+    val_idx = random_idx[start_idx_relative:(start_idx_relative + n_val)]
+    val_ids = [subject_ids[i] for i in val_idx]
+    train_ids = [sub_id for sub_id in subject_ids if sub_id not in val_ids]
+    val_ids.sort()
+    train_ids.sort()
+    return train_ids, val_ids
+
+
 def shuffle_data(x, y, seed=None):
     """Shuffles data assuming that they are numpy arrays."""
     n_examples = x.shape[0]

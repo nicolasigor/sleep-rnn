@@ -35,12 +35,13 @@ if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = '20190516_bsf'
+    ckpt_folder = ''
+    new_split_version = True  # True from 20190620
     task_mode_list = [
         constants.N2_RECORD
     ]
     dataset_name_list = [
-        constants.INTA_SS_NAME
+        constants.MASS_SS_NAME
     ]
     which_expert = 1
     verbose = True
@@ -52,11 +53,6 @@ if __name__ == '__main__':
     for dataset_name, task_mode in itertools.product(
             dataset_name_list, task_mode_list):
         print('\nModel predicting on %s_%s' % (dataset_name, task_mode))
-        dataset = load_dataset(dataset_name)
-        # Get training set ids
-        all_train_ids = dataset.train_ids
-        # Test data
-        test_ids = dataset.test_ids
         if grid_folder_list is None:
             grid_folder_list = os.listdir(os.path.join(
                     RESULTS_PATH,
@@ -86,6 +82,12 @@ if __name__ == '__main__':
                     params.update(json.load(infile))
                 print('Restoring from %s' % ckpt_path)
 
+                dataset = load_dataset(dataset_name, params=params)
+                # Get training set ids
+                all_train_ids = dataset.train_ids
+                # Test data
+                test_ids = dataset.test_ids
+
                 # Restore seed
                 filename = os.path.join(ckpt_path, 'metric.json')
                 with open(filename, 'r') as infile:
@@ -102,8 +104,12 @@ if __name__ == '__main__':
                             % (task_mode, this_task_mode))
 
                 # Split to form validation set
-                train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=this_seed)
+                if new_split_version:
+                    train_ids, val_ids = utils.split_ids_list_v2(
+                        all_train_ids, split_id=this_seed)
+                else:
+                    train_ids, val_ids = utils.split_ids_list(
+                        all_train_ids, seed=this_seed)
                 print('Training set IDs:', train_ids)
                 print('Validation set IDs:', val_ids)
 

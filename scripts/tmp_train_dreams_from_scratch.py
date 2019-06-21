@@ -28,30 +28,34 @@ from sleeprnn.common import checks
 from sleeprnn.common import pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
-SEED_LIST = [123, 234, 345, 456]
 
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'grid_fb_cwtrect'
+    experiment_name = '11_12_17_from_scratch'
     task_mode_list = [
+        constants.WN_RECORD,
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME,
-        constants.MASS_KC_NAME
+        constants.DREAMS_SS_NAME,
+        constants.DREAMS_KC_NAME
     ]
 
-    description_str = 'fb grid. The parameter is frozen.'
+    description_str = 'predicting on dreams datasets (small ones) from scratch'
     which_expert = 1
     verbose = True
 
-    # Grid parameters
-    fb_init_list = [0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00]
+    # Model grid
+    version_relu_list = [
+        (constants.V11, None),
+        (constants.V12, True),
+        (constants.V17, True)
+    ]
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -60,11 +64,9 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL
-    params[pkeys.MODEL_VERSION] = constants.V17
+    params[pkeys.ITERS_LR_UPDATE] = 100
     params[pkeys.CWT_CONV_FILTERS_1] = 32
     params[pkeys.CWT_CONV_FILTERS_2] = 64
-    params[pkeys.USE_RELU] = False
-    params[pkeys.TRAINABLE_WAVELET] = False
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -78,12 +80,11 @@ if __name__ == '__main__':
             # Get training set ids
             all_train_ids = dataset.train_ids
             for id_try in id_try_list:
-                # Choose seed
-                seed = SEED_LIST[id_try]
-                print('\nUsing validation split seed %d' % seed)
+                print('\nUsing validation split %d' % id_try)
                 # Generate split
-                train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=seed)
+                train_ids, val_ids = utils.split_ids_list_v2(
+                    all_train_ids, split_id=id_try)
+
                 print('Training set IDs:', train_ids)
                 data_train = FeederDataset(
                     dataset, train_ids, task_mode, which_expert=which_expert)
@@ -91,10 +92,15 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for fb_init in fb_init_list:
-                    folder_name = 'fb_%s' % fb_init
+                for version_relu in version_relu_list:
 
-                    params[pkeys.FB_LIST] = [fb_init]
+                    model_version = version_relu[0]
+                    use_relu = version_relu[1]
+
+                    params[pkeys.MODEL_VERSION] = model_version
+                    params[pkeys.USE_RELU] = use_relu
+
+                    folder_name = '%s_%s' % (model_version, use_relu)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
@@ -148,7 +154,7 @@ if __name__ == '__main__':
 
                             metric_dict = {
                                 'description': description_str,
-                                'val_seed': seed,
+                                'val_seed': id_try,
                                 'database': dataset_name,
                                 'task_mode': task_mode,
                                 'val_af1': float(val_af1_at_half_thr)

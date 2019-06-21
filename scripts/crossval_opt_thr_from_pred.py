@@ -22,7 +22,6 @@ from sleeprnn.common import constants
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
-# SEED_LIST = [123]
 
 
 if __name__ == '__main__':
@@ -30,9 +29,11 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190608_bsf_ablation'
+    ckpt_folder = ''
+    new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
+    id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
     verbose = False
@@ -100,9 +101,13 @@ if __name__ == '__main__':
         per_seed_thr[folder_name] = {}
         for k, seed in enumerate(SEED_LIST):
             print('Seed %d' % k)
-            # Validation split
-            train_ids, val_ids = utils.split_ids_list(
-                all_train_ids, seed=seed, verbose=verbose)
+            # Split to form validation set
+            if new_split_version:
+                train_ids, val_ids = utils.split_ids_list_v2(
+                    all_train_ids, split_id=k)
+            else:
+                train_ids, val_ids = utils.split_ids_list(
+                    all_train_ids, seed=seed)
             ids_dict = {
                 constants.TRAIN_SUBSET: train_ids,
                 constants.VAL_SUBSET: val_ids}
@@ -140,8 +145,13 @@ if __name__ == '__main__':
             seeds_best_thr.append(this_best_thr)
 
             # Now load validation set and compute performance
-            train_ids, val_ids = utils.split_ids_list(
-                all_train_ids, seed=SEED_LIST[k], verbose=False)
+            if new_split_version:
+                train_ids, val_ids = utils.split_ids_list_v2(
+                    all_train_ids, split_id=k, verbose=False)
+            else:
+                train_ids, val_ids = utils.split_ids_list(
+                    all_train_ids, seed=SEED_LIST[k], verbose=False)
+
             # Prepare expert labels
             data_val = FeederDataset(
                 dataset, val_ids, task_mode, which_expert=which_expert)
