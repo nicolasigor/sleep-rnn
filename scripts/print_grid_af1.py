@@ -15,8 +15,8 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == '__main__':
-    n_to_show = 30
-    grid_folder = '20190508_bsf_aug_different_wn_train_mass_ss'
+    n_to_show = 100
+    grid_folder = '20190621_fine_tune_n2_train_dreams_ss'
     grid_path = os.path.join(RESULTS_PATH, grid_folder)
     grid_list = os.listdir(grid_path)
 

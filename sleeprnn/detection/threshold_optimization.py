@@ -36,7 +36,8 @@ def get_optimal_threshold(
     # Change start_thr and end_thr accordingly
     start_thr = max(min_proba, start_thr)
     end_thr = min(max_proba, end_thr)
-
+    if verbose:
+        print('Start thr: %1.4f. End thr: %1.4f' % (start_thr, end_thr))
     n_thr = int(np.floor((end_thr - start_thr) / res_thr + 1))
     thr_list = np.array([start_thr + res_thr * i for i in range(n_thr)])
     thr_list = np.round(thr_list, 2)

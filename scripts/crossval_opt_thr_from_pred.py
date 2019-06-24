@@ -29,21 +29,21 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190620_11_12_17_from_scratch'
+    ckpt_folder = '20190621_fine_tune'
     new_split_version = True  # True from 20190620
-    task_mode = constants.WN_RECORD
-    dataset_name = constants.DREAMS_KC_NAME
+    task_mode = constants.N2_RECORD
+    dataset_name = constants.DREAMS_SS_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
-    verbose = False
+    verbose = True
     grid_folder_list = None
     # -----
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.2
-    end_thr = 0.8
+    start_thr = 0.4
+    end_thr = 0.6
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
