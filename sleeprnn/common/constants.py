@@ -95,3 +95,5 @@ V15 = 'v15'  # Mixed
 V16 = 'v16'  # Mixed
 V17 = 'v17'
 V18 = 'v18'  # Mixed
+V20_INDEP = 'v20_indep'  # time
+V20_CONCAT = 'v20_concat'  # time

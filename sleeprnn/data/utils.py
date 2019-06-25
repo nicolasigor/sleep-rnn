@@ -127,6 +127,17 @@ def narrow_filter(signal, fs, lowcut, highcut):
     return filtered_signal_aligned
 
 
+def get_kernel(ntaps, central_freq, fs=1, window_fn=np.hanning, sinusoidal_fn=np.cos):
+    # Kernel design
+    time_array = np.arange(ntaps) - ntaps // 2
+    b_base = sinusoidal_fn(2 * np.pi * central_freq / fs * time_array)
+    window = window_fn(b_base.size)
+    kernel = b_base * window
+    # Normalize kernel
+    kernel = kernel / np.linalg.norm(kernel)
+    return kernel
+
+
 def resample_signal(signal, fs_old, fs_new):
     """Returns resampled signal, from fs_old Hz to fs_new Hz."""
     gcd_freqs = math.gcd(fs_new, fs_old)

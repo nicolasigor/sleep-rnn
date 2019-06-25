@@ -8,6 +8,9 @@ import numpy as np
 import tensorflow as tf
 
 
+from sleeprnn.data.utils import get_kernel
+
+
 def compute_cwt(
         inputs,
         fb_list,
@@ -319,3 +322,47 @@ def apply_wavelets_rectangular(
         # Get all scalograms in shape [batch, time_len, n_scales,2*n_scalograms]
         scalograms = tf.concat(scalograms_list, -1)
     return scalograms
+
+
+def compute_sigma_band(
+        inputs,
+        fs,
+        ntaps=41,
+        central_freq=13,
+        border_crop=0,
+        stride=1):
+    kernel = get_kernel(ntaps, central_freq, fs)
+    sigma_inputs = apply_kernel(inputs, kernel, border_crop, stride, 'sigma')
+    return sigma_inputs
+
+
+def apply_kernel(
+        inputs,
+        kernel,
+        border_crop=0,
+        stride=1,
+        name=None):
+
+    border_crop = int(border_crop / stride)
+    start = border_crop
+    if border_crop <= 0:
+        end = None
+    else:
+        end = -border_crop
+
+    if name is None:
+        name = "sigma"
+    with tf.variable_scope(name):
+        # Reshape input [batch, time_len] -> [batch, 1, time_len, 1]
+        inputs_expand = tf.expand_dims(inputs, axis=1)
+        inputs_expand = tf.expand_dims(inputs_expand, axis=3)
+        with tf.name_scope('filtering'):
+            # Reshape kernel [kernel_size] -> [1, kernel_size, 1, 1]
+            kernel_expand = np.reshape(kernel, newshape=(1, -1, 1, 1))
+            out_filter = tf.nn.conv2d(
+                input=inputs_expand, filter=kernel_expand,
+                strides=[1, 1, stride, 1], padding="SAME")
+            out_filter_crop = out_filter[:, :, start:end, :]
+        # Remove extra dim
+        outputs = tf.squeeze(out_filter_crop, axis=1, name="squeeze")
+    return outputs

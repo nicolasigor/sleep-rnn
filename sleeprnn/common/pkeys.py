@@ -128,6 +128,7 @@ TIME_CONV_FILTERS_3 = 'time_conv_filters_3'
 CWT_CONV_FILTERS_1 = 'cwt_conv_filters_1'
 CWT_CONV_FILTERS_2 = 'cwt_conv_filters_2'
 CWT_CONV_FILTERS_3 = 'cwt_conv_filters_3'
+SIGMA_FILTER_NTAPS = 'sigma_filter_ntaps'
 
 
 """ Loss params
@@ -237,7 +238,7 @@ default_params = {
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
     MAX_ITERS: 30000,
-    ITERS_STATS: 100,
+    ITERS_STATS: 50,
     ITERS_LR_UPDATE: 1000,
     REL_TOL_CRITERION: 0.0,
     LR_UPDATE_FACTOR: 0.5,
@@ -251,5 +252,6 @@ default_params = {
     KC_MIN_DURATION: 0.3,
     KC_MAX_DURATION: None,
     PREDICT_WITH_AUGMENTED_PAGE: True,
-    FACTOR_INIT_LR_FINE_TUNE: 1.0
+    FACTOR_INIT_LR_FINE_TUNE: 1.0,
+    SIGMA_FILTER_NTAPS: None,
 }

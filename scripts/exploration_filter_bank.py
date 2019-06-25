@@ -93,11 +93,11 @@ def filter_windowed_sinusoidal(signal, window_fn, fs, central_freq, ntaps, sinus
     time_array = time_array / fs
     b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
     window = window_fn(b_base.size)
-    # window = window / window.sum()
+    window = window / window.sum()
     kernel = b_base * window
 
     # Normalize kernel
-    kernel = kernel / np.linalg.norm(kernel)
+    # kernel = kernel / np.linalg.norm(kernel)
 
     # Apply kernel
     filtered = lfilter(kernel, [1.0], signal)
@@ -166,14 +166,14 @@ if __name__ == '__main__':
 
     # Filter Dict
     filters_dict = {
-        'Rosario': filter_sigma_rosario(signal, fs, ntaps=21),
+        # 'Rosario': filter_sigma_rosario(signal, fs, ntaps=41),
         # 'Rect': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=0), fs, 13, 43),
          #'Hamming': filter_windowed_sinusoidal(signal, np.hamming, fs, 13, 61),
-        'Hanning': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 61, sinusoidal_fn=np.cos),
+        #'Hanning': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 41),
         # 'Bartlett': filter_windowed_sinusoidal(signal, np.bartlett, fs, 13, 61),
         # 'Blackman': filter_windowed_sinusoidal(signal, np.blackman, fs, 13, 61),
         #'Kaiser': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=4), fs, 13, 41),
-        #'Gaussian': filter_windowed_sinusoidal(signal, gaussian_window, fs, 13, 51),
+        'Gaussian': filter_windowed_sinusoidal(signal, gaussian_window, fs, 13, 99),
     }
 
     # kernel stuff
