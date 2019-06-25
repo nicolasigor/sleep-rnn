@@ -124,11 +124,16 @@ FC_UNITS = 'fc_units'
 TIME_CONV_FILTERS_1 = 'time_conv_filters_1'
 TIME_CONV_FILTERS_2 = 'time_conv_filters_2'
 TIME_CONV_FILTERS_3 = 'time_conv_filters_3'
+SIGMA_FILTER_NTAPS = 'sigma_filter_ntaps'
 # cwt domain convolutional params
 CWT_CONV_FILTERS_1 = 'cwt_conv_filters_1'
 CWT_CONV_FILTERS_2 = 'cwt_conv_filters_2'
 CWT_CONV_FILTERS_3 = 'cwt_conv_filters_3'
-SIGMA_FILTER_NTAPS = 'sigma_filter_ntaps'
+# General cwt
+CWT_RETURN_REAL_PART = 'cwt_return_real_part'
+CWT_RETURN_IMAG_PART = 'cwt_return_imag_part'
+CWT_RETURN_MAGNITUDE = 'cwt_return_magnitude'
+CWT_RETURN_PHASE = 'cwt_return_phase'
 
 
 """ Loss params
@@ -254,4 +259,8 @@ default_params = {
     PREDICT_WITH_AUGMENTED_PAGE: True,
     FACTOR_INIT_LR_FINE_TUNE: 1.0,
     SIGMA_FILTER_NTAPS: None,
+    CWT_RETURN_REAL_PART: None,
+    CWT_RETURN_IMAG_PART: None,
+    CWT_RETURN_MAGNITUDE: None,
+    CWT_RETURN_PHASE: None
 }

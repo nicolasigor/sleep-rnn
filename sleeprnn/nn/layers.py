@@ -286,6 +286,141 @@ def cmorlet_layer_rectangular(
     return cwt, cwt_prebn
 
 
+def cmorlet_layer_general(
+        inputs,
+        fb_list,
+        fs,
+        lower_freq,
+        upper_freq,
+        n_scales,
+        stride,
+        training,
+        return_real_part=True,
+        return_imag_part=False,
+        return_magnitude=False,
+        return_phase=False,
+        size_factor=1.0,
+        border_crop=0,
+        use_avg_pool=True,
+        batchnorm=None,
+        trainable_wavelet=False,
+        reuse=False,
+        name=None):
+    """Builds the operations to compute a CWT with the complex morlet wavelet.
+
+    Args:
+        inputs: (2d tensor) input tensor of shape [batch_size, time_len]
+        fb_list: (list of floats) list of values for Fb (one for each scalogram)
+        fs: (float) Sampling frequency of the signals of interest
+        lower_freq: (float) Lower frequency to be considered for the scalogram.
+        upper_freq: (float) Upper frequency to be considered for the scalogram.
+        n_scales: (int) Number of scales to cover the frequency range.
+        stride: (Optional, int, defaults to 1) The stride of the sliding window
+            across the input. Default is 1.
+        border_crop: (Optional, int, defaults to 0) Non-negative integer that
+            specifies the number of samples to be removed at each border at the
+            end. This parameter allows to input a longer signal than the final
+            desired size to remove border effects of the CWT.
+        use_avg_pool: (Optional, boolean, defaults to True) Whether to compute
+            the CWT with stride 1 and then compute an average pooling in the
+            time axis with the given stride.
+        batchnorm: (Optional, {None, BN, BN_RENORM}, defaults to None) Type of
+            batchnorm to be used. BN is normal batchnorm, and BN_RENORM is a
+            batchnorm with renorm activated. If None, batchnorm is not applied.
+            The batchnorm layer is applied after the transformations.
+        training: (Optional, boolean, defaults to False) Indicates if it is the
+            training phase or not.
+        trainable_wavelet: (Optional, boolean, defaults to False) If True, the
+            fb params will be trained with backprop.
+        reuse: (Optional, boolean, defaults to False) Whether to reuse the layer
+            variables.
+        name: (Optional, string, defaults to None) A name for the operation.
+    """
+    if not (return_imag_part or return_real_part or return_magnitude or return_phase):
+        raise ValueError('CWT must return something, but all returns are false')
+
+    print('Using rectangular version of CWT')
+    with tf.variable_scope(name):
+        # Input sequence has shape [batch_size, time_len]
+        if use_avg_pool and stride > 1:
+            print('Using avg pool after CWT with stride %s' % stride)
+            cwt, wavelets = compute_cwt_rectangular(
+                inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
+                size_factor=size_factor,
+                flattening=True, border_crop=border_crop, stride=1,
+                trainable=trainable_wavelet)
+            cwt = tf.layers.average_pooling2d(
+                inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
+        else:
+            cwt, wavelets = compute_cwt_rectangular(
+                inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
+                size_factor=size_factor,
+                flattening=True, border_crop=border_crop, stride=stride,
+                trainable=trainable_wavelet)
+
+        # Output sequence has shape [batch_size, time_len, n_scales, channels]
+        cwt_prebn = cwt
+
+        # Unstack spectrograms
+        n_spect = 2 * len(fb_list)
+        cwt = tf.unstack(cwt, axis=-1)
+
+        total_return = []
+
+        for k in range(0, n_spect, 2):
+
+            real_part = cwt[k:k+1]
+            imag_part = cwt[k+1:k+2]
+
+            if return_real_part and return_imag_part:
+                # BN is shared between real and imaginary parts
+                real_imag = tf.concat([real_part, imag_part], axis=-1)
+                if batchnorm:
+                    real_imag = batchnorm_layer(
+                        real_imag, 'bn_real_imag_%d' % k, batchnorm=batchnorm,
+                        reuse=reuse, training=training, axis=2)
+                total_return.append(real_imag)
+
+            elif return_real_part:
+                if batchnorm:
+                    real_part_postbn = batchnorm_layer(
+                        real_part, 'bn_real_%d' % k, batchnorm=batchnorm,
+                        reuse=reuse, training=training, axis=2)
+                else:
+                    real_part_postbn = real_part
+                total_return.append(real_part_postbn)
+
+            elif return_imag_part:
+                if batchnorm:
+                    imag_part_postbn = batchnorm_layer(
+                        imag_part, 'bn_imag_%d' % k, batchnorm=batchnorm,
+                        reuse=reuse, training=training, axis=2)
+                else:
+                    imag_part_postbn = imag_part
+                total_return.append(imag_part_postbn)
+
+            if return_magnitude:
+                magnitude_part = tf.sqrt(
+                    tf.square(real_part) + tf.square(imag_part))
+                if batchnorm:
+                    magnitude_part = batchnorm_layer(
+                        magnitude_part, 'bn_magn_%d' % k, batchnorm=batchnorm,
+                        reuse=reuse, training=training, axis=2)
+                total_return.append(magnitude_part)
+
+            if return_phase:
+                phase_part = tf.atan2(imag_part, real_part)
+                if batchnorm:
+                    phase_part = batchnorm_layer(
+                        phase_part, 'bn_phase_%d' % k, batchnorm=batchnorm,
+                        reuse=reuse, training=training, axis=2)
+                total_return.append(phase_part)
+
+        cwt = tf.concat(total_return, axis=-1)
+        # Output sequence has shape [batch_size, time_len, n_scales, channels]
+    return cwt, cwt_prebn
+
+
 def conv2d_layer(
         inputs,
         filters,

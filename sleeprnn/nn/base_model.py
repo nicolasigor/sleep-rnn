@@ -183,6 +183,8 @@ class BaseModel(object):
             model_name = 'model_v17'
         elif model_version == constants.V18:
             model_name = 'model_v18'
+        elif model_version == constants.V19:
+            model_name = 'model_v19'
         elif model_version == constants.V20_CONCAT:
             model_name = 'model_v20_concat'
         elif model_version == constants.V20_INDEP:

@@ -353,6 +353,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v17
         elif model_version == constants.V18:
             model_fn = networks.wavelet_blstm_net_v18
+        elif model_version == constants.V19:
+            model_fn = networks.wavelet_blstm_net_v19
         elif model_version == constants.V20_INDEP:
             model_fn = networks.wavelet_blstm_net_v20_indep
         elif model_version == constants.V20_CONCAT:
