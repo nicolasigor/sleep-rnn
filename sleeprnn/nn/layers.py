@@ -368,9 +368,8 @@ def cmorlet_layer_general(
         total_return = []
 
         for k in range(0, n_spect, 2):
-
-            real_part = cwt[k:k+1]
-            imag_part = cwt[k+1:k+2]
+            real_part = tf.expand_dims(cwt[k], axis=3)
+            imag_part = tf.expand_dims(cwt[k+1], axis=3)
 
             if return_real_part and return_imag_part:
                 # BN is shared between real and imaginary parts

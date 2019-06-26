@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
     experiment_name = 'grid_v19'
@@ -75,6 +75,7 @@ if __name__ == '__main__':
     params[pkeys.CWT_CONV_FILTERS_3] = None
     params[pkeys.USE_RELU] = None
     params[pkeys.USE_LOG] = None
+    params[pkeys.MAX_ITERS] = 50
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -100,14 +101,23 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for time_filters in filters_list:
+                for return_real_imag_magn_phase in return_real_imag_magn_phase_list:
 
-                    params[pkeys.TIME_CONV_FILTERS_1] = time_filters[0]
-                    params[pkeys.TIME_CONV_FILTERS_2] = time_filters[1]
-                    params[pkeys.TIME_CONV_FILTERS_3] = time_filters[2]
+                    return_real_part = return_real_imag_magn_phase[0]
+                    return_imag_part = return_real_imag_magn_phase[1]
+                    return_magnitude = return_real_imag_magn_phase[2]
+                    return_phase = return_real_imag_magn_phase[3]
 
-                    folder_name = '%s_%s_%s' % (
-                        time_filters[0], time_filters[1], time_filters[2])
+                    params[pkeys.CWT_RETURN_REAL_PART] = return_real_part
+                    params[pkeys.CWT_RETURN_IMAG_PART] = return_imag_part
+                    params[pkeys.CWT_RETURN_MAGNITUDE] = return_magnitude
+                    params[pkeys.CWT_RETURN_PHASE] = return_phase
+
+                    folder_name = 'r_%d_i_%d_m_%d_p_%d' % (
+                        int(return_real_part),
+                        int(return_imag_part),
+                        int(return_magnitude),
+                        int(return_phase))
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

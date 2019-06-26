@@ -314,6 +314,7 @@ class WaveletBLSTM(BaseModel):
                 constants.V16,
                 constants.V17,
                 constants.V18,
+                constants.V19,
                 constants.V20_INDEP,
                 constants.V20_CONCAT
              ])
