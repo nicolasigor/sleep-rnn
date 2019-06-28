@@ -31,13 +31,13 @@ if __name__ == '__main__':
 
     print('Length of input:', demo_signal.size)
     fs = 200
-    time_axis = np.arange(demo_signal.size) / fs
+    time_axis = (np.arange(demo_signal.size) / fs)[100:-100]
 
     # Build computational
     tf.reset_default_graph()
     inputs = tf.placeholder(dtype=tf.float32, shape=[None, demo_signal.size],
                             name="feats_train_ph")
-    outputs = compute_sigma_band(inputs, fs, ntaps=41)
+    outputs = compute_sigma_band(inputs, fs, ntaps=41, border_crop=100)
     sess = tf.Session()
 
     results = sess.run(outputs, feed_dict={inputs: [demo_signal]})
@@ -46,14 +46,15 @@ if __name__ == '__main__':
     # Show results
     fig, ax = plt.subplots(2, 1, figsize=(10, 6), dpi=200)
     # Time-domain signals
-    ax[0].plot(time_axis, demo_signal.flatten(), label='Original')
+    ax[0].plot(time_axis, demo_signal.flatten()[100:-100], label='Original')
     ax[0].plot(time_axis, results.flatten(), label='Filtered')
     ax[0].set_title('Filter Test')
     ax[0].set_xlabel('Time [s]')
     ax[0].set_ylim([-50, 50])
     ax[0].legend()
 
-    ax[1].plot(time_axis, demo_signal.flatten() - results.flatten(), label='Residual')
+    # ax[1].plot(time_axis, demo_signal.flatten() - results.flatten(), label='Residual')
+    ax[1].plot(time_axis, results.flatten(), label='Filtered')
     ax[1].set_title('Filter Test')
     ax[1].set_xlabel('Time [s]')
     ax[1].set_ylim([-50, 50])

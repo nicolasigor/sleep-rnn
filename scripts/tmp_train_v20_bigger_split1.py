@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'v20'
+    experiment_name = 'v20_bigger'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -50,13 +50,14 @@ if __name__ == '__main__':
 
     # Complement experiment folder name with date
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = '%s_%s' % ('20190625', experiment_name)
+    experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
     version_filters_list = [
-        (constants.V20_INDEP, (32, 64, 128))
+        (constants.V20_INDEP, (64, 128, 256)),
+        (constants.V20_CONCAT, (128, 256, 512))
     ]
-    ntaps_list = [51, 61, 71]
+    ntaps_list = [41, 51, 61, 71]
     parameters_list = list(itertools.product(version_filters_list, ntaps_list))
 
     # Base parameters
