@@ -169,7 +169,7 @@ if __name__ == '__main__':
         'Rosario': filter_sigma_rosario(signal, fs, ntaps=21),
         # 'Rect': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=0), fs, 13, 43),
          #'Hamming': filter_windowed_sinusoidal(signal, np.hamming, fs, 13, 61),
-        'Hanning': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 61, sinusoidal_fn=np.cos),
+        'Cos+Hanning': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 61, sinusoidal_fn=np.cos),
         # 'Bartlett': filter_windowed_sinusoidal(signal, np.bartlett, fs, 13, 61),
         # 'Blackman': filter_windowed_sinusoidal(signal, np.blackman, fs, 13, 61),
         #'Kaiser': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=4), fs, 13, 41),
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
         ax[1].plot(
             time_axis, filtered_signal,
-            label='Result %s' % key, linewidth=1)
+            label='Result with Filter %s' % key, linewidth=1)
 
         kernel_full = kernel_base.copy()
         kernel_half_size = kernel.size // 2
@@ -206,33 +206,46 @@ if __name__ == '__main__':
             kernel_axis,
             get_central_crop(kernel_full, max_kernel_size_to_show),
             label='Filter %s' % key, linewidth=1)
+        ax[2].plot(
+            kernel_axis[start_kernel:end_kernel],
+            get_central_crop(kernel_full, max_kernel_size_to_show)[start_kernel:end_kernel],
+            linestyle=, marker='.')
 
         fft_kernel, freq_axis = power_spectrum(kernel_full, fs)
         fft_kernel = fft_kernel / fft_kernel.max()
         fft_kernel = fft_kernel[freq_axis <= max_freq]
         freq_axis = freq_axis[freq_axis <= max_freq]
 
-        response = fft_kernel# 20 * np.log10(np.abs(fft_kernel))
+        response = fft_kernel  # 20 * np.log10(np.abs(fft_kernel))
 
-        kernel_fwhm = fwhm(freq_axis, fft_kernel)
+        kernel_fwhm = fwhm(freq_axis, fft_kernel**2)
         ax[3].plot(
             freq_axis, response, #label='%s' % key,
             label='%s [%1.1f %1.1f] Hz' % (
                 key, kernel_fwhm[0], kernel_fwhm[1]),
             linewidth=1)
 
+    ax[1].set_title(
+        'Filtered signal',
+        fontsize=title_font)
     ax[1].set_xlim([time_axis[0], time_axis[-1]])
     ax[1].legend(loc='upper right', fontsize=other_font)
     ax[1].set_yticks([])
     ax[1].tick_params(labelsize=other_font)
     ax[1].set_xlabel('Time [s]', fontsize=other_font)
 
+    ax[2].set_title(
+        'Filter',
+        fontsize=title_font)
     ax[2].set_xlim([kernel_axis[0], kernel_axis[-1]])
     ax[2].legend(loc='upper right', fontsize=other_font)
     ax[2].set_yticks([])
     ax[2].tick_params(labelsize=other_font)
     ax[2].set_xlabel('Taps', fontsize=other_font)
 
+    ax[3].set_title(
+        'Frequency response of filter',
+        fontsize=title_font)
     ax[3].set_xlim([0, 40])
     ax[3].legend(loc='upper right', fontsize=other_font)
     #ax[3].set_yticks([])
