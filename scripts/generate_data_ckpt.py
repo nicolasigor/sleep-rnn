@@ -17,8 +17,8 @@ from sleeprnn.data.inta_ss import IntaSS
 
 if __name__ == '__main__':
 
-    datasets_class = [DreamsSS, DreamsKC, MassSS, MassKC, IntaSS]
-    repair_inta = False
+    datasets_class = [MassSS, IntaSS]
+    repair_inta = True
 
     for data_class in datasets_class:
         # Create checkpoint and load to check
