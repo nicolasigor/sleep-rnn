@@ -74,7 +74,7 @@ class IntaSS(Dataset):
         self.original_page_duration = 30  # Time of window page [s]
 
         # Sleep spindles characteristics
-        self.min_ss_duration = 0.3  # Minimum duration of SS in seconds
+        self.min_ss_duration = 0.5  # Minimum duration of SS in seconds
         self.max_ss_duration = 3  # Maximum duration of SS in seconds
 
         if repair_stamps:
@@ -154,7 +154,7 @@ class IntaSS(Dataset):
                 'StagesOnly_%s.txt' % subject_name)
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
-                'NewerWinsFix_SS_%s.txt' % subject_name)
+                'NewerWinsFix_v2_SS_%s.txt' % subject_name)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG: path_eeg_file,
@@ -231,8 +231,8 @@ class IntaSS(Dataset):
         return n2_pages
 
     def _repair_stamps(self):
-        print('Repairing INTA stamps (Newer Wins Strategy)')
-        filename_format = 'NewerWinsFix_SS_%s.txt'
+        print('Repairing INTA stamps (Newer Wins Strategy + 0.5s criterion)')
+        filename_format = 'NewerWinsFix_v2_SS_%s.txt'
         inta_folder = os.path.join(utils.PATH_DATA, PATH_INTA_RELATIVE)
         channel_for_txt = self.channel + 1
         for name in NAMES:
@@ -287,6 +287,17 @@ class IntaSS(Dataset):
             raw_marks_2 = raw_marks[valid == 2]
 
             print('Originally: %d marks with valid=1, %d marks with valid=2'
+                  % (len(raw_marks_1), len(raw_marks_2)))
+
+            # Remove marks with duration less than 0.5s
+            size_thr = 100
+            print('Removing events with less than %d samples.')
+            durations_1 = raw_marks_1[:, 1] - raw_marks_1[:, 0]
+            raw_marks_1 = raw_marks_1[durations_1 >= size_thr]
+            durations_2 = raw_marks_2[:, 1] - raw_marks_2[:, 0]
+            raw_marks_2 = raw_marks_2[durations_2 >= size_thr]
+
+            print('After duration criterion: %d marks with valid=1, %d marks with valid=2'
                   % (len(raw_marks_1), len(raw_marks_2)))
 
             # Now we add sequentially from the end (from newer marks), and we

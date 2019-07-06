@@ -32,20 +32,19 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'inta_meeting'
+    experiment_name = 'inta_05'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.INTA_SS_NAME,
-        constants.MASS_SS_NAME
+        constants.INTA_SS_NAME
     ]
 
-    description_str = 'inta meeting.'
+    description_str = 'inta post meeting. Fixing marks.'
     which_expert = 1
     verbose = True
 
@@ -54,12 +53,13 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    version_list = [constants.V15, constants.V20_INDEP]
+    version_list = [constants.V15]
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL
-    params[pkeys.SIGMA_FILTER_NTAPS] = 71
+    params[pkeys.SS_MIN_DURATION] = 0.4
+    params[pkeys.SS_MIN_SEPARATION] = 0.5
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
