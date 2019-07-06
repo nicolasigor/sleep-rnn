@@ -291,7 +291,7 @@ class IntaSS(Dataset):
 
             # Remove marks with duration less than 0.5s
             size_thr = 100
-            print('Removing events with less than %d samples.')
+            print('Removing events with less than %d samples.' % size_thr)
             durations_1 = raw_marks_1[:, 1] - raw_marks_1[:, 0]
             raw_marks_1 = raw_marks_1[durations_1 >= size_thr]
             durations_2 = raw_marks_2[:, 1] - raw_marks_2[:, 0]
