@@ -209,7 +209,7 @@ if __name__ == '__main__':
         ax[2].plot(
             kernel_axis[start_kernel:end_kernel],
             get_central_crop(kernel_full, max_kernel_size_to_show)[start_kernel:end_kernel],
-            linestyle=, marker='.')
+            marker='.')
 
         fft_kernel, freq_axis = power_spectrum(kernel_full, fs)
         fft_kernel = fft_kernel / fft_kernel.max()

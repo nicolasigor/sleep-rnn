@@ -112,19 +112,46 @@ def narrow_filter(signal, fs, lowcut, highcut):
     ntaps = 21
     width = 0.5
     cutoff = [lowcut, highcut]
-    b = firwin(ntaps, cutoff, width, pass_zero=False, fs=fs)
-    filtered_signal = lfilter(b, [1.0], signal)
-    filtered_signal = np.append(np.array([0, 0]), filtered_signal) - np.append(
-        filtered_signal, np.array([0, 0]))
-    # filtered_signal = filtered_signal[0:len(filtered_signal) - 2]
-    filtered_signal = filtered_signal[1:(len(filtered_signal) - 1)]
 
-    # Shift to align phase
-    n_shift = (ntaps-1) // 2
-    filtered_signal_aligned = np.zeros(filtered_signal.shape)
-    filtered_signal_aligned[:-n_shift] = filtered_signal[n_shift:]
+    # Kernel design
+    b_base = firwin(ntaps, cutoff, width, pass_zero=False, fs=fs)
+    kernel = np.append(np.array([0, 0]), b_base) - np.append(
+        b_base, np.array([0, 0]))
 
-    return filtered_signal_aligned
+    # Normalize kernel
+    kernel = kernel / np.linalg.norm(kernel)
+
+    # Apply kernel
+    filtered = lfilter(kernel, [1.0], signal)
+    # Shift
+    ntaps = kernel.size
+    filtered_signal = np.zeros(filtered.shape)
+    filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
+    return filtered_signal
+
+
+def filter_windowed_sinusoidal(
+        signal, fs, central_freq, ntaps,
+        sinusoidal_fn=np.cos, window_fn=np.hanning):
+
+    # Kernel design
+    time_array = np.arange(ntaps) - ntaps // 2
+    time_array = time_array / fs
+    b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
+    window = window_fn(b_base.size)
+    # window = window / window.sum()
+    kernel = b_base * window
+
+    # Normalize kernel
+    kernel = kernel / np.linalg.norm(kernel)
+
+    # Apply kernel
+    filtered = lfilter(kernel, [1.0], signal)
+    # Shift
+    ntaps = kernel.size
+    filtered_signal = np.zeros(filtered.shape)
+    filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
+    return filtered_signal
 
 
 def get_kernel(ntaps, central_freq, fs=1, window_fn=np.hanning, sinusoidal_fn=np.cos):
