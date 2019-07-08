@@ -189,6 +189,8 @@ class BaseModel(object):
             model_name = 'model_v20_concat'
         elif model_version == constants.V20_INDEP:
             model_name = 'model_v20_indep'
+        elif model_version == constants.V21:
+            model_name = 'model_v21'
         elif model_version == constants.DEBUG:
             model_name = 'model_debug'
         else:

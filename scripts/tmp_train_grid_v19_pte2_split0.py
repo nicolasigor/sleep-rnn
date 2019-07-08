@@ -32,19 +32,20 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [3]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'inta_05'
+    experiment_name = 'grid_v19_pte2'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.INTA_SS_NAME
+        constants.MASS_SS_NAME,
+        constants.MASS_KC_NAME
     ]
 
-    description_str = 'inta post meeting. Fixing marks.'
+    description_str = 'v19 grid for combinations, pte 2'
     which_expert = 1
     verbose = True
 
@@ -53,13 +54,26 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    version_list = [constants.V15]
+    return_real_imag_magn_phase_list = [
+        (True, True, True, False),
+        (False, False, True, False),
+        (True, True, True, True),
+        (True, True, False, False)
+    ]
+    init_fb_list = [0.5, 1.0]
+
+    parameters_list = list(itertools.product(
+        return_real_imag_magn_phase_list, init_fb_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL
-    params[pkeys.SS_MIN_DURATION] = 0.4
-    params[pkeys.SS_MIN_SEPARATION] = 0.5
+    params[pkeys.MODEL_VERSION] = constants.V19
+    params[pkeys.CWT_CONV_FILTERS_1] = 32
+    params[pkeys.CWT_CONV_FILTERS_2] = 64
+    params[pkeys.CWT_CONV_FILTERS_3] = None
+    params[pkeys.USE_RELU] = None
+    params[pkeys.USE_LOG] = None
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -85,11 +99,24 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version in version_list:
+                for return_real_imag_magn_phase, init_fb in parameters_list:
 
-                    params[pkeys.MODEL_VERSION] = model_version
+                    return_real_part = return_real_imag_magn_phase[0]
+                    return_imag_part = return_real_imag_magn_phase[1]
+                    return_magnitude = return_real_imag_magn_phase[2]
+                    return_phase = return_real_imag_magn_phase[3]
 
-                    folder_name = '%s' % model_version
+                    params[pkeys.CWT_RETURN_REAL_PART] = return_real_part
+                    params[pkeys.CWT_RETURN_IMAG_PART] = return_imag_part
+                    params[pkeys.CWT_RETURN_MAGNITUDE] = return_magnitude
+                    params[pkeys.CWT_RETURN_PHASE] = return_phase
+                    params[pkeys.FB_LIST] = [init_fb]
+
+                    folder_name = 'r_%d_i_%d_m_%d_p_%d_fb_%s' % (
+                        int(return_real_part),
+                        int(return_imag_part),
+                        int(return_magnitude),
+                        int(return_phase), init_fb)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

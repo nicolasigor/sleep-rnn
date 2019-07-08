@@ -29,10 +29,10 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190625_v20'
+    ckpt_folder = '20190704_inta_meeting'
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.INTA_SS_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
