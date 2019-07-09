@@ -166,10 +166,12 @@ if __name__ == '__main__':
 
     # Filter Dict
     filters_dict = {
-        'Rosario': filter_sigma_rosario(signal, fs, ntaps=21),
+        # 'Rosario': filter_sigma_rosario(signal, fs, ntaps=21),
         # 'Rect': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=0), fs, 13, 43),
          #'Hamming': filter_windowed_sinusoidal(signal, np.hamming, fs, 13, 61),
-        'Cos+Hanning': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 61, sinusoidal_fn=np.cos),
+        'Cos+Hanning 1': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 41, sinusoidal_fn=np.cos),
+        'Cos+Hanning 2': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 51, sinusoidal_fn=np.cos),
+        # 'Cos+Hanning 2': filter_windowed_sinusoidal(signal, np.hanning, fs, 8, 61, sinusoidal_fn=np.cos),
         # 'Bartlett': filter_windowed_sinusoidal(signal, np.bartlett, fs, 13, 61),
         # 'Blackman': filter_windowed_sinusoidal(signal, np.blackman, fs, 13, 61),
         #'Kaiser': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=4), fs, 13, 41),
@@ -206,10 +208,10 @@ if __name__ == '__main__':
             kernel_axis,
             get_central_crop(kernel_full, max_kernel_size_to_show),
             label='Filter %s' % key, linewidth=1)
-        ax[2].plot(
-            kernel_axis[start_kernel:end_kernel],
-            get_central_crop(kernel_full, max_kernel_size_to_show)[start_kernel:end_kernel],
-            marker='.')
+        # ax[2].plot(
+        #     kernel_axis[start_kernel:end_kernel],
+        #     get_central_crop(kernel_full, max_kernel_size_to_show)[start_kernel:end_kernel],
+        #     marker='.')
 
         fft_kernel, freq_axis = power_spectrum(kernel_full, fs)
         fft_kernel = fft_kernel / fft_kernel.max()
