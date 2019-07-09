@@ -21,31 +21,58 @@ from sleeprnn.data.utils import power_spectrum
 
 CUSTOM_COLORS = {'red': '#c62828', 'grey': '#455a64', 'blue': '#0277bd', 'green': '#43a047'}
 
+
+def filter_stamps(stamps, start_sample, end_sample):
+    pages_list = []
+    for i in range(stamps.shape[0]):
+        start_inside = (stamps[i, 0] > start_sample) and (stamps[i, 0] < end_sample)
+        end_inside = (stamps[i, 1] > start_sample) and (stamps[i, 1] < end_sample)
+
+        if start_inside or end_inside:
+            pages_list.append(stamps[i, :])
+    return pages_list
+
+
 if __name__ == '__main__':
+    database_name = constants.INTA_SS_NAME
+    subject_id = 4
+    location = 8165  # 337  # 425
+    location_is_time = True  # If False, is stamp idx
+    show_magnitude = True
+
     init_fb = 0.5
     border_duration = 5
-    context_duration = 6
+    context_duration = 10
     n_scales = 8
     upper_freq = 20
     lower_freq = 1
 
     dataset = load_dataset(
-        constants.MASS_SS_NAME,
+        database_name,
         params={pkeys.NORM_COMPUTATION_MODE: constants.NORM_GLOBAL})
     fs = dataset.fs
-    x = dataset.get_subject_signal(subject_id=2, normalize_clip=True)
-    y = dataset.get_subject_stamps(subject_id=2)
-    which_stamp = 426  # 337  # 425
+    x = dataset.get_subject_signal(subject_id=subject_id, normalize_clip=True)
+    y = dataset.get_subject_stamps(subject_id=subject_id)
 
     border_size = int(fs * border_duration)
     context_size = int((context_duration + 2*border_duration) * fs)
-    center_sample = int(y[which_stamp, :].mean())
+
+    if location_is_time:
+        center_sample = int(location * fs)
+    else:
+        center_sample = int(y[location, :].mean())
+
     start_sample = center_sample - (context_size // 2)
     end_sample = center_sample + (context_size // 2)
     demo_signal = x[start_sample:end_sample]
 
     print('Length of input:', demo_signal.size)
-    time_axis = (np.arange(demo_signal.size) / fs)[border_size:-border_size]
+    start_sample_display = start_sample + border_size
+    end_sample_display = end_sample - border_size
+    time_axis = np.arange(start_sample_display, end_sample_display) / fs
+
+    # Eligible stamps
+    segment_stamps = filter_stamps(y, start_sample_display, end_sample_display)
 
     # Build computational
     tf.reset_default_graph()
@@ -81,19 +108,39 @@ if __name__ == '__main__':
     print(results_real.shape, results_imag.shape, kernels_real.shape, kernels_imag.shape)
 
     # Show results
-    fig = plt.figure(figsize=(10, 8), dpi=100)
+    x_ticks_major = np.ceil(time_axis[0]) + np.arange(context_duration)
+    x_ticks_minor = np.arange(np.ceil(time_axis[0]), np.ceil(time_axis[-1]), 0.5)
+    fig = plt.figure(figsize=(10, 8), dpi=150)
     gs = gridspec.GridSpec(4, 1, height_ratios=[2, 1, 6, 1])
 
     # ORIGINAL SIGNAL
     ax = fig.add_subplot(gs[0])
+    y_max = 8
     ax.plot(
         time_axis, demo_signal.flatten()[border_size:-border_size],
-        label='Original', linewidth=1, color=CUSTOM_COLORS['grey'])
-    # ax.set_ylim([-5, 5])
+        label='Signal', linewidth=1, color=CUSTOM_COLORS['grey'])
+
+    stamp_label_used = False
+    for expert_stamp in segment_stamps:
+        if stamp_label_used:
+            label = None
+        else:
+            label = dataset.event_name
+            stamp_label_used = True
+        ax.fill_between(
+            expert_stamp / fs, y_max, -y_max,
+            facecolor=CUSTOM_COLORS['blue'], alpha=0.3, label=label,
+            edgecolor='k', linewidth=1.5)
+
+    ax.set_ylim([-y_max, y_max])
     ax.set_yticks([])
     ax.set_xlim([time_axis[0], time_axis[-1]])
     ax.legend(loc='upper right', fontsize=8)
     ax.tick_params(labelsize=8)
+    ax.set_xlabel('Time [s]', fontsize=8)
+    ax.set_xticks(x_ticks_major)
+    ax.set_xticks(x_ticks_minor, minor=True)
+    ax.grid(b=True, axis='x', which='minor')
 
     # KERNEL
     ax = fig.add_subplot(gs[1])
@@ -165,24 +212,37 @@ if __name__ == '__main__':
         if i == 0:
             label_real = 'Real Part'
             label_imag = 'Imag Part'
+            label_magnitude = 'Magnitude'
         else:
             label_real = None
             label_imag = None
+            label_magnitude = None
         center_scale = -i*scale_sep
 
         signal_to_show = results_imag[:, i] * compensation_factor_list[i]
         signal_to_show = (signal_to_show + max_value) / (2 * max_value) - 0.5
-        signal_to_show = signal_to_show + center_scale
-        ax.plot(
-            time_axis, signal_to_show,
-            linewidth=1, color=CUSTOM_COLORS['red'], label=label_imag)
+        signal_to_show_imag = signal_to_show + center_scale
 
         signal_to_show = results_real[:, i] * compensation_factor_list[i]
         signal_to_show = (signal_to_show + max_value) / (2 * max_value) - 0.5
-        signal_to_show = signal_to_show + center_scale
-        ax.plot(
-            time_axis, signal_to_show,
-            linewidth=1, color=CUSTOM_COLORS['blue'], label=label_real)
+        signal_to_show_real = signal_to_show + center_scale
+
+        if show_magnitude:
+            magnitude_to_show = np.sqrt(
+                results_imag[:, i] ** 2 + results_real[:, i] ** 2
+            ) * compensation_factor_list[i]
+            magnitude_to_show = (magnitude_to_show + max_value) / (2 * max_value) - 0.5
+            magnitude_to_show = magnitude_to_show + center_scale
+            ax.fill_between(
+                time_axis, magnitude_to_show, center_scale,
+                linewidth=1, color=CUSTOM_COLORS['blue'], label=label_magnitude)
+        else:
+            ax.plot(
+                time_axis, signal_to_show_imag,
+                linewidth=1, color=CUSTOM_COLORS['red'], label=label_imag)
+            ax.plot(
+                time_axis, signal_to_show_real,
+                linewidth=1, color=CUSTOM_COLORS['blue'], label=label_real)
 
     ax.set_yticks([-scale_sep * k for k in range(n_scales)])
     ax.set_yticklabels(np.round(frequencies, decimals=1))
@@ -191,6 +251,9 @@ if __name__ == '__main__':
     ax.set_xlabel('Time [s]', fontsize=8)
     ax.tick_params(labelsize=8)
     ax.legend(loc='upper right', fontsize=8)
+    ax.set_xticks(x_ticks_major)
+    ax.set_xticks(x_ticks_minor, minor=True)
+    ax.grid(b=True, axis='x', which='minor')
 
     # Response
     ax = fig.add_subplot(gs[3])
