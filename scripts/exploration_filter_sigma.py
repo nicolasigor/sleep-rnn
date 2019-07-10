@@ -92,12 +92,10 @@ def filter_windowed_sinusoidal(signal, window_fn, fs, central_freq, ntaps, sinus
     time_array = np.arange(ntaps) - ntaps // 2
     time_array = time_array / fs
     b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
+    cos_base = np.cos(2 * np.pi * central_freq * time_array)
     window = window_fn(b_base.size)
-    # window = window / window.sum()
-    kernel = b_base * window
-
-    # Normalize kernel
-    kernel = kernel / np.linalg.norm(kernel)
+    norm_factor = np.sum(window * (cos_base ** 2))
+    kernel = b_base * window / norm_factor
 
     # Apply kernel
     filtered = lfilter(kernel, [1.0], signal)
@@ -147,7 +145,7 @@ if __name__ == '__main__':
     time_axis = time_axis - start_sample / fs
 
     # ----------------- PLOT
-    fig, ax = plt.subplots(4, 1, figsize=(8, 8), dpi=200)
+    fig, ax = plt.subplots(4, 1, figsize=(6, 6), dpi=100)
     title_font = 9
     other_font = 7
 
@@ -169,8 +167,8 @@ if __name__ == '__main__':
         # 'Rosario': filter_sigma_rosario(signal, fs, ntaps=21),
         # 'Rect': filter_windowed_sinusoidal(signal, lambda x: np.kaiser(x, beta=0), fs, 13, 43),
          #'Hamming': filter_windowed_sinusoidal(signal, np.hamming, fs, 13, 61),
-        'Cos+Hanning 1': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 41, sinusoidal_fn=np.cos),
-        'Cos+Hanning 2': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 51, sinusoidal_fn=np.cos),
+        'Sigma': filter_windowed_sinusoidal(signal, np.hanning, fs, 13, 51, sinusoidal_fn=np.cos),
+        'Below': filter_windowed_sinusoidal(signal, np.hanning, fs, 6, 71, sinusoidal_fn=np.cos),
         # 'Cos+Hanning 2': filter_windowed_sinusoidal(signal, np.hanning, fs, 8, 61, sinusoidal_fn=np.cos),
         # 'Bartlett': filter_windowed_sinusoidal(signal, np.bartlett, fs, 13, 61),
         # 'Blackman': filter_windowed_sinusoidal(signal, np.blackman, fs, 13, 61),

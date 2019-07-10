@@ -130,20 +130,41 @@ def narrow_filter(signal, fs, lowcut, highcut):
     return filtered_signal
 
 
+# def filter_windowed_sinusoidal(
+#         signal, fs, central_freq, ntaps,
+#         sinusoidal_fn=np.cos, window_fn=np.hanning):
+#
+#     # Kernel design
+#     time_array = np.arange(ntaps) - ntaps // 2
+#     time_array = time_array / fs
+#     b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
+#     window = window_fn(b_base.size)
+#     # window = window / window.sum()
+#     kernel = b_base * window
+#
+#     # Normalize kernel
+#     kernel = kernel / np.linalg.norm(kernel)
+#
+#     # Apply kernel
+#     filtered = lfilter(kernel, [1.0], signal)
+#     # Shift
+#     ntaps = kernel.size
+#     filtered_signal = np.zeros(filtered.shape)
+#     filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
+#     return filtered_signal
+
+
 def filter_windowed_sinusoidal(
         signal, fs, central_freq, ntaps,
         sinusoidal_fn=np.cos, window_fn=np.hanning):
-
     # Kernel design
     time_array = np.arange(ntaps) - ntaps // 2
     time_array = time_array / fs
     b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
+    cos_base = np.cos(2 * np.pi * central_freq * time_array)
     window = window_fn(b_base.size)
-    # window = window / window.sum()
-    kernel = b_base * window
-
-    # Normalize kernel
-    kernel = kernel / np.linalg.norm(kernel)
+    norm_factor = np.sum(window * (cos_base ** 2))
+    kernel = b_base * window / norm_factor
 
     # Apply kernel
     filtered = lfilter(kernel, [1.0], signal)
