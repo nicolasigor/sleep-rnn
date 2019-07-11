@@ -240,3 +240,21 @@ def average_metric_with_list(
         all_avg_list.append(avg_metric)
     all_avg = np.mean(all_avg_list)
     return all_avg
+
+
+def get_iou(single_event_1, single_event_2):
+    intersection = min(
+        single_event_1[1], single_event_2[1]
+    ) - max(
+        single_event_1[0], single_event_2[0]
+    ) + 1
+    union = max(
+        single_event_1[1], single_event_2[1]
+    ) - min(
+        single_event_1[0], single_event_2[0]
+    ) + 1
+    if union > 0:
+        this_iou = intersection / union
+    else:
+        this_iou = 0
+    return this_iou

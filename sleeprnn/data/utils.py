@@ -106,6 +106,14 @@ def broad_filter(signal, fs, lowcut=0.1, highcut=35):
     return filtered_signal
 
 
+def filter_fir(kernel, signal):
+    filtered_signal = lfilter(kernel, 1.0, signal)
+    n_shift = (kernel.size - 1) // 2
+    aligned = np.zeros(filtered_signal.shape)
+    aligned[:-n_shift] = filtered_signal[n_shift:]
+    return aligned
+
+
 def narrow_filter(signal, fs, lowcut, highcut):
     """Returns filtered signal sampled at fs Hz, with a [lowcut, highcut] Hz
     bandpass."""
@@ -122,36 +130,8 @@ def narrow_filter(signal, fs, lowcut, highcut):
     kernel = kernel / np.linalg.norm(kernel)
 
     # Apply kernel
-    filtered = lfilter(kernel, [1.0], signal)
-    # Shift
-    ntaps = kernel.size
-    filtered_signal = np.zeros(filtered.shape)
-    filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
+    filtered_signal = filter_fir(kernel, signal)
     return filtered_signal
-
-
-# def filter_windowed_sinusoidal(
-#         signal, fs, central_freq, ntaps,
-#         sinusoidal_fn=np.cos, window_fn=np.hanning):
-#
-#     # Kernel design
-#     time_array = np.arange(ntaps) - ntaps // 2
-#     time_array = time_array / fs
-#     b_base = sinusoidal_fn(2 * np.pi * central_freq * time_array)
-#     window = window_fn(b_base.size)
-#     # window = window / window.sum()
-#     kernel = b_base * window
-#
-#     # Normalize kernel
-#     kernel = kernel / np.linalg.norm(kernel)
-#
-#     # Apply kernel
-#     filtered = lfilter(kernel, [1.0], signal)
-#     # Shift
-#     ntaps = kernel.size
-#     filtered_signal = np.zeros(filtered.shape)
-#     filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
-#     return filtered_signal
 
 
 def filter_windowed_sinusoidal(
@@ -167,11 +147,7 @@ def filter_windowed_sinusoidal(
     kernel = b_base * window / norm_factor
 
     # Apply kernel
-    filtered = lfilter(kernel, [1.0], signal)
-    # Shift
-    ntaps = kernel.size
-    filtered_signal = np.zeros(filtered.shape)
-    filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
+    filtered_signal = filter_fir(kernel, signal)
     return filtered_signal
 
 
@@ -462,3 +438,59 @@ def stamp_intersects_set(single_stamp, set_stamps):
         if intersection > 0:
             return True
     return False
+
+
+def filter_stamps(stamps, start_sample, end_sample, return_idx=False):
+    useful_idx = np.where(
+        (stamps[:, 0] >= start_sample) & (stamps[:, 1] <= end_sample))[0]
+    useful_stamps = stamps[useful_idx, :]
+
+    if return_idx:
+        return_tuple = (useful_stamps, useful_idx)
+    else:
+        return_tuple = useful_stamps
+    return return_tuple
+
+
+def get_overlap_matrix(stamps_1, stamps_2):
+    # Matrix of overlap, rows are events, columns are detections
+    n_det = stamps_2.shape[0]
+    n_gs = stamps_1.shape[0]
+    overlaps = np.zeros((n_gs, n_det))
+    for i in range(n_gs):
+        candidates = np.where(
+            (stamps_2[:, 0] <= stamps_1[i, 1])
+            & (stamps_2[:, 1] >= stamps_1[i, 0]))[0]
+        for j in candidates:
+            intersection = min(
+                stamps_1[i, 1], stamps_2[j, 1]
+            ) - max(
+                stamps_1[i, 0], stamps_2[j, 0]
+            ) + 1
+            if intersection > 0:
+                overlaps[i, j] = 1
+    return overlaps
+
+
+def overlapping_groups(overlap_matrix):
+    groups_overlap = [[0]]
+    for i in range(overlap_matrix.shape[0]):
+        visited = np.any([i in single_group for single_group in groups_overlap])
+        if not visited:
+            # Check if intersects with an existent group
+            added = False
+            for single_group in groups_overlap:
+                is_overlapping = np.any(overlap_matrix[i, single_group])
+                if is_overlapping:
+                    single_group.append(i)
+                    added = True
+                    break
+            if not added:
+                # Then variable is a new group
+                groups_overlap.append([i])
+
+    # Sort groups
+    for single_group in groups_overlap:
+        single_group.sort()
+
+    return groups_overlap

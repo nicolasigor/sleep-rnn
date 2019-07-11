@@ -15,7 +15,6 @@ project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
 from sleeprnn.data.loader import load_dataset
-from sleeprnn.data.utils import power_spectrum
 
 CUSTOM_COLOR = {
     'red': '#c62828', 'grey': '#455a64', 'blue': '#0277bd', 'green': '#43a047'}
@@ -40,6 +39,18 @@ def gaussian_window(ntaps):
     return spsignal.gaussian(ntaps, std=ntaps/8)
 
 
+def power_spectrum(signal, fs):
+    """Returns the single-sided power spectrum of the signal using FFT"""
+    n = signal.size
+    y = np.fft.fft(signal)
+    y = np.abs(y) / n
+    power = y[:n // 2]
+    power[1:-1] = 2 * power[1:-1]
+    freq = np.fft.fftfreq(n, d=1 / fs)
+    freq = freq[:n // 2]
+    return power, freq
+
+
 def fwhm(x, y, k=3):
     """
     Determine full-with-half-maximum of a peaked set of points, x and y.
@@ -62,32 +73,8 @@ def fwhm(x, y, k=3):
         return roots
 
 
-# def filter_sigma_alt_1(signal, fs):
-#     ntaps = 21
-#     cutoff = [12, 14]
-#
-#     # Kernel design
-#     n_points = 512
-#     cutoff_norm = np.asarray(cutoff) / (fs/2)
-#     freq_array = np.arange(n_points + 1) / n_points
-#     gain = np.zeros(freq_array.shape)
-#     gain[1:] = 1 / (1 + np.exp(- 100 * (freq_array[1:] - cutoff_norm[0])))
-#     gain[1:] -= 1 / (1 + np.exp(- 100 * (freq_array[1:] - cutoff_norm[1])))
-#     kernel = firwin2(ntaps, freq_array, gain)
-#
-#     # Normalize kernel
-#     kernel = kernel / np.linalg.norm(kernel)
-#
-#     # Apply kernel
-#     filtered = lfilter(kernel, [1.0], signal)
-#     # Shift
-#     ntaps = kernel.size
-#     filtered_signal = np.zeros(filtered.shape)
-#     filtered_signal[:-(ntaps - 1) // 2] = filtered[(ntaps - 1) // 2:]
-#     return filtered_signal, kernel
-
-
-def filter_windowed_sinusoidal(signal, window_fn, fs, central_freq, ntaps, sinusoidal_fn=np.cos):
+def filter_windowed_sinusoidal(
+        signal, window_fn, fs, central_freq, ntaps, sinusoidal_fn=np.cos):
     # Kernel design
     time_array = np.arange(ntaps) - ntaps // 2
     time_array = time_array / fs
@@ -133,7 +120,7 @@ if __name__ == '__main__':
     fs = dataset.fs
     x = dataset.get_subject_signal(subject_id=2, normalize_clip=False)
     y = dataset.get_subject_stamps(subject_id=2)
-    which_stamp = 338  # 337  # 425
+    which_stamp = 425  # 337  # 425
     context_size = 6
     center_sample = int(y[which_stamp, :].mean())
     start_sample = center_sample - (context_size//2) * fs
@@ -148,6 +135,10 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(4, 1, figsize=(6, 6), dpi=100)
     title_font = 9
     other_font = 7
+
+    # display_stamps = y[useful_stamps] - start_sample
+    # np.save('demo_mark.npy', display_stamps)
+
 
     # Signal
     ax[0].set_title(

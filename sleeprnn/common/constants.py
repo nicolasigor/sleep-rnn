@@ -74,6 +74,13 @@ NORM_IQR = 'norm_iqr'
 NORM_STD = 'norm_std'
 NORM_GLOBAL = 'norm_global'
 
+# Colors
+RED = 'red'
+BLUE = 'blue'
+GREEN = 'green'
+GREY = 'grey'
+DARK = 'dark'
+
 # Model versions
 DUMMY = 'dummy'
 DEBUG = 'debug'

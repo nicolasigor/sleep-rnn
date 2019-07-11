@@ -198,7 +198,7 @@ PREDICT_WITH_AUGMENTED_PAGE = 'predict_with_augmented_page'
 # Default parameters dictionary
 default_params = {
     FS: 200,
-    NORM_COMPUTATION_MODE: constants.NORM_IQR,
+    NORM_COMPUTATION_MODE: constants.NORM_GLOBAL,
     BATCH_SIZE: 32,
     SHUFFLE_BUFFER_SIZE: 1000,
     PREFETCH_BUFFER_SIZE: 2,
