@@ -70,7 +70,8 @@ def read_signals_from_edf(filepath):
     return signal_dict
 
 
-def load_raw_inta_stamps(path_stamps, path_signals, min_samples=20, chn_idx=0):
+def load_raw_inta_stamps(
+        path_stamps, path_signals, min_samples=20, chn_idx=0, max_samples=1400):
     with pyedflib.EdfReader(path_signals) as file:
         signal = file.readSignal(chn_idx)
         channel_name = file.getLabel(chn_idx)
@@ -102,7 +103,18 @@ def load_raw_inta_stamps(path_stamps, path_signals, min_samples=20, chn_idx=0):
         if data[i, 1] - data[i, 0] >= min_samples:
             new_data.append(data[i, :])
         else:
-            print('Stamp with too few samples removed')
+            this_n_samples = data[i, 1] - data[i, 0]
+            print('Stamp with too few samples removed (%d)' % this_n_samples)
+    data = np.stack(new_data, axis=0)
+
+    # Remove marks with duration greater than max_samples
+    new_data = []
+    for i in range(data.shape[0]):
+        if data[i, 1] - data[i, 0] <= max_samples:
+            new_data.append(data[i, :])
+        else:
+            this_n_samples = data[i, 1] - data[i, 0]
+            print('Stamp with too many samples removed (%d)' % this_n_samples)
     data = np.stack(new_data, axis=0)
 
     # Remove stamps outside signal boundaries
