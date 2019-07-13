@@ -2893,6 +2893,18 @@ def wavelet_blstm_net_v21(
         # Flattening for dense part
         outputs_cwt = layers.sequence_flatten(outputs_cwt, 'flatten')
 
+        # Dropout before concatenation
+        outputs_time = layers.dropout_layer(
+            outputs_time, 'drop_time',
+            drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+        outputs_cwt = layers.dropout_layer(
+            outputs_cwt, 'drop_cwt',
+            drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+
         # Concatenate both paths
         outputs = tf.concat([outputs_time, outputs_cwt], axis=-1)
 
@@ -2902,9 +2914,9 @@ def wavelet_blstm_net_v21(
             params[pkeys.INITIAL_LSTM_UNITS],
             n_layers=2,
             num_dirs=constants.BIDIRECTIONAL,
-            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_first_lstm=None,
             dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
-            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_first_lstm=None,
             drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
             training=training,
             name='multi_layer_blstm')
