@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'report_v21'
+    experiment_name = 'report_v21_pte1'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -58,7 +58,6 @@ if __name__ == '__main__':
         (64, 128, 256)
     ]
     cwt_filters_list = [
-        (32, 64),
         (32, 32)
     ]
     fb_init_list = [
@@ -69,7 +68,7 @@ if __name__ == '__main__':
         (True, True, False, False)
     ]
     drop_rate_before_lstm_list = [
-        0.5, 0.3, 0.2
+        0.3
     ]
     parameter_list = list(itertools.product(
         time_filters_list,

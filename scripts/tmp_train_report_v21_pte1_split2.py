@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [3]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'report_v11'
+    experiment_name = 'report_v21_pte1'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         constants.MASS_KC_NAME
     ]
 
-    description_str = 'v11'
+    description_str = 'v21'
     which_expert = 1
     verbose = True
 
@@ -54,18 +54,36 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    filters_list = [
-        (128, 256, 512),
-        (64, 256, 512),
-        (32, 256, 512),
-        (64, 128, 256),
-        (32, 128, 256)
+    time_filters_list = [
+        (64, 128, 256)
     ]
+    cwt_filters_list = [
+        (32, 32)
+    ]
+    fb_init_list = [
+        2.0, 1.0, 0.5
+    ]
+    cwt_return_rimp_list = [
+        (True, True, True, False),
+        (True, True, False, False)
+    ]
+    drop_rate_before_lstm_list = [
+        0.3
+    ]
+    parameter_list = list(itertools.product(
+        time_filters_list,
+        cwt_filters_list,
+        fb_init_list,
+        cwt_return_rimp_list,
+        drop_rate_before_lstm_list
+    ))
+
+    print('Number of combinations %d' % len(parameter_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL
-    params[pkeys.MODEL_VERSION] = constants.V11
+    params[pkeys.MODEL_VERSION] = constants.V21
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -91,14 +109,35 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for time_filters in filters_list:
+                for time_filters, cwt_filters, fb_init, cwt_return_rimp, \
+                    drop_rate_before_lstm in parameter_list:
 
                     params[pkeys.TIME_CONV_FILTERS_1] = time_filters[0]
                     params[pkeys.TIME_CONV_FILTERS_2] = time_filters[1]
                     params[pkeys.TIME_CONV_FILTERS_3] = time_filters[2]
 
-                    folder_name = '%s_%s_%s' % (
-                        time_filters[0], time_filters[1], time_filters[2])
+                    params[pkeys.CWT_CONV_FILTERS_1] = cwt_filters[0]
+                    params[pkeys.CWT_CONV_FILTERS_2] = cwt_filters[1]
+
+                    params[pkeys.FB_LIST] = [fb_init]
+
+                    params[pkeys.CWT_RETURN_REAL_PART] = cwt_return_rimp[0]
+                    params[pkeys.CWT_RETURN_IMAG_PART] = cwt_return_rimp[1]
+                    params[pkeys.CWT_RETURN_MAGNITUDE] = cwt_return_rimp[2]
+                    params[pkeys.CWT_RETURN_PHASE] = cwt_return_rimp[3]
+
+                    params[pkeys.DROP_RATE_BEFORE_LSTM] = drop_rate_before_lstm
+
+                    folder_name = 't_%d_%d_%d_cwt_%d_%d_rimp_%d%d%d%d_fb_%s_dr_%s' % (
+                        time_filters[0], time_filters[1], time_filters[2],
+                        cwt_filters[0], cwt_filters[1],
+                        int(cwt_return_rimp[0]),
+                        int(cwt_return_rimp[1]),
+                        int(cwt_return_rimp[2]),
+                        int(cwt_return_rimp[3]),
+                        fb_init,
+                        drop_rate_before_lstm
+                    )
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
