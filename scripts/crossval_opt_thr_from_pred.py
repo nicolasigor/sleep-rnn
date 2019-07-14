@@ -13,7 +13,8 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset, RefactorUnpickler
+from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import RefactorUnpickler
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
@@ -29,10 +30,10 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190704_inta_meeting'
+    ckpt_folder = '20190713_report_v11'
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
-    dataset_name = constants.INTA_SS_NAME
+    dataset_name = constants.MASS_SS_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
