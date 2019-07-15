@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'report_v21_pte1'
+    experiment_name = 'report_v21_pte2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -55,25 +55,22 @@ if __name__ == '__main__':
 
     # Grid parameters
     time_filters_list = [
+        (64, 256, 512),
         (64, 128, 256)
     ]
     cwt_filters_list = [
+        (32, 64),
         (32, 32)
     ]
-    fb_init_list = [
-        2.0, 1.0, 0.5
-    ]
     cwt_return_rimp_list = [
-        (True, True, True, False),
         (True, True, False, False)
     ]
     drop_rate_before_lstm_list = [
-        0.3
+        0.5, 0.3, 0.2
     ]
     parameter_list = list(itertools.product(
         time_filters_list,
         cwt_filters_list,
-        fb_init_list,
         cwt_return_rimp_list,
         drop_rate_before_lstm_list
     ))
@@ -109,7 +106,7 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for time_filters, cwt_filters, fb_init, cwt_return_rimp, \
+                for time_filters, cwt_filters, cwt_return_rimp, \
                     drop_rate_before_lstm in parameter_list:
 
                     params[pkeys.TIME_CONV_FILTERS_1] = time_filters[0]
@@ -119,6 +116,10 @@ if __name__ == '__main__':
                     params[pkeys.CWT_CONV_FILTERS_1] = cwt_filters[0]
                     params[pkeys.CWT_CONV_FILTERS_2] = cwt_filters[1]
 
+                    if dataset_name == constants.MASS_SS_NAME:
+                        fb_init = 2.0
+                    else:  # KC
+                        fb_init = 1.0
                     params[pkeys.FB_LIST] = [fb_init]
 
                     params[pkeys.CWT_RETURN_REAL_PART] = cwt_return_rimp[0]
