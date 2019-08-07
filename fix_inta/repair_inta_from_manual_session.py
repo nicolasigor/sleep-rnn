@@ -153,6 +153,13 @@ if __name__ == '__main__':
     )
     table = table.astype(np.int32)
 
+    # Check non-overlapping marks
+    overlap_check = utils.get_overlap_matrix(
+        final_marks, final_marks)
+    overlap_check = overlap_check.sum(axis=1) - 1
+    if np.any(overlap_check):
+        raise ValueError('Final marks are overlapped.')
+
     np.savetxt(
         'mark_files/20190805_Revision_SS_%s.txt' % NAMES[subject_id-1],
         table, fmt='%i')
