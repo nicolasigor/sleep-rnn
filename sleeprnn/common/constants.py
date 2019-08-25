@@ -106,3 +106,4 @@ V19 = 'v19'
 V20_INDEP = 'v20_indep'  # time
 V20_CONCAT = 'v20_concat'  # time
 V21 = 'v21'  # Mixed
+V22 = 'v22'  # CWT indep

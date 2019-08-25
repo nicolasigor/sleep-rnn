@@ -34,11 +34,11 @@ def filter_stamps(stamps, start_sample, end_sample):
 
 
 if __name__ == '__main__':
-    database_name = constants.INTA_SS_NAME
-    subject_id = 4
-    location = 8165  # 337  # 425
-    location_is_time = True  # If False, is stamp idx
-    show_magnitude = True
+    database_name = constants.MASS_SS_NAME
+    subject_id = 1
+    location = 100  # 337  # 425
+    location_is_time = False  # If False, is stamp idx
+    show_magnitude = False
 
     init_fb = 0.5
     border_duration = 5
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # Show results
     x_ticks_major = np.ceil(time_axis[0]) + np.arange(context_duration)
     x_ticks_minor = np.arange(np.ceil(time_axis[0]), np.ceil(time_axis[-1]), 0.5)
-    fig = plt.figure(figsize=(10, 8), dpi=150)
+    fig = plt.figure(figsize=(8, 6), dpi=100)
     gs = gridspec.GridSpec(4, 1, height_ratios=[2, 1, 6, 1])
 
     # ORIGINAL SIGNAL
