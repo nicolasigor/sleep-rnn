@@ -120,6 +120,7 @@ CONV_DOWNSAMPLING = 'conv_downsampling'
 INITIAL_LSTM_UNITS = 'initial_lstm_units'
 # FC units in second to last layer
 FC_UNITS = 'fc_units'
+OUTPUT_LSTM_UNITS = 'output_lstm_units'
 # Time-domain convolutional params
 TIME_CONV_FILTERS_1 = 'time_conv_filters_1'
 TIME_CONV_FILTERS_2 = 'time_conv_filters_2'
@@ -232,6 +233,7 @@ default_params = {
     INITIAL_KERNEL_SIZE: 3,
     CONV_DOWNSAMPLING: constants.AVGPOOL,
     FC_UNITS: 128,
+    OUTPUT_LSTM_UNITS: None,
     TIME_CONV_FILTERS_1: 64,
     TIME_CONV_FILTERS_2: 128,
     TIME_CONV_FILTERS_3: 256,

@@ -193,6 +193,8 @@ class BaseModel(object):
             model_name = 'model_v21'
         elif model_version == constants.V22:
             model_name = 'model_v22'
+        elif model_version == constants.V23:
+            model_name = 'model_v23'
         elif model_version == constants.DEBUG:
             model_name = 'model_debug'
         else:

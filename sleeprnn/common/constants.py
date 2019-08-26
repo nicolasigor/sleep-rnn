@@ -107,3 +107,4 @@ V20_INDEP = 'v20_indep'  # time
 V20_CONCAT = 'v20_concat'  # time
 V21 = 'v21'  # Mixed
 V22 = 'v22'  # CWT indep
+V23 = 'v23'  # Time-domain with LSTM instead of FC
