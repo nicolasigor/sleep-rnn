@@ -42,10 +42,18 @@ if __name__ == '__main__':
 
     init_fb = 0.5
     border_duration = 5
-    context_duration = 10
+    context_duration = 15
     n_scales = 8
     upper_freq = 20
     lower_freq = 1
+
+    if database_name == constants.MASS_SS_NAME:
+        dataset = load_dataset(
+            constants.MASS_KC_NAME,
+            params={pkeys.NORM_COMPUTATION_MODE: constants.NORM_GLOBAL})
+        y_kc = dataset.get_subject_stamps(subject_id=subject_id)
+    else:
+        y_kc = None
 
     dataset = load_dataset(
         database_name,
@@ -73,6 +81,10 @@ if __name__ == '__main__':
 
     # Eligible stamps
     segment_stamps = filter_stamps(y, start_sample_display, end_sample_display)
+    if y_kc is not None:
+        segment_stamps_kc = filter_stamps(y_kc, start_sample_display, end_sample_display)
+    else:
+        segment_stamps_kc = None
 
     # Build computational
     tf.reset_default_graph()
@@ -131,6 +143,18 @@ if __name__ == '__main__':
             expert_stamp / fs, y_max, -y_max,
             facecolor=CUSTOM_COLORS['blue'], alpha=0.3, label=label,
             edgecolor='k', linewidth=1.5)
+    stamp_label_used = False
+    if segment_stamps_kc is not None:
+        for expert_stamp in segment_stamps_kc:
+            if stamp_label_used:
+                label = None
+            else:
+                label = 'kcomplex'
+                stamp_label_used = True
+            ax.fill_between(
+                expert_stamp / fs, y_max, -y_max,
+                facecolor=CUSTOM_COLORS['red'], alpha=0.3, label=label,
+                edgecolor='k', linewidth=1.5)
 
     ax.set_ylim([-y_max, y_max])
     ax.set_yticks([])
@@ -269,3 +293,8 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     plt.show()
+
+    pool_size = n_scales // 8
+    for i in range(8):
+        subset_freq = frequencies[i*pool_size:(i+1)*pool_size]
+        print(subset_freq)
