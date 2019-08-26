@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190713_report_v11'
+    ckpt_folder = '20190825_v22_grid'
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME

@@ -35,9 +35,10 @@ if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
-    ckpt_folder = os.path.join('20190530_bsf_v10_n2_train_mass_ss', 'bsf')
-    which_seed = 0
-    optimal_thr = 0.6
+    lrp_id = '20190713_v11_64_128_256'
+    ckpt_folder = os.path.join('20190713_report_v11_n2_train_mass_ss', '64_128_256')
+    which_seed = 1
+    optimal_thr = 0.64
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -88,13 +89,13 @@ if __name__ == '__main__':
         params, logdir=os.path.join(RESULTS_PATH, 'demo_predict'))
     model.load_checkpoint(os.path.join(ckpt_path, 'model', 'ckpt'))
 
-    # Get spectrograms
-    print('Computing CWT before batchnorm')
-    cwt = []
-    for single_x in x:
-        single_cwt = model.compute_cwt(single_x)
-        cwt.append(single_cwt)
-    print('cwt', [this_data.shape for this_data in cwt])
+    # # Get spectrograms
+    # print('Computing CWT before batchnorm')
+    # cwt = []
+    # for single_x in x:
+    #     single_cwt = model.compute_cwt(single_x)
+    #     cwt.append(single_cwt)
+    # print('cwt', [this_data.shape for this_data in cwt])
 
     # Predict
     print('Predicting test set', flush=True)
@@ -117,16 +118,18 @@ if __name__ == '__main__':
 
     # Saving
     for k, sub_id in enumerate(data_inference.get_ids()):
-        filename = os.path.join(save_dir, 'data_s%02d' % sub_id)
+        filename = os.path.join(save_dir, '%s_data_s%02d' % (lrp_id, sub_id))
         np.savez(
             filename,
             x=x[k].astype(np.float32),
             y=y[k].astype(np.int32),
             stamps=stamps[k].astype(np.int32),
             pages=pages[k].astype(np.int16),
-            cwt=cwt[k].astype(np.float32),
+            # cwt=cwt[k].astype(np.float32),
             predicted_stamps=predicted_stamps[k].astype(np.int32),
             predicted_y=predicted_y[k].astype(np.float16),
-            optimal_thr=optimal_thr
+            optimal_thr=optimal_thr,
+            seed=which_seed,
+            ckpt_path=ckpt_path
         )
         print('%s saved.' % filename, flush=True)

@@ -18,13 +18,13 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
 
     my_data = np.load(
-       '/home/ntapia/projects/repos/sleep-rnn/results/lrp_dataset/data_s06.npz')
+       '/home/ntapia/Projects/GitNico/sleep-rnn/results/lrp_dataset/20190713_v11_64_128_256_data_s06.npz')
     print('Arrays in NPZ')
     print(my_data.files)
 
     x = my_data['x']
     y = my_data['y']
-    cwt = my_data['cwt']
+    # cwt = my_data['cwt']
     pages = my_data['pages']
     stamps = my_data['stamps']
     predicted_y = my_data['predicted_y']
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     time_axis_long = np.arange(page_size) / fs
     time_axis_short = time_axis_long[::8]
 
-    fig, ax = plt.subplots(5, 1, figsize=(10, 10), dpi=100)
+    fig, ax = plt.subplots(3, 1, figsize=(10, 10), dpi=100)
     ax[0].plot(
         time_axis_long[start_time:end_time],
         x[which_page, (1000 + start_time):(1000+end_time)],
@@ -67,15 +67,15 @@ if __name__ == '__main__':
     ax[2].set_xlim([time_axis_long[start_time], time_axis_long[end_time]])
     ax[2].legend(loc='upper right')
 
-    ax[3].imshow(
-        cwt[which_page, start_time // 2:end_time // 2, :, 0].T, label='cwt-mag',
-        interpolation='none', aspect='auto'
-    )
-
-    ax[4].imshow(
-        cwt[which_page, start_time // 2:end_time // 2, :, 1].T, label='cwt-pha',
-        interpolation='none', aspect='auto'
-    )
-    phase = cwt[which_page, start_time // 2:end_time // 2, :, 1]
+    # ax[3].imshow(
+    #     cwt[which_page, start_time // 2:end_time // 2, :, 0].T, label='cwt-mag',
+    #     interpolation='none', aspect='auto'
+    # )
+    #
+    # ax[4].imshow(
+    #     cwt[which_page, start_time // 2:end_time // 2, :, 1].T, label='cwt-pha',
+    #     interpolation='none', aspect='auto'
+    # )
+    # phase = cwt[which_page, start_time // 2:end_time // 2, :, 1]
 
     plt.show()
