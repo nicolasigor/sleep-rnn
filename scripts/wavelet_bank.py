@@ -38,13 +38,13 @@ if __name__ == '__main__':
     subject_id = 1
     location = 100  # 337  # 425
     location_is_time = False  # If False, is stamp idx
-    show_magnitude = False
+    show_magnitude = True
 
-    init_fb = 0.5
+    init_fb = 2.0
     border_duration = 5
     context_duration = 15
-    n_scales = 8
-    upper_freq = 20
+    n_scales = 6
+    upper_freq = 13
     lower_freq = 1
 
     if database_name == constants.MASS_SS_NAME:
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         database_name,
         params={pkeys.NORM_COMPUTATION_MODE: constants.NORM_GLOBAL})
     fs = dataset.fs
-    x = dataset.get_subject_signal(subject_id=subject_id, normalize_clip=True)
+    x = dataset.get_subject_signal(subject_id=subject_id, normalize_clip=False)
     y = dataset.get_subject_stamps(subject_id=subject_id)
 
     border_size = int(fs * border_duration)
@@ -122,12 +122,51 @@ if __name__ == '__main__':
     # Show results
     x_ticks_major = np.ceil(time_axis[0]) + np.arange(context_duration)
     x_ticks_minor = np.arange(np.ceil(time_axis[0]), np.ceil(time_axis[-1]), 0.5)
-    fig = plt.figure(figsize=(8, 6), dpi=100)
-    gs = gridspec.GridSpec(4, 1, height_ratios=[2, 1, 6, 1])
+    fig = plt.figure(figsize=(8, 6), dpi=200)
+    gs = gridspec.GridSpec(4, 1, height_ratios=[2, 2, 6, 1])
+
+    # KERNEL
+    ax = fig.add_subplot(gs[0])
+    kernel_size_display = int(2 * fs) + 1
+    wavelet_to_show_idx = n_scales // 2
+    wavelet_to_show_real = kernels_real[:, wavelet_to_show_idx]
+    wavelet_to_show_imag = kernels_imag[:, wavelet_to_show_idx]
+    ntaps = wavelet_to_show_real.size
+
+    max_kernel_size_tmp = 5001
+    kernel_base = np.zeros(max_kernel_size_tmp)
+    half_sample = kernel_base.size // 2
+    kernel_full_real = kernel_base.copy()
+    kernel_full_imag = kernel_base.copy()
+    kernel_half_size = ntaps // 2
+    start_kernel = half_sample - kernel_half_size
+    end_kernel = half_sample + kernel_half_size + 1
+    kernel_full_real[start_kernel:end_kernel] = wavelet_to_show_real
+    kernel_full_imag[start_kernel:end_kernel] = wavelet_to_show_imag
+    start_crop = int(half_sample - kernel_size_display//2)
+    end_crop = start_crop + kernel_size_display
+    kernel_crop_real = kernel_full_real[start_crop:end_crop]
+    kernel_crop_imag = kernel_full_imag[start_crop:end_crop]
+    max_value_kernel = np.max(np.abs(kernel_crop_real))
+    kernel_x_axis = np.arange(kernel_crop_real.size) - kernel_crop_real.size // 2
+
+    ax.plot(
+        kernel_x_axis, kernel_crop_imag,
+        linewidth=1, color=CUSTOM_COLORS['red'], label='Imag Part')
+    ax.plot(
+        kernel_x_axis, kernel_crop_real,
+        linewidth=1, color=CUSTOM_COLORS['blue'], label='Real Part')
+    ax.set_yticks([])
+    ax.set_title('Mother Wavelet with $F_B$=%1.1f' % init_fb, fontsize=8)
+    ax.set_xticks([])
+    ax.set_xlim([kernel_x_axis[0], kernel_x_axis[-1]])
+    ax.set_ylim([-1.1*max_value_kernel, 1.1*max_value_kernel])
+    ax.legend(loc='upper right', fontsize=7)
+    ax.tick_params(labelsize=8)
 
     # ORIGINAL SIGNAL
-    ax = fig.add_subplot(gs[0])
-    y_max = 8
+    ax = fig.add_subplot(gs[1])
+    y_max = 150
     ax.plot(
         time_axis, demo_signal.flatten()[border_size:-border_size],
         label='Signal', linewidth=1, color=CUSTOM_COLORS['grey'])
@@ -157,45 +196,16 @@ if __name__ == '__main__':
                 edgecolor='k', linewidth=1.5)
 
     ax.set_ylim([-y_max, y_max])
-    ax.set_yticks([])
+    ax.set_yticks([-50, 0, 50])
     ax.set_xlim([time_axis[0], time_axis[-1]])
-    ax.legend(loc='upper right', fontsize=8)
-    ax.tick_params(labelsize=8)
-    ax.set_xlabel('Time [s]', fontsize=8)
+    ax.legend(loc='upper right', fontsize=7)
+    ax.tick_params(labelsize=7)
+    ax.set_xlabel('Time [s]', fontsize=7)
+    ax.set_ylabel('Voltage [$\mu$V]', fontsize=7)
+    ax.set_title('Input Signal', fontsize=8)
     ax.set_xticks(x_ticks_major)
     ax.set_xticks(x_ticks_minor, minor=True)
     ax.grid(b=True, axis='x', which='minor')
-
-    # KERNEL
-    ax = fig.add_subplot(gs[1])
-    kernel_size_display = int(2 * fs) + 1
-    wavelet_to_show_idx = n_scales // 2
-    wavelet_to_show = kernels_real[:, wavelet_to_show_idx]
-    ntaps = wavelet_to_show.size
-
-    max_kernel_size_tmp = 5001
-    kernel_base = np.zeros(max_kernel_size_tmp)
-    half_sample = kernel_base.size // 2
-    kernel_full = kernel_base.copy()
-    kernel_half_size = wavelet_to_show.size // 2
-    start_kernel = half_sample - kernel_half_size
-    end_kernel = half_sample + kernel_half_size + 1
-    kernel_full[start_kernel:end_kernel] = wavelet_to_show
-    start_crop = int(half_sample - kernel_size_display//2)
-    end_crop = start_crop + kernel_size_display
-    kernel_crop = kernel_full[start_crop:end_crop]
-    max_value_kernel = np.max(np.abs(kernel_crop))
-    kernel_x_axis = np.arange(kernel_crop.size) - kernel_crop.size // 2
-
-    ax.plot(
-        kernel_x_axis, kernel_crop,
-        linewidth=1, color=CUSTOM_COLORS['grey'],
-        label='Max ntaps: %d (Fb %1.2f)' % (ntaps, init_fb))
-    ax.set_yticks([])
-    ax.set_xlim([kernel_x_axis[0], kernel_x_axis[-1]])
-    ax.set_ylim([-max_value_kernel, max_value_kernel])
-    ax.legend(loc='upper right', fontsize=8)
-    ax.tick_params(labelsize=8)
 
     # FREQ RESPONSE
     max_freq = 50
@@ -271,25 +281,31 @@ if __name__ == '__main__':
     ax.set_yticks([-scale_sep * k for k in range(n_scales)])
     ax.set_yticklabels(np.round(frequencies, decimals=1))
     ax.set_xlim([time_axis[0], time_axis[-1]])
-    ax.set_ylabel('Central Frequency [Hz]', fontsize=8)
-    ax.set_xlabel('Time [s]', fontsize=8)
-    ax.tick_params(labelsize=8)
-    ax.legend(loc='upper right', fontsize=8)
+    ax.set_ylabel('Central Frequency [Hz]', fontsize=7)
+    ax.set_title('Continuous Wavelet Transform', fontsize=8)
+    ax.set_xlabel('Time [s]', fontsize=7)
+    ax.tick_params(labelsize=7)
+    ax.legend(loc='upper right', fontsize=7)
     ax.set_xticks(x_ticks_major)
     ax.set_xticks(x_ticks_minor, minor=True)
     ax.grid(b=True, axis='x', which='minor')
 
     # Response
     ax = fig.add_subplot(gs[3])
+    max_value_fft = 0
     for i in range(n_scales):
         freq_axis = freq_axis_list[i]
         fft_kernel = fft_kernel_list[i]
-        ax.plot(freq_axis, fft_kernel)
+        ax.plot(freq_axis, fft_kernel, linewidth=1)
+        if np.max(fft_kernel) > max_value_fft:
+            max_value_fft = np.max(fft_kernel)
     ax.set_xscale('log')
     ax.set_yticks([])
     ax.set_xlim([freq_axis[0], freq_axis[-1]])
-    ax.set_xlabel('Frequency [Hz]', fontsize=8)
-    ax.tick_params(labelsize=8)
+    ax.set_xlabel('Frequency [Hz]', fontsize=7)
+    ax.set_title('Wavelet Response', fontsize=8)
+    ax.set_ylim([0, 1.1*max_value_fft])
+    ax.tick_params(labelsize=7)
 
     plt.tight_layout()
     plt.show()
