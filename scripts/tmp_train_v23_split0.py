@@ -53,7 +53,7 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    output_lstm_units_list = [64, 32, 16]
+    output_lstm_units_list = [256, 128]
 
     # Base parameters
     params = pkeys.default_params.copy()
