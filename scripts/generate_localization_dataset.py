@@ -9,6 +9,7 @@ from pprint import pprint
 import time
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
@@ -18,7 +19,6 @@ from sleeprnn.helpers.reader import RefactorUnpickler
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
-from sleeprnn.detection.threshold_optimization import get_optimal_threshold
 from sleeprnn.common import constants
 
 RESULTS_PATH = os.path.join(project_root, 'results')
@@ -29,16 +29,21 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    container = os.path.join('20190827_model_for_ic_project/')
-    setting_folder = 'v19'
-    new_split_version = True  # True from 20190620
+    prediction_folder = os.path.join(
+        'predictions_mass_ss',
+        '20190827_thesis_1_bsf_e1_n2_train_mass_ss',
+        'v19')
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
-    id_try = 1
+    id_try = 0
+    optimal_thr_list = [0.54, 0.52, 0.64, 0.54]
+    optimal_thr = optimal_thr_list[id_try]
     which_expert = 1
-    # -----
-    ckpt_folder = os.path.join(RESULTS_PATH, container, setting_folder, 'seed%d' % id_try)
 
+    segment_duration = 4
+
+    # -----
+    ckpt_path = os.path.join(RESULTS_PATH, prediction_folder, 'seed%d' % id_try)
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
@@ -46,180 +51,197 @@ if __name__ == '__main__':
     # Load data
     dataset = load_dataset(dataset_name)
     all_train_ids = dataset.train_ids
+    test_ids = dataset.test_ids
 
-    full_ckpt_folder = '%s_%s_train_%s' \
-                       % (ckpt_folder, task_mode, dataset_name)
-    if grid_folder_list is None:
-        grid_folder_list = os.listdir(os.path.join(
-            RESULTS_PATH,
-            'predictions_%s' % dataset_name,
-            full_ckpt_folder
-        ))
-        grid_folder_list.sort()
-        print('Grid settings found inside %s:' % full_ckpt_folder)
-        pprint(grid_folder_list)
-    print('')
+    set_list = [
+        constants.TRAIN_SUBSET,
+        constants.VAL_SUBSET,
+        constants.TEST_SUBSET]
 
-    set_list = [constants.TRAIN_SUBSET, constants.VAL_SUBSET]
+    # Split to form validation set
+    train_ids, val_ids = utils.split_ids_list_v2(all_train_ids, split_id=id_try)
+    ids_dict = {
+        constants.TRAIN_SUBSET: train_ids,
+        constants.VAL_SUBSET: val_ids,
+        constants.TEST_SUBSET: test_ids
+    }
+
+    fs = dataset.fs
+
     # Load predictions
     print('Loading predictions')
-    predictions_dict = {}
-    n_seeds = len(SEED_LIST)
-    for j, folder_name in enumerate(grid_folder_list):
-        predictions_dict[folder_name] = []
-        for k in range(n_seeds):
-            this_pred_dict = {}
-            for set_name in set_list:
-                # Restore predictions
-                ckpt_path = os.path.abspath(os.path.join(
-                    RESULTS_PATH,
-                    'predictions_%s' % dataset_name,
-                    full_ckpt_folder,
-                    '%s' % folder_name,
-                    'seed%d' % k
-                ))
-                this_dict = {}
-                filename = os.path.join(
-                        ckpt_path,
-                        'prediction_%s_%s.pkl' % (task_mode, set_name))
-                with open(filename, 'rb') as handle:
-                    this_pred_dict[set_name] = RefactorUnpickler(handle).load()
-                print('Loaded seed %d/%d from %s' % (k + 1, n_seeds, ckpt_path))
-            predictions_dict[folder_name].append(this_pred_dict)
+    pred_from_chosen_model = {}
+    for set_name in set_list:
+        this_dict = {}
+        filename = os.path.join(
+            ckpt_path,
+            'prediction_%s_%s.pkl' % (task_mode, set_name))
+        with open(filename, 'rb') as handle:
+            pred_obj = RefactorUnpickler(handle).load()
+            pred_obj.set_probability_threshold(optimal_thr)
+            pred_from_chosen_model[set_name] = pred_obj
     print('Done\n')
 
-    # ---------------- Compute performance
-    # af1 is computed on alltrain set.
-    per_seed_thr = {}
-    for folder_name in grid_folder_list:
-        print('Evaluating grid setting: %s ' % folder_name, flush=True)
-        per_seed_thr[folder_name] = {}
-        for k, seed in enumerate(SEED_LIST):
-            print('Seed %d' % k)
-            # Split to form validation set
-            if new_split_version:
-                train_ids, val_ids = utils.split_ids_list_v2(
-                    all_train_ids, split_id=k)
-            else:
-                train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=seed)
-            ids_dict = {
-                constants.TRAIN_SUBSET: train_ids,
-                constants.VAL_SUBSET: val_ids}
+    # # Compute performance
+    # for set_name in set_list:
+    #     data_inference = FeederDataset(
+    #         dataset, ids_dict[set_name], task_mode,
+    #         which_expert=which_expert)
+    #     prediction_obj = pred_from_chosen_model[set_name]
+    #
+    #     this_events = data_inference.get_stamps()
+    #     this_detections = prediction_obj.get_stamps()
+    #     af1_at_thr = metrics.average_metric_with_list(
+    #         this_events, this_detections, verbose=False)
+    #     print('%s AF1: %1.4f' % (set_name, af1_at_thr))
 
-            feeder_dataset_list = []
-            predicted_dataset_list = []
-            for set_name in set_list:
-                data_inference = FeederDataset(
-                    dataset, ids_dict[set_name], task_mode,
-                    which_expert=which_expert)
-                feeder_dataset_list.append(data_inference)
-                prediction_obj = predictions_dict[folder_name][k][set_name]
-                predicted_dataset_list.append(prediction_obj)
-            best_thr = get_optimal_threshold(
-                feeder_dataset_list,
-                predicted_dataset_list,
-                res_thr=res_thr,
-                start_thr=start_thr,
-                end_thr=end_thr,
-                verbose=verbose
-            )
-            per_seed_thr[folder_name][k] = best_thr
+    # Search for compatible events:
+    duration_list = []
+    distance_list = []
+    space_list = []
 
-    # Search optimum
-    print('\nVal AF1 report for %s' % full_ckpt_folder)
+    dataset_signal = {}
+    dataset_marks = {}
+    dataset_marks_binary = {}
 
-    metric_to_sort_list = []
-    str_to_show_list = []
-    for j, folder_name in enumerate(grid_folder_list):
-        seeds_half_performance = []
-        seeds_best_performance = []
-        seeds_best_thr = []
-        seeds_ap_std = []
-        seeds_ar_std = []
-        for k in range(n_seeds):
-            this_best_thr = per_seed_thr[folder_name][k]
-            seeds_best_thr.append(this_best_thr)
+    for set_name in set_list:
+        print('Processing set %s' % set_name)
+        data_inference = FeederDataset(
+            dataset, ids_dict[set_name], task_mode,
+            which_expert=which_expert)
+        prediction_obj = pred_from_chosen_model[set_name]
 
-            # Now load validation set and compute performance
-            if new_split_version:
-                train_ids, val_ids = utils.split_ids_list_v2(
-                    all_train_ids, split_id=k, verbose=False)
-            else:
-                train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=SEED_LIST[k], verbose=False)
+        this_events = data_inference.get_stamps()
+        this_detections = prediction_obj.get_stamps()
 
-            # Prepare expert labels
-            data_val = FeederDataset(
-                dataset, val_ids, task_mode, which_expert=which_expert)
-            data_train = FeederDataset(
-                dataset, train_ids, task_mode, which_expert=which_expert)
-            this_events_val = data_val.get_stamps()
-            this_events_train = data_train.get_stamps()
-            # Prepare model predictions
-            prediction_obj_val = predictions_dict[folder_name][k][constants.VAL_SUBSET]
-            prediction_obj_train = predictions_dict[folder_name][k][constants.TRAIN_SUBSET]
+        set_iou_list = []
 
-            # Half thr
-            prediction_obj_val.set_probability_threshold(0.5)
-            this_detections_val = prediction_obj_val.get_stamps()
-            af1_at_thr = metrics.average_metric_with_list(
-                this_events_val, this_detections_val, verbose=False)
-            seeds_half_performance.append(af1_at_thr)
+        set_segment_signal = {}
+        set_segment_marks = {}
+        set_segment_marks_binary = {}
 
-            # Best thr
-            prediction_obj_val.set_probability_threshold(this_best_thr)
-            prediction_obj_train.set_probability_threshold(this_best_thr)
-            this_detections_val = prediction_obj_val.get_stamps()
-            this_detections_train = prediction_obj_train.get_stamps()
-            af1_at_thr = metrics.average_metric_with_list(
-                this_events_val, this_detections_val, verbose=False)
+        for i, subject_id in enumerate(ids_dict[set_name]):
+            print('S%02d' % subject_id)
+            single_events = this_events[i]
+            single_detections = this_detections[i]
+            iou_array, idx_array = metrics.matching(single_events, single_detections)
+            valid_idx = np.where(idx_array != -1)[0]
+            valid_iou = iou_array[valid_idx]
 
-            # Compute std for average recall and precision
-            alltrain_events = this_events_val + this_events_train
-            alltrain_detections = this_detections_val + this_detections_train
-            ar_list = [
-                metrics.average_metric(
-                    single_events, single_detections,
-                    verbose=False, metric_name=constants.RECALL
-                )
-                for (single_events, single_detections)
-                in zip(alltrain_events, alltrain_detections)
-            ]
-            ap_list = [
-                metrics.average_metric(
-                    single_events, single_detections,
-                    verbose=False, metric_name=constants.PRECISION
-                )
-                for (single_events, single_detections)
-                in zip(alltrain_events, alltrain_detections)
-            ]
-            seeds_ap_std.append(np.std(ap_list))
-            seeds_ar_std.append(np.std(ar_list))
-            seeds_best_performance.append(af1_at_thr)
+            set_iou_list.append(valid_iou)
+            print('Selecting %d of %d (Recall %1.4f)'
+                  % (len(valid_idx),
+                     len(single_events),
+                     len(valid_idx)/len(single_events)))
 
-        mean_best_performance = np.mean(seeds_best_performance).item()
-        std_best_performance = np.std(seeds_best_performance).item()
-        mean_half_performance = np.mean(seeds_half_performance).item()
-        std_half_performance = np.std(seeds_half_performance).item()
-        mean_std_ap = np.mean(seeds_ap_std).item()
-        mean_std_ar = np.mean(seeds_ar_std).item()
+            subject_signal = dataset.get_subject_signal(
+                subject_id, normalize_clip=False)
+            subject_binary_mark = utils.stamp2seq(single_events, 0, len(subject_signal)-1)
 
-        str_to_show = (
-                'AF1 %1.4f +- %1.4f (mu 0.5), '
-                'AF1 %1.4f +- %1.4f (mu %s), '
-                'AP-STD %1.4f AR-STD %1.4f '
-                'for setting %s'
-                % (mean_half_performance, std_half_performance,
-                   mean_best_performance, std_best_performance, seeds_best_thr,
-                   mean_std_ap, mean_std_ar,
-                   folder_name))
+            this_subject_segment_signal_list = []
+            this_subject_segment_marks_list = []
+            this_subject_segment_marks_binary_list = []
 
-        metric_to_sort_list.append(mean_best_performance)
-        str_to_show_list.append(str_to_show)
+            for single_idx in valid_idx:
+                this_duration = (single_events[single_idx, 1] - single_events[single_idx, 0]) / fs
+                duration_list.append(this_duration)
+                this_distances_list = []
+                there_exists_distance = False
+                if single_idx != 0:
+                    # Compute left distance
+                    left_distance = (single_events[single_idx, 0] - single_events[single_idx-1, 1]) / fs
+                    if left_distance < 5:
+                        this_distances_list.append(left_distance)
+                        there_exists_distance = True
+                if single_idx != len(single_events)-1:
+                    # Compute right distance
+                    right_distance = (single_events[single_idx + 1, 0] - single_events[single_idx, 1]) / fs
+                    if right_distance < 5:
+                        this_distances_list.append(right_distance)
+                        there_exists_distance = True
+                if there_exists_distance:
+                    distance_list.append(np.min(this_distances_list))
 
-    # Sort by descending order
-    idx_sorted = np.argsort(-np.asarray(metric_to_sort_list))
-    str_to_show_list = [str_to_show_list[i] for i in idx_sorted]
-    for str_to_show in str_to_show_list:
-        print(str_to_show)
+                if len(this_distances_list) == 2:
+                    space = np.sum(this_distances_list) + this_duration
+                    space_list.append(space)
+
+                # Build crop
+                min_distance_to_border = fs * 0.7
+                this_size = single_events[single_idx, 1] - single_events[single_idx, 0]
+                empty_space = segment_duration * fs - this_size
+                if single_idx == 0:
+                    right_distance = single_events[single_idx + 1, 0] - single_events[single_idx, 1]
+                    left_distance = 1000
+                elif single_idx == len(single_events)-1:
+                    left_distance = single_events[single_idx, 0] - single_events[single_idx - 1, 1]
+                    right_distance = 1000
+                else:
+                    right_distance = single_events[single_idx + 1, 0] - \
+                                     single_events[single_idx, 1]
+                    left_distance = single_events[single_idx, 0] - \
+                                    single_events[single_idx - 1, 1]
+                if right_distance < min_distance_to_border or left_distance < min_distance_to_border or right_distance + left_distance < empty_space:
+                    print('Dropping mark')
+                else:
+                    # Let's crop
+                    left_space = np.random.uniform(
+                        low=max(min_distance_to_border, empty_space - right_distance),
+                        high=min(empty_space - min_distance_to_border, left_distance))
+                    start_sample = int(single_events[single_idx, 0] - left_space)
+                    end_sample = int(start_sample + segment_duration * fs)
+
+                    chosen_signal = subject_signal[start_sample:end_sample]
+                    chosen_event = single_events[single_idx, :] - start_sample
+                    chosen_binary = subject_binary_mark[start_sample:end_sample]
+
+                    this_subject_segment_signal_list.append(chosen_signal)
+                    this_subject_segment_marks_list.append(chosen_event)
+                    this_subject_segment_marks_binary_list.append(chosen_binary)
+
+            # sum_binary_subject = np.stack(this_subject_segment_marks_binary_list, axis=0).sum(axis=0)
+            # plt.title('S%02d' % subject_id)
+            # plt.bar(np.arange(segment_duration * fs), sum_binary_subject)
+            # plt.show()
+
+            this_subject_segment_signal_list = np.stack(this_subject_segment_signal_list, axis=0)
+            this_subject_segment_marks_list = np.stack(this_subject_segment_marks_list, axis=0)
+            this_subject_segment_marks_binary_list = np.stack(this_subject_segment_marks_binary_list, axis=0)
+
+            set_segment_signal[subject_id] = this_subject_segment_signal_list
+            set_segment_marks[subject_id] = this_subject_segment_marks_list
+            set_segment_marks_binary[subject_id] = this_subject_segment_marks_binary_list
+
+        dataset_signal[set_name] = set_segment_signal
+        dataset_marks[set_name] = set_segment_marks
+        dataset_marks_binary[set_name] = set_segment_marks_binary
+
+        set_mean_iou = np.mean(np.concatenate(set_iou_list))
+        print('Mean IoU %1.4f' % set_mean_iou)
+        print('')
+
+    # plt.title('Duration of events [s]')
+    # plt.hist(duration_list, bins=20)
+    # plt.show()
+    #
+    # plt.title('Distance between events [s]')
+    # plt.hist(distance_list, bins=20)
+    # plt.show()
+    #
+    # plt.title('Croppable space [s]')
+    # plt.hist(space_list, bins=20)
+    # plt.show()
+    #
+    # print('Max duration:', np.max(duration_list))
+    # print('Number of ')
+    print(dataset_signal.keys())
+    for set_name in set_list:
+        print(set_name)
+        print(dataset_signal[set_name].keys())
+        subjects_in_set = list(dataset_signal[set_name].keys())
+        print('visiting', subjects_in_set[0])
+        print(dataset_signal[set_name][subjects_in_set[0]].shape)
+        print(dataset_marks[set_name][subjects_in_set[0]].shape)
+        print(dataset_marks_binary[set_name][subjects_in_set[0]].shape)
+
+    # TODO: visually check signal, save files in some intuitive format
