@@ -171,16 +171,16 @@ if __name__ == '__main__':
                 this_size = single_events[single_idx, 1] - single_events[single_idx, 0]
                 empty_space = segment_duration * fs - this_size
                 if single_idx == 0:
-                    right_distance = single_events[single_idx + 1, 0] - single_events[single_idx, 1]
+                    right_distance = single_events[single_idx + 1, 0] - single_events[single_idx, 1] - 1
                     left_distance = 1000
                 elif single_idx == len(single_events)-1:
-                    left_distance = single_events[single_idx, 0] - single_events[single_idx - 1, 1]
+                    left_distance = single_events[single_idx, 0] - single_events[single_idx - 1, 1] - 1
                     right_distance = 1000
                 else:
                     right_distance = single_events[single_idx + 1, 0] - \
-                                     single_events[single_idx, 1]
+                                     single_events[single_idx, 1] - 1
                     left_distance = single_events[single_idx, 0] - \
-                                    single_events[single_idx - 1, 1]
+                                    single_events[single_idx - 1, 1] - 1
                 if right_distance < min_distance_to_border or left_distance < min_distance_to_border or right_distance + left_distance < empty_space:
                     print('Dropping mark')
                 else:
@@ -245,3 +245,27 @@ if __name__ == '__main__':
         print(dataset_marks_binary[set_name][subjects_in_set[0]].shape)
 
     # TODO: visually check signal, save files in some intuitive format
+
+    # Save data
+    for set_name in set_list:
+
+        concat_signals = []
+        concat_marks = []
+        concat_marks_binary = []
+
+        for subject_id in dataset_signal[set_name].keys():
+            concat_signals.append(dataset_signal[set_name][subject_id])
+            concat_marks.append(dataset_marks[set_name][subject_id])
+            concat_marks_binary.append(dataset_marks_binary[set_name][subject_id])
+
+        concat_signals = np.concatenate(concat_signals, axis=0).astype(np.float32)
+        concat_marks = np.concatenate(concat_marks, axis=0).astype(np.int32)
+        concat_marks_binary = np.concatenate(concat_marks_binary, axis=0).astype(np.int32)
+        print(set_name)
+        print(concat_signals.shape)
+        print(concat_marks.shape)
+        print(concat_marks_binary.shape)
+
+        np.save('%s_signals.npy' % set_name, concat_signals)
+        np.save('%s_marks.npy' % set_name, concat_marks)
+        np.save('%s_marks_binary.npy' % set_name, concat_marks_binary)
