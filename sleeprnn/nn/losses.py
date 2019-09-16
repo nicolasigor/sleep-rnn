@@ -25,10 +25,12 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
     """
     with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
         if class_weights is None:
-            weights = 1.0
+            print('No weight balancing')
+            weights = tf.cast(1.0, tf.float32)
         elif class_weights == constants.BALANCED:
-            n_negative = tf.reduce_sum(1 - labels)
-            n_positive = tf.reduce_sum(labels)
+            print('Class freq as weight to balance')
+            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
+            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
             total = n_negative + n_positive
             weight_negative = n_positive / total
             weight_positive = n_negative / total
