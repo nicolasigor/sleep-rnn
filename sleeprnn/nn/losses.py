@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 
 from sleeprnn.common import constants
@@ -49,7 +50,37 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             random_mask = random_mask + tf.cast(labels, tf.float32)
             weights = tf.cast(
                 tf.math.greater(random_mask, p_drop_negative), tf.float32)
+        elif class_weights == constants.BALANCED_DROP_V2:
+            print('Random negative class dropping to balance (V2)')
+            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
+            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
 
+            # Add negative labels on the neighborhood of positive ones
+            neighbor_radius = 4
+
+            labels_2d = tf.expand_dims(tf.cast(labels, tf.float32), 1)
+            labels_2d = tf.expand_dims(labels_2d, 3)
+            spread_labels = tf.nn.conv2d(
+                labels_2d, filter=np.ones((1, 2 * neighbor_radius + 1, 1, 1)),
+                strides=[1, 1, 1, 1], padding='SAME')
+            spread_labels = tf.squeeze(spread_labels, [1, 3])
+            spread_labels = tf.cast(
+                tf.math.greater(spread_labels, 0), tf.float32)
+            n_negative_already_added = tf.reduce_sum(spread_labels) - n_positive
+            n_negative_to_add = tf.nn.relu(
+                n_positive - n_negative_already_added)
+            p_keep_negative = n_negative_to_add / (
+                        n_negative + 1e-3)  # in (0, 1)
+            p_drop_negative = 1 - p_keep_negative
+
+            random_mask = tf.random.uniform(
+                tf.shape(labels),
+                minval=0.0,
+                maxval=1.0,
+                dtype=tf.float32)
+            random_mask = random_mask + spread_labels
+            weights = tf.cast(
+                tf.math.greater(random_mask, p_drop_negative), tf.float32)
         else:
             class_weights = tf.constant(class_weights)
             weights = tf.gather(class_weights, labels)
