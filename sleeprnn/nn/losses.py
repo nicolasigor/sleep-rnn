@@ -19,7 +19,9 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             weights to be applied when computing the loss. If None, no weights
             are applied. If BALANCED, the weights balance the class
             frequencies. If is an array of shape [2,], class_weights[i]
-            is the weight applied to class i.
+            is the weight applied to class i. If BALANCED_DROP, then
+            outputs related to the negative class are randomly dropped
+            so that their number approx equals that of the positive class.
     """
     with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
         if class_weights is None:
@@ -32,13 +34,33 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             weight_positive = n_negative / total
             class_weights = tf.stack([weight_negative, weight_positive], axis=0)
             weights = tf.gather(class_weights, labels)
+        elif class_weights == constants.BALANCED_DROP:
+            print('Random negative class dropping to balance')
+            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
+            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
+            p_drop_negative = (n_negative - n_positive) / n_negative
+            random_mask = tf.random.uniform(
+                tf.shape(labels),
+                minval=0.0,
+                maxval=1.0,
+                dtype=tf.float32)
+            random_mask = random_mask + tf.cast(labels, tf.float32)
+            weights = tf.cast(
+                tf.math.greater(random_mask, p_drop_negative), tf.float32)
+
         else:
             class_weights = tf.constant(class_weights)
             weights = tf.gather(class_weights, labels)
 
-        loss = tf.losses.sparse_softmax_cross_entropy(labels=labels,
-                                                      logits=logits,
-                                                      weights=weights)
+        # loss = tf.losses.sparse_softmax_cross_entropy(
+        #     labels=labels, logits=logits, weights=weights)
+
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Weighted loss
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
 

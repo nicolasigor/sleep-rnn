@@ -55,6 +55,7 @@ BIDIRECTIONAL = 'bidirectional'
 
 # Type of class weights
 BALANCED = 'balanced'
+BALANCED_DROP = 'balanced_drop'
 
 # Types of loss
 CROSS_ENTROPY_LOSS = 'cross_entropy_loss'
