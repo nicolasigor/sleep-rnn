@@ -135,6 +135,7 @@ CWT_RETURN_REAL_PART = 'cwt_return_real_part'
 CWT_RETURN_IMAG_PART = 'cwt_return_imag_part'
 CWT_RETURN_MAGNITUDE = 'cwt_return_magnitude'
 CWT_RETURN_PHASE = 'cwt_return_phase'
+INIT_POSITIVE_PROBA = 'init_positive_proba'
 
 
 """ Loss params
@@ -264,5 +265,6 @@ default_params = {
     CWT_RETURN_REAL_PART: True,
     CWT_RETURN_IMAG_PART: True,
     CWT_RETURN_MAGNITUDE: False,
-    CWT_RETURN_PHASE: False
+    CWT_RETURN_PHASE: False,
+    INIT_POSITIVE_PROBA: 0.5
 }

@@ -974,6 +974,79 @@ def sequence_fc_layer(
     return outputs
 
 
+def sequence_output_2class_layer(
+        inputs,
+        training,
+        batchnorm=None,
+        dropout=None,
+        drop_rate=0,
+        activation=None,
+        kernel_init=None,
+        init_positive_proba=0.5,
+        reuse=False,
+        name=None):
+    """ Builds a FC layer that can be applied directly to a sequence.
+
+    Each time-step is passed through to the same FC layer.
+
+    Args:
+        inputs: (3d tensor) input tensor of shape
+            [batch_size, time_len, n_feats].
+        num_units: (int) Number of neurons for the FC layer.
+        batchnorm: (Optional, {None, BN, BN_RENORM}, defaults to None) Type of
+            batchnorm to be used. BN is normal batchnorm, and BN_RENORM is a
+            batchnorm with renorm activated. If None, batchnorm is not applied.
+            The batchnorm layer is applied before the fc layer.
+        dropout: (Optional, {None REGULAR_DROP, SEQUENCE_DROP}, defaults to
+            None) Type of dropout to be used. REGULAR_DROP is regular
+            dropout, and SEQUENCE_DROP is a dropout with the same noise shape
+            for each time_step. If None, dropout is not applied. The
+            dropout layer is applied before the fc layer, after the batchnorm.
+        drop_rate: (Optional, float, defaults to 0.5) Dropout rate. Fraction of
+            units to be dropped. If dropout is None, this is ignored.
+        activation: (Optional, function, defaults to None) Type of activation
+            to be used at the output. If None, activation is linear.
+        training: (Optional, boolean, defaults to False) Indicates if it is the
+            training phase or not
+        reuse: (Optional, boolean, defaults to False) Whether to reuse the layer
+            variables.
+        name: (Optional, string, defaults to None) A name for the operation.
+    """
+    with tf.variable_scope(name):
+        if batchnorm:
+            inputs = batchnorm_layer(
+                inputs, 'bn', batchnorm=batchnorm, reuse=reuse,
+                training=training)
+        if dropout:
+            inputs = dropout_layer(
+                inputs, 'drop', drop_rate=drop_rate, dropout=dropout,
+                training=training)
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        outputs_0 = tf.layers.conv2d(
+            inputs=inputs, filters=1, kernel_size=1,
+            activation=activation, padding=constants.PAD_SAME,
+            kernel_initializer=kernel_init,
+            name="conv1_0", reuse=reuse)
+
+        bias_init = - np.log((1 - init_positive_proba) / init_positive_proba)
+        print('Initializing bias as %1.4f, to have init positive proba of %1.4f'
+              % (bias_init, init_positive_proba))
+
+        outputs_1 = tf.layers.conv2d(
+            inputs=inputs, filters=1, kernel_size=1,
+            activation=activation, padding=constants.PAD_SAME,
+            kernel_initializer=kernel_init,
+            bias_initializer=tf.constant_initializer(value=bias_init),
+            name="conv1_1", reuse=reuse)
+
+        outputs = tf.concat([outputs_0, outputs_1], axis=3)
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
 def lstm_layer(
         inputs,
         num_units,

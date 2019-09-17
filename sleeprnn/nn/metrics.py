@@ -48,8 +48,8 @@ def precision_recall_f1score(tp, fp, fn):
     with tf.variable_scope('f1_score'):
         # Edge case: precision and recall 0 -> f1 score 0
         f1_score = tf.cond(
-            pred=tf.equal((precision + recall), 0),
+            pred=tf.equal((2 * tp + fn + fp), 0),
             true_fn=lambda: 0.0,
-            false_fn=lambda: 2 * precision * recall / (precision + recall)
+            false_fn=lambda: 2 * tp / (2 * tp + fn + fp)
         )
     return precision, recall, f1_score

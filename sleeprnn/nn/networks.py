@@ -1463,17 +1463,18 @@ def wavelet_blstm_net_v11(
                 name='fc_1')
 
         # Final FC classification layer
-        logits = layers.sequence_fc_layer(
+        logits = layers.sequence_output_2class_layer(
             outputs,
-            2,
             kernel_init=tf.initializers.he_normal(),
             dropout=params[pkeys.TYPE_DROPOUT],
             drop_rate=params[pkeys.DROP_RATE_OUTPUT],
             training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
             name='logits')
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
 
@@ -2478,17 +2479,19 @@ def wavelet_blstm_net_v19(
                 name='fc_1')
 
         # Final FC classification layer
-        logits = layers.sequence_fc_layer(
+        logits = layers.sequence_output_2class_layer(
             outputs,
-            2,
             kernel_init=tf.initializers.he_normal(),
             dropout=params[pkeys.TYPE_DROPOUT],
             drop_rate=params[pkeys.DROP_RATE_OUTPUT],
             training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
             name='logits')
 
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+
         return logits, probabilities, cwt_prebn
 
 
