@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190826_v23'
+    ckpt_folder = '20190917_out_proba_init_grid'
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
@@ -75,22 +75,22 @@ if __name__ == '__main__':
         predictions_dict[folder_name] = []
         for k in range(n_seeds):
             this_pred_dict = {}
+            # Restore predictions
+            ckpt_path = os.path.abspath(os.path.join(
+                RESULTS_PATH,
+                'predictions_%s' % dataset_name,
+                full_ckpt_folder,
+                '%s' % folder_name,
+                'seed%d' % k
+            ))
             for set_name in set_list:
-                # Restore predictions
-                ckpt_path = os.path.abspath(os.path.join(
-                    RESULTS_PATH,
-                    'predictions_%s' % dataset_name,
-                    full_ckpt_folder,
-                    '%s' % folder_name,
-                    'seed%d' % k
-                ))
                 this_dict = {}
                 filename = os.path.join(
                         ckpt_path,
                         'prediction_%s_%s.pkl' % (task_mode, set_name))
                 with open(filename, 'rb') as handle:
                     this_pred_dict[set_name] = RefactorUnpickler(handle).load()
-                print('Loaded seed %d/%d from %s' % (k + 1, n_seeds, ckpt_path))
+            print('Loaded seed %d/%d from %s' % (k + 1, n_seeds, ckpt_path))
             predictions_dict[folder_name].append(this_pred_dict)
     print('Done\n')
 
