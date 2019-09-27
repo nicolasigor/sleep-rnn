@@ -149,7 +149,7 @@ type_loss: ({CROSS_ENTROPY_LOSS, DICE_LOSS}) Type of loss to be used
 """
 CLASS_WEIGHTS = 'class_weights'
 TYPE_LOSS = 'type_loss'
-
+FOCUSING_PARAMETER = 'focusing_parameter'
 
 """ Optimizer params
 
@@ -266,5 +266,6 @@ default_params = {
     CWT_RETURN_IMAG_PART: True,
     CWT_RETURN_MAGNITUDE: False,
     CWT_RETURN_PHASE: False,
-    INIT_POSITIVE_PROBA: 0.5
+    INIT_POSITIVE_PROBA: 0.5,
+    FOCUSING_PARAMETER: None
 }

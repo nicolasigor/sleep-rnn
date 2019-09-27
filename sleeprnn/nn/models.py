@@ -382,15 +382,23 @@ class WaveletBLSTM(BaseModel):
         type_loss = self.params[pkeys.TYPE_LOSS]
         checks.check_valid_value(
             type_loss, 'type_loss',
-            [constants.CROSS_ENTROPY_LOSS, constants.DICE_LOSS])
+            [
+                constants.CROSS_ENTROPY_LOSS,
+                constants.DICE_LOSS,
+                constants.FOCAL_LOSS
+            ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
             loss, loss_summ = losses.cross_entropy_loss_fn(
                 self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
+        elif type_loss == constants.FOCAL_LOSS:
+            loss, loss_summ = losses.focal_loss_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.FOCUSING_PARAMETER])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
-        return loss,loss_summ
+        return loss, loss_summ
 
     def _optimizer_fn(self):
         type_optimizer = self.params[pkeys.TYPE_OPTIMIZER]

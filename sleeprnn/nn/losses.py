@@ -120,7 +120,6 @@ def dice_loss_fn(probabilities, labels):
     return loss, loss_summ
 
 
-# TODO: Implement Focal Loss
 def focal_loss_fn(logits, labels, class_weights, gamma):
     """Returns the focal loss to be minimized.
 
@@ -208,7 +207,13 @@ def focal_loss_fn(logits, labels, class_weights, gamma):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)
+        probabilities = tf.nn.softmax(logits)
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        proba_correct_class = tf.reduce_sum(
+            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
 
+        # Apply focusing parameter
+        loss = (proba_correct_class ** gamma) * loss
 
         # Weighted loss
         loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
