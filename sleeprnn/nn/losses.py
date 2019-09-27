@@ -213,7 +213,7 @@ def focal_loss_fn(logits, labels, class_weights, gamma):
             probabilities * labels_onehot, axis=2)  # output shape [batch, time]
 
         # Apply focusing parameter
-        loss = (proba_correct_class ** gamma) * loss
+        loss = ((1.0 - proba_correct_class) ** gamma) * loss
 
         # Weighted loss
         loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
