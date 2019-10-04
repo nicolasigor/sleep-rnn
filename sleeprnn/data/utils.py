@@ -335,16 +335,24 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
 
 def extract_pages_for_stamps(stamps, pages_indices, page_size):
     """Returns stamps that are at least partially contained on pages."""
-    pages_list = []
-    for i in range(stamps.shape[0]):
-        stamp_start_page = stamps[i, 0] // page_size
-        stamp_end_page = stamps[i, 1] // page_size
 
-        start_inside = (stamp_start_page in pages_indices)
-        end_inside = (stamp_end_page in pages_indices)
+    stamps_start_page = np.floor(stamps[:, 0] / page_size)
+    stamps_end_page = np.floor(stamps[:, 1] / page_size)
+    useful_idx = np.where(
+        np.isin(stamps_start_page, pages_indices) | np.isin(stamps_end_page, pages_indices)
+    )[0]
+    pages_list = stamps[useful_idx, :]
 
-        if start_inside or end_inside:
-            pages_list.append(stamps[i, :])
+    # pages_list = []
+    # for i in range(stamps.shape[0]):
+    #     stamp_start_page = stamps[i, 0] // page_size
+    #     stamp_end_page = stamps[i, 1] // page_size
+    #
+    #     start_inside = (stamp_start_page in pages_indices)
+    #     end_inside = (stamp_end_page in pages_indices)
+    #
+    #     if start_inside or end_inside:
+    #         pages_list.append(stamps[i, :])
 
     pages_data = np.stack(pages_list, axis=0)
     return pages_data

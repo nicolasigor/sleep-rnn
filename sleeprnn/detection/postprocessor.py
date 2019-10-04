@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from joblib import delayed, Parallel
+
 import numpy as np
 
 from sleeprnn.common import checks, constants, pkeys
@@ -93,8 +95,8 @@ class PostProcessor(object):
         if pages_indices_subset_list is None:
             pages_indices_subset_list = [None] * len(pages_sequence_list)
 
-        stamps_list = [
-            self.proba2stamps(
+        stamps_list = Parallel(n_jobs=-1)(
+            delayed(self.proba2stamps)(
                 pages_sequence,
                 pages_indices,
                 pages_indices_subset=pages_indices_subset,
@@ -106,7 +108,23 @@ class PostProcessor(object):
             in zip(
                 pages_sequence_list,
                 pages_indices_list,
-                pages_indices_subset_list)]
+                pages_indices_subset_list)
+        )
+
+        # stamps_list = [
+        #     self.proba2stamps(
+        #         pages_sequence,
+        #         pages_indices,
+        #         pages_indices_subset=pages_indices_subset,
+        #         thr=thr)
+        #     for (
+        #         pages_sequence,
+        #         pages_indices,
+        #         pages_indices_subset)
+        #     in zip(
+        #         pages_sequence_list,
+        #         pages_indices_list,
+        #         pages_indices_subset_list)]
 
         return stamps_list
 

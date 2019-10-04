@@ -41,25 +41,32 @@ def filter_duration_stamps(marks, fs, min_duration, max_duration):
     If min_duration is None, no short marks are removed.
     If max_duration is None, no long marks are removed.
     """
-    durations = (marks[:, 1] - marks[:, 0]) / fs
 
-    if min_duration is not None:
-        # Remove too short spindles
-        feasible_idx = np.where(durations >= min_duration)[0]
-        marks = marks[feasible_idx, :]
-        durations = durations[feasible_idx]
+    if min_duration is None and max_duration is None:
+        return marks
+    else:
+        durations = (marks[:, 1] - marks[:, 0]) / fs
 
-    if max_duration is not None:
-        # Remove weird annotations (extremely long)
-        feasible_idx = np.where(durations <= 2*max_duration)[0]
-        marks = marks[feasible_idx, :]
-        durations = durations[feasible_idx]
-        # For annotations with durations longer than max_duration,
-        # keep the central seconds
-        excess = durations - max_duration
-        excess = np.clip(excess, 0, None)
-        half_remove = (fs * excess / 2).astype(np.int32)
-        marks[:, 0] = marks[:, 0] + half_remove
-        marks[:, 1] = marks[:, 1] - half_remove
+        if min_duration is not None:
+            # Remove too short spindles
+            feasible_idx = np.where(durations >= min_duration)[0]
+            marks = marks[feasible_idx, :]
+            durations = durations[feasible_idx]
+
+        if max_duration is not None:
+            # Remove weird annotations (extremely long)
+            feasible_idx = np.where(durations <= 2*max_duration)[0]
+            marks = marks[feasible_idx, :]
+            durations = durations[feasible_idx]
+
+            # For annotations with durations longer than max_duration,
+            # keep the central seconds
+            excess = durations - max_duration
+            excess = np.clip(excess, 0, None)
+            half_remove = (fs * excess / 2).astype(np.int32)
+            half_remove_array = np.stack([half_remove, -half_remove], axis=1)
+            marks = marks + half_remove_array
+            # marks[:, 0] = marks[:, 0] + half_remove
+            # marks[:, 1] = marks[:, 1] - half_remove
 
     return marks

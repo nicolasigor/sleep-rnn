@@ -4,9 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
-
 from pprint import pprint
-import time
 
 import numpy as np
 
@@ -24,13 +22,12 @@ from sleeprnn.common import constants
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
 
-
 if __name__ == '__main__':
 
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190927_out_proba_cwt_grid'
+    ckpt_folder = '20190927_loss_grid'
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
@@ -45,6 +42,10 @@ if __name__ == '__main__':
     res_thr = 0.02
     start_thr = 0.2
     end_thr = 0.8
+
+    # Split evaluation
+    n_splits = 1
+    this_split_id = 0
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
@@ -62,6 +63,14 @@ if __name__ == '__main__':
             full_ckpt_folder
         ))
         grid_folder_list.sort()
+
+        n_settings = len(grid_folder_list)
+        n_per_split = int(np.ceil(n_settings / n_splits))
+        this_start = this_split_id * n_per_split
+        this_end = this_start + n_per_split
+
+        grid_folder_list = grid_folder_list[this_start:this_end]
+
         print('Grid settings found inside %s:' % full_ckpt_folder)
         pprint(grid_folder_list)
     print('')
@@ -138,6 +147,7 @@ if __name__ == '__main__':
     metric_to_sort_list = []
     str_to_show_list = []
     for j, folder_name in enumerate(grid_folder_list):
+        seeds_best_f1_at_iou = []
         seeds_half_performance = []
         seeds_best_performance = []
         seeds_best_thr = []
@@ -180,6 +190,9 @@ if __name__ == '__main__':
             this_detections_train = prediction_obj_train.get_stamps()
             af1_at_thr = metrics.average_metric_with_list(
                 this_events_val, this_detections_val, verbose=False)
+            f1_at_thr = metrics.metric_vs_iou_with_list(
+                this_events_val, this_detections_val, [0.2, 0.3])
+            seeds_best_f1_at_iou.append(f1_at_thr)
 
             # Compute std for average recall and precision
             alltrain_events = this_events_val + this_events_train
@@ -211,15 +224,23 @@ if __name__ == '__main__':
         mean_std_ap = np.mean(seeds_ap_std).item()
         mean_std_ar = np.mean(seeds_ar_std).item()
 
+        mean_f1_at_iou = np.stack(seeds_best_f1_at_iou, axis=0).mean(axis=0)
+        std_f1_at_iou = np.stack(seeds_best_f1_at_iou, axis=0).std(axis=0)
+
+        seeds_best_thr_string = ', '.join([
+            '%1.2f' % single_thr for single_thr in seeds_best_thr])
         str_to_show = (
-                'AF1 %1.4f +- %1.4f (mu 0.5), '
-                'AF1 %1.4f +- %1.4f (mu %s), '
-                'AP-STD %1.4f AR-STD %1.4f '
-                'for setting %s'
-                % (mean_half_performance, std_half_performance,
-                   mean_best_performance, std_best_performance, seeds_best_thr,
-                   mean_std_ap, mean_std_ar,
-                   folder_name))
+                'AF1 %1.2f/%1.2f [0.5] '
+                '%1.2f/%1.2f [%s], '
+                'F1(03) %1.2f/%1.2f, '
+                'AP/AR-STD %1.2f/%1.2f for %s'
+                % (100*mean_half_performance, 100*std_half_performance,
+                   100*mean_best_performance, 100*std_best_performance,
+                   seeds_best_thr_string,
+                   100 * mean_f1_at_iou[1], 100 * std_f1_at_iou[1],
+                   100*mean_std_ap, 100*mean_std_ar,
+                   folder_name
+                   ))
 
         metric_to_sort_list.append(mean_best_performance)
         str_to_show_list.append(str_to_show)

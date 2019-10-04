@@ -2,12 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from joblib import delayed, Parallel
+
 import numpy as np
-from numba import jit, prange
 
 from sleeprnn.detection import metrics
-from sleeprnn.detection.feeder_dataset import FeederDataset
-from sleeprnn.detection.predicted_dataset import PredictedDataset
 
 
 def get_optimal_threshold(
@@ -45,23 +44,54 @@ def get_optimal_threshold(
         print('%d thresholds to be evaluated between %1.4f and %1.4f'
               % (n_thr, thr_list[0], thr_list[-1]))
 
-    af1_list = []
+    events_list = []
+    for feeder_dataset in feeder_dataset_list:
+        # Prepare expert labels
+        this_events = feeder_dataset.get_stamps()
+        events_list = events_list + this_events
+
+    predictions_at_thr_list = []
     for thr in thr_list:
-        events_list = []
         detections_list = []
-        for (feeder_dataset, predicted_dataset) in zip(
-                feeder_dataset_list, predicted_dataset_list):
-            # Prepare expert labels
-            this_events = feeder_dataset.get_stamps()
+        for predicted_dataset in predicted_dataset_list:
             # Prepare model predictions
             predicted_dataset.set_probability_threshold(thr)
             this_detections = predicted_dataset.get_stamps()
-            events_list = events_list + this_events
             detections_list = detections_list + this_detections
-        # Compute AF1
-        af1_at_thr = metrics.average_metric_with_list(
-            events_list, detections_list, verbose=False)
-        af1_list.append(af1_at_thr)
+        predictions_at_thr_list.append(detections_list)
+
+    af1_list = Parallel(n_jobs=-1)(
+        delayed(metrics.average_metric_with_list)(
+            events_list, single_prediction_list, verbose=False)
+        for single_prediction_list in predictions_at_thr_list
+    )
+
+    # af1_list = [
+    #     metrics.average_metric_with_list(
+    #         events_list, single_prediction_list, verbose=False)
+    #     for single_prediction_list in predictions_at_thr_list
+    # ]
+
+
+    # af1_list = []
+    # for thr in thr_list:
+    #     # events_list = []
+    #     # detections_list = []
+    #     # # for (feeder_dataset, predicted_dataset) in zip(
+    #     # #         feeder_dataset_list, predicted_dataset_list):
+    #     # for predicted_dataset in predicted_dataset_list:
+    #     #     # Prepare expert labels
+    #     #     # this_events = feeder_dataset.get_stamps()
+    #     #     # Prepare model predictions
+    #     #     predicted_dataset.set_probability_threshold(thr)
+    #     #     this_detections = predicted_dataset.get_stamps()
+    #     #     # events_list = events_list + this_events
+    #     #     detections_list = detections_list + this_detections
+    #     # Compute AF1
+    #     af1_at_thr = metrics.average_metric_with_list(
+    #         events_list, predictions_dict[thr], verbose=False)
+    #     af1_list.append(af1_at_thr)
+
     max_idx = np.argmax(af1_list).item()
     best_thr = thr_list[max_idx]
     return best_thr

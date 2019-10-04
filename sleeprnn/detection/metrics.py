@@ -232,12 +232,28 @@ def average_metric_with_list(
         metric_name=constants.F1_SCORE,
         verbose=False
 ):
-    all_avg_list = []
-    for events, detections in zip(events_list, detections_list):
-        avg_metric = average_metric(
+    all_avg_list = [
+        average_metric(
             events, detections,
             metric_name=metric_name, verbose=verbose)
-        all_avg_list.append(avg_metric)
+        for (events, detections) in zip(events_list, detections_list)
+    ]
+
+    # all_avg_list = Parallel(n_jobs=-1)(
+    #     delayed(average_metric)(
+    #         events, detections,
+    #         metric_name=metric_name, verbose=verbose)
+    #     for (events, detections) in zip(events_list, detections_list)
+    # )
+
+    # all_avg_list = []
+    #
+    # for events, detections in zip(events_list, detections_list):
+    #     avg_metric = average_metric(
+    #         events, detections,
+    #         metric_name=metric_name, verbose=verbose)
+    #     all_avg_list.append(avg_metric)
+
     all_avg = np.mean(all_avg_list)
     return all_avg
 
