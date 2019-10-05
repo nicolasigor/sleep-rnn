@@ -98,6 +98,9 @@ if __name__ == '__main__':
 
                 for model_version, batch_size in param_list:
 
+                    if model_version == constants.V19 and batch_size >= 128:
+                        continue
+
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.BATCH_SIZE] = batch_size
 
