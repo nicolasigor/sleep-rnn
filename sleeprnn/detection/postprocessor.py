@@ -36,6 +36,7 @@ class PostProcessor(object):
         fs_input corresponds to sampling frequency of pages_sequence,
         fs_outputs corresponds to desired sampling frequency.
         """
+
         # Thresholding
         if thr is None:
             # We assume that sequence is already binary

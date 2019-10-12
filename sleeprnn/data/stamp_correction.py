@@ -14,6 +14,9 @@ def combine_close_stamps(marks, fs, min_separation):
 
     If min_separation is None, the functionality is bypassed.
     """
+    if marks.size == 0:
+        return marks
+
     if min_separation is None:
         combined_marks = marks
     else:
@@ -41,6 +44,8 @@ def filter_duration_stamps(marks, fs, min_duration, max_duration):
     If min_duration is None, no short marks are removed.
     If max_duration is None, no long marks are removed.
     """
+    if marks.size == 0:
+        return marks
 
     if min_duration is None and max_duration is None:
         return marks

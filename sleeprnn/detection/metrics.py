@@ -71,17 +71,28 @@ def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
     mean_all_iou = np.mean(iou_array)
     # First, remove the zero iou_array entries
     iou_array = iou_array[iou_array > 0]
-    mean_nonzero_iou = np.mean(iou_array)
-    # Now, give credit only for iou >= iou_thr
-    tp = np.sum((iou_array >= iou_thr).astype(int))
-    fp = n_detections - tp
-    fn = n_events - tp
-    precision = tp / n_detections
-    recall = tp / n_events
+    if iou_array.size > 0:
+        mean_nonzero_iou = np.mean(iou_array)
+        # Now, give credit only for iou >= iou_thr
+        tp = np.sum((iou_array >= iou_thr).astype(int))
+        fp = n_detections - tp
+        fn = n_events - tp
+        precision = tp / n_detections
+        recall = tp / n_events
 
-    # f1-score is 2 * precision * recall / (precision + recall),
-    # but considering the case tp=0, a more stable formula is:
-    f1_score = 2 * tp / (n_detections + n_events)
+        # f1-score is 2 * precision * recall / (precision + recall),
+        # but considering the case tp=0, a more stable formula is:
+        f1_score = 2 * tp / (n_detections + n_events)
+
+    else:
+        # There are no positive iou -> no true positives
+        mean_nonzero_iou = 0.0
+        tp = 0
+        fp = n_detections
+        fn = n_events
+        precision = 0
+        recall = 0
+        f1_score = 0
 
     by_event_metrics = {
         constants.TP: tp,
@@ -100,9 +111,17 @@ def matching(events, detections):
     """Returns the IoU associated with each event. Events that has no detections
     have IoU zero. events and detections are assumed to be sample-stamps, and to
     be in ascending order."""
+
     # Matrix of overlap, rows are events, columns are detections
     n_det = detections.shape[0]
     n_gs = events.shape[0]
+
+    if n_det == 0:
+        # There are no detections
+        iou_array = np.zeros(n_gs)
+        idx_array = -1 * np.ones(n_gs, dtype=np.int32)
+        return iou_array, idx_array
+
     overlaps = np.zeros((n_gs, n_det))
     for i in range(n_gs):
         candidates = np.where(

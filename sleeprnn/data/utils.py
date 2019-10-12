@@ -354,7 +354,7 @@ def extract_pages_for_stamps(stamps, pages_indices, page_size):
     #     if start_inside or end_inside:
     #         pages_list.append(stamps[i, :])
 
-    pages_data = np.stack(pages_list, axis=0)
+    pages_data = pages_list  # np.stack(pages_list, axis=0)
     return pages_data
 
 
