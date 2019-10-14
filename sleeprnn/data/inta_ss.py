@@ -175,9 +175,24 @@ class IntaSS(Dataset):
         """Loads signal from 'path_eeg_file', does filtering."""
         with pyedflib.EdfReader(path_eeg_file) as file:
             signal = file.readSignal(self.channel)
+            fs_old = file.samplefrequency(self.channel)
             # Check
             print('Channel extracted: %s' % file.getLabel(self.channel))
-        signal = utils.broad_filter(signal, self.fs)
+
+        # Particular for INTA dataset
+        fs_old = int(np.round(fs_old))
+
+        # Broand bandpass filter to signal
+        signal = utils.broad_filter(signal, fs_old)
+
+        # Now resample to the required frequency
+        if self.fs != fs_old:
+            print('Resampling from %d Hz to required %d Hz' % (fs_old, self.fs))
+            signal = utils.resample_signal(
+                signal, fs_old=fs_old, fs_new=self.fs)
+        else:
+            print('Signal already at required %d Hz' % self.fs)
+
         signal = signal.astype(np.float32)
         return signal
 

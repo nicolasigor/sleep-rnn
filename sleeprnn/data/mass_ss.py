@@ -182,15 +182,23 @@ class MassSS(Dataset):
             # Check
             print('Channel extracted: %s' % file.getLabel(channel_to_extract))
 
+        # Particular fix for mass dataset:
         fs_old_round = int(np.round(fs_old))
         # Transform the original fs frequency with decimals to rounded version
         signal = utils.resample_signal_linear(
             signal, fs_old=fs_old, fs_new=fs_old_round)
+
         # Broand bandpass filter to signal
-        signal = utils.broad_filter(signal, fs_old)
+        signal = utils.broad_filter(signal, fs_old_round)
+
         # Now resample to the required frequency
-        signal = utils.resample_signal(
-            signal, fs_old=fs_old_round, fs_new=self.fs)
+        if self.fs != fs_old_round:
+            print('Resampling from %d Hz to required %d Hz' % (fs_old_round, self.fs))
+            signal = utils.resample_signal(
+                signal, fs_old=fs_old_round, fs_new=self.fs)
+        else:
+            print('Signal already at required %d Hz' % self.fs)
+
         signal = signal.astype(np.float32)
         return signal
 
