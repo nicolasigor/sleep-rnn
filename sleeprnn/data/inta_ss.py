@@ -204,6 +204,15 @@ class IntaSS(Dataset):
         marks_file = np.loadtxt(path_marks_file, dtype='i', delimiter=' ')
         marks = marks_file[marks_file[:, 5] == self.channel + 1][:, [0, 1]]
         marks = np.round(marks).astype(np.int32)
+
+        # Sample-stamps assume 200Hz sampling rate
+        if self.fs != 200:
+            print('Correcting marks from 200 Hz to %d Hz' % self.fs)
+            # We need to transform the marks to the new sampling rate
+            marks_time = marks.astype(np.float32) / 200.0
+            # Transform to sample-stamps
+            marks = np.round(marks_time * self.fs).astype(np.int32)
+
         # Combine marks that are too close according to standards
         marks = stamp_correction.combine_close_stamps(
             marks, self.fs, self.min_ss_duration)
