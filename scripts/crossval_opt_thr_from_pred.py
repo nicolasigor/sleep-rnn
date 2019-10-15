@@ -17,7 +17,7 @@ from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
 from sleeprnn.detection.threshold_optimization import get_optimal_threshold
-from sleeprnn.common import constants
+from sleeprnn.common import constants, pkeys
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 SEED_LIST = [123, 234, 345, 456]
@@ -27,10 +27,13 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20191003_loss_grid_cwt'
+    ckpt_folder = '20190827_thesis_1_bsf_e1'
+    dataset_params = {pkeys.FS: 200}
+    load_dataset_from_ckpt = False
+
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.INTA_SS_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
@@ -51,7 +54,9 @@ if __name__ == '__main__':
     # -----------------------------------------------------------
 
     # Load data
-    dataset = load_dataset(dataset_name)
+    dataset = load_dataset(
+        dataset_name,
+        params=dataset_params, load_checkpoint=load_dataset_from_ckpt)
     all_train_ids = dataset.train_ids
 
     full_ckpt_folder = '%s_%s_train_%s' \
