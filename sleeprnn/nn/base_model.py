@@ -463,8 +463,9 @@ class BaseModel(object):
         # Restore checkpoint
         if ckptdir:
             self.load_checkpoint(ckptdir)
-        # Reset optimizer variables (like moving averages)
-        self.sess.run(self.reset_optimizer)
+        if self.params[pkeys.LR_UPDATE_RESET_OPTIMIZER]:
+            # Reset optimizer variables (like moving averages)
+            self.sess.run(self.reset_optimizer)
         # Decrease learning rate
         self.lr_updates = self.lr_updates + 1
         total_factor = update_factor ** self.lr_updates

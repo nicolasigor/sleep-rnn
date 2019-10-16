@@ -48,10 +48,11 @@ class WaveletBLSTM(BaseModel):
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         augmented_input_length = 2*(page_size + border_size)
+        time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         feat_train_shape = [augmented_input_length]
         label_train_shape = feat_train_shape
         feat_eval_shape = [page_size + 2 * border_size]
-        label_eval_shape = [page_size / 8]
+        label_eval_shape = [page_size / time_stride]
         super().__init__(
             feat_train_shape,
             label_train_shape,
@@ -198,6 +199,10 @@ class WaveletBLSTM(BaseModel):
                     model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
                     model_criterion[KEY_ITER] = it
 
+                    # Save best model
+                    if self.params[pkeys.KEEP_BEST_VALIDATION]:
+                        self.saver.save(self.sess, self.ckptdir)
+
                 # Check LR update criterion
 
                 # The model has not improved enough
@@ -207,6 +212,9 @@ class WaveletBLSTM(BaseModel):
                 lr_criterion = lr_criterion_1 and lr_criterion_2
                 if lr_criterion:
                     if self.lr_updates < self.params[pkeys.MAX_LR_UPDATES]:
+                        # if self.params[pkeys.KEEP_BEST_VALIDATION]:
+                        #     print('Restoring best model before lr update')
+                        #     self.load_checkpoint(self.ckptdir)
                         new_lr = self._update_learning_rate(
                             self.params[pkeys.LR_UPDATE_FACTOR])
                         print('    Learning rate update (%d). New value: %s'
@@ -220,9 +228,17 @@ class WaveletBLSTM(BaseModel):
                         niters = it
                         break
 
+        if self.params[pkeys.KEEP_BEST_VALIDATION]:
+            iter_saved_model = model_criterion[KEY_ITER]
+            print('Restoring best model from it %d' % iter_saved_model)
+            self.load_checkpoint(self.ckptdir)
+        else:
+            print('Keeping model from last iteration')
+            iter_saved_model = niters
+
         val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
         last_model = {
-            KEY_ITER: niters,
+            KEY_ITER: iter_saved_model,
             KEY_LOSS: float(val_loss),
             KEY_F1_SCORE: float(val_metrics[KEY_F1_SCORE])
         }
@@ -247,6 +263,8 @@ class WaveletBLSTM(BaseModel):
         This method is used to preprocess features and labels of single
         examples with a random cropping
         """
+
+        # Prepare for training
         time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
@@ -256,11 +274,14 @@ class WaveletBLSTM(BaseModel):
         stack = tf.stack([feat, label_cast], axis=0)
         stack_crop = tf.random_crop(stack, [2, crop_size])
         feat = stack_crop[0, :]
-        # Throw borders for labels, skipping steps
-        label_cast = stack_crop[1, border_size:-border_size:time_stride]
-        label = tf.cast(label_cast, dtype=tf.int32)
+        label = tf.cast(stack_crop[1, :], dtype=tf.int32)
+
         # Apply data augmentation
-        # feat, label = self._augmentation_fn(feat, label)
+        feat, label = self._augmentation_fn(feat, label)
+
+        # Throw borders for labels, skipping steps
+        label = label[border_size:-border_size:time_stride]
+
         return feat, label
 
     def _augmentation_fn(self, feat, label):
@@ -272,20 +293,33 @@ class WaveletBLSTM(BaseModel):
         rescale_unif_proba = self.params[pkeys.AUG_RESCALE_UNIFORM_PROBA]
         rescale_unif_intens = self.params[pkeys.AUG_RESCALE_UNIFORM_INTENSITY]
 
+        elastic_proba = self.params[pkeys.AUG_ELASTIC_PROBA]
+        elastic_alpha = self.params[pkeys.AUG_ELASTIC_ALPHA]
+        elastic_sigma = self.params[pkeys.AUG_ELASTIC_SIGMA]
+
         print('rescale proba, std:', rescale_proba, rescale_std)
         print('noise proba, std:', noise_proba, noise_std)
         print('rescale unif proba, intens:', rescale_unif_proba, rescale_unif_intens)
+        print('elastic proba, alpha, sigma:', elastic_proba, elastic_alpha, elastic_sigma)
 
         if rescale_proba > 0:
+            print('Applying gaussian rescaling augmentation')
             feat = augmentations.rescale_normal(
                 feat, rescale_proba, rescale_std)
         if noise_proba > 0:
+            print('Applying gaussian noise augmentation')
             feat = augmentations.gaussian_noise(
                 feat, noise_proba, noise_std)
 
         if rescale_unif_proba > 0:
+            print('Applying uniform rescaling augmentation')
             feat = augmentations.rescale_uniform(
                 feat, rescale_unif_proba, rescale_unif_intens)
+
+        if elastic_proba > 0:
+            print('Applying elastic deformations')
+            feat, label = augmentations.elastic_1d_deformation_wrapper(
+                feat, label, elastic_proba, elastic_alpha, elastic_sigma)
 
         return feat, label
 
@@ -319,7 +353,8 @@ class WaveletBLSTM(BaseModel):
                 constants.V20_CONCAT,
                 constants.V21,
                 constants.V22,
-                constants.V23
+                constants.V23,
+                constants.V24
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -369,6 +404,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v22
         elif model_version == constants.V23:
             model_fn = networks.wavelet_blstm_net_v23
+        elif model_version == constants.V24:
+            model_fn = networks.wavelet_blstm_net_v24
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

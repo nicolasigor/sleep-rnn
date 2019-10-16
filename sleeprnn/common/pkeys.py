@@ -23,6 +23,9 @@ AUG_GAUSSIAN_NOISE_PROBA = 'aug_gaussian_noise_proba'
 AUG_GAUSSIAN_NOISE_STD = 'aug_gaussian_noise_std'
 AUG_RESCALE_UNIFORM_PROBA = 'aug_rescale_uniform_proba'
 AUG_RESCALE_UNIFORM_INTENSITY = 'aug_rescale_uniform_intensity'
+AUG_ELASTIC_PROBA = 'aug_elastic_proba'
+AUG_ELASTIC_ALPHA = 'aug_elastic_alpha'
+AUG_ELASTIC_SIGMA = 'aug_elastic_sigma'
 
 """ Model params
 time_resolution_factor: (int) The original sampling frequency for the labels
@@ -136,6 +139,8 @@ CWT_RETURN_IMAG_PART = 'cwt_return_imag_part'
 CWT_RETURN_MAGNITUDE = 'cwt_return_magnitude'
 CWT_RETURN_PHASE = 'cwt_return_phase'
 INIT_POSITIVE_PROBA = 'init_positive_proba'
+# Upconv output
+LAST_OUTPUT_CONV_FILTERS = 'last_output_conv_filters'
 
 
 """ Loss params
@@ -181,6 +186,8 @@ LR_UPDATE_FACTOR = 'lr_update_factor'
 LR_UPDATE_CRITERION = 'lr_update_criterion'
 MAX_LR_UPDATES = 'max_lr_updates'
 FACTOR_INIT_LR_FINE_TUNE = 'factor_init_lr_fine_tune'
+LR_UPDATE_RESET_OPTIMIZER = 'lr_update_reset_optimizer'
+KEEP_BEST_VALIDATION = 'keep_best_validation'
 
 
 """ Postprocessing params 
@@ -202,7 +209,7 @@ default_params = {
     FS: 200,
     NORM_COMPUTATION_MODE: constants.NORM_GLOBAL,
     BATCH_SIZE: 32,
-    SHUFFLE_BUFFER_SIZE: 1000,
+    SHUFFLE_BUFFER_SIZE: 10000,
     PREFETCH_BUFFER_SIZE: 2,
     PAGE_DURATION: 20,
     AUG_RESCALE_NORMAL_PROBA: 0.0,
@@ -211,6 +218,9 @@ default_params = {
     AUG_RESCALE_NORMAL_STD: 0.05,
     AUG_GAUSSIAN_NOISE_STD: 0.01,
     AUG_RESCALE_UNIFORM_INTENSITY: 0.1,
+    AUG_ELASTIC_PROBA: 0.0,
+    AUG_ELASTIC_ALPHA: 40,
+    AUG_ELASTIC_SIGMA: 10,
     MODEL_VERSION: constants.V21,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,
@@ -235,6 +245,7 @@ default_params = {
     CONV_DOWNSAMPLING: constants.AVGPOOL,
     FC_UNITS: 128,
     OUTPUT_LSTM_UNITS: None,
+    LAST_OUTPUT_CONV_FILTERS: None,
     TIME_CONV_FILTERS_1: 64,
     TIME_CONV_FILTERS_2: 128,
     TIME_CONV_FILTERS_3: 256,
@@ -252,6 +263,7 @@ default_params = {
     LR_UPDATE_FACTOR: 0.5,
     LR_UPDATE_CRITERION: constants.LOSS_CRITERION,
     MAX_LR_UPDATES: 4,
+    LR_UPDATE_RESET_OPTIMIZER: True,
     TOTAL_DOWNSAMPLING_FACTOR: 8,
     SS_MIN_SEPARATION: 0.3,
     SS_MIN_DURATION: 0.2,
@@ -267,5 +279,6 @@ default_params = {
     CWT_RETURN_MAGNITUDE: False,
     CWT_RETURN_PHASE: False,
     INIT_POSITIVE_PROBA: 0.5,
-    FOCUSING_PARAMETER: None
+    FOCUSING_PARAMETER: None,
+    KEEP_BEST_VALIDATION: False,
 }

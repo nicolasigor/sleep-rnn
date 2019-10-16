@@ -134,7 +134,7 @@ class PostProcessor(object):
         """
         upsample_factor = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         stamps = stamps * upsample_factor
-        stamps[:, 0] = stamps[:, 0] - upsample_factor / 2
-        stamps[:, 1] = stamps[:, 1] + upsample_factor / 2
+        stamps[:, 0] = stamps[:, 0] - upsample_factor // 2
+        stamps[:, 1] = stamps[:, 1] + upsample_factor // 2
         stamps = stamps.astype(np.int32)
         return stamps

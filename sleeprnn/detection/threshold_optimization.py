@@ -13,8 +13,8 @@ def get_optimal_threshold(
         feeder_dataset_list,
         predicted_dataset_list,
         res_thr=0.02,
-        start_thr=0.3,
-        end_thr=0.7,
+        start_thr=0.2,
+        end_thr=0.8,
         verbose=False
 ):
 
