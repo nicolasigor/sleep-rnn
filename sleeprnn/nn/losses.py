@@ -84,6 +84,7 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             weights = tf.cast(
                 tf.math.greater(random_mask, p_drop_negative), tf.float32)
         else:
+            print('Balancing with weights', class_weights)
             class_weights = tf.constant(class_weights)
             weights = tf.gather(class_weights, labels)
 
