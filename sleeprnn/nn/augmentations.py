@@ -124,7 +124,7 @@ def elastic_1d_deformation(feat, label, fs, alpha=0.2, sigma=0.05):
             flow = tf.expand_dims(flow, axis=0)  # [1, time_len]
 
             # Apply transformation
-            # Stack inputs along channel dimension, and add dummy batch dimension
+            # Stack inputs along channel dimension, and add dummy batch dim
             feat_tensor = tf.cast(feat, tf.float32)[tf.newaxis, :]
             label_tensor = tf.cast(label, tf.float32)[tf.newaxis, :]
             stacked_input = tf.stack([feat_tensor, label_tensor], axis=2)
@@ -134,7 +134,7 @@ def elastic_1d_deformation(feat, label, fs, alpha=0.2, sigma=0.05):
             new_feat = tf.squeeze(stacked_output[..., 0])
             new_label = tf.squeeze(stacked_output[..., 1])
             # Make the marks integers
-            new_label = tf.cast(new_label, tf.int32)
+            new_label = tf.cast(tf.round(new_label), tf.int32)
     return new_feat, new_label
 
 
