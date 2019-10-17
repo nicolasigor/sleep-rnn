@@ -7,6 +7,14 @@ from __future__ import print_function
 import os
 
 
+def check_valid_range(value, name, valid_range):
+    """Raises a ValueError exception if value not in valid_range"""
+    if value > valid_range[1] or value  < valid_range[0]:
+        msg = 'Expected range %s for %s, but %s was provided.' \
+              % (valid_range, name, value)
+        raise ValueError(msg)
+
+
 def check_valid_value(value, name, valid_list):
     """Raises a ValueError exception if value not in valid_list"""
     if value not in valid_list:

@@ -319,7 +319,8 @@ class WaveletBLSTM(BaseModel):
         if elastic_proba > 0:
             print('Applying elastic deformations')
             feat, label = augmentations.elastic_1d_deformation_wrapper(
-                feat, label, elastic_proba, elastic_alpha, elastic_sigma)
+                feat, label, elastic_proba, self.params[pkeys.FS],
+                elastic_alpha, elastic_sigma)
 
         return feat, label
 

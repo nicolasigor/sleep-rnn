@@ -8,8 +8,11 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 import tensorflow_probability as tfp
 
+from sleeprnn.common import checks
+
 
 def rescale_normal(feat, probability, std):
+    checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('rescale_normal'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
@@ -24,6 +27,7 @@ def rescale_normal(feat, probability, std):
 
 def gaussian_noise(feat, probability, std):
     """Noise is relative to each value"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('gaussian_noise'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
@@ -37,6 +41,7 @@ def gaussian_noise(feat, probability, std):
 
 
 def rescale_uniform(feat, probability, intensity):
+    checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('rescale_uniform'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
@@ -49,19 +54,20 @@ def rescale_uniform(feat, probability, intensity):
     return new_feat
 
 
-def elastic_1d_deformation_wrapper(feat, label, probability, alpha, sigma):
+def elastic_1d_deformation_wrapper(feat, label, probability, fs, alpha, sigma):
+    checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('elastic_deform'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
         new_feat, new_label = tf.cond(
             aug_condition,
-            lambda: elastic_1d_deformation(feat, label, alpha, sigma),
+            lambda: elastic_1d_deformation(feat, label, fs, alpha, sigma),
             lambda: (feat, label)
         )
     return new_feat, new_label
 
 
-def elastic_1d_deformation(feat, label, alpha=40, sigma=10):
+def elastic_1d_deformation(feat, label, fs, alpha=0.2, sigma=0.05):
     """Transforms the given feat and label using elastic deformation.
     This implementation is intended to be used on a single example,
     and follows the description in:
@@ -90,67 +96,75 @@ def elastic_1d_deformation(feat, label, alpha=40, sigma=10):
             [time_len] corresponding to a single signal.
         label: (tensor) 1D tensor of the same shape as feat,
             corresponding to the class.
-        alpha: (float) Scaling factor of the transformation.
-        sigma: (float) Elasticity coefficient of the transformation.
+        fs: (float) sampling frequency
+        alpha: (float) Scaling factor of the transformation (in seconds)
+        sigma: (float) Elasticity coefficient of the transformation (in seconds)
     Returns:
         new_feat: (tensor) 1D tensor of the same shape as feat,
             corresponding to the transformed signal.
         new_label: (tensor) 1D tensor of the same shape as label,
             corresponding to the transformed label.
     """
-    with tf.variable_scope('elastic'):
-        # Input shape
-        input_dim = tf.shape(feat)
+    # Transform to number of samples
+    alpha = alpha * fs
+    sigma = sigma * fs
 
-        # Random fields
-        dx_random_fields = tf.random_uniform(shape=input_dim, minval=-1.0,
-                                             maxval=1.0)
-        # Gaussian filtration and scaling
-        kernel = gaussian_kernel(sigma, truncate=4.0)
-        flow = alpha * apply_kernel1d(dx_random_fields, kernel)
-        # Elastic deformation coordinates
-        flow = tf.expand_dims(flow, axis=0)  # [1, time_len]
+    with tf.device('/cpu:0'):
+        with tf.variable_scope('elastic'):
+            # Input shape
+            input_dim = tf.shape(feat)
 
-        # Apply transformation
-        # Stack inputs along channel dimension, and add dummy batch dimension
-        feat_tensor = tf.cast(feat, tf.float32)[tf.newaxis, :]
-        label_tensor = tf.cast(label, tf.float32)[tf.newaxis, :]
-        stacked_input = tf.stack([feat_tensor, label_tensor], axis=2)
-        stacked_output = warp_1d(stacked_input, flow)
+            # Random fields
+            dx_random_fields = tf.random_uniform(shape=input_dim, minval=-1.0,
+                                                 maxval=1.0)
+            # Gaussian filtration and scaling
+            kernel = gaussian_kernel(sigma, truncate=4.0)
+            flow = alpha * apply_kernel1d(dx_random_fields, kernel)
+            # Elastic deformation coordinates
+            flow = tf.expand_dims(flow, axis=0)  # [1, time_len]
 
-        # Unstack and remove dummy batch dimension
-        new_feat = tf.squeeze(stacked_output[..., 0])
-        new_label = tf.squeeze(stacked_output[..., 1])
-        # Make the marks integers
-        new_label = tf.cast(new_label, tf.int32)
+            # Apply transformation
+            # Stack inputs along channel dimension, and add dummy batch dimension
+            feat_tensor = tf.cast(feat, tf.float32)[tf.newaxis, :]
+            label_tensor = tf.cast(label, tf.float32)[tf.newaxis, :]
+            stacked_input = tf.stack([feat_tensor, label_tensor], axis=2)
+            stacked_output = warp_1d(stacked_input, flow)
+
+            # Unstack and remove dummy batch dimension
+            new_feat = tf.squeeze(stacked_output[..., 0])
+            new_label = tf.squeeze(stacked_output[..., 1])
+            # Make the marks integers
+            new_label = tf.cast(new_label, tf.int32)
     return new_feat, new_label
 
 
 def gaussian_kernel(sigma, truncate=4.0):
     """Returns a gaussian kernel of shape [height, width]."""
-    with tf.variable_scope('get_gaussian_kernel'):
-        d = tfp.distributions.Normal(0.0, 1.0 * sigma)
-        size = int(truncate * sigma)
-        gauss_kernel = d.prob(
-            tf.range(start=-size, limit=size + 1, dtype=tf.float32))
-        gauss_kernel = gauss_kernel / tf.reduce_sum(gauss_kernel)  # Normalize
+    with tf.device('/cpu:0'):
+        with tf.variable_scope('get_gaussian_kernel'):
+            d = tfp.distributions.Normal(0.0, 1.0 * sigma)
+            size = int(truncate * sigma)
+            gauss_kernel = d.prob(
+                tf.range(start=-size, limit=size + 1, dtype=tf.float32))
+            gauss_kernel = gauss_kernel / tf.reduce_sum(gauss_kernel)  # Normalize
     return gauss_kernel
 
 
 def apply_kernel1d(signal, kernel):
     """Applies a 1d kernel over a signal."""
-    with tf.variable_scope('apply_gaussian_kernel'):
-        kernel = kernel[
-            ..., tf.newaxis, tf.newaxis, tf.newaxis]  # Proper shape for conv2d
-        signal = signal[
-            tf.newaxis, ..., tf.newaxis, tf.newaxis]  # Proper shape for conv2d
-        print(kernel)
-        print(signal)
+    with tf.device('/cpu:0'):
+        with tf.variable_scope('apply_gaussian_kernel'):
+            kernel = kernel[
+                ..., tf.newaxis, tf.newaxis, tf.newaxis]  # Proper shape for conv2d
+            signal = signal[
+                tf.newaxis, ..., tf.newaxis, tf.newaxis]  # Proper shape for conv2d
+            print(kernel)
+            print(signal)
 
-        new_signal = tf.nn.conv2d(
-            signal, kernel, strides=[1, 1, 1, 1], padding='SAME')
-        # Return to 2d tensor
-        new_signal = tf.squeeze(new_signal)
+            new_signal = tf.nn.conv2d(
+                signal, kernel, strides=[1, 1, 1, 1], padding='SAME')
+            # Return to 2d tensor
+            new_signal = tf.squeeze(new_signal)
     return new_signal
 
 
@@ -177,13 +191,14 @@ def warp_1d(signal, flow):
         A 3-D float `Tensor` with shape`[batch, time_len, channels]`
           and same type as input signal.
     """
-    batch_size, time_len, channels = signal.get_shape().as_list()
-    grid_x = math_ops.cast(math_ops.range(time_len), flow.dtype)
-    batched_grid = array_ops.expand_dims(grid_x, axis=0)
-    query_points_on_grid = batched_grid - flow
+    with tf.device('/cpu:0'):
+        batch_size, time_len, channels = signal.get_shape().as_list()
+        grid_x = math_ops.cast(math_ops.range(time_len), flow.dtype)
+        batched_grid = array_ops.expand_dims(grid_x, axis=0)
+        query_points_on_grid = batched_grid - flow
 
-    # Now we retrieve query values using interpolation
-    interpolated_signal = tfp.math.interp_regular_1d_grid(
-        query_points_on_grid, grid_x[0], grid_x[time_len - 1], signal, axis=1)
+        # Now we retrieve query values using interpolation
+        interpolated_signal = tfp.math.interp_regular_1d_grid(
+            query_points_on_grid, grid_x[0], grid_x[time_len - 1], signal, axis=1)
 
     return interpolated_signal

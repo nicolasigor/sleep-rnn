@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     description_str = 'playground'
 
-    folder_name = 'var11'
+    folder_name = 'elastic_test'
 
     which_expert = 1
     verbose = True
@@ -71,7 +71,8 @@ if __name__ == '__main__':
     params[pkeys.KEEP_BEST_VALIDATION] = True
     params[pkeys.AUG_GAUSSIAN_NOISE_PROBA] = 0.5
     params[pkeys.AUG_ELASTIC_PROBA] = 0.5
-    params[pkeys.AUG_ELASTIC_ALPHA] = 40
+    params[pkeys.AUG_ELASTIC_ALPHA] = 0.2
+    params[pkeys.AUG_ELASTIC_SIGMA] = 0.05
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
