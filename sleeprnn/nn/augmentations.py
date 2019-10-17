@@ -158,8 +158,6 @@ def apply_kernel1d(signal, kernel):
                 ..., tf.newaxis, tf.newaxis, tf.newaxis]  # Proper shape for conv2d
             signal = signal[
                 tf.newaxis, ..., tf.newaxis, tf.newaxis]  # Proper shape for conv2d
-            print(kernel)
-            print(signal)
 
             new_signal = tf.nn.conv2d(
                 signal, kernel, strides=[1, 1, 1, 1], padding='SAME')
