@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'weighted_focal_grid'
+    experiment_name = 'elastic_grid_pte2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'focal loss with weight of positive class'
+    description_str = 'elastic grid search, proba fixed to 0.5'
     which_expert = 1
     verbose = True
 
@@ -54,22 +54,30 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version = constants.V11
-    positive_weight_list = [0.25, 0.75]
-    type_loss_list = [
-        (constants.CROSS_ENTROPY_LOSS, None),
-        (constants.FOCAL_LOSS, 1.0),
-        (constants.FOCAL_LOSS, 2.0),
-        (constants.FOCAL_LOSS, 3.0)
+    elastic_alpha_sigma_list = [
+        (0.15, 0.050),
+        (0.15, 0.075),
+        (0.20, 0.075),
+        (0.20, 0.100),
+        (0.20, 0.125),
+        (0.25, 0.100),
+        (0.25, 0.125)
+    ]
+    keep_best_list = [
+        True, False
     ]
 
     param_list = list(itertools.product(
-        positive_weight_list, type_loss_list))
+        elastic_alpha_sigma_list, keep_best_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.CWT_CONV_FILTERS_2] = 64
     params[pkeys.FB_LIST] = [0.5]
     params[pkeys.MODEL_VERSION] = model_version
+    params[pkeys.AUG_ELASTIC_PROBA] = 0.5
+    params[pkeys.ITERS_STATS] = 20
+    params[pkeys.MAX_LR_UPDATES] = 3
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -95,13 +103,14 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for positive_weight, type_loss in param_list:
+                for elastic_alpha_sigma, keep_best in param_list:
 
-                    params[pkeys.TYPE_LOSS] = type_loss[0]
-                    params[pkeys.FOCUSING_PARAMETER] = type_loss[1]
-                    params[pkeys.CLASS_WEIGHTS] = [1.0 - positive_weight, positive_weight]
-                    folder_name = '%s_w_%s_%s_gamma_%s' % (
-                        model_version, positive_weight, type_loss[0], type_loss[1])
+                    params[pkeys.AUG_ELASTIC_ALPHA] = elastic_alpha_sigma[0]
+                    params[pkeys.AUG_ELASTIC_SIGMA] = elastic_alpha_sigma[1]
+                    params[pkeys.KEEP_BEST_VALIDATION] = keep_best
+
+                    folder_name = '%s_alpha_%1.2f_sigma_%1.3f_keepbest_%s' % (
+                        model_version, elastic_alpha_sigma[0], elastic_alpha_sigma[1], keep_best)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

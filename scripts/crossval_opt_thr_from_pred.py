@@ -27,14 +27,14 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190827_thesis_1_bsf_e1'
+    ckpt_folder = '20191017_elastic_grid_keep_best'
     dataset_params = {pkeys.FS: 200}
-    load_dataset_from_ckpt = False
+    load_dataset_from_ckpt = True
 
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
-    dataset_name = constants.INTA_SS_NAME
-    id_try_list = [0, 1, 2, 3]
+    dataset_name = constants.MASS_SS_NAME
+    id_try_list = [0]  # [0, 1, 2, 3]
 
     which_expert = 1
     verbose = False
@@ -45,10 +45,6 @@ if __name__ == '__main__':
     res_thr = 0.02
     start_thr = 0.2
     end_thr = 0.8
-
-    # Split evaluation
-    n_splits = 1
-    this_split_id = 0
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
@@ -69,13 +65,6 @@ if __name__ == '__main__':
         ))
         grid_folder_list.sort()
 
-        n_settings = len(grid_folder_list)
-        n_per_split = int(np.ceil(n_settings / n_splits))
-        this_start = this_split_id * n_per_split
-        this_end = this_start + n_per_split
-
-        grid_folder_list = grid_folder_list[this_start:this_end]
-
         print('Grid settings found inside %s:' % full_ckpt_folder)
         pprint(grid_folder_list)
     print('')
@@ -84,10 +73,9 @@ if __name__ == '__main__':
     # Load predictions
     print('Loading predictions')
     predictions_dict = {}
-    n_seeds = len(SEED_LIST)
     for j, folder_name in enumerate(grid_folder_list):
-        predictions_dict[folder_name] = []
-        for k in range(n_seeds):
+        predictions_dict[folder_name] = {}
+        for k in id_try_list:
             this_pred_dict = {}
             # Restore predictions
             ckpt_path = os.path.abspath(os.path.join(
@@ -104,8 +92,8 @@ if __name__ == '__main__':
                         'prediction_%s_%s.pkl' % (task_mode, set_name))
                 with open(filename, 'rb') as handle:
                     this_pred_dict[set_name] = RefactorUnpickler(handle).load()
-            print('Loaded seed %d/%d from %s' % (k + 1, n_seeds, ckpt_path))
-            predictions_dict[folder_name].append(this_pred_dict)
+            print('Loaded seed %d from %s' % (k, ckpt_path))
+            predictions_dict[folder_name][k] = this_pred_dict
     print('Done\n')
 
     # ---------------- Compute performance
@@ -114,7 +102,7 @@ if __name__ == '__main__':
     for folder_name in grid_folder_list:
         print('Evaluating grid setting: %s ' % folder_name, flush=True)
         per_seed_thr[folder_name] = {}
-        for k, seed in enumerate(SEED_LIST):
+        for k in id_try_list:
             print('Seed %d' % k)
             # Split to form validation set
             if new_split_version:
@@ -122,7 +110,7 @@ if __name__ == '__main__':
                     all_train_ids, split_id=k)
             else:
                 train_ids, val_ids = utils.split_ids_list(
-                    all_train_ids, seed=seed)
+                    all_train_ids, seed=SEED_LIST[k])
             ids_dict = {
                 constants.TRAIN_SUBSET: train_ids,
                 constants.VAL_SUBSET: val_ids}
@@ -158,7 +146,7 @@ if __name__ == '__main__':
         seeds_best_thr = []
         seeds_ap_std = []
         seeds_ar_std = []
-        for k in range(n_seeds):
+        for k in id_try_list:
             this_best_thr = per_seed_thr[folder_name][k]
             seeds_best_thr.append(this_best_thr)
 
