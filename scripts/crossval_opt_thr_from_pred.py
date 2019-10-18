@@ -27,14 +27,14 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20191017_elastic_grid_keep_best'
+    ckpt_folder = '20191017_elastic_grid_pte2'
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
 
     new_split_version = True  # True from 20190620
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
-    id_try_list = [0]  # [0, 1, 2, 3]
+    id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
     verbose = False
