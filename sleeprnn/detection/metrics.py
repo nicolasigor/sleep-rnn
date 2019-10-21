@@ -57,24 +57,24 @@ def by_sample_iou(events, detections, input_is_binary=False):
     return iou
 
 
-def by_event_confusion(events, detections, iou_thr=0.3, iou_array=None):
+def by_event_confusion(events, detections, iou_thr=0.3, iou_matching=None):
     """Returns a dictionary with by-events metrics.
     events and detections are assumed to be sample-stamps, and to be in
     ascending order.
-    iou_array can be provided if it is already computed. If this is the case,
+    iou_matching can be provided if it is already computed. If this is the case,
     events and detections are ignored.
     """
-    if iou_array is None:
-        iou_array, _ = matching(events, detections)
+    if iou_matching is None:
+        iou_matching, _ = matching(events, detections)
     n_detections = detections.shape[0]
     n_events = events.shape[0]
-    mean_all_iou = np.mean(iou_array)
+    mean_all_iou = np.mean(iou_matching)
     # First, remove the zero iou_array entries
-    iou_array = iou_array[iou_array > 0]
-    if iou_array.size > 0:
-        mean_nonzero_iou = np.mean(iou_array)
+    iou_matching = iou_matching[iou_matching > 0]
+    if iou_matching.size > 0:
+        mean_nonzero_iou = np.mean(iou_matching)
         # Now, give credit only for iou >= iou_thr
-        tp = np.sum((iou_array >= iou_thr).astype(int))
+        tp = np.sum((iou_matching >= iou_thr).astype(int))
         fp = n_detections - tp
         fn = n_events - tp
         precision = tp / n_detections
@@ -165,12 +165,14 @@ def metric_vs_iou(
         detections,
         iou_thr_list,
         metric_name=constants.F1_SCORE,
+        iou_matching=None,
         verbose=False
 ):
     metric_list = []
     if verbose:
         print('Matching events... ', end='', flush=True)
-    this_iou_data, _ = matching(events, detections)
+    if iou_matching is None:
+        iou_matching, _ = matching(events, detections)
     if verbose:
         print('Done', flush=True)
     for iou_thr in iou_thr_list:
@@ -180,7 +182,7 @@ def metric_vs_iou(
                 end='', flush=True)
         this_stat = by_event_confusion(
             events, detections,
-            iou_thr=iou_thr, iou_array=this_iou_data)
+            iou_thr=iou_thr, iou_matching=iou_matching)
         metric = this_stat[metric_name]
         metric_list.append(metric)
         if verbose:
@@ -212,6 +214,7 @@ def average_metric(
         events,
         detections,
         metric_name=constants.F1_SCORE,
+        iou_matching=None,
         verbose=False
 ):
     """Average F1 over several IoU values.
@@ -232,7 +235,7 @@ def average_metric(
 
     metric_list = metric_vs_iou(
         events, detections, full_iou_list,
-        metric_name=metric_name, verbose=verbose)
+        metric_name=metric_name, iou_matching=iou_matching, verbose=verbose)
 
     # To compute the area under the curve, we'll use trapezoidal aproximation
     # So we need to divide by two the extremes
