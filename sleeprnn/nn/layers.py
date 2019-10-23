@@ -38,8 +38,10 @@ def batchnorm_layer(
             training phase or not.
     """
     checks.check_valid_value(
-        batchnorm, 'batchnorm', [constants.BN, constants.BN_RENORM])
-
+        batchnorm, 'batchnorm', [constants.BN, constants.BN_RENORM, None])
+    if batchnorm is None:
+        # Bypass
+        return inputs
     if batchnorm == constants.BN_RENORM:
         name = '%s_renorm' % name
     with tf.variable_scope(name):
@@ -79,8 +81,10 @@ def dropout_layer(
             training phase or not.
     """
     checks.check_valid_value(
-        dropout, 'dropout', [constants.SEQUENCE_DROP, constants.REGULAR_DROP])
-
+        dropout, 'dropout', [constants.SEQUENCE_DROP, constants.REGULAR_DROP, None])
+    if dropout is None:
+        # Bypass
+        return inputs
     if dropout == constants.SEQUENCE_DROP:
         name = '%s_seq' % name
     with tf.variable_scope(name):
@@ -838,6 +842,97 @@ def conv1d_prebn_block(
             outputs = tf.nn.relu(outputs)
 
         outputs = pooling1d(outputs, pooling)
+
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
+def conv1d_prebn_block_unet_down(
+        inputs,
+        filters,
+        training,
+        n_layers=2,
+        kernel_size=3,
+        batchnorm=None,
+        downsampling=constants.MAXPOOL,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    checks.check_valid_value(
+        downsampling, 'downsampling',
+        [constants.AVGPOOL, constants.MAXPOOL, None])
+
+    if batchnorm:
+        use_bias = False
+    else:
+        use_bias = True
+
+    with tf.variable_scope(name):
+
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        outputs = tf.expand_dims(inputs, axis=2)
+
+        for i in range(n_layers):
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+                padding=constants.PAD_SAME,
+                strides=1, name='conv%d_%d' % (kernel_size, i), reuse=reuse,
+                kernel_initializer=kernel_init,
+                use_bias=use_bias)
+            outputs = batchnorm_layer(
+                outputs, 'bn_%d' % i, batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+
+        outputs_prepool = outputs
+        outputs = pooling1d(outputs_prepool, downsampling)
+
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs_prepool = tf.squeeze(outputs_prepool, axis=2, name="squeeze")
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs, outputs_prepool
+
+
+def conv1d_prebn_block_unet_up(
+        inputs,
+        inputs_skip_prepool,
+        filters,
+        training,
+        n_layers=2,
+        kernel_size=3,
+        batchnorm=None,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+
+    if batchnorm:
+        use_bias = False
+    else:
+        use_bias = True
+
+    with tf.variable_scope(name):
+        # Up-sample feature map before concatenation
+        inputs = time_upsampling_layer(
+            inputs, filters, name='up')
+        # Concatenate skip connection with up-sampled current input
+        outputs = tf.concat([inputs, inputs_skip_prepool], axis=2)
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        outputs = tf.expand_dims(outputs, axis=2)
+
+        for i in range(n_layers):
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+                padding=constants.PAD_SAME,
+                strides=1, name='conv%d_%d' % (kernel_size, i), reuse=reuse,
+                kernel_initializer=kernel_init,
+                use_bias=use_bias)
+            outputs = batchnorm_layer(
+                outputs, 'bn_%d' % i, batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
 
         # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")

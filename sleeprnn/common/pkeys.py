@@ -141,6 +141,12 @@ CWT_RETURN_PHASE = 'cwt_return_phase'
 INIT_POSITIVE_PROBA = 'init_positive_proba'
 # Upconv output
 LAST_OUTPUT_CONV_FILTERS = 'last_output_conv_filters'
+# UNET parameters
+UNET_TIME_INITIAL_CONV_FILTERS = 'unet_time_initial_conv_filters'
+UNET_TIME_LSTM_UNITS = 'unet_time_lstm_units'
+UNET_TIME_N_DOWN = 'unet_time_n_down'
+UNET_TIME_N_CONV_DOWN = 'unet_time_n_conv_down'
+UNET_TIME_N_CONV_UP = 'unet_time_n_conv_up'
 
 
 """ Loss params
@@ -281,4 +287,9 @@ default_params = {
     INIT_POSITIVE_PROBA: 0.5,
     FOCUSING_PARAMETER: None,
     KEEP_BEST_VALIDATION: False,
+    UNET_TIME_INITIAL_CONV_FILTERS: None,
+    UNET_TIME_LSTM_UNITS: None,
+    UNET_TIME_N_DOWN: None,
+    UNET_TIME_N_CONV_DOWN: None,
+    UNET_TIME_N_CONV_UP: None
 }

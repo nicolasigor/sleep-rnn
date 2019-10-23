@@ -112,3 +112,4 @@ V21 = 'v21'  # Mixed
 V22 = 'v22'  # CWT indep
 V23 = 'v23'  # Time-domain with LSTM instead of FC
 V24 = 'v24'  # Time-domain with feed-forward UpConv output
+V25 = 'v25'  # Time-domain unet
