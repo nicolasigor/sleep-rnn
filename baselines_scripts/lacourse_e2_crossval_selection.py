@@ -26,7 +26,7 @@ if __name__ == '__main__':
     dataset_params = {pkeys.FS: 128}
 
     task_mode = constants.N2_RECORD
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = np.arange(10)
 
     # Load expert annotations 
     dataset = load_dataset(
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # Start evaluation
     print('Starting evaluation of %d settings' % len(visited_settings), flush=True)
     for k in id_try_list:
-        print('Using fold %d' % k, flush=True)
+        print('Using fold %d. ' % k, flush=True, end='')
         train_ids, _ = utils.split_ids_list_v2(all_train_ids, split_id=k)
         train_ids.sort()
         train_marks_list = dataset.get_subset_stamps(
