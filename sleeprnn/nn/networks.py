@@ -3396,7 +3396,6 @@ def wavelet_blstm_net_v25(
             print('output before pool', outputs_prepool)
             print('output after pool', outputs)
 
-
         # Multilayer BLSTM (2 layers)
         outputs = layers.multilayer_lstm_block(
             outputs,

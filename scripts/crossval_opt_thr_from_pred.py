@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20191017_elastic_grid_pte2'
+    ckpt_folder = ''
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
 
