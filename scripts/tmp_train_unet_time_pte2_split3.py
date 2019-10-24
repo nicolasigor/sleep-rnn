@@ -44,7 +44,7 @@ if __name__ == '__main__':
         constants.MASS_SS_NAME
     ]
 
-    description_str = 'unet time network with elastic'
+    description_str = 'unet time network'
     which_expert = 1
     verbose = True
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     params[pkeys.LR_UPDATE_FACTOR] = 0.1
 
     params[pkeys.AUG_GAUSSIAN_NOISE_PROBA] = 0.5
-    params[pkeys.AUG_ELASTIC_PROBA] = 0.5
+    params[pkeys.AUG_ELASTIC_PROBA] = 0.0
     params[pkeys.DROP_RATE_BEFORE_LSTM] = 0.5
     params[pkeys.DROP_RATE_HIDDEN] = 0.5
 
