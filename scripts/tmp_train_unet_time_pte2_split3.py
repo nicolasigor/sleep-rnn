@@ -69,6 +69,7 @@ if __name__ == '__main__':
     params[pkeys.FB_LIST] = [0.5]
     params[pkeys.ITERS_STATS] = 20
     params[pkeys.MAX_LR_UPDATES] = 3
+    params[pkeys.LR_UPDATE_FACTOR] = 0.1
 
     params[pkeys.AUG_GAUSSIAN_NOISE_PROBA] = 0.5
     params[pkeys.AUG_ELASTIC_PROBA] = 0.5
