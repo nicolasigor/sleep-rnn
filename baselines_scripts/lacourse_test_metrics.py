@@ -23,12 +23,12 @@ if __name__ == '__main__':
     algorithm_name = '2019_lacourse'
 
     dataset_name = constants.MASS_SS_NAME
-    which_expert = 1
+    which_expert = 2
     fs = 128
     dataset_params = {pkeys.FS: fs}
 
     task_mode = constants.N2_RECORD
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = np.arange(10)
 
     # Load expert annotations
     dataset = load_dataset(
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     for k in id_try_list:
         print('Processing fold %d' % k, flush=True)
         pred_folder = os.path.join(
-            BASELINE_PATH, 'output_%s' % dataset_name,
+            BASELINE_PATH, 'output_%s_test_folds' % dataset_name,
             'test', 'e%d' % which_expert, 'fold%d' % k)
         print('Loading predictions from %s' % pred_folder, flush=True)
         pred_files = os.listdir(pred_folder)
@@ -119,11 +119,12 @@ if __name__ == '__main__':
 
             # Save results
             predictions_seconds = this_det / fs
-
+            folder_to_save = '%s/%s/e%d/fold%d' % (algorithm_name, dataset_name, which_expert, k)
+            os.makedirs(folder_to_save, exist_ok=True)
             filename = '%s_%s_e%d_fold%d_s%02d.npz' % (
                 algorithm_name, dataset_name, which_expert, k, subject_id)
             np.savez(
-                filename,
+                os.path.join(folder_to_save, filename),
                 algorithm_id=algorithm_name,
                 dataset_id=dataset_name,
                 expert_id=which_expert,
