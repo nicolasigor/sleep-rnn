@@ -450,7 +450,7 @@ def stamp_intersects_set(single_stamp, set_stamps):
 
 def filter_stamps(stamps, start_sample, end_sample, return_idx=False):
     useful_idx = np.where(
-        (stamps[:, 0] >= start_sample) & (stamps[:, 1] <= end_sample))[0]
+        (stamps[:, 1] >= start_sample) & (stamps[:, 0] <= end_sample))[0]
     useful_stamps = stamps[useful_idx, :]
 
     if return_idx:

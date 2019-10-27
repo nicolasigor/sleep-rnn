@@ -68,8 +68,6 @@ class Dataset(object):
         self.n_experts = n_experts
         self.ckpt_dir = os.path.abspath(os.path.join(
             self.dataset_dir, '..', 'ckpt_%s' % self.dataset_name))
-        self.ckpt_file = os.path.join(
-            self.ckpt_dir, '%s.pickle' % self.dataset_name)
         self.all_ids = all_ids
         self.all_ids.sort()
         if verbose:
@@ -86,6 +84,10 @@ class Dataset(object):
         # Time of window page [s]
         self.page_duration = self.params[pkeys.PAGE_DURATION]
         self.page_size = int(self.page_duration * self.fs)
+
+        # Ckpt file associated with the sampling frequency
+        self.ckpt_file = os.path.join(
+            self.ckpt_dir, '%s_fs%d.pickle' % (self.dataset_name, self.fs))
 
         # Data loading
         self.data = self._load_data(verbose=verbose)

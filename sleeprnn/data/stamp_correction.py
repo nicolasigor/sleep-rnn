@@ -27,8 +27,8 @@ def combine_close_stamps(marks, fs, min_separation):
             this_mark = marks[i, :]
             gap = (this_mark[0] - last_mark[1]) / fs
             if gap < min_separation:
-                # Combine mark, so the last mark ends where this mark ends.
-                combined_marks[-1][1] = this_mark[1]
+                # Combine mark, so the last mark ends in the maximum ending.
+                combined_marks[-1][1] = max(this_mark[1], combined_marks[-1][1])
             else:
                 combined_marks.append(this_mark)
         combined_marks = np.stack(combined_marks, axis=0)
