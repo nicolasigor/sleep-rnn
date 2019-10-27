@@ -5,9 +5,10 @@ from __future__ import print_function
 import os
 import sys
 from pprint import pprint
+import json
 
 import numpy as np
-import pandas as pd
+from scipy.io import loadmat
 
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
@@ -17,13 +18,15 @@ from sleeprnn.data import utils, stamp_correction
 from sleeprnn.detection import metrics
 from sleeprnn.common import constants, pkeys
 
-BASELINE_PATH = os.path.abspath(os.path.join(project_root, '../sleep-baselines/2019_lacourse_a7'))
+BASELINE_PATH = os.path.abspath(os.path.join(
+    project_root, '../sleep-baselines/2017_lajnef_spinky'))
+
 
 if __name__ == '__main__':
-    algorithm_name = '2019_lacourse'
+    algorithm_name = '2017_lajnef'
 
-    dataset_name = constants.MASS_SS_NAME
-    which_expert = 2
+    dataset_name = constants.MASS_KC_NAME
+    which_expert = 1
     fs = 128
     dataset_params = {pkeys.FS: fs}
 
@@ -32,8 +35,8 @@ if __name__ == '__main__':
 
     # Load expert annotations
     dataset = load_dataset(
-        dataset_name,
-        params=dataset_params)
+        dataset_name, load_checkpoint=True, params={pkeys.FS: fs})
+
     test_ids = dataset.test_ids
     page_size = dataset.page_size
     print('Page size:', page_size)
@@ -45,41 +48,89 @@ if __name__ == '__main__':
             subject_id,
             pages_subset=task_mode)
 
+    # Load xval results
+    fname = '%s_xval_%s_e%d.json' % (algorithm_name, dataset_name, which_expert)
+    with open(fname, 'r') as handle:
+        xval_dict = json.load(handle)
+
     # Load predictions
+    context_size = int(5 * fs)
+    pred_folder = os.path.join(BASELINE_PATH, 'output_%s' % dataset_name)
+    print('Loading predictions from %s' % pred_folder, flush=True)
+    pred_files = os.listdir(pred_folder)
+
     pred_fold_dict = {}
     setting_dict = {}
     for k in id_try_list:
         print('Processing fold %d' % k, flush=True)
-        pred_folder = os.path.join(
-            BASELINE_PATH, 'output_%s_test_folds' % dataset_name,
-            'test', 'e%d' % which_expert, 'fold%d' % k)
-        print('Loading predictions from %s' % pred_folder, flush=True)
-        pred_files = os.listdir(pred_folder)
+        target_setting = xval_dict['fold%d' % k]
+        print('Target setting: %s' % target_setting)
+        setting_dict[k] = target_setting
         pred_fold_dict[k] = {}
         for file in pred_files:
-            subject_id = int(file.split('_')[3][1:])
-            setting = '_'.join(file.split('_')[4:])[:-4]
-            print('Subject %d, setting %s' % (subject_id, setting), flush=True)
-            setting_dict[k] = setting
-            # sample marks
+            subject_id = int(file.split('_')[1][1:])
+            setting = file.split('_')[2][:-4]
+            if subject_id not in test_ids:
+                continue
+            if setting != target_setting:
+                continue
+            # Now we have the right subject and the right setting
+            # Binary sequences
             filepath = os.path.join(pred_folder, file)
-            pred_data = pd.read_csv(filepath, sep='\t')
-            # We substract 1 to translate from matlab to numpy indexing system
-            start_samples = pred_data.start_sample.values - 1
-            end_samples = pred_data.end_sample.values - 1
-            pred_marks = np.stack([start_samples, end_samples], axis=1)
-            # Valid subset of marks
-            pred_marks_n2 = utils.extract_pages_for_stamps(
-                pred_marks, n2_dict[subject_id], page_size)
+            pred_data = loadmat(filepath)
+            pred_data = pred_data['detection_matrix']
 
-            # Postprocessing
-            pred_marks_n2 = stamp_correction.combine_close_stamps(
-                pred_marks_n2, fs, min_separation=0.3)
-            pred_marks_n2 = stamp_correction.filter_duration_stamps(
-                pred_marks_n2, fs, min_duration=0.3, max_duration=3.0)
+            # Now we need to do different things if SS or KC
+            if dataset_name == constants.MASS_SS_NAME:
 
-            # Save marks for evaluation
-            pred_fold_dict[k][subject_id] = pred_marks_n2
+                # Spindles
+                start_sample = context_size
+                end_sample = pred_data.shape[1] - context_size - 1
+                pred_marks_list = []
+                for page_idx in range(pred_data.shape[0]):
+                    page_sequence = pred_data[page_idx, :]
+                    page_marks = utils.seq2stamp(page_sequence)
+                    # Now we keep marks that at least partially contained in page
+                    if page_marks.size > 0:
+                        page_marks = utils.filter_stamps(page_marks,
+                                                         start_sample,
+                                                         end_sample)
+                        if page_marks.size > 0:
+                            # Before we append them, we need to provide the right
+                            # sample
+                            real_page = n2_dict[subject_id][page_idx]
+                            offset_sample = int(
+                                real_page * page_size - context_size)
+                            page_marks = page_marks + offset_sample
+                            pred_marks_list.append(page_marks)
+                if pred_marks_list:
+                    pred_marks = np.concatenate(pred_marks_list, axis=0)
+                    # Now we need to post-process
+                    pred_marks = stamp_correction.combine_close_stamps(
+                        pred_marks, fs, min_separation=0.3)
+                    pred_marks = stamp_correction.filter_duration_stamps(
+                        pred_marks, fs, min_duration=0.3, max_duration=3.0)
+                else:
+                    pred_marks = np.array([]).reshape((0, 2))
+                pred_fold_dict[k][subject_id] = pred_marks
+
+            elif dataset_name == constants.MASS_KC_NAME:
+                # KC
+                # We only keep what's inside the page
+                pred_data = pred_data[:, context_size:-context_size]
+                # Now we concatenate and then the extract stamps
+                pred_marks = utils.seq2stamp_with_pages(
+                    pred_data, n2_dict[subject_id])
+                #  Now we manually add 0.1 s before and 1.3 s after (paper)
+                add_before = int(np.round(0.1 * fs))
+                add_after = int(np.round(1.3 * fs))
+                pred_marks[:, 0] = pred_marks[:, 0] - add_before
+                pred_marks[:, 1] = pred_marks[:, 1] + add_after
+                # By construction all marks are valid (inside N2 pages)
+                # Save marks for evaluation
+                pred_fold_dict[k][subject_id] = pred_marks
+            else:
+                raise ValueError('Invalid dataset_name')
 
     # Start evaluation
     print('\nStarting evaluation\n', flush=True)

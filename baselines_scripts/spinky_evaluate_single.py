@@ -34,7 +34,7 @@ if __name__ == '__main__':
     dataset = load_dataset(
         dataset_name, load_checkpoint=True, params={pkeys.FS: fs})
 
-    display_setting = 'thr(40)'
+    display_setting = 'thr(33)'
 
     all_train_ids = dataset.train_ids
     page_size = dataset.page_size

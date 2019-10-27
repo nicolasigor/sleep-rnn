@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import sys
 from pprint import pprint
+import json
 
 import numpy as np
 from scipy.io import loadmat
@@ -21,12 +22,6 @@ BASELINE_PATH = os.path.abspath(os.path.join(
     project_root, '../sleep-baselines/2017_lajnef_spinky'))
 
 if __name__ == '__main__':
-
-    # ss-e1: 30, 40
-    # ss-e2: 20, 30
-    # volver a repetir con mas detalle en [15, 45], dx = 0.3 (n=11)
-    # kc-e1: -25, -30
-    # Volver a repetir con mas detalle en [-20, -35] dx=1 (n=11)
 
     dataset_name = constants.MASS_KC_NAME
     which_expert = 1
@@ -128,6 +123,7 @@ if __name__ == '__main__':
 
     # Start evaluation
     print('Starting evaluation of %d settings' % len(visited_settings), flush=True)
+    cross_val_results = {}
     for k in id_try_list:
         print('Using fold %d. ' % k, flush=True, end='')
         train_ids, _ = utils.split_ids_list_v2(all_train_ids, split_id=k)
@@ -145,8 +141,15 @@ if __name__ == '__main__':
             af1_of_setting = metrics.average_metric_with_list(
                 train_marks_list, pred_marks_list, verbose=False)
             setting_performance.append(af1_of_setting)
+
         # Look for best performance
         max_idx = np.argmax(setting_performance).item()
         max_af1 = setting_performance[max_idx]
         max_setting = visited_settings[max_idx]
         print('Best AF1 %1.4f with setting %s' % (max_af1, max_setting), flush=True)
+        cross_val_results['fold%d' % k] = max_setting
+
+    # Save crossval results
+    fname = '2017_lajnef_xval_%s_e%d.json' % (dataset_name, which_expert)
+    with open(fname, 'w') as handle:
+        json.dump(cross_val_results, handle)
