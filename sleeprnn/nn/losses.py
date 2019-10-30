@@ -253,7 +253,10 @@ def worst_mining_loss_fn(logits, labels, min_negative):
 
         loss_positive = loss_raw * labels_float
         loss_negative = loss_raw * (1 - labels_float)
-        loss_negative_to_keep = tf.nn.top_k(loss_negative, k=n_negative_to_keep)
+        loss_negative_to_keep, _ = tf.nn.top_k(
+            loss_negative,
+            k=tf.cast(n_negative_to_keep, tf.int32)
+        )
 
         total_loss = loss_positive + loss_negative_to_keep
         total_examples = n_positive + n_negative_to_keep
