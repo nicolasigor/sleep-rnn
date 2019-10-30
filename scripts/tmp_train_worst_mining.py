@@ -64,6 +64,7 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
+    params[pkeys.ITERS_STATS] = 20
     params[pkeys.TYPE_LOSS] = constants.WORST_MINING_LOSS
     params[pkeys.WORST_MINING_MIN_NEGATIVE] = 100
 
