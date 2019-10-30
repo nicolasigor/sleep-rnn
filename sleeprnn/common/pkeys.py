@@ -161,6 +161,8 @@ type_loss: ({CROSS_ENTROPY_LOSS, DICE_LOSS}) Type of loss to be used
 CLASS_WEIGHTS = 'class_weights'
 TYPE_LOSS = 'type_loss'
 FOCUSING_PARAMETER = 'focusing_parameter'
+WORST_MINING_MIN_NEGATIVE = 'worst_mining_min_negative'
+
 
 """ Optimizer params
 
@@ -286,6 +288,7 @@ default_params = {
     CWT_RETURN_PHASE: False,
     INIT_POSITIVE_PROBA: 0.5,
     FOCUSING_PARAMETER: None,
+    WORST_MINING_MIN_NEGATIVE: 10,
     KEEP_BEST_VALIDATION: False,
     UNET_TIME_INITIAL_CONV_FILTERS: None,
     UNET_TIME_LSTM_UNITS: None,
