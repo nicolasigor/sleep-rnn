@@ -57,10 +57,15 @@ if __name__ == '__main__':
         (constants.V19, 64, 0.5),
         (constants.V11, None, None)
     ]
+    factor_negative_list = [3, 2, 1]
+
+    parameters_list = list(itertools.product(
+        version_cwtf_fb_list, factor_negative_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.TYPE_LOSS] = constants.WORST_MINING_LOSS
+    params[pkeys.WORST_MINING_MIN_NEGATIVE] = 100
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -86,7 +91,9 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for version_cwtf_fb in version_cwtf_fb_list:
+                for version_cwtf_fb, factor_negative in parameters_list:
+
+                    params[pkeys.WORST_MINING_FACTOR_NEGATIVE] = factor_negative
 
                     model_version = version_cwtf_fb[0]
                     cwt_conv_filters_2 = version_cwtf_fb[1]
@@ -96,7 +103,8 @@ if __name__ == '__main__':
                     params[pkeys.CWT_CONV_FILTERS_2] = cwt_conv_filters_2
                     params[pkeys.FB_LIST] = [init_fb]
 
-                    folder_name = '%s' % model_version
+                    folder_name = '%s_factor_%d' % (
+                        model_version, factor_negative)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

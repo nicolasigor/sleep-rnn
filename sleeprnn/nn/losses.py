@@ -224,18 +224,23 @@ def focal_loss_fn(logits, labels, class_weights, gamma):
     return loss, loss_summ
 
 
-def worst_mining_loss_fn(logits, labels, min_negative):
+def worst_mining_loss_fn(logits, labels, factor_negative, min_negative):
     """Returns the balanced cross-entropy loss to be minimized by worst
     negative mining
 
     Args:
         logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
         labels: (2d tensor) binary tensor of shape [batch, timelen]
+        factor_negative: (int) Ratio of negatives / positives
         min_negative: (int) minimum number of negatives examples that are
             kept when balancing.
+
     """
     print('Using Worst Mining Loss')
     with tf.variable_scope(constants.WORST_MINING_LOSS):
+        print('Min negative:', min_negative)
+        print('Factor negative:', factor_negative)
+
         # First we flatten the vectors
         logits = tf.reshape(logits, [-1, 2])  # [n_outputs, 2]
         labels = tf.reshape(labels, [-1])  # [n_outputs]
@@ -244,8 +249,15 @@ def worst_mining_loss_fn(logits, labels, min_negative):
 
         n_negative = tf.reduce_sum(1 - labels_float)
         n_positive = tf.reduce_sum(labels_float)
-        n_negative_to_keep = tf.minimum(n_negative, n_positive)
-        n_negative_to_keep = tf.maximum(n_negative_to_keep, min_negative)
+
+        n_negative_to_keep = tf.minimum(
+            factor_negative * n_positive,
+            n_negative
+        )
+        n_negative_to_keep = tf.maximum(
+            n_negative_to_keep,
+            min_negative
+        )
 
         loss_raw = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,

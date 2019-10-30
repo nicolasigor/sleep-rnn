@@ -440,6 +440,7 @@ class WaveletBLSTM(BaseModel):
         elif type_loss == constants.WORST_MINING_LOSS:
             loss, loss_summ = losses.worst_mining_loss_fn(
                 self.logits, self.labels,
+                self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
                 self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
         else:
             loss, loss_summ = losses.dice_loss_fn(

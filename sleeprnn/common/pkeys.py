@@ -162,6 +162,7 @@ CLASS_WEIGHTS = 'class_weights'
 TYPE_LOSS = 'type_loss'
 FOCUSING_PARAMETER = 'focusing_parameter'
 WORST_MINING_MIN_NEGATIVE = 'worst_mining_min_negative'
+WORST_MINING_FACTOR_NEGATIVE = 'worst_mining_factor_negative'
 
 
 """ Optimizer params
@@ -288,7 +289,8 @@ default_params = {
     CWT_RETURN_PHASE: False,
     INIT_POSITIVE_PROBA: 0.5,
     FOCUSING_PARAMETER: None,
-    WORST_MINING_MIN_NEGATIVE: 10,
+    WORST_MINING_MIN_NEGATIVE: None,
+    WORST_MINING_FACTOR_NEGATIVE: None,
     KEEP_BEST_VALIDATION: False,
     UNET_TIME_INITIAL_CONV_FILTERS: None,
     UNET_TIME_LSTM_UNITS: None,
