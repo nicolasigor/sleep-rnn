@@ -276,3 +276,59 @@ def worst_mining_loss_fn(logits, labels, factor_negative, min_negative):
 
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
+
+
+def worst_mining_v2_loss_fn(logits, labels, factor_negative, min_negative):
+    """Returns the balanced cross-entropy loss to be minimized by worst
+    negative mining. L+ and L- are averaged independently.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        factor_negative: (int) Ratio of negatives / positives
+        min_negative: (int) minimum number of negatives examples that are
+            kept when balancing.
+
+    """
+    print('Using Worst Mining Loss V2 (pos and neg parts averaged before sum)')
+    with tf.variable_scope(constants.WORST_MINING_V2_LOSS):
+        print('Min negative:', min_negative)
+        print('Factor negative:', factor_negative)
+
+        # First we flatten the vectors
+        logits = tf.reshape(logits, [-1, 2])  # [n_outputs, 2]
+        labels = tf.reshape(labels, [-1])  # [n_outputs]
+
+        labels_float = tf.cast(labels, tf.float32)
+
+        n_negative = tf.reduce_sum(1 - labels_float)
+        n_positive = tf.reduce_sum(labels_float)
+
+        n_negative_to_keep = tf.minimum(
+            factor_negative * n_positive,
+            n_negative
+        )
+        n_negative_to_keep = tf.maximum(
+            n_negative_to_keep,
+            min_negative
+        )
+
+        loss_raw = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+
+        loss_positive = loss_raw * labels_float
+
+        loss_negative = loss_raw * (1 - labels_float)
+        loss_negative_to_keep, _ = tf.nn.top_k(
+            loss_negative,
+            k=tf.cast(n_negative_to_keep, tf.int32)
+        )
+
+        loss_positive_norm = tf.reduce_sum(loss_positive) / (n_positive + 1e-8)
+        loss_negative_norm = tf.reduce_sum(loss_negative_to_keep) / n_negative_to_keep
+
+        loss = loss_positive_norm + loss_negative_norm
+
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ

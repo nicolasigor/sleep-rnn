@@ -427,7 +427,8 @@ class WaveletBLSTM(BaseModel):
                 constants.CROSS_ENTROPY_LOSS,
                 constants.DICE_LOSS,
                 constants.FOCAL_LOSS,
-                constants.WORST_MINING_LOSS
+                constants.WORST_MINING_LOSS,
+                constants.WORST_MINING_V2_LOSS
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -439,6 +440,11 @@ class WaveletBLSTM(BaseModel):
                 self.params[pkeys.FOCUSING_PARAMETER])
         elif type_loss == constants.WORST_MINING_LOSS:
             loss, loss_summ = losses.worst_mining_loss_fn(
+                self.logits, self.labels,
+                self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
+                self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
+        elif type_loss == constants.WORST_MINING_V2_LOSS:
+            loss, loss_summ = losses.worst_mining_v2_loss_fn(
                 self.logits, self.labels,
                 self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
                 self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
