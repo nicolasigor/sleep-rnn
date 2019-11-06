@@ -419,7 +419,7 @@ class Dataset(object):
         if forced_mark_separation_size > 0:
             print('Forcing separation of %d samples between marks' % forced_mark_separation_size)
             marks = utils.stamp2seq_with_separation(
-                marks, 0, forced_mark_separation_size, signal.shape[0] - 1)
+                marks, 0, signal.shape[0] - 1, min_separation_samples=forced_mark_separation_size)
         else:
             marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
 
