@@ -89,7 +89,7 @@ class WaveletBLSTM(BaseModel):
             if aligned_down:
                 print('ALIGNED DOWNSAMPLING at checking inputs for fit')
                 y_val = y_val.reshape((-1, int(page_size/time_stride), time_stride))
-                y_val = np.round(y_val.mean(axis=-1)).astype(np.int32)
+                y_val = np.round(y_val.mean(axis=-1) + 1e-3).astype(np.int32)
             else:
                 y_val = y_val[:, ::time_stride]
         return x_train, y_train, x_val, y_val
