@@ -51,6 +51,46 @@ def stamp2seq(stamps, start, end, allow_early_end=False):
     return sequence
 
 
+def stamp2seq_with_separation(
+        stamps, start, end, min_separation_samples, allow_early_end=False):
+    """Returns the binary sequence segment from 'start' to 'end',
+    associated with the stamps."""
+    if np.any(stamps < start):
+        msg = 'Values in intervals should be within start bound'
+        raise ValueError(msg)
+    if np.any(stamps > end) and not allow_early_end:
+        msg = 'Values in intervals should be within end bound'
+        raise ValueError(msg)
+
+    # Force separation
+    stamps = np.sort(stamps, axis=0)
+    mod_stamps = [stamps[0, :]]
+    for i in range(1, stamps.shape[0]):
+        last_stamp = mod_stamps[-1]
+        this_stamp = stamps[i, :]
+        samples_gap = this_stamp[0] - last_stamp[1] - 1
+        if samples_gap < min_separation_samples:
+            last_stamp_size = last_stamp[1] - last_stamp[0] + 1
+            this_stamp_size = this_stamp[1] - this_stamp[0] + 1
+            sum_of_sizes = last_stamp_size + this_stamp_size
+            needed_samples = min_separation_samples - samples_gap
+            # Proportional elimination of samples
+            cut_last = int(np.round(last_stamp_size * needed_samples / sum_of_sizes))
+            cut_this = needed_samples - cut_last
+
+            last_stamp[1] = last_stamp[1] - cut_last
+            this_stamp[0] = this_stamp[0] + cut_this
+            mod_stamps[-1] = last_stamp
+            mod_stamps.append(this_stamp)
+        else:
+            mod_stamps.append(this_stamp)
+    mod_stamps = np.stack(mod_stamps, axis=0)
+
+    # Transform modified stamps
+    sequence = stamp2seq(mod_stamps, start, end, allow_early_end=allow_early_end)
+    return sequence
+
+
 def seq2stamp_with_pages(pages_sequence, pages_indices):
     """Returns the start and end samples of stamps in a binary sequence that
     is split in pages."

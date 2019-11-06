@@ -94,12 +94,18 @@ class WaveletBLSTM(BaseModel):
             fine_tune=False,
             verbose=False):
         """Fits the model to the training data."""
-        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        border_size = int(
+            self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
+        forced_mark_separation_size = int(
+            self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
+
         x_train, y_train = data_train.get_data_for_training(
             border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
             verbose=verbose)
         x_val, y_val = data_val.get_data_for_training(
             border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
             verbose=verbose)
 
         # Transform to numpy arrays

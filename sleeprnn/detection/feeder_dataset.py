@@ -227,11 +227,13 @@ class FeederDataset(Dataset):
     def get_data_for_training(
             self,
             border_size=0,
+            forced_mark_separation_size=0,
             verbose=False
     ):
         signals, stamps = super().get_data(
             augmented_page=True,
             border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
             which_expert=self.which_expert,
             pages_subset=self.task_mode,
             normalize_clip=True,

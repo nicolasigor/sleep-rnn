@@ -197,6 +197,7 @@ MAX_LR_UPDATES = 'max_lr_updates'
 FACTOR_INIT_LR_FINE_TUNE = 'factor_init_lr_fine_tune'
 LR_UPDATE_RESET_OPTIMIZER = 'lr_update_reset_optimizer'
 KEEP_BEST_VALIDATION = 'keep_best_validation'
+FORCED_SEPARATION_DURATION = 'forced_separation_duration'
 
 
 """ Postprocessing params 
@@ -296,5 +297,6 @@ default_params = {
     UNET_TIME_LSTM_UNITS: None,
     UNET_TIME_N_DOWN: None,
     UNET_TIME_N_CONV_DOWN: None,
-    UNET_TIME_N_CONV_UP: None
+    UNET_TIME_N_CONV_UP: None,
+    FORCED_SEPARATION_DURATION: 0
 }

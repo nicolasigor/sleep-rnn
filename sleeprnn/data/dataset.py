@@ -358,6 +358,7 @@ class Dataset(object):
             subject_id,
             augmented_page=False,
             border_size=0,
+            forced_mark_separation_size=0,
             which_expert=1,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
@@ -372,6 +373,9 @@ class Dataset(object):
                 augment the page with half page at each side.
             border_size: (Optional, int, defaults to 0) number of samples to be
                 added at each border of the segments.
+            forced_mark_separation_size: (Optional, int, defaults to 0) number
+                of samples that are forced to exist between contiguous marks.
+                If 0, no modification is performed.
             which_expert: (Optional, int, defaults to 1) Which expert
                 annotations should be returned. It has to be consistent with
                 the given n_experts, in a one-based counting.
@@ -412,7 +416,12 @@ class Dataset(object):
             pages = ind_dict[KEY_N2_PAGES]
 
         # Transform stamps into sequence
-        marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
+        if forced_mark_separation_size > 0:
+            print('Forcing separation of %d samples between marks' % forced_mark_separation_size)
+            marks = utils.stamp2seq_with_separation(
+                marks, 0, forced_mark_separation_size, signal.shape[0] - 1)
+        else:
+            marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
 
         # Compute border to be added
         if augmented_page:
@@ -463,6 +472,7 @@ class Dataset(object):
             subject_id_list,
             augmented_page=False,
             border_size=0,
+            forced_mark_separation_size=0,
             which_expert=1,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
@@ -478,6 +488,7 @@ class Dataset(object):
                 subject_id,
                 augmented_page=augmented_page,
                 border_size=border_size,
+                forced_mark_separation_size=forced_mark_separation_size,
                 which_expert=which_expert,
                 pages_subset=pages_subset,
                 normalize_clip=normalize_clip,
@@ -492,6 +503,7 @@ class Dataset(object):
             self,
             augmented_page=False,
             border_size=0,
+            forced_mark_separation_size=0,
             which_expert=1,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
@@ -504,6 +516,7 @@ class Dataset(object):
             self.all_ids,
             augmented_page=augmented_page,
             border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
             which_expert=which_expert,
             pages_subset=pages_subset,
             normalize_clip=normalize_clip,
