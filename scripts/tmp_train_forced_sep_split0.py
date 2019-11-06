@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [constants.V11]
-    forced_sep_list = [0.0, 0.1, 0.15, 0.2]
+    forced_sep_list = [0.2, 0.15, 0.1, 0.0]
 
     parameters_list = list(itertools.product(
         model_version_list, forced_sep_list
