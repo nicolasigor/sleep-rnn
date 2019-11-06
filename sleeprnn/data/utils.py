@@ -146,6 +146,18 @@ def broad_filter(signal, fs, lowcut=0.1, highcut=35):
     return filtered_signal
 
 
+def filter_iir_lowpass(signal, fs, highcut=4):
+    """Returns filtered signal sampled at fs Hz, with a highcut Hz
+    lowpass."""
+    # Generate butter bandpass of order 3.
+    nyq = 0.5 * fs
+    high = highcut / nyq
+    b, a = butter(3, high, btype='low')
+    # Apply filter to the signal with zero-phase.
+    filtered_signal = filtfilt(b, a, signal)
+    return filtered_signal
+
+
 def filter_fir(kernel, signal):
     filtered_signal = lfilter(kernel, 1.0, signal)
     n_shift = (kernel.size - 1) // 2

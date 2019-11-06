@@ -84,7 +84,14 @@ class WaveletBLSTM(BaseModel):
             y_val = y_val[:, page_size // 2:-page_size // 2]
         if y_val.shape[1] == crop_size:
             # We need to remove borders and downsampling for val labels.
-            y_val = y_val[:, border_size:-border_size:time_stride]
+            y_val = y_val[:, border_size:-border_size]
+            aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
+            if aligned_down:
+                print('ALIGNED DOWNSAMPLING')
+                y_val = y_val.reshape((-1, int(page_size/time_stride), time_stride))
+                y_val = np.round(y_val.mean(axis=-1)).astype(np.int32)
+            else:
+                y_val = y_val[:, ::time_stride]
         return x_train, y_train, x_val, y_val
 
     def fit(
@@ -286,7 +293,18 @@ class WaveletBLSTM(BaseModel):
         feat, label = self._augmentation_fn(feat, label)
 
         # Throw borders for labels, skipping steps
-        label = label[border_size:-border_size:time_stride]
+        # We need to remove borders and downsampling for val labels.
+        label = label[border_size:-border_size]
+        aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
+        if aligned_down:
+            print('ALIGNED DOWNSAMPLING at iterator')
+            label = tf.cast(label, tf.float32)
+            label = tf.reshape(label, [-1, int(page_size/time_stride), time_stride])
+            label = tf.reduce_mean(label, axis=-1)
+            label = tf.round(label + 1e-3)
+            label = tf.cast(label, tf.int32)
+        else:
+            label = label[::time_stride]
 
         return feat, label
 

@@ -151,7 +151,7 @@ def matching(events, detections):
             iou_array.append(overlaps[i, max_j])
             idx_array.append(max_j)
             # Remove this detection for further search
-            overlaps[i, max_j] = 0
+            overlaps[:, max_j] = 0
         else:
             iou_array.append(0)
             idx_array.append(-1)

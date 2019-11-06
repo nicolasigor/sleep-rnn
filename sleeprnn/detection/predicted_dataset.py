@@ -9,6 +9,7 @@ from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGE
 from sleeprnn.common import constants
 from .feeder_dataset import FeederDataset
 from .postprocessor import PostProcessor
+from . import postprocessing
 
 
 class PredictedDataset(Dataset):
@@ -60,7 +61,7 @@ class PredictedDataset(Dataset):
         data = {}
         for sub_id in self.all_ids:
             pat_dict = {
-                KEY_EEG: None,
+                KEY_EEG: original_data[sub_id][KEY_EEG],
                 KEY_N2_PAGES: original_data[sub_id][KEY_N2_PAGES],
                 KEY_ALL_PAGES: original_data[sub_id][KEY_ALL_PAGES],
                 '%s_%d' % (KEY_MARKS, 1): None
@@ -89,6 +90,20 @@ class PredictedDataset(Dataset):
             probabilities_list,
             pages_indices_subset_list=n2_pages_val,
             thr=self.probability_threshold)
+
+        # KC postprocessing
+        if self.event_name == constants.KCOMPLEX:
+            check_signal = self.data[self.all_ids[0]][KEY_EEG]
+            if check_signal is not None:
+                print('Postprocessing KC at Predicted Dataset')
+                new_stamps_list = []
+                for k, sub_id in enumerate(self.all_ids):
+                    signal = self.data[sub_id][KEY_EEG]
+                    stamps = stamps_list[k]
+                    stamps = postprocessing.kcomplex_stamp_split(
+                        signal, stamps, self.fs)
+                    new_stamps_list.append(stamps)
+                stamps_list = new_stamps_list
 
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)

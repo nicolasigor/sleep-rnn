@@ -25,8 +25,8 @@ BASELINE_PATH = os.path.abspath(os.path.join(
 if __name__ == '__main__':
     algorithm_name = '2017_lajnef'
 
-    dataset_name = constants.MASS_KC_NAME
-    which_expert = 1
+    dataset_name = constants.MASS_SS_NAME
+    which_expert = 2
     fs = 128
     dataset_params = {pkeys.FS: fs}
 

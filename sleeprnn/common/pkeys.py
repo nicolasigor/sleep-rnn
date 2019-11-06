@@ -203,6 +203,7 @@ FORCED_SEPARATION_DURATION = 'forced_separation_duration'
 """ Postprocessing params 
 """
 TOTAL_DOWNSAMPLING_FACTOR = 'total_downsampling_factor'
+ALIGNED_DOWNSAMPLING = 'aligned_downsampling'
 SS_MIN_SEPARATION = 'ss_min_separation'
 SS_MIN_DURATION = 'ss_min_duration'
 SS_MAX_DURATION = 'ss_max_duration'
@@ -298,5 +299,6 @@ default_params = {
     UNET_TIME_N_DOWN: None,
     UNET_TIME_N_CONV_DOWN: None,
     UNET_TIME_N_CONV_UP: None,
-    FORCED_SEPARATION_DURATION: 0
+    FORCED_SEPARATION_DURATION: 0,
+    ALIGNED_DOWNSAMPLING: True
 }

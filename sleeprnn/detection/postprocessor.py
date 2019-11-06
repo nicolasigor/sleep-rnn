@@ -133,8 +133,18 @@ class PostProcessor(object):
         """Upsamples timestamps of stamps to match a greater sampling frequency.
         """
         upsample_factor = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
-        stamps = stamps * upsample_factor
-        stamps[:, 0] = stamps[:, 0] - upsample_factor // 2
-        stamps[:, 1] = stamps[:, 1] + upsample_factor // 2
-        stamps = stamps.astype(np.int32)
+        if pkeys.ALIGNED_DOWNSAMPLING not in self.params:
+            aligned_down = False
+        else:
+            aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
+        if aligned_down:
+            print('ALIGNED_DOWN at postprocessor')
+            stamps = stamps * upsample_factor
+            stamps[:, 1] = stamps[:, 1] + upsample_factor - 1
+            stamps = stamps.astype(np.int32)
+        else:
+            stamps = stamps * upsample_factor
+            stamps[:, 0] = stamps[:, 0] - upsample_factor // 2
+            stamps[:, 1] = stamps[:, 1] + upsample_factor // 2
+            stamps = stamps.astype(np.int32)
         return stamps

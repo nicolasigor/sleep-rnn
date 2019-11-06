@@ -15,7 +15,7 @@ sys.path.append(project_root)
 
 from sleeprnn.data.loader import load_dataset
 from sleeprnn.data import utils, stamp_correction
-from sleeprnn.detection import metrics
+from sleeprnn.detection import metrics, postprocessing
 from sleeprnn.common import constants, pkeys
 
 BASELINE_PATH = os.path.abspath(os.path.join(
@@ -54,6 +54,9 @@ if __name__ == '__main__':
             subject_id,
             pages_subset=task_mode)
 
+    # for kc
+    test_signals_list = dataset.get_subset_signals(test_ids)
+
     # Load predictions
     pred_fold_dict = {}
     setting_dict = {}
@@ -82,10 +85,20 @@ if __name__ == '__main__':
                 pred_marks, n2_dict[subject_id], page_size)
 
             # Postprocessing
-            pred_marks_n2 = stamp_correction.combine_close_stamps(
-                pred_marks_n2, fs, min_separation=0.3)
-            pred_marks_n2 = stamp_correction.filter_duration_stamps(
-                pred_marks_n2, fs, min_duration=0.3, max_duration=3.0)
+            if dataset_name == constants.MASS_SS_NAME:
+                pred_marks_n2 = stamp_correction.combine_close_stamps(
+                    pred_marks_n2, fs, min_separation=0.3)
+                pred_marks_n2 = stamp_correction.filter_duration_stamps(
+                    pred_marks_n2, fs, min_duration=0.25, max_duration=3.0)
+            elif dataset_name == constants.MASS_KC_NAME:
+                pred_marks_n2 = stamp_correction.filter_duration_stamps(
+                    pred_marks_n2, fs, min_duration=0.3, max_duration=None)
+                idx_subject = test_ids.index(subject_id)
+                this_signal = test_signals_list[idx_subject]
+                pred_marks_n2 = postprocessing.kcomplex_stamp_split(
+                    this_signal, pred_marks_n2, fs)
+            else:
+                raise ValueError('Dataset name invalid')
 
             # Save marks for evaluation
             pred_fold_dict[k][subject_id] = pred_marks_n2
