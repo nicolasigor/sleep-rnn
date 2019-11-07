@@ -1,0 +1,8 @@
+Val AF1 report for 20190704_inta_meeting_n2_train_mass_ss
+AF1 0.6759 +- 0.0312 (mu 0.5), AF1 0.6761 +- 0.0263 (mu [0.5, 0.42, 0.56, 0.58]), AP-STD 0.0627 AR-STD 0.0669 for setting v15
+AF1 0.6562 +- 0.0419 (mu 0.5), AF1 0.6739 +- 0.0333 (mu [0.4, 0.62, 0.64, 0.56]), AP-STD 0.0640 AR-STD 0.0608 for setting v20_indep
+
+Val AF1 report for 20190704_inta_meeting_n2_train_inta_ss
+AF1 0.5895 +- 0.0303 (mu 0.5), AF1 0.5897 +- 0.0310 (mu [0.48, 0.48, 0.5, 0.46]), AP-STD 0.0559 AR-STD 0.0547 for setting v15
+AF1 0.5855 +- 0.0306 (mu 0.5), AF1 0.5878 +- 0.0324 (mu [0.54, 0.42, 0.5, 0.5]), AP-STD 0.0600 AR-STD 0.0508 for setting v20_indep
+

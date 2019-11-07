@@ -1,0 +1,31 @@
+20191029_wn_to_n2_wn_train_mass_kc
+20191029_wn_to_n2_wn_train_mass_ss
+
+TRAIN N2, EVAL N2:
+
+Val AF1 report for 20191029_wn_to_n2_n2_train_mass_ss
+AF1 67.13/2.07 [0.5] 67.64/2.51 [0.44, 0.50, 0.50, 0.42], F1(03) 80.21/1.63, AP/AR-STD 5.90/6.15 for v19
+AF1 66.40/1.79 [0.5] 67.26/2.44 [0.36, 0.50, 0.46, 0.44], F1(03) 79.57/1.42, AP/AR-STD 6.06/6.93 for v11
+
+Val AF1 report for 20191029_wn_to_n2_n2_train_mass_kc
+AF1 74.24/0.26 [0.5] 74.24/0.30 [0.52, 0.48, 0.52, 0.52], F1(03) 82.16/0.17, AP/AR-STD 3.65/4.34 for v19
+AF1 73.52/0.21 [0.5] 73.46/0.13 [0.60, 0.54, 0.54, 0.56], F1(03) 81.07/0.60, AP/AR-STD 3.68/4.38 for v11
+
+TRAIN WN, EVAL N2
+
+Val AF1 report for 20191029_wn_to_n2_wn_train_mass_ss (Transfer from wn to n2)
+AF1 66.29/1.99 [0.5] 67.45/2.30 [0.36, 0.44, 0.52, 0.44], F1(03) 79.85/1.60, AP/AR-STD 6.35/6.42 for v11
+AF1 67.20/2.19 [0.5] 67.11/2.33 [0.50, 0.50, 0.46, 0.50], F1(03) 79.81/1.64, AP/AR-STD 5.98/6.12 for v19
+
+Val AF1 report for 20191029_wn_to_n2_wn_train_mass_kc (Transfer from wn to n2)
+AF1 71.06/0.84 [0.5] 71.69/1.02 [0.48, 0.38, 0.44, 0.38], F1(03) 80.67/1.12, AP/AR-STD 4.21/4.40 for v19
+AF1 71.24/0.66 [0.5] 71.51/0.55 [0.48, 0.46, 0.44, 0.46], F1(03) 80.03/1.06, AP/AR-STD 4.36/4.92 for v11
+
+
+
+Conclusion: 
+Para SS:
+Al parecer entrenar en WN y luego evaluar solo en N2 obtiene un desempeño solo ligeramente inferior, aunque es interesante que no decaiga el desempeño. Puede agregarse como una observacion que no es necesario filtrar por N2 durante el entrenamiento ya que el resultado es robusto, lo mismo va para Dosed.
+
+Para KC:
+El desempeño decae como 2 o 2.5 puntos, posiblemente debido a que al entrenar en WN hay más cosas que parecen ser KC fuera de N2 pero no corresponden a un KC entonces eso hace que el sistema se vuelva mas conservador.

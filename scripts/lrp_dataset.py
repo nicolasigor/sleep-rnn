@@ -20,7 +20,7 @@ sys.path.append(project_root)
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.nn.models import WaveletBLSTM
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.common import constants
 from sleeprnn.common import pkeys
 from sleeprnn.common import checks

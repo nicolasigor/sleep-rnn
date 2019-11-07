@@ -1,0 +1,94 @@
+CWT MODEL (CURRENT MODEL):
+
+Val AF1 report for 20190530_bsf_v10_n2_train_mass_ss
+AF1 0.6510 +- 0.0299 (mu 0.5), AF1 0.6663 +- 0.0230 (mu [0.6, 0.44, 0.56, 0.42]), AP-STD 0.0778 AR-STD 0.0741 for setting [filters_32_32]
+
+Val AF1 report for 20190602_bsf_v10_n2_train_mass_kc
+AF1 0.6953 +- 0.0271 (mu 0.5), AF1 0.7137 +- 0.0221 (mu [0.58, 0.38, 0.4, 0.44]), AP-STD 0.0689 AR-STD 0.0442 for setting [filters_32_32]
+
+----------------------------------------------------
+TIME-DOMAIN MODEL SEARCH:
+
+Val AF1 report for 20190601_bsf_v11_n2_train_mass_ss
+AF1 0.6529 +- 0.0347 (mu 0.5), AF1 0.6799 +- 0.0233 (mu [0.64, 0.36, 0.58, 0.4]), AP-STD 0.0811 AR-STD 0.0718 for setting filters_32_64_128
+AF1 0.6720 +- 0.0344 (mu 0.5), AF1 0.6789 +- 0.0236 (mu [0.62, 0.6, 0.52, 0.44]), AP-STD 0.0784 AR-STD 0.0694 for setting filters_64_128_256
+AF1 0.6589 +- 0.0391 (mu 0.5), AF1 0.6784 +- 0.0252 (mu [0.64, 0.4, 0.58, 0.44]), AP-STD 0.0797 AR-STD 0.0683 for setting filters_64_64_128
+AF1 0.6688 +- 0.0347 (mu 0.5), AF1 0.6763 +- 0.0230 (mu [0.64, 0.5, 0.54, 0.48]), AP-STD 0.0795 AR-STD 0.0700 for setting filters_64_128_128
+AF1 0.6494 +- 0.0210 (mu 0.5), AF1 0.6750 +- 0.0216 (mu [0.38, 0.34, 0.38, 0.4]), AP-STD 0.0823 AR-STD 0.0741 for setting filters_64_64_64
+AF1 0.6535 +- 0.0297 (mu 0.5), AF1 0.6736 +- 0.0293 (mu [0.56, 0.38, 0.52, 0.38]), AP-STD 0.0832 AR-STD 0.0682 for setting filters_32_32_64
+AF1 0.6674 +- 0.0108 (mu 0.5), AF1 0.6734 +- 0.0194 (mu [0.44, 0.56, 0.36, 0.44]), AP-STD 0.0796 AR-STD 0.0726 for setting filters_32_64_64
+AF1 0.5928 +- 0.0514 (mu 0.5), AF1 0.6691 +- 0.0258 (mu [0.56, 0.22, 0.28, 0.32]), AP-STD 0.0823 AR-STD 0.0733 for setting filters_32_32_32
+
+Val AF1 report for 20190602_bsf_v11_n2_train_mass_kc
+AF1 0.7095 +- 0.0618 (mu 0.5), AF1 0.7218 +- 0.0320 (mu [0.72, 0.64, 0.52, 0.58]), AP-STD 0.0751 AR-STD 0.0487 for setting filters_64_128_256
+AF1 0.7026 +- 0.0586 (mu 0.5), AF1 0.7200 +- 0.0298 (mu [0.72, 0.54, 0.58, 0.5]), AP-STD 0.0807 AR-STD 0.0428 for setting filters_32_64_128
+
+Most promising time domain:
+v11_64_128_256
+v11_32_64_128
+
+----------------------------------------------------
+CWT MODEL SEARCH:
+
+SPINDLE RESULTS
+
+(FB_INIT: 1.0)
+
+Val AF1 report for 20190602_bsf_v12_n2_train_mass_ss
+AF1 0.6661 +- 0.0048 (mu 0.5), AF1 0.6701 +- 0.0177 (mu [0.38, 0.54, 0.38, 0.42]), AP-STD 0.0783 AR-STD 0.0767 for setting filters_32_64
+AF1 0.6583 +- 0.0172 (mu 0.5), AF1 0.6662 +- 0.0212 (mu [0.42, 0.44, 0.5, 0.42]), AP-STD 0.0767 AR-STD 0.0762 for setting filters_128_128
+AF1 0.6411 +- 0.0398 (mu 0.5), AF1 0.6641 +- 0.0221 (mu [0.68, 0.4, 0.46, 0.48]), AP-STD 0.0742 AR-STD 0.0738 for setting filters_64_128
+
+Val AF1 report for 20190602_bsf_v13_n2_train_mass_ss
+AF1 0.6150 +- 0.0364 (mu 0.5), AF1 0.6643 +- 0.0217 (mu [0.5, 0.3, 0.3, 0.38]), AP-STD 0.0792 AR-STD 0.0723 for setting filters_32_64
+AF1 0.6500 +- 0.0254 (mu 0.5), AF1 0.6619 +- 0.0208 (mu [0.42, 0.38, 0.48, 0.46]), AP-STD 0.0740 AR-STD 0.0717 for setting filters_64_128
+AF1 0.6318 +- 0.0368 (mu 0.5), AF1 0.6562 +- 0.0167 (mu [0.68, 0.34, 0.42, 0.5]), AP-STD 0.0747 AR-STD 0.0713 for setting filters_128_256
+
+Val AF1 report for 20190602_bsf_v14_n2_train_mass_ss
+AF1 0.6382 +- 0.0352 (mu 0.5), AF1 0.6588 +- 0.0201 (mu [0.58, 0.34, 0.54, 0.44]), AP-STD 0.0777 AR-STD 0.0717 for setting filters_32_64_128
+AF1 0.6310 +- 0.0354 (mu 0.5), AF1 0.6475 +- 0.0195 (mu [0.64, 0.36, 0.46, 0.52]), AP-STD 0.0714 AR-STD 0.0765 for setting filters_64_128_256
+
+Most promising:
+v12_32_64
+v12_128_128
+v13_32_64
+v12_64_128
+
+(FB_INIT: 0.5)
+
+Val AF1 report for 20190603_grid_cwt_fb05_n2_train_mass_ss
+AF1 0.6569 +- 0.0356 (mu 0.5), AF1 0.6717 +- 0.0221 (mu [0.66, 0.46, 0.52, 0.46]), AP-STD 0.0768 AR-STD 0.0692 for setting v12_f_32_64
+AF1 0.6594 +- 0.0259 (mu 0.5), AF1 0.6694 +- 0.0233 (mu [0.44, 0.4, 0.4, 0.48]), AP-STD 0.0788 AR-STD 0.0691 for setting v13_f_64_128
+AF1 0.6443 +- 0.0182 (mu 0.5), AF1 0.6689 +- 0.0188 (mu [0.4, 0.4, 0.44, 0.34]), AP-STD 0.0801 AR-STD 0.0746 for setting v13_f_32_64
+AF1 0.6620 +- 0.0322 (mu 0.5), AF1 0.6678 +- 0.0199 (mu [0.64, 0.52, 0.54, 0.5]), AP-STD 0.0763 AR-STD 0.0721 for setting v12_f_64_128
+AF1 0.6420 +- 0.0342 (mu 0.5), AF1 0.6669 +- 0.0253 (mu [0.66, 0.42, 0.4, 0.42]), AP-STD 0.0782 AR-STD 0.0722 for setting v12_f_128_128
+AF1 0.6471 +- 0.0358 (mu 0.5), AF1 0.6644 +- 0.0212 (mu [0.6, 0.36, 0.4, 0.56]), AP-STD 0.0774 AR-STD 0.0698 for setting v13_f_128_256
+AF1 0.6427 +- 0.0231 (mu 0.5), AF1 0.6640 +- 0.0219 (mu [0.52, 0.38, 0.38, 0.42]), AP-STD 0.0776 AR-STD 0.0700 for setting v14_f_32_64_128
+AF1 0.6527 +- 0.0245 (mu 0.5), AF1 0.6563 +- 0.0220 (mu [0.38, 0.36, 0.46, 0.5]), AP-STD 0.0721 AR-STD 0.0796 for setting v14_f_64_128_256
+
+Most promising:
+v12_32_64
+v13_64_128
+v13_32_64
+v12_64_128
+
+
+KCOMPLEX RESULTS:
+
+Val AF1 report for 20190604_grid_cwt_kc_n2_train_mass_kc
+AF1 0.7228 +- 0.0278 (mu 0.5), AF1 0.7223 +- 0.0301 (mu [0.48, 0.54, 0.48, 0.5]), AP-STD 0.0748 AR-STD 0.0423 for setting v12_f_32_64_fb_0.5
+AF1 0.7075 +- 0.0428 (mu 0.5), AF1 0.7204 +- 0.0271 (mu [0.62, 0.52, 0.4, 0.5]), AP-STD 0.0645 AR-STD 0.0440 for setting v12_f_64_128_fb_0.5
+AF1 0.7141 +- 0.0254 (mu 0.5), AF1 0.7171 +- 0.0176 (mu [0.54, 0.58, 0.42, 0.58]), AP-STD 0.0601 AR-STD 0.0521 for setting v12_f_64_128_fb_1.0
+AF1 0.7073 +- 0.0196 (mu 0.5), AF1 0.7085 +- 0.0282 (mu [0.42, 0.5, 0.4, 0.48]), AP-STD 0.0735 AR-STD 0.0405 for setting v13_f_32_64_fb_0.5
+AF1 0.7094 +- 0.0252 (mu 0.5), AF1 0.7081 +- 0.0246 (mu [0.5, 0.58, 0.5, 0.48]), AP-STD 0.0620 AR-STD 0.0451 for setting v12_f_32_64_fb_1.0
+AF1 0.7010 +- 0.0278 (mu 0.5), AF1 0.7051 +- 0.0330 (mu [0.48, 0.5, 0.42, 0.42]), AP-STD 0.0759 AR-STD 0.0428 for setting v13_f_64_128_fb_0.5
+AF1 0.6886 +- 0.0298 (mu 0.5), AF1 0.6968 +- 0.0247 (mu [0.54, 0.52, 0.38, 0.48]), AP-STD 0.0719 AR-STD 0.0493 for setting v13_f_64_128_fb_1.0
+AF1 0.6859 +- 0.0186 (mu 0.5), AF1 0.6939 +- 0.0267 (mu [0.48, 0.42, 0.44, 0.4]), AP-STD 0.0731 AR-STD 0.0463 for setting v13_f_32_64_fb_1.0
+
+Most promising:
+v12_f_32_64_fb_0.5
+v12_f_64_128_fb_0.5
+v12_f_64_128_fb_1.0
+v13_f_32_64_fb_0.5
+
+

@@ -1,0 +1,13 @@
+Baseline model: v11 con fc128 a la salida
+64_128_256
+SS: AF1 0.6744 +- 0.0261 (mu [0.34, 0.64, 0.66, 0.4])
+KC: AF1 0.7328 +- 0.0024 (mu [0.66, 0.46, 0.64, 0.5])
+
+v23: v11 pero con lstm a la salida de ? unidades.
+
+Val AF1 report for 20190826_v23_n2_train_mass_ss
+AF1 0.6568 +- 0.0348 (mu 0.5), AF1 0.6698 +- 0.0276 (mu [0.3, 0.44, 0.6, 0.54]), AP-STD 0.0654 AR-STD 0.0702 for setting out_lstm_16
+AF1 0.6484 +- 0.0034 (mu 0.5), AF1 0.6722 +- 0.0237 (mu [0.34, 0.58, 0.34, 0.26]), AP-STD 0.0643 AR-STD 0.0669 for setting out_lstm_32
+AF1 0.6602 +- 0.0370 (mu 0.5), AF1 0.6759 +- 0.0344 (mu [0.34, 0.58, 0.6, 0.48]), AP-STD 0.0648 AR-STD 0.0623 for setting out_lstm_64
+AF1 0.6640 +- 0.0337 (mu 0.5), AF1 0.6754 +- 0.0289 (mu [0.36, 0.5, 0.62, 0.54]), AP-STD 0.0613 AR-STD 0.0650 for setting out_lstm_128
+AF1 0.6587 +- 0.0348 (mu 0.5), AF1 0.6702 +- 0.0274 (mu [0.34, 0.44, 0.56, 0.54]), AP-STD 0.0663 AR-STD 0.0685 for setting out_lstm_256

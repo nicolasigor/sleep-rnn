@@ -1,0 +1,17 @@
+CHANGELOG:
+- Aligned downsampling
+- Fixed matching at metrics
+- Postprocessing for KC mark splitting
+
+Val AF1 report for 20191106_bsf_update_e1_n2_train_mass_ss
+AF1 66.96/2.10 [0.5] 67.58/2.25 [0.44, 0.56, 0.50, 0.48], F1(03) 80.08/1.06, AP/AR-STD 5.47/6.57 for v19
+AF1 66.75/2.05 [0.5] 67.53/2.57 [0.46, 0.52, 0.52, 0.40], F1(03) 79.89/1.76, AP/AR-STD 6.28/6.75 for v11
+
+Val AF1 report for 20191106_bsf_update_e1_n2_train_mass_kc
+AF1 73.87/0.48 [0.5] 73.92/0.31 [0.48, 0.44, 0.44, 0.46], F1(03) 81.26/0.63, AP/AR-STD 3.67/4.44 for v19
+AF1 73.05/0.55 [0.5] 73.42/0.41 [0.48, 0.60, 0.56, 0.56], F1(03) 80.59/0.56, AP/AR-STD 3.90/4.18 for v11
+
+Val AF1 report for 20191106_bsf_update_e2_n2_train_mass_ss
+AF1 68.08/1.36 [0.5] 68.02/1.30 [0.50, 0.48, 0.50, 0.50], F1(03) 85.16/0.93, AP/AR-STD 4.80/3.68 for v19
+AF1 67.12/1.78 [0.5] 67.39/1.57 [0.60, 0.52, 0.48, 0.54], F1(03) 84.40/1.35, AP/AR-STD 4.74/3.57 for v11
+

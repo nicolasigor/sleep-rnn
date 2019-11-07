@@ -13,7 +13,7 @@ detector_path = os.path.abspath('../..')
 print(detector_path)
 sys.path.append(detector_path)
 
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.nn.spectrum import compute_sigma_band
 
 

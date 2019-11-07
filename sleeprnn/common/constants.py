@@ -11,6 +11,7 @@ DREAMS_KC_NAME = 'dreams_kc'
 TRAIN_SUBSET = 'train'
 VAL_SUBSET = 'val'
 TEST_SUBSET = 'test'
+ALL_TRAIN_SUBSET = 'all_train'
 
 # Task mode
 N2_RECORD = 'n2'
@@ -21,6 +22,7 @@ SPINDLE = 'spindle'
 KCOMPLEX = 'kcomplex'
 
 # Metric keys
+AF1 = 'af1'
 F1_SCORE = 'f1_score'
 PRECISION = 'precision'
 RECALL = 'recall'
@@ -29,6 +31,16 @@ FP = 'fp'
 FN = 'fn'
 MEAN_ALL_IOU = 'mean_all_iou'
 MEAN_NONZERO_IOU = 'mean_nonzero_iou'
+
+# Baselines data keys
+F1_VS_IOU = 'f1_vs_iou'
+RECALL_VS_IOU = 'recall_vs_iou'
+PRECISION_VS_IOU = 'precision_vs_iou'
+IOU_HIST_BINS = 'iou_hist_bins'
+IOU_CURVE_AXIS = 'iou_curve_axis'
+IOU_HIST_VALUES = 'iou_hist_values'
+MEAN_IOU = 'mean_iou'
+MEAN_AF1 = 'mean_af1'
 
 # Type of padding
 PAD_SAME = 'same'
@@ -85,6 +97,7 @@ BLUE = 'blue'
 GREEN = 'green'
 GREY = 'grey'
 DARK = 'dark'
+CYAN = 'cyan'
 
 # Model versions
 DUMMY = 'dummy'

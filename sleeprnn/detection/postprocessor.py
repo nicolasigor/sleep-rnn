@@ -112,21 +112,6 @@ class PostProcessor(object):
                 pages_indices_subset_list)
         )
 
-        # stamps_list = [
-        #     self.proba2stamps(
-        #         pages_sequence,
-        #         pages_indices,
-        #         pages_indices_subset=pages_indices_subset,
-        #         thr=thr)
-        #     for (
-        #         pages_sequence,
-        #         pages_indices,
-        #         pages_indices_subset)
-        #     in zip(
-        #         pages_sequence_list,
-        #         pages_indices_list,
-        #         pages_indices_subset_list)]
-
         return stamps_list
 
     def _upsample_stamps(self, stamps):
@@ -138,7 +123,6 @@ class PostProcessor(object):
         else:
             aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
         if aligned_down:
-            print('ALIGNED_DOWN at postprocessor')
             stamps = stamps * upsample_factor
             stamps[:, 1] = stamps[:, 1] + upsample_factor - 1
             stamps = stamps.astype(np.int32)

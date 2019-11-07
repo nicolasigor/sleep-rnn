@@ -22,7 +22,7 @@ from sleeprnn.data import utils
 from sleeprnn.detection import metrics
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.nn.models import WaveletBLSTM
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.common import constants
 from sleeprnn.common import checks
 from sleeprnn.common import pkeys

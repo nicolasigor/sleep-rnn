@@ -1,0 +1,13 @@
+Val AF1 report for 20190529_bsf_v7lite_n2_train_mass_ss
+AF1 0.6506 +- 0.0275 (mu 0.5), AF1 0.6651 +- 0.0250 (mu [0.56, 0.44, 0.52, 0.42]), AP-STD 0.0773 AR-STD 0.0724 for setting bsf
+
+Val AF1 report for 20190529_bsf_v7litebig_n2_train_mass_ss
+AF1 0.6614 +- 0.0163 (mu 0.5), AF1 0.6683 +- 0.0198 (mu [0.48, 0.44, 0.54, 0.42]), AP-STD 0.0772 AR-STD 0.0766 for setting bsf
+
+Val AF1 report for 20190529_bsf_v8_n2_train_mass_ss
+AF1 0.6479 +- 0.0392 (mu 0.5), AF1 0.6639 +- 0.0251 (mu [0.64, 0.42, 0.58, 0.46]), AP-STD 0.0762 AR-STD 0.0707 for setting bsf
+
+Val AF1 report for 20190529_bsf_v9_n2_train_mass_ss
+AF1 0.6408 +- 0.0364 (mu 0.5), AF1 0.6685 +- 0.0212 (mu [0.64, 0.34, 0.54, 0.42]), AP-STD 0.0778 AR-STD 0.0711 for setting bsf
+
+

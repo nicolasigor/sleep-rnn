@@ -1,0 +1,19 @@
+Val AF1 report for 20190827_thesis_1_bsf_e1_n2_train_mass_ss
+AF1 0.6724 +- 0.0400 (mu 0.5), AF1 0.6764 +- 0.0266 (mu [0.54, 0.52, 0.64, 0.54]), AP-STD 0.0605 AR-STD 0.0598 for setting v19
+AF1 0.6582 +- 0.0216 (mu 0.5), AF1 0.6720 +- 0.0248 (mu [0.48, 0.5, 0.56, 0.3]), AP-STD 0.0647 AR-STD 0.0679 for setting v11
+AF1 0.6477 +- 0.0366 (mu 0.5), AF1 0.6706 +- 0.0239 (mu [0.3, 0.62, 0.64, 0.54]), AP-STD 0.0599 AR-STD 0.0632 for setting v21
+
+Val AF1 report for 20190827_thesis_1_bsf_e1_n2_train_mass_kc
+AF1 0.7383 +- 0.0075 (mu 0.5), AF1 0.7418 +- 0.0058 (mu [0.54, 0.64, 0.52, 0.5]), AP-STD 0.0335 AR-STD 0.0425 for setting v19
+AF1 0.7339 +- 0.0081 (mu 0.5), AF1 0.7365 +- 0.0034 (mu [0.56, 0.32, 0.52, 0.56]), AP-STD 0.0386 AR-STD 0.0495 for setting v21
+AF1 0.7322 +- 0.0059 (mu 0.5), AF1 0.7340 +- 0.0040 (mu [0.56, 0.34, 0.64, 0.52]), AP-STD 0.0393 AR-STD 0.0493 for setting v11
+
+Val AF1 report for 20190827_thesis_1_bsf_e1_n2_train_inta_ss
+AF1 0.5931 +- 0.0259 (mu 0.5), AF1 0.5980 +- 0.0307 (mu [0.42, 0.42, 0.46, 0.44]), AP-STD 0.0522 AR-STD 0.0501 for setting v19
+AF1 0.5943 +- 0.0286 (mu 0.5), AF1 0.5973 +- 0.0320 (mu [0.44, 0.4, 0.48, 0.46]), AP-STD 0.0554 AR-STD 0.0544 for setting v21
+AF1 0.5946 +- 0.0272 (mu 0.5), AF1 0.5968 +- 0.0296 (mu [0.48, 0.42, 0.42, 0.44]), AP-STD 0.0554 AR-STD 0.0524 for setting v11
+
+Val AF1 report for 20190827_thesis_1_bsf_e2_n2_train_mass_ss
+AF1 0.6755 +- 0.0271 (mu 0.5), AF1 0.6810 +- 0.0163 (mu [0.58, 0.5, 0.34, 0.6]), AP-STD 0.0483 AR-STD 0.0346 for setting v19
+AF1 0.6734 +- 0.0106 (mu 0.5), AF1 0.6758 +- 0.0138 (mu [0.5, 0.58, 0.56, 0.48]), AP-STD 0.0531 AR-STD 0.0364 for setting v21
+AF1 0.6704 +- 0.0166 (mu 0.5), AF1 0.6749 +- 0.0179 (mu [0.52, 0.6, 0.54, 0.5]), AP-STD 0.0521 AR-STD 0.0346 for setting v11

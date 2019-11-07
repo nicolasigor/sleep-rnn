@@ -14,7 +14,7 @@ from scipy.interpolate import splrep, sproot
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 
 CUSTOM_COLOR = {
     'red': '#c62828', 'grey': '#455a64', 'blue': '#0277bd', 'green': '#43a047'}

@@ -12,7 +12,7 @@ import pandas as pd
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.data import utils
 from sleeprnn.detection import metrics
 from sleeprnn.common import constants, pkeys

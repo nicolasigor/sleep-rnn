@@ -14,8 +14,7 @@ import matplotlib.pyplot as plt
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset
-from sleeprnn.helpers.reader import RefactorUnpickler
+from sleeprnn.helpers.reader import RefactorUnpickler, load_dataset
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics

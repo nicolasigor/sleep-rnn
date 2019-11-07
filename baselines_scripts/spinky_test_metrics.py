@@ -13,7 +13,7 @@ from scipy.io import loadmat
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.data import utils, stamp_correction
 from sleeprnn.detection import metrics
 from sleeprnn.common import constants, pkeys
@@ -25,8 +25,8 @@ BASELINE_PATH = os.path.abspath(os.path.join(
 if __name__ == '__main__':
     algorithm_name = '2017_lajnef'
 
-    dataset_name = constants.MASS_SS_NAME
-    which_expert = 2
+    dataset_name = constants.MASS_KC_NAME
+    which_expert = 1
     fs = 128
     dataset_params = {pkeys.FS: fs}
 
@@ -135,6 +135,7 @@ if __name__ == '__main__':
     # Start evaluation
     print('\nStarting evaluation\n', flush=True)
     iou_axis = np.linspace(0.05, 0.95, 19)
+    iou_hist_bins = np.linspace(0, 1, 21)
     test_marks_list = dataset.get_subset_stamps(
         test_ids,
         which_expert=which_expert,
@@ -153,6 +154,7 @@ if __name__ == '__main__':
             # matching
             iou_matching, idx_array = metrics.matching(
                 this_gs, this_det)
+            iou_matching_nonzero = iou_matching[idx_array > -1]
 
             # curves
             f1_iou = metrics.metric_vs_iou(
@@ -168,7 +170,11 @@ if __name__ == '__main__':
             # scalars
             subject_af1 = metrics.average_metric(
                 this_gs, this_det, iou_matching=iou_matching)
-            subject_iou = np.mean(iou_matching[idx_array > -1])
+            subject_iou = np.mean(iou_matching_nonzero)
+
+            # iou hist
+            iou_hist_values, _ = np.histogram(
+                iou_matching_nonzero, bins=iou_hist_bins, density=True)
 
             print('Fold %d, S%02d: Test AF1 %1.2f -- Test IoU %1.2f'
                   % (k, subject_id, 100 * subject_af1, 100 * subject_iou), flush=True)
@@ -195,7 +201,9 @@ if __name__ == '__main__':
                 iou_axis=iou_axis.astype(np.float32),
                 f1_vs_iou=f1_iou.astype(np.float32),
                 precision_vs_iou=precision_iou.astype(np.float32),
-                recall_vs_iou=recall_iou.astype(np.float32)
+                recall_vs_iou=recall_iou.astype(np.float32),
+                iou_hist_bins=iou_hist_bins.astype(np.float32),
+                iou_hist_values=iou_hist_values.astype(np.float32)
             )
 
         mean_af1 = np.mean(af1_list)

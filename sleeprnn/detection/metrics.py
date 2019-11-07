@@ -118,9 +118,9 @@ def matching(events, detections):
 
     if n_det == 0:
         # There are no detections
-        iou_array = np.zeros(n_gs)
-        idx_array = -1 * np.ones(n_gs, dtype=np.int32)
-        return iou_array, idx_array
+        iou_matching = np.zeros(n_gs)
+        idx_matching = -1 * np.ones(n_gs, dtype=np.int32)
+        return iou_matching, idx_matching
 
     overlaps = np.zeros((n_gs, n_det))
     for i in range(n_gs):
@@ -141,23 +141,33 @@ def matching(events, detections):
                 ) + 1
                 overlaps[i, j] = intersection / union
     # Greedy matching
-    iou_array = []  # Array for IoU for every true event (gs)
-    idx_array = []  # Array for the index associated with the true event.
+    iou_matching = []  # Array for IoU for every true event (gs)
+    idx_matching = []  # Array for the index associated with the true event.
     # If no detection is found, this value is -1
     for i in range(n_gs):
         if np.sum(overlaps[i, :]) > 0:
             # Find max overlap
             max_j = np.argmax(overlaps[i, :])
-            iou_array.append(overlaps[i, max_j])
-            idx_array.append(max_j)
+            iou_matching.append(overlaps[i, max_j])
+            idx_matching.append(max_j)
             # Remove this detection for further search
             overlaps[:, max_j] = 0
         else:
-            iou_array.append(0)
-            idx_array.append(-1)
-    iou_array = np.array(iou_array)
-    idx_array = np.array(idx_array)
-    return iou_array, idx_array
+            iou_matching.append(0)
+            idx_matching.append(-1)
+    iou_matching = np.array(iou_matching)
+    idx_matching = np.array(idx_matching)
+    return iou_matching, idx_matching
+
+
+def matching_with_list(events_list, detections_list):
+    iou_matching_list = []
+    idx_matching_list = []
+    for events, detections in zip(events_list, detections_list):
+        iou_matching, idx_matching = matching(events, detections)
+        iou_matching_list.append(iou_matching)
+        idx_matching_list.append(idx_matching)
+    return iou_matching_list, idx_matching_list
 
 
 def metric_vs_iou(
@@ -198,14 +208,22 @@ def metric_vs_iou_with_list(
         detections_list,
         iou_thr_list,
         metric_name=constants.F1_SCORE,
+        iou_matching_list=None,
         verbose=False
 ):
-    all_metric_list = []
-    for events, detections in zip(events_list, detections_list):
-        metric_list = metric_vs_iou(
+    if iou_matching_list is None:
+        iou_matching_list = [None] * len(events_list)
+
+    all_metric_list = [
+        metric_vs_iou(
             events, detections, iou_thr_list,
-            metric_name=metric_name, verbose=verbose)
-        all_metric_list.append(metric_list)
+            metric_name=metric_name,
+            verbose=verbose,
+            iou_matching=iou_matching
+        )
+        for (events, detections, iou_matching)
+        in zip(events_list, detections_list, iou_matching_list)
+    ]
     all_metric_curve = np.stack(all_metric_list, axis=1).mean(axis=1)
     return all_metric_curve
 
@@ -252,30 +270,21 @@ def average_metric_with_list(
         events_list,
         detections_list,
         metric_name=constants.F1_SCORE,
+        iou_matching_list=None,
         verbose=False
 ):
+    if iou_matching_list is None:
+        iou_matching_list = [None] * len(events_list)
     all_avg_list = [
         average_metric(
             events, detections,
-            metric_name=metric_name, verbose=verbose)
-        for (events, detections) in zip(events_list, detections_list)
+            metric_name=metric_name,
+            verbose=verbose,
+            iou_matching=iou_matching
+        )
+        for (events, detections, iou_matching)
+        in zip(events_list, detections_list, iou_matching_list)
     ]
-
-    # all_avg_list = Parallel(n_jobs=-1)(
-    #     delayed(average_metric)(
-    #         events, detections,
-    #         metric_name=metric_name, verbose=verbose)
-    #     for (events, detections) in zip(events_list, detections_list)
-    # )
-
-    # all_avg_list = []
-    #
-    # for events, detections in zip(events_list, detections_list):
-    #     avg_metric = average_metric(
-    #         events, detections,
-    #         metric_name=metric_name, verbose=verbose)
-    #     all_avg_list.append(avg_metric)
-
     all_avg = np.mean(all_avg_list)
     return all_avg
 

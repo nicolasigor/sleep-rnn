@@ -10,7 +10,8 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.loader import load_dataset, RefactorUnpickler
+from sleeprnn.helpers.reader import RefactorUnpickler
+from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.data.inta_ss import NAMES
 from sleeprnn.common import constants
 
