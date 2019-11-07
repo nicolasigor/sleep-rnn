@@ -6,6 +6,7 @@ from __future__ import print_function
 
 from sleeprnn.data.dataset import Dataset
 from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
+from sleeprnn.data.loader import load_dataset
 from sleeprnn.common import constants
 from .feeder_dataset import FeederDataset
 from .postprocessor import PostProcessor
@@ -61,7 +62,7 @@ class PredictedDataset(Dataset):
         data = {}
         for sub_id in self.all_ids:
             pat_dict = {
-                KEY_EEG: original_data[sub_id][KEY_EEG],
+                KEY_EEG: None,
                 KEY_N2_PAGES: original_data[sub_id][KEY_N2_PAGES],
                 KEY_ALL_PAGES: original_data[sub_id][KEY_ALL_PAGES],
                 '%s_%d' % (KEY_MARKS, 1): None
@@ -93,17 +94,16 @@ class PredictedDataset(Dataset):
 
         # KC postprocessing
         if self.event_name == constants.KCOMPLEX:
-            check_signal = self.data[self.all_ids[0]][KEY_EEG]
-            if check_signal is not None:
-                print('Postprocessing KC at Predicted Dataset')
-                new_stamps_list = []
-                for k, sub_id in enumerate(self.all_ids):
-                    signal = self.data[sub_id][KEY_EEG]
-                    stamps = stamps_list[k]
-                    stamps = postprocessing.kcomplex_stamp_split(
-                        signal, stamps, self.fs)
-                    new_stamps_list.append(stamps)
-                stamps_list = new_stamps_list
+            new_stamps_list = []
+            signals = self.get_signals_external()
+            for k, sub_id in enumerate(self.all_ids):
+                # Load signal
+                signal = signals[k]
+                stamps = stamps_list[k]
+                stamps = postprocessing.kcomplex_stamp_split(
+                    signal, stamps, self.fs)
+                new_stamps_list.append(stamps)
+            stamps_list = new_stamps_list
 
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
@@ -121,3 +121,12 @@ class PredictedDataset(Dataset):
 
     def get_probabilities(self):
         return self.get_subset_probabilities(self.all_ids)
+
+    def get_signals_external(self):
+        tmp_name = self.dataset_name
+        parent_dataset_name = "_".join(tmp_name.split("_")[:2])
+        parent_dataset = load_dataset(
+            parent_dataset_name, params=self.params,
+            load_checkpoint=True, verbose=False)
+        signals = parent_dataset.get_subset_signals(self.all_ids)
+        return signals

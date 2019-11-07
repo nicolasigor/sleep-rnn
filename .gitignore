@@ -9,15 +9,12 @@ __pychache__
 .settings
 datasets
 results
-logs
 experiments
 
 
 # Extensions
 *.pickle
 *.pkl
-*.npy
-*.npz
 *.pyc
 *.bak
 *.swp

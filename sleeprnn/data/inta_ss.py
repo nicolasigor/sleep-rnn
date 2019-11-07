@@ -66,7 +66,9 @@ class IntaSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, repair_stamps=False):
+    def __init__(
+            self, params=None, load_checkpoint=False,
+            repair_stamps=False, verbose=True):
         """Constructor"""
         # INTA parameters
         self.channel = 0  # Channel for SS, first is F4-C4, third is F3-C3
@@ -84,10 +86,11 @@ class IntaSS(Dataset):
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
 
-        print('Train size: %d. Test size: %d'
-              % (len(self.train_ids), len(self.test_ids)))
-        print('Train subjects: \n', self.train_ids)
-        print('Test subjects: \n', self.test_ids)
+        if verbose:
+            print('Train size: %d. Test size: %d'
+                  % (len(self.train_ids), len(self.test_ids)))
+            print('Train subjects: \n', self.train_ids)
+            print('Test subjects: \n', self.test_ids)
 
         super(IntaSS, self).__init__(
             dataset_dir=PATH_INTA_RELATIVE,
@@ -95,11 +98,13 @@ class IntaSS(Dataset):
             dataset_name=constants.INTA_SS_NAME,
             all_ids=self.train_ids + self.test_ids,
             event_name=constants.SPINDLE,
-            params=params
+            params=params,
+            verbose=verbose
         )
 
         self.global_std = self.compute_global_std(self.train_ids)
-        print('Global STD:', self.global_std)
+        if verbose:
+            print('Global STD:', self.global_std)
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

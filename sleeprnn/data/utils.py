@@ -263,7 +263,7 @@ def norm_clip_signal(
 
 
 def norm_clip_signal_global(signal, global_std, clip_value=10):
-    print('Normalizing with Global STD of %s' % global_std)
+    # print('Normalizing with Global STD of %s' % global_std)
     norm_signal = signal / global_std
     # Now clip to clip_value (only if clip is not None)
     if clip_value:

@@ -55,7 +55,7 @@ class MassSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -75,10 +75,11 @@ class MassSS(Dataset):
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
 
-        print('Train size: %d. Test size: %d'
-              % (len(self.train_ids), len(self.test_ids)))
-        print('Train subjects: \n', self.train_ids)
-        print('Test subjects: \n', self.test_ids)
+        if verbose:
+            print('Train size: %d. Test size: %d'
+                  % (len(self.train_ids), len(self.test_ids)))
+            print('Train subjects: \n', self.train_ids)
+            print('Test subjects: \n', self.test_ids)
 
         super(MassSS, self).__init__(
             dataset_dir=PATH_MASS_RELATIVE,
@@ -87,11 +88,13 @@ class MassSS(Dataset):
             all_ids=self.train_ids + self.test_ids,
             event_name=constants.SPINDLE,
             n_experts=2,
-            params=params
+            params=params,
+            verbose=verbose
         )
 
         self.global_std = self.compute_global_std(self.train_ids)
-        print('Global STD:', self.global_std)
+        if verbose:
+            print('Global STD:', self.global_std)
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

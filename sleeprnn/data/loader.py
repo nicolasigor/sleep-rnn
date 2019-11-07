@@ -10,7 +10,7 @@ from .mass_kc import MassKC
 from .mass_ss import MassSS
 
 
-def load_dataset(dataset_name, load_checkpoint=True, params=None):
+def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True):
     # Load data
     checks.check_valid_value(
         dataset_name, 'dataset_name',
@@ -22,13 +22,18 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None):
             constants.DREAMS_SS_NAME
         ])
     if dataset_name == constants.MASS_SS_NAME:
-        dataset = MassSS(load_checkpoint=load_checkpoint, params=params)
+        dataset = MassSS(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     elif dataset_name == constants.MASS_KC_NAME:
-        dataset = MassKC(load_checkpoint=load_checkpoint, params=params)
+        dataset = MassKC(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     elif dataset_name == constants.INTA_SS_NAME:
-        dataset = IntaSS(load_checkpoint=load_checkpoint, params=params)
+        dataset = IntaSS(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     elif dataset_name == constants.DREAMS_SS_NAME:
-        dataset = DreamsSS(load_checkpoint=load_checkpoint, params=params)
+        dataset = DreamsSS(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     else:
-        dataset = DreamsKC(load_checkpoint=load_checkpoint, params=params)
+        dataset = DreamsKC(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     return dataset
