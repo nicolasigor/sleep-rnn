@@ -27,7 +27,7 @@ GREY_COLORS = {
 COMPARISON_COLORS = {
     'model': PALETTE['cyan'],
     'expert': PALETTE['blue'],
-    'baseline': GREY_COLORS[8]
+    'baseline': GREY_COLORS[7]
 }
 
 BASELINES_LABEL_MARKER = {

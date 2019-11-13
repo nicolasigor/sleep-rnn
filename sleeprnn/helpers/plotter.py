@@ -5,6 +5,7 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -177,11 +178,13 @@ def format_duration_scatter_plot(ax, min_dur, max_dur, xlabel, ylabel):
 def format_iou_hist_plot(
         ax,
         label_pos_list,
-        label_txt_list
+        label_txt_list,
+        iou_major_ticks=np.linspace(0, 1, 6),
+        iou_minor_ticks=np.linspace(0, 1, 11)
 ):
     ax.set_xlim([0.0, 1.0])
-    ax.set_xticks(np.linspace(0, 1, 6))
-    ax.set_xticks(np.linspace(0, 1, 11), minor=True)
+    ax.set_xticks(iou_major_ticks)
+    ax.set_xticks(iou_minor_ticks, minor=True)
     ax.set_yticks(label_pos_list)
     ax.set_yticklabels(label_txt_list)
     ax.tick_params(labelsize=viz.FONTSIZE_GENERAL)
@@ -223,6 +226,8 @@ def format_precision_recall_plot(
     ax.set_yticks(pr_minor_ticks, minor=True)
     ax.set_xticks(pr_major_ticks)
     ax.set_xticks(pr_minor_ticks, minor=True)
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+    ax.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     return ax
 
 
