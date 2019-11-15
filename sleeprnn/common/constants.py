@@ -128,3 +128,7 @@ V22 = 'v22'  # CWT indep
 V23 = 'v23'  # Time-domain with LSTM instead of FC
 V24 = 'v24'  # Time-domain with feed-forward UpConv output
 V25 = 'v25'  # Time-domain unet
+V11_SKIP = 'v11_skip'
+V19_SKIP = 'v19_skip'
+V19_SKIP2 = 'v19_skip2'
+V19_SKIP3 = 'v19_skip3'
