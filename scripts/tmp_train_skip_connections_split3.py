@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'skip_connections'
+    experiment_name = 'skip_connections_e2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ]
 
     description_str = 'v11 and v19 but with skip connections'
-    which_expert = 1
+    which_expert = 2
     verbose = True
 
     # Complement experiment folder name with date
