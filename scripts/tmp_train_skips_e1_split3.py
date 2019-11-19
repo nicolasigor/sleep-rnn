@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'skip_connections_e2'
+    experiment_name = 'skips_e1'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ]
 
     description_str = 'v11 and v19 but with skip connections'
-    which_expert = 2
+    which_expert = 1
     verbose = True
 
     # Complement experiment folder name with date
@@ -54,10 +54,11 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.V19_SKIP3,
-        constants.V19_SKIP2,
-        constants.V19_SKIP,
-        constants.V11_SKIP
+        constants.V30,
+        constants.V29,
+        constants.V28,
+        constants.V27,
+        constants.V26
     ]
 
     # Base parameters
