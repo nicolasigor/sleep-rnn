@@ -88,6 +88,9 @@ class MassKC(Dataset):
         if verbose:
             print('Global STD:', self.global_std)
 
+        self.filt_signal_dict = {}
+        self.exists_cache = False
+
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()
@@ -257,3 +260,44 @@ class MassKC(Dataset):
         n2_pages = n2_pages.astype(np.int16)
 
         return n2_pages, hypnogram
+
+    def create_signal_cache(self, highcut=4):
+        signals = self.get_signals()
+        for k, sub_id in enumerate(self.all_ids):
+            filt_signal = utils.filter_iir_lowpass(
+                signals[k], self.fs, highcut=highcut)
+            filt_signal = filt_signal.astype(np.float32)
+            self.filt_signal_dict[sub_id] = filt_signal
+        self.exists_cache = True
+
+    def delete_signal_cache(self):
+        self.filt_signal_dict = {}
+        self.exists_cache = False
+
+    def get_subject_filt_signal(self, subject_id):
+        if self.exists_cache:
+            signal = self.filt_signal_dict[subject_id]
+        else:
+            signal = None
+        return signal
+
+    def get_subset_filt_signals(self, subject_id_list):
+        if self.exists_cache:
+            subset_signals = [
+                self.get_subject_filt_signal(sub_id)
+                for sub_id in subject_id_list]
+        else:
+            subset_signals = None
+        return subset_signals
+
+    def get_filt_signals(self):
+        if self.exists_cache:
+            subset_signals = [
+                self.get_subject_filt_signal(sub_id)
+                for sub_id in self.all_ids]
+        else:
+            subset_signals = None
+        return subset_signals
+
+    def exists_filt_signal_cache(self):
+        return self.exists_cache

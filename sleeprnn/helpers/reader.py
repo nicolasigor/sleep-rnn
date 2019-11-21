@@ -39,7 +39,8 @@ def read_prediction_with_seeds(
         task_mode,
         seed_id_list,
         set_list=None,
-        verbose=True
+        verbose=True,
+        parent_dataset=None,
 ):
     if verbose:
         print('Loading predictions')
@@ -64,6 +65,7 @@ def read_prediction_with_seeds(
                 'prediction_%s_%s.pkl' % (task_mode, set_name))
             with open(filename, 'rb') as handle:
                 this_pred = RefactorUnpickler(handle).load()
+            this_pred.set_parent_dataset(parent_dataset)
             this_dict[set_name] = this_pred
         predictions_dict[k] = this_dict
         if verbose:

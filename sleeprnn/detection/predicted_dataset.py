@@ -94,14 +94,15 @@ class PredictedDataset(Dataset):
 
         # KC postprocessing
         if self.event_name == constants.KCOMPLEX:
-            new_stamps_list = []
             signals = self.get_signals_external()
+            new_stamps_list = []
             for k, sub_id in enumerate(self.all_ids):
                 # Load signal
                 signal = signals[k]
                 stamps = stamps_list[k]
                 stamps = postprocessing.kcomplex_stamp_split(
-                    signal, stamps, self.fs)
+                    signal, stamps, self.fs,
+                    signal_is_filtered=True)
                 new_stamps_list.append(stamps)
             stamps_list = new_stamps_list
 
@@ -122,11 +123,23 @@ class PredictedDataset(Dataset):
     def get_probabilities(self):
         return self.get_subset_probabilities(self.all_ids)
 
+    def set_parent_dataset(self, dataset):
+        self.parent_dataset = dataset
+
+    def delete_parent_dataset(self):
+        self.parent_dataset = None
+
     def get_signals_external(self):
-        tmp_name = self.dataset_name
-        parent_dataset_name = "_".join(tmp_name.split("_")[:2])
-        parent_dataset = load_dataset(
-            parent_dataset_name, params=self.params,
-            load_checkpoint=True, verbose=False)
-        signals = parent_dataset.get_subset_signals(self.all_ids)
+        if self.parent_dataset is None:
+            tmp_name = self.dataset_name
+            parent_dataset_name = "_".join(tmp_name.split("_")[:2])
+            parent_dataset = load_dataset(
+                parent_dataset_name, params=self.params,
+                load_checkpoint=True, verbose=False)
+        else:
+            parent_dataset = self.parent_dataset
+        if not parent_dataset.exists_filt_signal_cache():
+            print('Creating cache that does not exists')
+            parent_dataset.create_signal_cache()
+        signals = parent_dataset.get_subset_filt_signals(self.all_ids)
         return signals

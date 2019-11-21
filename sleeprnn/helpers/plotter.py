@@ -287,3 +287,8 @@ def show_isof1(ax, min_level, max_level):
     CS = ax.contour(X, Y, Z, colors='k', alpha=0.3, levels=levels)
     ax.clabel(CS, fontsize=7.5, fmt='%1.2f')
     return ax
+
+
+def add_label_chart(ax, label, fontsize):
+    ax.set_title(r"$\bf{%s}$"% label, fontsize=fontsize, loc='left')
+    return ax

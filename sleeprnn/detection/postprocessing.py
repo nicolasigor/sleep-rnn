@@ -8,11 +8,23 @@ from scipy.signal import find_peaks
 from sleeprnn.data.utils import filter_iir_lowpass
 
 
-def kcomplex_stamp_split(signal, stamps, fs, highcut=4, left_edge_tol=0.05, right_edge_tol=0.2):
+def kcomplex_stamp_split(
+        signal,
+        stamps,
+        fs,
+        highcut=4,
+        left_edge_tol=0.05,
+        right_edge_tol=0.2,
+        signal_is_filtered=False
+):
     left_edge_tol = fs * left_edge_tol
     right_edge_tol = fs * right_edge_tol
 
-    filt_signal = filter_iir_lowpass(signal, fs, highcut=highcut)
+    if signal_is_filtered:
+        filt_signal = signal
+    else:
+        filt_signal = filter_iir_lowpass(signal, fs, highcut=highcut)
+
     new_stamps = []
     for stamp in stamps:
         stamp_size = stamp[1] - stamp[0] + 1
