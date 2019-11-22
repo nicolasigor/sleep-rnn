@@ -1,0 +1,26 @@
+PREVIOUS RESULTS: [Polar form]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_ss
+AF1 0.6545 +- 0.0385 (mu 0.5), AF1 0.6702 +- 0.0213 (mu [0.66, 0.4, 0.56, 0.52]), AP-STD 0.0793 AR-STD 0.0704 for setting v12_cwtf_32-64/rep0
+AF1 0.6565 +- 0.0266 (mu 0.5), AF1 0.6691 +- 0.0245 (mu [0.58, 0.46, 0.38, 0.46]), AP-STD 0.0779 AR-STD 0.0688 for setting v12_cwtf_32-64/rep1
+
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_kc
+AF1 0.7254 +- 0.0224 (mu 0.5), AF1 0.7224 +- 0.0234 (mu [0.46, 0.52, 0.48, 0.54]), AP-STD 0.0688 AR-STD 0.0455 for setting v12_cwtf_32-64/rep0
+AF1 0.7202 +- 0.0321 (mu 0.5), AF1 0.7224 +- 0.0289 (mu [0.52, 0.58, 0.52, 0.46]), AP-STD 0.0697 AR-STD 0.0452 for setting v12_cwtf_32-64/rep1
+
+------------------------------------------------------------
+Results with  [V17, 32, 64 (CWT Domain)]  [Rectangular form]
+
+Val AF1 report for 20190616_bsf_cwt_rect_n2_train_mass_ss 
+AF1 0.6741 +- 0.0106 (mu 0.5), AF1 0.6760 +- 0.0221 (mu [0.4, 0.48, 0.52, 0.4]), AP-STD 0.0785 AR-STD 0.0719 for setting relu_False
+AF1 0.6590 +- 0.0345 (mu 0.5), AF1 0.6662 +- 0.0249 (mu [0.6, 0.48, 0.54, 0.48]), AP-STD 0.0789 AR-STD 0.0704 for setting relu_True
+
+* Val AF1 report for 20190617_cwt_rect_n2_train_mass_kc 
+* AF1 0.7277 +- 0.0224 (mu 0.5), AF1 0.7236 +- 0.0243 (mu [0.46, 0.6, 0.56, 0.54]), AP-STD 0.0631 AR-STD 0.0421 for setting use_relu_False [fue use_relu_True en realidad por error]
+* AF1 0.7259 +- 0.0263 (mu 0.5), AF1 0.7269 +- 0.0292 (mu [0.48, 0.5, 0.42, 0.52]), AP-STD 0.0715 AR-STD 0.0407 for setting use_relu_True
+
+Fixed KC:
+
+Val AF1 report for 20190618_cwt_rect_n2_train_mass_kc
+AF1 0.7258 +- 0.0206 (mu 0.5), AF1 0.7241 +- 0.0196 (mu [0.5, 0.52, 0.58, 0.52]), AP-STD 0.0664 AR-STD 0.0406 for setting use_relu_True
+AF1 0.7168 +- 0.0372 (mu 0.5), AF1 0.7241 +- 0.0320 (mu [0.56, 0.46, 0.6, 0.46]), AP-STD 0.0710 AR-STD 0.0417 for setting use_relu_False
+

@@ -1,0 +1,24 @@
+MASS_SS
+
+Val AF1 report for 20190618_grid_fb_cwtrect_n2_train_mass_ss
+AF1 0.6824 +- 0.0210 (mu 0.5), AF1 0.6857 +- 0.0214 (mu [0.4, 0.56, 0.38, 0.46]), AP-STD 0.0533 AR-STD 0.0622 for setting fb_0.25
+AF1 0.6777 +- 0.0198 (mu 0.5), AF1 0.6874 +- 0.0167 (mu [0.48, 0.6, 0.32, 0.46]), AP-STD 0.0506 AR-STD 0.0597 for setting fb_0.5
+AF1 0.6711 +- 0.0179 (mu 0.5), AF1 0.6821 +- 0.0160 (mu [0.42, 0.38, 0.36, 0.48]), AP-STD 0.0493 AR-STD 0.0603 for setting fb_0.75
+AF1 0.6852 +- 0.0159 (mu 0.5), AF1 0.6871 +- 0.0133 (mu [0.58, 0.5, 0.54, 0.5]), AP-STD 0.0530 AR-STD 0.0564 for setting fb_1.0
+AF1 0.6767 +- 0.0199 (mu 0.5), AF1 0.6831 +- 0.0158 (mu [0.42, 0.38, 0.48, 0.48]), AP-STD 0.0507 AR-STD 0.0615 for setting fb_1.25
+AF1 0.6741 +- 0.0240 (mu 0.5), AF1 0.6825 +- 0.0188 (mu [0.4, 0.36, 0.54, 0.52]), AP-STD 0.0493 AR-STD 0.0602 for setting fb_1.5
+AF1 0.6724 +- 0.0173 (mu 0.5), AF1 0.6815 +- 0.0122 (mu [0.42, 0.38, 0.54, 0.46]), AP-STD 0.0489 AR-STD 0.0626 for setting fb_1.75
+AF1 0.6757 +- 0.0116 (mu 0.5), AF1 0.6786 +- 0.0169 (mu [0.44, 0.5, 0.44, 0.44]), AP-STD 0.0502 AR-STD 0.0617 for setting fb_2.0
+
+MASS_KC
+
+Val AF1 report for 20190618_grid_fb_cwtrect_n2_train_mass_kc
+AF1 0.7379 +- 0.0191 (mu 0.5), AF1 0.7438 +- 0.0110 (mu [0.4, 0.54, 0.48, 0.5]), AP-STD 0.0331 AR-STD 0.0398 for setting fb_0.25
+AF1 0.7420 +- 0.0114 (mu 0.5), AF1 0.7430 +- 0.0112 (mu [0.48, 0.58, 0.54, 0.46]), AP-STD 0.0320 AR-STD 0.0370 for setting fb_0.5
+AF1 0.7414 +- 0.0114 (mu 0.5), AF1 0.7422 +- 0.0111 (mu [0.5, 0.46, 0.56, 0.52]), AP-STD 0.0322 AR-STD 0.0387 for setting fb_0.75
+AF1 0.7301 +- 0.0084 (mu 0.5), AF1 0.7357 +- 0.0111 (mu [0.52, 0.42, 0.52, 0.4]), AP-STD 0.0327 AR-STD 0.0401 for setting fb_1.0
+AF1 0.7286 +- 0.0238 (mu 0.5), AF1 0.7391 +- 0.0093 (mu [0.34, 0.48, 0.5, 0.48]), AP-STD 0.0333 AR-STD 0.0389 for setting fb_1.25
+AF1 0.7184 +- 0.0286 (mu 0.5), AF1 0.7332 +- 0.0121 (mu [0.28, 0.44, 0.54, 0.46]), AP-STD 0.0342 AR-STD 0.0396 for setting fb_1.5
+AF1 0.7273 +- 0.0266 (mu 0.5), AF1 0.7397 +- 0.0107 (mu [0.38, 0.46, 0.52, 0.44]), AP-STD 0.0335 AR-STD 0.0393 for setting fb_1.75
+AF1 0.7217 +- 0.0246 (mu 0.5), AF1 0.7344 +- 0.0108 (mu [0.32, 0.38, 0.52, 0.4]), AP-STD 0.0344 AR-STD 0.0376 for setting fb_2.0
+

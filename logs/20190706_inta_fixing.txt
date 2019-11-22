@@ -1,0 +1,12 @@
+RESULTADO PREVIO A MODIFICACIONES:
+
+Val AF1 report for 20190704_inta_meeting_n2_train_inta_ss
+AF1 0.5917 +- 0.0295 (mu 0.5), AF1 0.5929 +- 0.0311 (mu [0.46, 0.42, 0.46, 0.46]), AP-STD 0.0543 AR-STD 0.0551 for setting v15
+AF1 0.5866 +- 0.0301 (mu 0.5), AF1 0.5899 +- 0.0319 (mu [0.54, 0.42, 0.5, 0.52]), AP-STD 0.0579 AR-STD 0.0510 for setting v20_indep
+
+RESULTADO AL COMBINAR MARCAS CERCANAS Y ELIMINAR CHICAS USANDO 0.5 [S] COMO CRITERIO:
+
+Val AF1 report for 20190706_inta_05_n2_train_inta_ss
+AF1 0.6025 +- 0.0312 (mu 0.5), AF1 0.6032 +- 0.0314 (mu [0.42, 0.44, 0.48, 0.5]), AP-STD 0.0552 AR-STD 0.0516 for setting v15
+
+
