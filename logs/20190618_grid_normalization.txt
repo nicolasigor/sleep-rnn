@@ -1,0 +1,31 @@
+# OLD PERSONALIZED IQR:
+
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_ss
+AF1 0.6581 +- 0.0431 (mu 0.5), AF1 0.6748 +- 0.0335 (mu [0.62, 0.62, 0.4, 0.42]), AP-STD 0.0807 AR-STD 0.0672 for setting v15_tf_64-128-256_cwtf_32-32/rep0
+AF1 0.6671 +- 0.0362 (mu 0.5), AF1 0.6755 +- 0.0247 (mu [0.64, 0.54, 0.6, 0.46]), AP-STD 0.0784 AR-STD 0.0704 for setting v15_tf_64-128-256_cwtf_32-32/rep1
+
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_kc
+AF1 0.7112 +- 0.0520 (mu 0.5), AF1 0.7226 +- 0.0330 (mu [0.68, 0.54, 0.66, 0.52]), AP-STD 0.0741 AR-STD 0.0442 for setting v15_tf_64-128-256_cwtf_32-32/rep0
+AF1 0.7029 +- 0.0664 (mu 0.5), AF1 0.7185 +- 0.0355 (mu [0.72, 0.54, 0.44, 0.56]), AP-STD 0.0734 AR-STD 0.0422 for setting v15_tf_64-128-256_cwtf_32-32/rep1
+
+# MASS_SS, GLOBAL
+
+Val AF1 report for 20190614_bsf_global_std_n2_train_mass_ss
+AF1 0.6788 +- 0.0211 (mu 0.5), AF1 0.6923 +- 0.0141 (mu [0.62, 0.4, 0.4, 0.48]), AP-STD 0.0512 AR-STD 0.0582 for setting bsf
+
+# MASS_SS, GLOBAL AND PERSONALIZED STD
+
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_ss
+AF1 0.6818 +- 0.0225 (mu 0.5), AF1 0.6907 +- 0.0185 (mu [0.58, 0.42, 0.4, 0.5]), AP-STD 0.0540 AR-STD 0.0566 for setting norm_global
+AF1 0.6521 +- 0.0383 (mu 0.5), AF1 0.6693 +- 0.0270 (mu [0.62, 0.52, 0.4, 0.44]), AP-STD 0.0910 AR-STD 0.0740 for setting norm_std
+
+# MASS_KC, GLOBAL AND PERSONALIZED STD
+
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_kc
+AF1 0.7354 +- 0.0185 (mu 0.5), AF1 0.7354 +- 0.0149 (mu [0.68, 0.58, 0.48, 0.54]), AP-STD 0.0377 AR-STD 0.0408 for setting norm_global
+AF1 0.7198 +- 0.0343 (mu 0.5), AF1 0.7135 +- 0.0372 (mu [0.44, 0.62, 0.58, 0.52]), AP-STD 0.0901 AR-STD 0.0508 for setting norm_std
+
+
+CONCLUSIÓN:
+- Calcular un STD o un IQR personalizado usando las páginas N2 parece ser perjudicial, en comparación a no hacerlo (i.e., simplemente aplicar la misma normalización a todos los individuos).
+

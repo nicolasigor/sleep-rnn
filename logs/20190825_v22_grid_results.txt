@@ -1,0 +1,37 @@
+v22 description:
+CWT stride 1, fb=0.5, with 8 independent branches between 1 and 20 Hz.
+3 conv1d block of 32-32-?, dropout with rate ? applied individually before concatenation.
+Then blstm2*256-blstm2*256-fc128-softmax
+
+
+MASS SS
+Val AF1 report for 20190825_v22_grid_n2_train_mass_ss
+AF1 0.6730 +- 0.0292 (mu 0.5), AF1 0.6716 +- 0.0286 (mu [0.52, 0.48, 0.5, 0.52]), AP-STD 0.0641 AR-STD 0.0693 for setting r_1_i_1_m_1_p_0_drop_0.3_f_64
+AF1 0.6464 +- 0.0127 (mu 0.5), AF1 0.6636 +- 0.0206 (mu [0.38, 0.46, 0.32, 0.4]), AP-STD 0.0639 AR-STD 0.0781 for setting r_1_i_1_m_0_p_0_drop_0.3_f_32
+AF1 0.6499 +- 0.0247 (mu 0.5), AF1 0.6620 +- 0.0236 (mu [0.54, 0.38, 0.5, 0.34]), AP-STD 0.0682 AR-STD 0.0786 for setting r_1_i_1_m_0_p_0_drop_0.3_f_64
+AF1 0.6479 +- 0.0359 (mu 0.5), AF1 0.6601 +- 0.0216 (mu [0.54, 0.68, 0.62, 0.54]), AP-STD 0.0586 AR-STD 0.0655 for setting r_1_i_1_m_0_p_0_drop_0.0_f_32
+AF1 0.6492 +- 0.0277 (mu 0.5), AF1 0.6596 +- 0.0229 (mu [0.54, 0.62, 0.58, 0.46]), AP-STD 0.0587 AR-STD 0.0697 for setting r_1_i_1_m_1_p_0_drop_0.0_f_32
+AF1 0.6180 +- 0.0370 (mu 0.5), AF1 0.6569 +- 0.0131 (mu [0.42, 0.32, 0.46, 0.26]), AP-STD 0.0593 AR-STD 0.0771 for setting r_1_i_1_m_1_p_0_drop_0.3_f_32
+AF1 0.6445 +- 0.0244 (mu 0.5), AF1 0.6547 +- 0.0164 (mu [0.54, 0.64, 0.6, 0.48]), AP-STD 0.0583 AR-STD 0.0755 for setting r_1_i_1_m_1_p_0_drop_0.0_f_64
+AF1 0.6306 +- 0.0441 (mu 0.5), AF1 0.6484 +- 0.0210 (mu [0.22, 0.44, 0.58, 0.48]), AP-STD 0.0629 AR-STD 0.0750 for setting r_1_i_1_m_0_p_0_drop_0.0_f_64
+
+MASS_KC
+Val AF1 report for 20190825_v22_grid_n2_train_mass_kc
+AF1 0.7366 +- 0.0052 (mu 0.5), AF1 0.7378 +- 0.0034 (mu [0.58, 0.5, 0.54, 0.6]), AP-STD 0.0351 AR-STD 0.0377 for setting r_1_i_1_m_0_p_0_drop_0.3_f_64
+AF1 0.7349 +- 0.0035 (mu 0.5), AF1 0.7358 +- 0.0048 (mu [0.6, 0.48, 0.6, 0.58]), AP-STD 0.0343 AR-STD 0.0399 for setting r_1_i_1_m_1_p_0_drop_0.3_f_64
+AF1 0.7329 +- 0.0038 (mu 0.5), AF1 0.7336 +- 0.0036 (mu [0.56, 0.46, 0.56, 0.52]), AP-STD 0.0337 AR-STD 0.0390 for setting r_1_i_1_m_0_p_0_drop_0.3_f_32
+AF1 0.7300 +- 0.0088 (mu 0.5), AF1 0.7315 +- 0.0044 (mu [0.54, 0.64, 0.5, 0.56]), AP-STD 0.0334 AR-STD 0.0400 for setting r_1_i_1_m_1_p_0_drop_0.3_f_32
+AF1 0.7149 +- 0.0050 (mu 0.5), AF1 0.7155 +- 0.0018 (mu [0.54, 0.62, 0.56, 0.54]), AP-STD 0.0589 AR-STD 0.0734 for setting r_1_i_1_m_0_p_0_drop_0.0_f_64
+AF1 0.7150 +- 0.0075 (mu 0.5), AF1 0.7153 +- 0.0081 (mu [0.58, 0.46, 0.66, 0.5]), AP-STD 0.0559 AR-STD 0.0672 for setting r_1_i_1_m_1_p_0_drop_0.0_f_32
+AF1 0.7134 +- 0.0042 (mu 0.5), AF1 0.7142 +- 0.0047 (mu [0.62, 0.54, 0.56, 0.52]), AP-STD 0.0621 AR-STD 0.0752 for setting r_1_i_1_m_0_p_0_drop_0.0_f_32
+AF1 0.6978 +- 0.0095 (mu 0.5), AF1 0.7029 +- 0.0080 (mu [0.42, 0.78, 0.5, 0.44]), AP-STD 0.0633 AR-STD 0.0860 for setting r_1_i_1_m_1_p_0_drop_0.0_f_64
+
+
+Mejor configuración:
+r_1_i_1_m_1_p_0_drop_0.3_f_64
+SS: AF1 0.6716 +- 0.0286 (mu [0.52, 0.48, 0.5, 0.52])
+KC: AF1 0.7358 +- 0.0048 (mu [0.6, 0.48, 0.6, 0.58])
+
+Comparar sobre-entrenamiento con:
+20190708_grid_v19_pte2_n2_train_mass_ss/r_1_i_1_m_1_p_0_fb_0.5 [0.42, 0.58, 0.62, 0.54]
+

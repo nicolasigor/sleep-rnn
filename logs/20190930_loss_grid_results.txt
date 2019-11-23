@@ -1,0 +1,53 @@
+Val AF1 report for 20190927_loss_grid_n2_train_mass_ss
+AF1 0.6599 +- 0.0352 (mu 0.5), AF1 0.6727 +- 0.0271 (mu [0.34, 0.44, 0.56, 0.52]), AP-STD 0.0616 AR-STD 0.0663 for setting v11_p_0.5_cross_entropy_loss_gamma_None
+AF1 0.6665 +- 0.0283 (mu 0.5), AF1 0.6716 +- 0.0249 (mu [0.48, 0.5, 0.54, 0.5]), AP-STD 0.0622 AR-STD 0.0689 for setting v11_p_0.5_focal_loss_gamma_1.0
+AF1 0.6180 +- 0.0265 (mu 0.5), AF1 0.6713 +- 0.0226 (mu [0.4, 0.42, 0.4, 0.4]), AP-STD 0.0655 AR-STD 0.0642 for setting v11_p_0.01_focal_loss_gamma_2.0
+AF1 0.6477 +- 0.0191 (mu 0.5), AF1 0.6704 +- 0.0256 (mu [0.42, 0.5, 0.56, 0.44]), AP-STD 0.0650 AR-STD 0.0673 for setting v11_p_0.5_focal_loss_gamma_1.5
+AF1 0.6416 +- 0.0249 (mu 0.5), AF1 0.6698 +- 0.0254 (mu [0.42, 0.36, 0.52, 0.24]), AP-STD 0.0634 AR-STD 0.0664 for setting v11_p_0.01_cross_entropy_loss_gamma_None
+AF1 0.6294 +- 0.0422 (mu 0.5), AF1 0.6696 +- 0.0268 (mu [0.44, 0.5, 0.38, 0.3]), AP-STD 0.0615 AR-STD 0.0641 for setting v11_p_0.01_focal_loss_gamma_1.0
+AF1 0.6502 +- 0.0163 (mu 0.5), AF1 0.6689 +- 0.0234 (mu [0.46, 0.54, 0.54, 0.46]), AP-STD 0.0627 AR-STD 0.0655 for setting v11_p_0.5_focal_loss_gamma_2.0
+AF1 0.6148 +- 0.0401 (mu 0.5), AF1 0.6641 +- 0.0224 (mu [0.44, 0.42, 0.34, 0.34]), AP-STD 0.0637 AR-STD 0.0660 for setting v11_p_0.01_focal_loss_gamma_1.5
+AF1 0.6625 +- 0.0333 (mu 0.5), AF1 0.6625 +- 0.0324 (mu [0.8, 0.8, 0.8, 0.8]), AP-STD 0.0678 AR-STD 0.0723 for setting v11_p_0.5_dice_loss_gamma_None
+AF1 0.6598 +- 0.0236 (mu 0.5), AF1 0.6604 +- 0.0231 (mu [0.76, 0.8, 0.78, 0.78]), AP-STD 0.0682 AR-STD 0.0729 for setting v11_p_0.01_dice_loss_gamma_None
+
+Val AF1 report for 20191003_loss_grid_cwt_n2_train_mass_ss
+AF1 0.6605 +- 0.0374 (mu 0.5), AF1 0.6723 +- 0.0311 (mu [0.56, 0.56, 0.62, 0.4]), AP-STD 0.0613 AR-STD 0.0600 for setting v19_p_0.5_cross_entropy_loss_gamma_None
+AF1 0.6427 +- 0.0298 (mu 0.5), AF1 0.6732 +- 0.0270 (mu [0.42, 0.6, 0.58, 0.44]), AP-STD 0.0591 AR-STD 0.0613 for setting v19_p_0.5_focal_loss_gamma_1.0
+AF1 0.6693 +- 0.0284 (mu 0.5), AF1 0.6746 +- 0.0259 (mu [0.44, 0.5, 0.52, 0.52]), AP-STD 0.0611 AR-STD 0.0633 for setting v19_p_0.5_focal_loss_gamma_1.5
+AF1 0.6530 +- 0.0387 (mu 0.5), AF1 0.6703 +- 0.0318 (mu [0.44, 0.52, 0.54, 0.5]), AP-STD 0.0614 AR-STD 0.0593 for setting v19_p_0.5_focal_loss_gamma_2.0
+
+
+New format:
+
+Val AF1 report for 20190927_loss_grid_n2_train_mass_ss
+AF1 65.99/3.52 [0.5] 67.27/2.71 [0.34, 0.44, 0.56, 0.52], F1(03) 79.54/1.95, AP/AR-STD 6.16/6.63 for v11_p_0.5_cross_entropy_loss_gamma_None
+AF1 66.65/2.83 [0.5] 67.16/2.49 [0.48, 0.50, 0.54, 0.50], F1(03) 79.46/1.73, AP/AR-STD 6.22/6.89 for v11_p_0.5_focal_loss_gamma_1.0
+AF1 61.80/2.65 [0.5] 67.13/2.26 [0.40, 0.42, 0.40, 0.40], F1(03) 80.23/1.93, AP/AR-STD 6.55/6.42 for v11_p_0.01_focal_loss_gamma_2.0
+AF1 64.77/1.91 [0.5] 67.04/2.56 [0.42, 0.50, 0.56, 0.44], F1(03) 79.49/1.86, AP/AR-STD 6.50/6.73 for v11_p_0.5_focal_loss_gamma_1.5
+AF1 64.16/2.49 [0.5] 66.98/2.54 [0.42, 0.36, 0.52, 0.24], F1(03) 79.56/1.91, AP/AR-STD 6.34/6.64 for v11_p_0.01_cross_entropy_loss_gamma_None
+AF1 62.94/4.22 [0.5] 66.96/2.68 [0.44, 0.50, 0.38, 0.30], F1(03) 79.79/1.89, AP/AR-STD 6.15/6.41 for v11_p_0.01_focal_loss_gamma_1.0
+AF1 65.02/1.63 [0.5] 66.89/2.34 [0.46, 0.54, 0.54, 0.46], F1(03) 79.40/1.56, AP/AR-STD 6.27/6.55 for v11_p_0.5_focal_loss_gamma_2.0
+AF1 61.48/4.01 [0.5] 66.41/2.24 [0.44, 0.42, 0.34, 0.34], F1(03) 79.42/1.79, AP/AR-STD 6.37/6.60 for v11_p_0.01_focal_loss_gamma_1.5
+AF1 66.25/3.33 [0.5] 66.25/3.24 [0.50, 0.50, 0.50, 0.50], F1(03) 78.86/1.93, AP/AR-STD 6.78/7.23 for v11_p_0.5_dice_loss_gamma_None
+AF1 65.98/2.36 [0.5] 66.04/2.31 [0.76, 0.80, 0.78, 0.78], F1(03) 78.43/1.00, AP/AR-STD 6.82/7.29 for v11_p_0.01_dice_loss_gamma_None
+
+Val AF1 report for 20191003_loss_grid_cwt_n2_train_mass_ss
+AF1 66.93/2.84 [0.5] 67.46/2.59 [0.44, 0.50, 0.52, 0.52], F1(03) 80.11/1.76, AP/AR-STD 6.11/6.33 for v19_p_0.5_focal_loss_gamma_1.5
+AF1 64.27/2.98 [0.5] 67.32/2.70 [0.42, 0.60, 0.58, 0.44], F1(03) 79.73/2.15, AP/AR-STD 5.91/6.13 for v19_p_0.5_focal_loss_gamma_1.0
+AF1 66.05/3.74 [0.5] 67.23/3.11 [0.56, 0.56, 0.62, 0.40], F1(03) 79.70/2.56, AP/AR-STD 6.13/6.00 for v19_p_0.5_cross_entropy_loss_gamma_None
+AF1 65.30/3.87 [0.5] 67.03/3.18 [0.44, 0.52, 0.54, 0.50], F1(03) 79.64/2.55, AP/AR-STD 6.14/5.93 for v19_p_0.5_focal_loss_gamma_2.0
+
+
+________________________
+Rest of focal loss
+
+Val AF1 report for 20191009_focal_loss_grid_n2_train_mass_ss
+AF1 65.92/3.75 [0.5] 67.40/2.78 [0.48, 0.54, 0.54, 0.50], F1(03) 80.03/2.09, AP/AR-STD 6.56/6.69 for v11_p_0.5_focal_loss_gamma_3.0
+AF1 66.11/3.63 [0.5] 67.03/3.12 [0.48, 0.52, 0.52, 0.50], F1(03) 79.74/2.54, AP/AR-STD 6.85/6.36 for v11_p_0.5_focal_loss_gamma_3.5
+AF1 65.31/3.89 [0.5] 66.96/2.90 [0.46, 0.54, 0.54, 0.52], F1(03) 79.60/2.11, AP/AR-STD 6.10/6.04 for v19_p_0.5_focal_loss_gamma_2.5
+AF1 64.68/0.91 [0.5] 66.95/2.45 [0.46, 0.52, 0.50, 0.46], F1(03) 79.61/1.65, AP/AR-STD 5.97/6.58 for v19_p_0.5_focal_loss_gamma_3.0
+AF1 64.76/3.54 [0.5] 66.75/3.00 [0.46, 0.52, 0.52, 0.50], F1(03) 79.46/2.47, AP/AR-STD 6.43/5.82 for v19_p_0.5_focal_loss_gamma_4.0
+AF1 64.02/0.55 [0.5] 66.46/2.62 [0.44, 0.52, 0.46, 0.44], F1(03) 79.18/1.73, AP/AR-STD 6.50/6.96 for v11_p_0.5_focal_loss_gamma_2.5
+AF1 63.61/4.01 [0.5] 66.37/3.52 [0.44, 0.54, 0.50, 0.50], F1(03) 79.09/2.61, AP/AR-STD 6.45/6.11 for v19_p_0.5_focal_loss_gamma_3.5
+AF1 64.05/1.56 [0.5] 66.21/2.36 [0.46, 0.48, 0.52, 0.48], F1(03) 78.92/2.02, AP/AR-STD 6.60/6.62 for v11_p_0.5_focal_loss_gamma_4.0
+

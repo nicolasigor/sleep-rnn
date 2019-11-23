@@ -1,0 +1,22 @@
+Usando mu=0.5 para la estadísticas:
+
+Val AF1 0.3044 +- 0.0618 for setting v11_factor_0.01
+Val AF1 0.2944 +- 0.0638 for setting v18_factor_0.01
+Val AF1 0.2884 +- 0.0662 for setting v11_factor_0.1
+Val AF1 0.2867 +- 0.0743 for setting v11_factor_1.0
+Val AF1 0.2793 +- 0.0628 for setting v18_factor_0.1
+Val AF1 0.2709 +- 0.1095 for setting v12_factor_0.01
+Val AF1 0.2691 +- 0.0797 for setting v12_factor_1.0
+Val AF1 0.2664 +- 0.0636 for setting v15_factor_0.01
+Val AF1 0.2605 +- 0.0756 for setting v18_factor_1.0
+Val AF1 0.2601 +- 0.1148 for setting v12_factor_0.1
+Val AF1 0.2577 +- 0.0783 for setting v15_factor_0.1
+Val AF1 0.2405 +- 0.0507 for setting v15_factor_1.0
+Val AF1 0.2363 +- 0.1421 for setting v17_factor_0.1
+Val AF1 0.2295 +- 0.1357 for setting v17_factor_0.01
+Val AF1 0.2117 +- 0.1233 for setting v17_factor_1.0
+
+# optimal mu
+
+
+

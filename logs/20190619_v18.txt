@@ -1,0 +1,105 @@
+MASS_SS Results:
+
+PREVIOUS
+
+[V11 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_ss
+AF1 0.6718 +- 0.0290 (mu 0.5), AF1 0.6737 +- 0.0231 (mu [0.56, 0.54, 0.54, 0.48]), AP-STD 0.0772 AR-STD 0.0713 for setting v11_tf_64-128-256_cwtf_None-None/rep0
+AF1 0.6751 +- 0.0346 (mu 0.5), AF1 0.6816 +- 0.0260 (mu [0.6, 0.58, 0.5, 0.46]), AP-STD 0.0796 AR-STD 0.0683 for setting v11_tf_64-128-256_cwtf_None-None/rep1
+
+[V12 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_ss
+AF1 0.6545 +- 0.0385 (mu 0.5), AF1 0.6702 +- 0.0213 (mu [0.66, 0.4, 0.56, 0.52]), AP-STD 0.0793 AR-STD 0.0704 for setting v12_tf_None-None-None_cwtf_32-64/rep0
+AF1 0.6565 +- 0.0266 (mu 0.5), AF1 0.6691 +- 0.0245 (mu [0.58, 0.46, 0.38, 0.46]), AP-STD 0.0779 AR-STD 0.0688 for setting v12_tf_None-None-None_cwtf_32-64/rep1
+
+[V15 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_ss
+AF1 0.6581 +- 0.0431 (mu 0.5), AF1 0.6748 +- 0.0335 (mu [0.62, 0.62, 0.4, 0.42]), AP-STD 0.0807 AR-STD 0.0672 for setting v15_tf_64-128-256_cwtf_32-32/rep0
+AF1 0.6671 +- 0.0362 (mu 0.5), AF1 0.6755 +- 0.0247 (mu [0.64, 0.54, 0.6, 0.46]), AP-STD 0.0784 AR-STD 0.0704 for setting v15_tf_64-128-256_cwtf_32-32/rep1
+
+[V15 - GLOBAL]
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_ss
+AF1 0.6818 +- 0.0225 (mu 0.5), AF1 0.6907 +- 0.0185 (mu [0.58, 0.42, 0.4, 0.5]), AP-STD 0.0540 AR-STD 0.0566 for setting norm_global
+
+[V15 - STD]
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_ss
+AF1 0.6521 +- 0.0383 (mu 0.5), AF1 0.6693 +- 0.0270 (mu [0.62, 0.52, 0.4, 0.44]), AP-STD 0.0910 AR-STD 0.0740 for setting norm_std
+
+[V17 - IQR] (relu False)
+Val AF1 report for 20190616_bsf_cwt_rect_n2_train_mass_ss 
+AF1 0.6741 +- 0.0106 (mu 0.5), AF1 0.6760 +- 0.0221 (mu [0.4, 0.48, 0.52, 0.4]), AP-STD 0.0785 AR-STD 0.0719 for setting relu_False
+
+[V17 - GLOBAL] (relu False)
+Val AF1 report for 20190618_grid_fb_cwtrect_n2_train_mass_ss
+AF1 0.6777 +- 0.0198 (mu 0.5), AF1 0.6874 +- 0.0167 (mu [0.48, 0.6, 0.32, 0.46]), AP-STD 0.0506 AR-STD 0.0597 for setting fb_0.5
+
+NEW RESULTS:
+
+[V18 - GLOBAL] (relu False, V11 + V17)
+Val AF1 report for 20190618_v18_n2_train_mass_ss
+AF1 0.6788 +- 0.0190 (mu 0.5), AF1 0.6896 +- 0.0133 (mu [0.62, 0.38, 0.4, 0.5]), AP-STD 0.0512 AR-STD 0.0600 for setting bsf
+
+Best:
+[V18 - GLOBAL] AF1 0.6788 +- 0.0190 (mu 0.5), AF1 0.6896 +- 0.0133 (mu [0.62, 0.38, 0.4, 0.5]), AP-STD 0.0512 AR-STD 0.0600
+[V15 - GLOBAL] AF1 0.6818 +- 0.0225 (mu 0.5), AF1 0.6907 +- 0.0185 (mu [0.58, 0.42, 0.4, 0.5]), AP-STD 0.0540 AR-STD 0.0566
+[V17 - GLOBAL] AF1 0.6777 +- 0.0198 (mu 0.5), AF1 0.6874 +- 0.0167 (mu [0.48, 0.6, 0.32, 0.46]), AP-STD 0.0506 AR-STD 0.0597
+
+20190619_v11_v12_global
+[V11 - GLOBAL] AF1 0.6823 +- 0.0219 (mu 0.5), AF1 0.6874 +- 0.0214 (mu [0.56, 0.42, 0.54, 0.44]), AP-STD 0.0545 AR-STD 0.0608
+[V12 - GLOBAL] AF1 0.6799 +- 0.0149 (mu 0.5), AF1 0.6811 +- 0.0124 (mu [0.6, 0.62, 0.56, 0.5]), AP-STD 0.0528 AR-STD 0.0611
+
+-----------------------------------------------------------
+MASS_KC Results:
+
+PREVIOUS 
+
+[V11 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_kc
+AF1 0.7268 +- 0.0286 (mu 0.5), AF1 0.7255 +- 0.0267 (mu [0.48, 0.6, 0.68, 0.6]), AP-STD 0.0765 AR-STD 0.0428 for setting v11_tf_64-128-256_cwtf_None-None/rep0
+AF1 0.7282 +- 0.0279 (mu 0.5), AF1 0.7263 +- 0.0217 (mu [0.54, 0.62, 0.56, 0.58]), AP-STD 0.0723 AR-STD 0.0462 for setting v11_tf_64-128-256_cwtf_None-None/rep1
+
+[V12 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_kc
+AF1 0.7254 +- 0.0224 (mu 0.5), AF1 0.7224 +- 0.0234 (mu [0.46, 0.52, 0.48, 0.54]), AP-STD 0.0688 AR-STD 0.0455 for setting v12_tf_None-None-None_cwtf_32-64/rep0
+AF1 0.7202 +- 0.0321 (mu 0.5), AF1 0.7224 +- 0.0289 (mu [0.52, 0.58, 0.52, 0.46]), AP-STD 0.0697 AR-STD 0.0452 for setting v12_tf_None-None-None_cwtf_32-64/rep1
+
+[V15 - IQR]
+Val AF1 report for 20190608_bsf_ablation_n2_train_mass_kc
+AF1 0.7112 +- 0.0520 (mu 0.5), AF1 0.7226 +- 0.0330 (mu [0.68, 0.54, 0.66, 0.52]), AP-STD 0.0741 AR-STD 0.0442 for setting v15_tf_64-128-256_cwtf_32-32/rep0
+AF1 0.7029 +- 0.0664 (mu 0.5), AF1 0.7185 +- 0.0355 (mu [0.72, 0.54, 0.44, 0.56]), AP-STD 0.0734 AR-STD 0.0422 for setting v15_tf_64-128-256_cwtf_32-32/rep1
+
+[V15 - GLOBAL]
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_kc
+AF1 0.7354 +- 0.0185 (mu 0.5), AF1 0.7354 +- 0.0149 (mu [0.68, 0.58, 0.48, 0.54]), AP-STD 0.0377 AR-STD 0.0408 for setting norm_global
+
+[V15 - STD]
+Val AF1 report for 20190617_grid_normalization_n2_train_mass_kc
+AF1 0.7198 +- 0.0343 (mu 0.5), AF1 0.7135 +- 0.0372 (mu [0.44, 0.62, 0.58, 0.52]), AP-STD 0.0901 AR-STD 0.0508 for setting norm_std
+
+[V17 - IQR] (relu False)
+Val AF1 report for 20190618_cwt_rect_n2_train_mass_kc
+AF1 0.7168 +- 0.0372 (mu 0.5), AF1 0.7241 +- 0.0320 (mu [0.56, 0.46, 0.6, 0.46]), AP-STD 0.0710 AR-STD 0.0417 for setting use_relu_False
+
+[V17 - GLOBAL] (relu False)
+Val AF1 report for 20190618_grid_fb_cwtrect_n2_train_mass_kc
+AF1 0.7420 +- 0.0114 (mu 0.5), AF1 0.7430 +- 0.0112 (mu [0.48, 0.58, 0.54, 0.46]), AP-STD 0.0320 AR-STD 0.0370 for setting fb_0.5
+
+
+NEW RESULTS:
+
+[V18 - GLOBAL] (relu False, V11 + V17)
+Val AF1 report for 20190618_v18_n2_train_mass_kc
+AF1 0.7415 +- 0.0171 (mu 0.5), AF1 0.7426 +- 0.0133 (mu [0.56, 0.5, 0.56, 0.58]), AP-STD 0.0392 AR-STD 0.0371 for setting bsf
+
+Best:
+[V18 - GLOBAL] AF1 0.7415 +- 0.0171 (mu 0.5), AF1 0.7426 +- 0.0133 (mu [0.56, 0.5, 0.56, 0.58]), AP-STD 0.0392 AR-STD 0.0371
+[V15 - GLOBAL] AF1 0.7354 +- 0.0185 (mu 0.5), AF1 0.7354 +- 0.0149 (mu [0.68, 0.58, 0.48, 0.54]), AP-STD 0.0377 AR-STD 0.0408
+[V17 - GLOBAL] AF1 0.7420 +- 0.0114 (mu 0.5), AF1 0.7430 +- 0.0112 (mu [0.48, 0.58, 0.54, 0.46]), AP-STD 0.0320 AR-STD 0.0370
+
+20190619_v11_v12_global
+[V11 - GLOBAL] AF1 0.7322 +- 0.0206 (mu 0.5), AF1 0.7358 +- 0.0127 (mu [0.66, 0.62, 0.38, 0.64]), AP-STD 0.0350 AR-STD 0.0420
+[V12 - GLOBAL] AF1 0.7362 +- 0.0166 (mu 0.5), AF1 0.7388 +- 0.0122 (mu [0.46, 0.56, 0.48, 0.54]), AP-STD 0.0344 AR-STD 0.0418
+
+
+
+

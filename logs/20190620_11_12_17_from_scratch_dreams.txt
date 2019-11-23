@@ -1,0 +1,14 @@
+* Hubo una falla, el v17 se corrió con relu True en vez de relu  False.
+
+Val AF1 report for 20190620_11_12_17_from_scratch_n2_train_dreams_ss
+AF1 0.2570 +- 0.1528 (mu 0.5), AF1 0.3306 +- 0.1136 (mu [0.34, 0.38, 0.28, 0.44]), AP-STD 0.1528 AR-STD 0.0837 for setting v17_True
+AF1 0.3014 +- 0.0482 (mu 0.5), AF1 0.3288 +- 0.0846 (mu [0.36, 0.5, 0.34, 0.36]), AP-STD 0.1428 AR-STD 0.1046 for setting v12_True
+AF1 0.2590 +- 0.0798 (mu 0.5), AF1 0.3252 +- 0.0930 (mu [0.22, 0.48, 0.28, 0.38]), AP-STD 0.1629 AR-STD 0.1076 for setting v11_None
+
+Val AF1 report for 20190620_11_12_17_from_scratch_wn_train_dreams_ss
+AF1 0.2954 +- 0.0501 (mu 0.5), AF1 0.2918 +- 0.0563 (mu [0.48, 0.46, 0.46, 0.52]), AP-STD 0.1054 AR-STD 0.1058 for setting v12_True
+AF1 0.2607 +- 0.0751 (mu 0.5), AF1 0.2883 +- 0.0888 (mu [0.36, 0.46, 0.4, 0.36]), AP-STD 0.1235 AR-STD 0.0753 for setting v11_None
+AF1 0.2724 +- 0.0584 (mu 0.5), AF1 0.2762 +- 0.0925 (mu [0.3, 0.52, 0.28, 0.46]), AP-STD 0.1092 AR-STD 0.0600 for setting v17_True
+
+DREAMS_KC ni siquiera tira resultados
+

@@ -1,0 +1,35 @@
+MAS_SS
+
+Val AF1 report for 20190708_grid_v19_pte2_n2_train_mass_ss
+AF1 0.6637 +- 0.0428 (mu 0.5), AF1 0.6796 +- 0.0294 (mu [0.56, 0.64, 0.66, 0.46]), AP-STD 0.0581 AR-STD 0.0570 for setting r_1_i_1_m_0_p_0_fb_0.5
+AF1 0.6588 +- 0.0326 (mu 0.5), AF1 0.6744 +- 0.0284 (mu [0.5, 0.52, 0.64, 0.36]), AP-STD 0.0632 AR-STD 0.0615 for setting r_0_i_0_m_1_p_0_fb_0.5
+AF1 0.6592 +- 0.0395 (mu 0.5), AF1 0.6731 +- 0.0299 (mu [0.42, 0.58, 0.62, 0.54]), AP-STD 0.0618 AR-STD 0.0621 for setting r_1_i_1_m_1_p_0_fb_0.5
+AF1 0.6720 +- 0.0338 (mu 0.5), AF1 0.6712 +- 0.0275 (mu [0.52, 0.42, 0.54, 0.58]), AP-STD 0.0590 AR-STD 0.0629 for setting r_1_i_1_m_0_p_0_fb_1.0
+AF1 0.6590 +- 0.0329 (mu 0.5), AF1 0.6708 +- 0.0291 (mu [0.36, 0.44, 0.58, 0.48]), AP-STD 0.0599 AR-STD 0.0590 for setting r_1_i_1_m_1_p_0_fb_1.0
+AF1 0.6547 +- 0.0364 (mu 0.5), AF1 0.6707 +- 0.0280 (mu [0.58, 0.64, 0.6, 0.4]), AP-STD 0.0599 AR-STD 0.0623 for setting r_1_i_1_m_1_p_1_fb_1.0
+AF1 0.6366 +- 0.0202 (mu 0.5), AF1 0.6686 +- 0.0219 (mu [0.4, 0.62, 0.66, 0.38]), AP-STD 0.0589 AR-STD 0.0668 for setting r_1_i_1_m_1_p_1_fb_0.5
+AF1 0.6530 +- 0.0317 (mu 0.5), AF1 0.6670 +- 0.0262 (mu [0.38, 0.56, 0.6, 0.5]), AP-STD 0.0605 AR-STD 0.0667 for setting r_0_i_0_m_1_p_0_fb_1.0
+
+MASS_KC
+
+Val AF1 report for 20190708_grid_v19_pte2_n2_train_mass_kc
+AF1 0.7410 +- 0.0073 (mu 0.5), AF1 0.7459 +- 0.0053 (mu [0.38, 0.6, 0.54, 0.46]), AP-STD 0.0340 AR-STD 0.0390 for setting r_1_i_1_m_0_p_0_fb_0.5
+AF1 0.7416 +- 0.0054 (mu 0.5), AF1 0.7424 +- 0.0059 (mu [0.52, 0.54, 0.48, 0.42]), AP-STD 0.0381 AR-STD 0.0400 for setting r_1_i_1_m_1_p_0_fb_0.5
+AF1 0.7402 +- 0.0031 (mu 0.5), AF1 0.7415 +- 0.0014 (mu [0.46, 0.52, 0.54, 0.5]), AP-STD 0.0344 AR-STD 0.0417 for setting r_1_i_1_m_1_p_1_fb_0.5
+AF1 0.7329 +- 0.0116 (mu 0.5), AF1 0.7409 +- 0.0057 (mu [0.52, 0.34, 0.52, 0.4]), AP-STD 0.0361 AR-STD 0.0404 for setting r_1_i_1_m_1_p_1_fb_1.0
+AF1 0.7358 +- 0.0054 (mu 0.5), AF1 0.7399 +- 0.0042 (mu [0.42, 0.54, 0.44, 0.46]), AP-STD 0.0364 AR-STD 0.0434 for setting r_1_i_1_m_0_p_0_fb_1.0
+AF1 0.7268 +- 0.0151 (mu 0.5), AF1 0.7358 +- 0.0063 (mu [0.52, 0.32, 0.5, 0.38]), AP-STD 0.0362 AR-STD 0.0404 for setting r_1_i_1_m_1_p_0_fb_1.0
+AF1 0.6411 +- 0.0135 (mu 0.5), AF1 0.6459 +- 0.0152 (mu [0.44, 0.36, 0.52, 0.5]), AP-STD 0.0542 AR-STD 0.0544 for setting r_0_i_0_m_1_p_0_fb_0.5
+AF1 0.6170 +- 0.0126 (mu 0.5), AF1 0.6174 +- 0.0086 (mu [0.5, 0.48, 0.46, 0.46]), AP-STD 0.0547 AR-STD 0.0558 for setting r_0_i_0_m_1_p_0_fb_1.0
+
+Mejor en ambas bases de datos:
+r_1_i_1_m_0_p_0_fb_0.5
+SS: AF1 0.6796 +- 0.0294 (mu [0.56, 0.64, 0.66, 0.46])
+KC: AF1 0.7459 +- 0.0053 (mu [0.38, 0.6, 0.54, 0.46])
+
+Segundo mejor considerando ambas bases:
+r_1_i_1_m_1_p_0_fb_0.5
+SS: AF1 0.6731 +- 0.0299 (mu [0.42, 0.58, 0.62, 0.54])
+KC: AF1 0.7424 +- 0.0059 (mu [0.52, 0.54, 0.48, 0.42])
+
+Probar ambos para el modelo combinado, y en el combined probar fb 0.5, 1.0, 2.0

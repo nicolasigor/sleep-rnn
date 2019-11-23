@@ -1,0 +1,30 @@
+MAS_SS
+
+Val AF1 report for 20190713_report_v11_n2_train_mass_ss
+AF1 0.6509 +- 0.0249 (mu 0.5), AF1 0.6744 +- 0.0261 (mu [0.34, 0.64, 0.66, 0.4]), AP-STD 0.0644 AR-STD 0.0692 for setting 64_128_256
+AF1 0.6672 +- 0.0348 (mu 0.5), AF1 0.6738 +- 0.0280 (mu [0.52, 0.6, 0.62, 0.48]), AP-STD 0.0648 AR-STD 0.0654 for setting 32_256_512
+AF1 0.6685 +- 0.0343 (mu 0.5), AF1 0.6722 +- 0.0294 (mu [0.46, 0.48, 0.66, 0.52]), AP-STD 0.0631 AR-STD 0.0672 for setting 64_256_512
+AF1 0.6689 +- 0.0353 (mu 0.5), AF1 0.6716 +- 0.0312 (mu [0.5, 0.58, 0.54, 0.52]), AP-STD 0.0657 AR-STD 0.0652 for setting 32_128_256
+AF1 0.6619 +- 0.0329 (mu 0.5), AF1 0.6704 +- 0.0284 (mu [0.3, 0.4, 0.48, 0.54]), AP-STD 0.0648 AR-STD 0.0666 for setting 128_256_512
+
+MASS_KC
+
+Val AF1 report for 20190713_report_v11_n2_train_mass_kc
+AF1 0.7305 +- 0.0080 (mu 0.5), AF1 0.7341 +- 0.0022 (mu [0.58, 0.64, 0.6, 0.6]), AP-STD 0.0396 AR-STD 0.0420 for setting 64_256_512
+AF1 0.7312 +- 0.0048 (mu 0.5), AF1 0.7336 +- 0.0045 (mu [0.6, 0.42, 0.58, 0.64]), AP-STD 0.0373 AR-STD 0.0482 for setting 128_256_512
+AF1 0.7315 +- 0.0055 (mu 0.5), AF1 0.7328 +- 0.0024 (mu [0.66, 0.46, 0.64, 0.5]), AP-STD 0.0360 AR-STD 0.0409 for setting 64_128_256
+AF1 0.7276 +- 0.0093 (mu 0.5), AF1 0.7326 +- 0.0032 (mu [0.62, 0.68, 0.62, 0.6]), AP-STD 0.0411 AR-STD 0.0463 for setting 32_256_512
+AF1 0.7294 +- 0.0106 (mu 0.5), AF1 0.7321 +- 0.0052 (mu [0.6, 0.62, 0.62, 0.6]), AP-STD 0.0415 AR-STD 0.0404 for setting 32_128_256
+
+Mejor considerando ambas bases de datos:
+64_128_256
+SS: AF1 0.6744 +- 0.0261 (mu [0.34, 0.64, 0.66, 0.4])
+KC: AF1 0.7328 +- 0.0024 (mu [0.66, 0.46, 0.64, 0.5])
+
+Segundo mejor considerando ambas bases:
+64_256_512
+SS: AF1 0.6722 +- 0.0294 (mu [0.46, 0.48, 0.66, 0.52])
+KC: AF1 0.7341 +- 0.0022 (mu [0.58, 0.64, 0.6, 0.6])
+
+Probar ambos para el modelo combinado
+
