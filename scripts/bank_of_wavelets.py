@@ -16,8 +16,9 @@ sys.path.append(detector_path)
 
 from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.nn.spectrum import compute_wavelets, apply_wavelets_rectangular
-from sleeprnn.common import pkeys, constants
+from sleeprnn.common import pkeys, constants, viz
 from sleeprnn.data.utils import power_spectrum
+from sleeprnn.helpers import plotter
 
 CUSTOM_COLORS = {'red': '#c62828', 'grey': '#455a64', 'blue': '#0277bd', 'green': '#43a047'}
 
@@ -38,9 +39,9 @@ if __name__ == '__main__':
     subject_id = 1
     location = 100  # 337  # 425
     location_is_time = False  # If False, is stamp idx
-    show_magnitude = True
+    show_magnitude = False
 
-    init_fb = 2.0
+    init_fb = 0.5
     border_duration = 5
     context_duration = 15
     n_scales = 6
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     print('Length of input:', demo_signal.size)
     start_sample_display = start_sample + border_size
     end_sample_display = end_sample - border_size
-    time_axis = np.arange(start_sample_display, end_sample_display) / fs
+    time_axis = np.arange(end_sample_display - start_sample_display) / fs
 
     # Eligible stamps
     segment_stamps = filter_stamps(y, start_sample_display, end_sample_display)
@@ -120,8 +121,9 @@ if __name__ == '__main__':
     print(results_real.shape, results_imag.shape, kernels_real.shape, kernels_imag.shape)
 
     # Show results
-    x_ticks_major = np.ceil(time_axis[0]) + np.arange(context_duration)
-    x_ticks_minor = np.arange(np.ceil(time_axis[0]), np.ceil(time_axis[-1]), 0.5)
+    #x_ticks_major = np.ceil(time_axis[0]) + np.arange(context_duration)
+    x_ticks_major = []
+    x_ticks_minor = np.arange(context_duration)
     fig = plt.figure(figsize=(8, 6), dpi=200)
     gs = gridspec.GridSpec(4, 1, height_ratios=[2, 2, 6, 1])
 
@@ -152,60 +154,78 @@ if __name__ == '__main__':
 
     ax.plot(
         kernel_x_axis, kernel_crop_imag,
-        linewidth=1, color=CUSTOM_COLORS['red'], label='Imag Part')
+        linewidth=1, color=CUSTOM_COLORS['red'], label='Imaginary Part')
     ax.plot(
         kernel_x_axis, kernel_crop_real,
         linewidth=1, color=CUSTOM_COLORS['blue'], label='Real Part')
     ax.set_yticks([])
-    ax.set_title('Mother Wavelet with $F_B$=%1.1f' % init_fb, fontsize=8)
+    ax.set_title(
+        'Mother Wavelet with $F_B$=%1.1f' % init_fb, loc='left',
+        fontsize=viz.FONTSIZE_TITLE)
     ax.set_xticks([])
     ax.set_xlim([kernel_x_axis[0], kernel_x_axis[-1]])
     ax.set_ylim([-1.1*max_value_kernel, 1.1*max_value_kernel])
-    ax.legend(loc='upper right', fontsize=7)
-    ax.tick_params(labelsize=8)
+    ax.legend(
+        loc='upper right', fontsize=viz.FONTSIZE_GENERAL, ncol=2,
+        bbox_to_anchor=(1, 1.4), frameon=False
+    )
+    ax.tick_params(labelsize=viz.FONTSIZE_GENERAL)
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax = plotter.set_axis_color(ax)
 
     # ORIGINAL SIGNAL
     ax = fig.add_subplot(gs[1])
     y_max = 150
     ax.plot(
         time_axis, demo_signal.flatten()[border_size:-border_size],
-        label='Signal', linewidth=1, color=CUSTOM_COLORS['grey'])
-
+        linewidth=0.8, color=CUSTOM_COLORS['grey'])
+    ax.spines['left'].set_visible(True)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
     stamp_label_used = False
     for expert_stamp in segment_stamps:
         if stamp_label_used:
             label = None
         else:
-            label = dataset.event_name
+            label = 'Sleep Spindle'
             stamp_label_used = True
         ax.fill_between(
-            expert_stamp / fs, y_max, -y_max,
-            facecolor=CUSTOM_COLORS['blue'], alpha=0.3, label=label,
-            edgecolor='k', linewidth=1.5)
+            (expert_stamp - start_sample_display) / fs, y_max, -y_max,
+            facecolor=CUSTOM_COLORS['blue'], alpha=0.3, label=label)
     stamp_label_used = False
     if segment_stamps_kc is not None:
         for expert_stamp in segment_stamps_kc:
             if stamp_label_used:
                 label = None
             else:
-                label = 'kcomplex'
+                label = 'K-Complex'
                 stamp_label_used = True
             ax.fill_between(
-                expert_stamp / fs, y_max, -y_max,
-                facecolor=CUSTOM_COLORS['red'], alpha=0.3, label=label,
-                edgecolor='k', linewidth=1.5)
+                (expert_stamp - start_sample_display) / fs, y_max, -y_max,
+                facecolor=CUSTOM_COLORS['green'], alpha=0.3, label=label)
 
     ax.set_ylim([-y_max, y_max])
-    ax.set_yticks([-50, 0, 50])
+    ax.set_yticks([-50, 50])
+    ax.set_yticklabels(['-50 uV', '50 uV'], fontsize=viz.FONTSIZE_GENERAL)
     ax.set_xlim([time_axis[0], time_axis[-1]])
-    ax.legend(loc='upper right', fontsize=7)
-    ax.tick_params(labelsize=7)
-    ax.set_xlabel('Time [s]', fontsize=7)
-    ax.set_ylabel('Voltage [$\mu$V]', fontsize=7)
-    ax.set_title('Input Signal', fontsize=8)
+    ax.legend(
+        loc='upper right', fontsize=viz.FONTSIZE_GENERAL, ncol=2,
+        bbox_to_anchor=(1, 1.5), frameon=False
+    )
+    ax.tick_params(labelsize=viz.FONTSIZE_GENERAL)
+    ax.tick_params(axis='both', which='both', length=0)
+    ax.set_xlabel('Intervals of 1 [s]', fontsize=viz.FONTSIZE_GENERAL)
+    ax.set_title(
+        'Input Signal', loc='left',
+        fontsize=viz.FONTSIZE_TITLE)
     ax.set_xticks(x_ticks_major)
     ax.set_xticks(x_ticks_minor, minor=True)
     ax.grid(b=True, axis='x', which='minor')
+    ax = plotter.set_axis_color(ax)
 
     # FREQ RESPONSE
     max_freq = 50
@@ -245,7 +265,7 @@ if __name__ == '__main__':
     for i in range(n_scales):
         if i == 0:
             label_real = 'Real Part'
-            label_imag = 'Imag Part'
+            label_imag = 'Imaginary Part'
             label_magnitude = 'Magnitude'
         else:
             label_real = None
@@ -279,16 +299,31 @@ if __name__ == '__main__':
                 linewidth=1, color=CUSTOM_COLORS['blue'], label=label_real)
 
     ax.set_yticks([-scale_sep * k for k in range(n_scales)])
-    ax.set_yticklabels(np.round(frequencies, decimals=1))
+    ax.set_yticklabels(
+        ['%1.1f Hz' % freq for freq in frequencies],
+        fontsize=viz.FONTSIZE_GENERAL
+    )
+    #ax.set_yticklabels(np.round(frequencies, decimals=1))
     ax.set_xlim([time_axis[0], time_axis[-1]])
-    ax.set_ylabel('Central Frequency [Hz]', fontsize=7)
-    ax.set_title('Continuous Wavelet Transform', fontsize=8)
-    ax.set_xlabel('Time [s]', fontsize=7)
-    ax.tick_params(labelsize=7)
-    ax.legend(loc='upper right', fontsize=7)
+    # ax.set_ylabel('Central Frequency [Hz]', fontsize=7)
+    ax.set_title(
+        'Continuous Wavelet Transform (CWT)', loc='left',
+        fontsize=viz.FONTSIZE_TITLE)
+    ax.set_xlabel('Intervals of 1 [s]', fontsize=viz.FONTSIZE_GENERAL)
+    ax.tick_params(labelsize=viz.FONTSIZE_GENERAL)
+    ax.legend(
+        loc='upper right', fontsize=viz.FONTSIZE_GENERAL, ncol=2,
+        bbox_to_anchor=(1, 1.15), frameon=False
+    )
     ax.set_xticks(x_ticks_major)
     ax.set_xticks(x_ticks_minor, minor=True)
     ax.grid(b=True, axis='x', which='minor')
+    ax.spines['left'].set_visible(True)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.tick_params(axis='both', which='both', length=0)
+    ax = plotter.set_axis_color(ax)
 
     # Response
     ax = fig.add_subplot(gs[3])
@@ -296,16 +331,25 @@ if __name__ == '__main__':
     for i in range(n_scales):
         freq_axis = freq_axis_list[i]
         fft_kernel = fft_kernel_list[i]
-        ax.plot(freq_axis, fft_kernel, linewidth=1)
+        ax.plot(freq_axis, fft_kernel, linewidth=1, color=viz.PALETTE['grey'])
         if np.max(fft_kernel) > max_value_fft:
             max_value_fft = np.max(fft_kernel)
     ax.set_xscale('log')
     ax.set_yticks([])
     ax.set_xlim([freq_axis[0], freq_axis[-1]])
-    ax.set_xlabel('Frequency [Hz]', fontsize=7)
-    ax.set_title('Wavelet Response', fontsize=8)
+    # ax.set_xlabel('Frequency [Hz]', fontsize=viz.FONTSIZE_GENERAL)
+    ax.set_title(
+        "Frequency Response of Wavelets", loc='left',
+        fontsize=viz.FONTSIZE_TITLE)
     ax.set_ylim([0, 1.1*max_value_fft])
-    ax.tick_params(labelsize=7)
+    ax.tick_params(labelsize=viz.FONTSIZE_GENERAL)
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(True)
+    ax.set_xticks([1, 10])
+    ax.set_xticklabels(['1 Hz', '10 Hz'], fontsize=viz.FONTSIZE_GENERAL)
+    ax = plotter.set_axis_color(ax)
 
     plt.tight_layout()
     plt.show()
