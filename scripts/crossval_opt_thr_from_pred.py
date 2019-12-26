@@ -11,7 +11,7 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.helpers.reader import RefactorUnpickler, load_dataset
+from sleeprnn.helpers.reader import RefactorUnpickler, load_dataset, read_prediction_with_seeds
 from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20190827_thesis_1_bsf_e1'
+    ckpt_folder = '20191226_bsf_kernel5'
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
 
@@ -70,29 +70,13 @@ if __name__ == '__main__':
 
     set_list = [constants.TRAIN_SUBSET, constants.VAL_SUBSET]
     # Load predictions
-    print('Loading predictions')
     predictions_dict = {}
-    for j, folder_name in enumerate(grid_folder_list):
-        predictions_dict[folder_name] = {}
-        for k in id_try_list:
-            this_pred_dict = {}
-            # Restore predictions
-            ckpt_path = os.path.abspath(os.path.join(
-                RESULTS_PATH,
-                'predictions_%s' % dataset_name,
-                full_ckpt_folder,
-                '%s' % folder_name,
-                'seed%d' % k
-            ))
-            for set_name in set_list:
-                this_dict = {}
-                filename = os.path.join(
-                        ckpt_path,
-                        'prediction_%s_%s.pkl' % (task_mode, set_name))
-                with open(filename, 'rb') as handle:
-                    this_pred_dict[set_name] = RefactorUnpickler(handle).load()
-            print('Loaded seed %d from %s' % (k, ckpt_path))
-            predictions_dict[folder_name][k] = this_pred_dict
+    for folder_name in grid_folder_list:
+        this_ckpt_folder = os.path.join(full_ckpt_folder, folder_name)
+        predictions_dict[folder_name] = read_prediction_with_seeds(
+            this_ckpt_folder, dataset_name, task_mode, id_try_list,
+            set_list=set_list,
+            parent_dataset=dataset)
     print('Done\n')
 
     # ---------------- Compute performance
