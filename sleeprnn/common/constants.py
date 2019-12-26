@@ -137,3 +137,5 @@ V27 = 'v27'  # Experimental skip (based on v11)
 V28 = 'v28'  # Experimental skip (based on v11)
 V29 = 'v29'  # Experimental skip (based on v11)
 V30 = 'v30'  # Experimental skip (based on v11)
+V115 = 'v115'  # v11 with kernel 5
+V195 = 'v195'  # v19 with kernel 5
