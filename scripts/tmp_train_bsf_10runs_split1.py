@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = np.arange(10)
+    id_try_list = [i for i in range(10)]
 
     # ----- Experiment settings
     experiment_name = 'bsf_10runs_e1'

@@ -35,15 +35,15 @@ if __name__ == '__main__':
     id_try_list = [i for i in range(10)]
 
     # ----- Experiment settings
-    experiment_name = 'bsf_10runs_e2'
+    experiment_name = 'bsf_10runs_e1'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.INTA_SS_NAME
     ]
-    which_expert = 2
+    which_expert = 1
 
     description_str = 'bsf models with 10 seeds'
     verbose = True
