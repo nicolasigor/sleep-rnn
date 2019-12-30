@@ -1182,6 +1182,90 @@ def sequence_output_2class_layer(
     return outputs
 
 
+def gru_layer(
+        inputs,
+        num_units,
+        training,
+        num_dirs=constants.UNIDIRECTIONAL,
+        batchnorm=None,
+        dropout=None,
+        drop_rate=0.5,
+        reuse=False,
+        name=None):
+    """ Builds a GRU layer that can be applied directly to a sequence.
+
+    Args:
+        inputs: (3d tensor) input tensor of shape
+            [batch_size, time_len, n_feats].
+        num_units: (int) Number of neurons for the layers in the GRU.
+        num_dirs: (Optional, {UNIDIRECTIONAL, BIDIRECTIONAL}, defaults to
+            UNIDIRECTIONAL). Number of directions for the GRU. If
+            UNIDIRECTIONAL, a single GRU layer is applied in the forward time
+            direction. If BIDIRECTIONAL, another GRU layer is applied in the
+            backward time direction, and the output is concatenated with the
+            forward time direction layer. In the latter case, the output
+            has ndirs*num_units dimensions in the feature axis.
+        batchnorm: (Optional, {None, BN, BN_RENORM}, defaults to None) Type of
+            batchnorm to be used. BN is normal batchnorm, and BN_RENORM is a
+            batchnorm with renorm activated. If None, batchnorm is not applied.
+            The batchnorm layer is applied before the fc layer.
+        dropout: (Optional, {None REGULAR_DROP, SEQUENCE_DROP}, defaults to
+            None) Type of dropout to be used. REGULAR_DROP is regular
+            dropout, and SEQUENCE_DROP is a dropout with the same noise shape
+            for each time_step. If None, dropout is not applied. The
+            dropout layer is applied before the fc layer, after the batchnorm.
+        drop_rate: (Optional, float, defaults to 0.5) Dropout rate. Fraction of
+            units to be dropped. If dropout is None, this is ignored.
+        training: (Optional, boolean, defaults to False) Indicates if it is the
+            training phase or not
+        reuse: (Optional, boolean, defaults to False) Whether to reuse the layer
+            variables.
+        name: (Optional, string, defaults to None) A name for the operation.
+    """
+    checks.check_valid_value(
+        num_dirs, 'num_dirs',
+        [constants.UNIDIRECTIONAL, constants.BIDIRECTIONAL])
+
+    with tf.variable_scope(name):
+        if batchnorm:
+            inputs = batchnorm_layer(
+                inputs, 'bn', batchnorm=batchnorm, reuse=reuse,
+                training=training)
+        if dropout:
+            inputs = dropout_layer(
+                inputs, 'drop', drop_rate=drop_rate, dropout=dropout,
+                training=training)
+
+        if num_dirs == constants.UNIDIRECTIONAL:
+            gru_name = 'gru'
+        else:  # BIDIRECTIONAL
+            gru_name = 'bigru'
+
+        use_cudnn = tf.test.is_gpu_available(cuda_only=True)
+
+        # Whether we use CUDNN implementation or CPU implementation, we will
+        # use Fused implementations, which are the most efficient. Notice that
+        # the inputs to any FusedRNNCell instance should be time-major, this can
+        # be done by just transposing the tensor before calling the cell.
+
+        # Turn batch_major into time_major
+        inputs = swap_batch_time(inputs, name='to_time_major')
+
+        if use_cudnn:  # GPU is available
+            # Apply CUDNN GRU cell
+            rnn_cell = tf.contrib.cudnn_rnn.CudnnGRU(
+                num_layers=1, num_units=num_units, direction=num_dirs,
+                name='cudnn_%s' % gru_name)
+            outputs, _ = rnn_cell(inputs)
+        else:  # Only CPU is available
+            raise NotImplementedError(
+                'CPU implementation of GRU not implemented.')
+
+        # Return to batch_major
+        outputs = swap_batch_time(outputs, name='to_batch_major')
+    return outputs
+
+
 def lstm_layer(
         inputs,
         num_units,
@@ -1335,6 +1419,50 @@ def time_upsampling_layer(inputs, out_feats, name=None):
             inputs, filters=out_feats, kernel_size=(2, 1),
             strides=(2, 1), padding=constants.PAD_SAME)
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
+def multilayer_gru_block(
+        inputs,
+        num_units,
+        n_layers,
+        training,
+        num_dirs=constants.UNIDIRECTIONAL,
+        batchnorm_first_gru=None,
+        dropout_first_gru=None,
+        drop_rate_first_gru=0.5,
+        batchnorm_rest_gru=None,
+        dropout_rest_gru=None,
+        drop_rate_rest_gru=0.5,
+        name=None):
+    """Builds a multi-layer gru block.
+
+    The block consists of BN-GRU-...GRU, with every layer using the same
+    specifications. A particular dropout and batchnorm specification can be
+    set for the first layer. n_layers defines the number of layers
+    to be stacked.
+    Please see the documentation of gru_layer for details on input parameters.
+    """
+    with tf.variable_scope(name):
+        outputs = inputs
+        for i in range(n_layers):
+            if i == 0:
+                batchnorm = batchnorm_first_gru
+                dropout = dropout_first_gru
+                drop_rate = drop_rate_first_gru
+            else:
+                batchnorm = batchnorm_rest_gru
+                dropout = dropout_rest_gru
+                drop_rate = drop_rate_rest_gru
+            outputs = gru_layer(
+                outputs,
+                num_units=num_units,
+                num_dirs=num_dirs,
+                batchnorm=batchnorm,
+                dropout=dropout,
+                drop_rate=drop_rate,
+                training=training,
+                name='gru_%d' % (i+1))
     return outputs
 
 

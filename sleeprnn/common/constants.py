@@ -61,7 +61,7 @@ STRIDEDCONV = 'stridedconv'
 REGULAR_DROP = 'regular_dropout'
 SEQUENCE_DROP = 'sequence_dropout'
 
-# Number of directions for LSTM layers
+# Number of directions for recurrent layers
 UNIDIRECTIONAL = 'unidirectional'
 BIDIRECTIONAL = 'bidirectional'
 
@@ -139,3 +139,5 @@ V29 = 'v29'  # Experimental skip (based on v11)
 V30 = 'v30'  # Experimental skip (based on v11)
 V115 = 'v115'  # v11 with kernel 5
 V195 = 'v195'  # v19 with kernel 5
+V11G = 'v11g'  # v11 with GRU instead of LSTM
+V19G = 'v19g'  # V19 with GRU instead of LSTM
