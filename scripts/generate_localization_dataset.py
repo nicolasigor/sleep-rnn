@@ -243,8 +243,6 @@ if __name__ == '__main__':
         print(dataset_marks[set_name][subjects_in_set[0]].shape)
         print(dataset_marks_binary[set_name][subjects_in_set[0]].shape)
 
-    # TODO: visually check signal, save files in some intuitive format
-
     # Save data
     for set_name in set_list:
 
