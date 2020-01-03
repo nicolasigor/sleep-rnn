@@ -144,3 +144,4 @@ V19G = 'v19g'  # V19 with GRU instead of LSTM
 V31 = 'v31'  # v19 with independent branches for each band and 2 convs
 V32 = 'v32'  # v19 with independent branches for each band and 3 convs
 V19P = 'v19p'  # v19 with conv1x1 projection before lstm
+V33 = 'v33'  # V19 with independent LSTM's in first layer
