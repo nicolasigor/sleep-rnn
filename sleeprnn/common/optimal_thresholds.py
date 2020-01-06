@@ -81,4 +81,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20191106_bsf_update_e1_n2_train_mass_kc', 'v11'): [0.48, 0.60, 0.56, 0.56],
     os.path.join('20191106_bsf_update_e2_n2_train_mass_ss', 'v19'): [0.50, 0.48, 0.50, 0.50],
     os.path.join('20191106_bsf_update_e2_n2_train_mass_ss', 'v11'): [0.60, 0.52, 0.48, 0.54],
+
+    os.path.join('20191227_bsf_10runs_e1_n2_train_mass_ss', 'v19'): [0.44, 0.56, 0.58, 0.46, 0.44, 0.50, 0.58, 0.52, 0.48, 0.50],
+    os.path.join('20191227_bsf_10runs_e1_n2_train_mass_ss', 'v11'): [0.44, 0.50, 0.54, 0.46, 0.40, 0.50, 0.52, 0.48, 0.48, 0.50],
+    os.path.join('20191227_bsf_10runs_e2_n2_train_mass_ss', 'v19'): [0.50, 0.54, 0.48, 0.48, 0.48, 0.46, 0.54, 0.44, 0.52, 0.48],
+    os.path.join('20191227_bsf_10runs_e2_n2_train_mass_ss', 'v11'): [0.50, 0.52, 0.46, 0.48, 0.48, 0.54, 0.54, 0.48, 0.52, 0.48],
+    os.path.join('20191227_bsf_10runs_e1_n2_train_mass_kc', 'v19'): [0.44, 0.46, 0.48, 0.48, 0.42, 0.54, 0.44, 0.40, 0.50, 0.44],
+    os.path.join('20191227_bsf_10runs_e1_n2_train_mass_kc', 'v11'): [0.60, 0.60, 0.58, 0.58, 0.56, 0.54, 0.58, 0.56, 0.42, 0.60]
 }
