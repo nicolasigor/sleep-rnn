@@ -31,9 +31,9 @@ COMPARISON_COLORS = {
 }
 
 BASELINES_LABEL_MARKER = {
-    '2019_chambon': ('Chambon et al. 2019', 's'),
-    '2019_lacourse': ('Lacourse et al. 2019', 'd'),
-    '2017_lajnef': ('Lajnef et al. 2017', 'p'),
+    '2019_chambon': ('DOSED', 's'),
+    '2019_lacourse': ('A7', 'd'),
+    '2017_lajnef': ('Spinky', 'p'),
 }
 
 DPI = 200
