@@ -147,6 +147,11 @@ UNET_TIME_LSTM_UNITS = 'unet_time_lstm_units'
 UNET_TIME_N_DOWN = 'unet_time_n_down'
 UNET_TIME_N_CONV_DOWN = 'unet_time_n_conv_down'
 UNET_TIME_N_CONV_UP = 'unet_time_n_conv_up'
+# Attention parameters
+ATT_DIM = 'att_dim'
+ATT_N_HEADS = 'att_n_heads'
+ATT_PE_FACTOR = 'att_pe_factor'
+ATT_DROP_RATE = 'att_drop_rate'
 
 
 """ Loss params
@@ -300,5 +305,9 @@ default_params = {
     UNET_TIME_N_CONV_DOWN: None,
     UNET_TIME_N_CONV_UP: None,
     FORCED_SEPARATION_DURATION: 0,
-    ALIGNED_DOWNSAMPLING: True
+    ALIGNED_DOWNSAMPLING: True,
+    ATT_DIM: 256,
+    ATT_N_HEADS: 8,
+    ATT_PE_FACTOR: 10000,
+    ATT_DROP_RATE: 0.1
 }

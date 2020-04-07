@@ -1601,3 +1601,59 @@ def multistage_lstm_block(
                 training=training,
                 name='lstm_dec')
     return outputs
+
+
+def get_positional_encoding(seq_len, dims, pe_factor, name=None):
+    with tf.variable_scope(name):
+        positions = np.arange(seq_len)
+        positions = np.reshape(positions, (-1, 1))
+        even_dims = 2 * np.arange(dims / 2)
+        denominators = 1 / (pe_factor ** (even_dims / dims))
+        denominators = np.reshape(denominators, (1, -1))
+        sin_arguments = np.dot(positions, denominators)
+        positional_encoding = np.zeros((seq_len, dims))
+        positional_encoding[:, ::2] = np.sin(sin_arguments)
+        positional_encoding[:, 1::2] = np.cos(sin_arguments)
+        positional_encoding = tf.cast(positional_encoding, dtype=tf.float32)
+        # Returns shape [seq_len, dims]
+    return positional_encoding
+
+
+def attention_layer(queries, keys, values, name=None):
+    with tf.variable_scope(name):
+        # input shapes are [batch, time_len, dims]
+        dim_keys = tf.shape(keys)
+        dim_keys = tf.cast(dim_keys[2], dtype=tf.float32)
+        scores = tf.matmul(queries, keys, transpose_b=True)
+        # scores have shape [batch, q_time_len, k_time_len]
+        scaled_scores = scores / tf.sqrt(dim_keys)
+        att_weights = tf.nn.softmax(scaled_scores, axis=-1)
+        outputs = tf.matmul(att_weights, values)
+        # outputs have shape [batch, q_time_len, v_dims]
+        return outputs, att_weights
+
+
+def naive_multihead_attention_layer(queries, keys, values, n_heads, name=None):
+    with tf.variable_scope(name):
+        # Divide into heads
+        heads_q = tf.split(queries, n_heads, 2)
+        heads_k = tf.split(keys, n_heads, 2)
+        heads_v = tf.split(values, n_heads, 2)
+
+        outputs = []
+        for idx_head in range(n_heads):
+            # scores have shape [batch, q_time_len, k_time_len]
+            # outputs have shape [batch, q_time_len, v_dims]
+            head_o, _ = attention_layer(
+                heads_q[idx_head], heads_k[idx_head], heads_v[idx_head],
+                name='head_%d' % idx_head)
+            outputs.append(head_o)
+
+        # Concatenate heads
+        outputs = tf.concat(outputs, axis=-1)
+        return outputs
+
+
+def multihead_attention_layer(queries, keys, values, n_heads, name=None):
+    # TODO: implement multi-head concatenating heads along the batch size
+    pass
