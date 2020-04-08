@@ -152,6 +152,7 @@ ATT_DIM = 'att_dim'
 ATT_N_HEADS = 'att_n_heads'
 ATT_PE_FACTOR = 'att_pe_factor'
 ATT_DROP_RATE = 'att_drop_rate'
+ATT_LSTM_DIM = 'att_lstm_dim'
 
 
 """ Loss params
@@ -309,5 +310,6 @@ default_params = {
     ATT_DIM: 256,
     ATT_N_HEADS: 8,
     ATT_PE_FACTOR: 10000,
-    ATT_DROP_RATE: 0.1
+    ATT_DROP_RATE: 0.1,
+    ATT_LSTM_DIM: 256
 }

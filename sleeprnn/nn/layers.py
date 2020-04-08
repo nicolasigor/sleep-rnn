@@ -1370,9 +1370,9 @@ def lstm_layer(
     return outputs
 
 
-def reverse_time(inputs):
+def reverse_time(inputs, axis=0):
     """Time reverse the provided 3D tensor. Assumes time major."""
-    reversed_inputs = array_ops.reverse_v2(inputs, [0])
+    reversed_inputs = array_ops.reverse_v2(inputs, [axis])
     return reversed_inputs
 
 
