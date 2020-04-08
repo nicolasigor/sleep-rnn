@@ -5995,6 +5995,7 @@ def wavelet_blstm_net_att02(
 
             n_heads = params[pkeys.ATT_N_HEADS]
             dim_per_head = int(params[pkeys.ATT_DIM] / n_heads)
+            dim_per_lstm = int(dim_per_head / 2)
             with tf.variable_scope('multi_head_att'):
                 outputs_head = []
                 for idx_head in range(n_heads):
@@ -6004,13 +6005,13 @@ def wavelet_blstm_net_att02(
                         # Prepare queries, keys, and values
                         head_q = layers.lstm_layer(
                             outputs,
-                            num_units=dim_per_head / 2,
+                            num_units=dim_per_lstm,
                             num_dirs=constants.BIDIRECTIONAL,
                             training=training,
                             name='q_lstm_%d' % idx_head)
                         head_k = layers.lstm_layer(
                             outputs,
-                            num_units=dim_per_head / 2,
+                            num_units=dim_per_lstm,
                             num_dirs=constants.BIDIRECTIONAL,
                             training=training,
                             name='k_lstm_%d' % idx_head)
