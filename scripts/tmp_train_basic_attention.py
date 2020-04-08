@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.ATT01
+        constants.ATT02
     ]
 
     # Base parameters
