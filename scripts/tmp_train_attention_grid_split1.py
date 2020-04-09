@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
     experiment_name = 'attention_grid'
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME
+        constants.MASS_KC_NAME
     ]
     which_expert = 1
 
