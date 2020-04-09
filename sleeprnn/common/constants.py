@@ -149,3 +149,5 @@ V34 = 'v34'  # V19 with 1D convolutions (frequencies as channels)
 ATT01 = 'att01'  # 1d attention basic
 ATT02 = 'att02'  # 1d attention with lstm
 ATT03 = 'att03'  # 1d attention with lstm (better)
+ATT04 = 'att04'  # 1d attention with 2 lstm
+
