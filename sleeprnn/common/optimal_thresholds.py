@@ -97,5 +97,16 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_256_h_8_fc_0'): [0.40, 0.54, 0.54, 0.44],
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_512_h_8_fc_0'): [0.44, 0.52, 0.50, 0.40],
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_512_h_8_fc_128'): [0.46, 0.50, 0.52, 0.44],
-    os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_256_h_8_fc_128'): [0.46, 0.50, 0.48, 0.44]
+    os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_256_h_8_fc_128'): [0.46, 0.50, 0.48, 0.44],
+
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_512_h_8_fc_0'): [0.30, 0.34, 0.32, 0.30],
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_512_h_8_fc_128'): [0.38, 0.36, 0.36, 0.40],
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_256_h_8_fc_0'): [0.36, 0.32, 0.30, 0.28],
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_256_h_8_fc_128'): [0.36, 0.36, 0.36, 0.40],
+
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_512_h_8_fc_0'): [0.40, 0.42, 0.36, 0.38],
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_256_h_8_fc_128'): [0.42, 0.44, 0.46, 0.40],
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_256_h_8_fc_0'): [0.38, 0.42, 0.38, 0.42],
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_512_h_8_fc_128'): [0.40, 0.46, 0.40, 0.42] 
+
 }
