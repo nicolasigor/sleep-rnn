@@ -1605,15 +1605,20 @@ def multistage_lstm_block(
 
 def get_positional_encoding(seq_len, dims, pe_factor, name=None):
     with tf.variable_scope(name):
-        positions = np.arange(seq_len)
-        positions = np.reshape(positions, (-1, 1))
-        even_dims = 2 * np.arange(dims / 2)
-        denominators = 1 / (pe_factor ** (even_dims / dims))
-        denominators = np.reshape(denominators, (1, -1))
-        sin_arguments = np.dot(positions, denominators)
         positional_encoding = np.zeros((seq_len, dims))
-        positional_encoding[:, ::2] = np.sin(sin_arguments)
-        positional_encoding[:, 1::2] = np.cos(sin_arguments)
+        if pe_factor is not None:
+            print('Using Positional Encoding with factor %d' % pe_factor)
+            positions = np.arange(seq_len)
+            positions = np.reshape(positions, (-1, 1))
+            even_dims = 2 * np.arange(dims / 2)
+            denominators = 1 / (pe_factor ** (even_dims / dims))
+            denominators = np.reshape(denominators, (1, -1))
+            sin_arguments = np.dot(positions, denominators)
+            # positional_encoding = np.zeros((seq_len, dims))
+            positional_encoding[:, ::2] = np.sin(sin_arguments)
+            positional_encoding[:, 1::2] = np.cos(sin_arguments)
+        else:
+            print('Not using Positional Encoding')
         positional_encoding = tf.cast(positional_encoding, dtype=tf.float32)
         # Returns shape [seq_len, dims]
     return positional_encoding
