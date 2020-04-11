@@ -6545,6 +6545,9 @@ def wavelet_blstm_net_att04c(
                 name='pos_enc'
             )
             pos_enc = tf.expand_dims(pos_enc, axis=0)  # Add batch axis
+            # Get the number of rows in the fed value at run-time.
+            batch_size = tf.shape(outputs)[0]
+            pos_enc = tf.tile(pos_enc, tf.stack([batch_size, 1, 1]))
 
             v_outputs = tf.concat([outputs, pos_enc], axis=-1)
             v_outputs = layers.dropout_layer(
