@@ -74,8 +74,37 @@ AF1 73.43/0.60 [0.5] 73.49/0.39 [0.54, 0.60, 0.48, 0.48], F1(03) 80.82/0.80, AP/
 AF1 73.23/0.82 [0.5] 73.35/0.80 [0.52, 0.52, 0.56, 0.58], F1(03) 80.94/1.35, AP/AR-STD 3.89/4.39 for att04_pe_10000
 AF1 72.84/0.28 [0.5] 73.23/0.39 [0.42, 0.42, 0.52, 0.44], F1(03) 80.68/0.85, AP/AR-STD 3.83/4.80 for att04_pe_None
 
+ATT01 PE_FACTOR VARIATION
 
+Val AF1 report for 20200407_attention_grid_n2_train_mass_ss [pe_factor 10000]
+AF1 62.26/1.15 [0.5] 63.44/1.71 [0.36, 0.50, 0.54, 0.46], F1(03) 78.57/1.51, AP/AR-STD 5.90/6.83 for att01_d_512_h_8_fc_0
+Val AF1 report for 20200411_att01_task_pe_grid_n2_train_mass_ss
+AF1 61.53/0.60 [0.5] 63.03/1.75 [0.38, 0.52, 0.54, 0.40], F1(03) 78.36/2.06, AP/AR-STD 5.92/6.93 for att01_pe_1000
+AF1 51.93/3.43 [0.5] 55.61/1.65 [0.34, 0.36, 0.32, 0.32], F1(03) 73.38/2.53, AP/AR-STD 4.83/6.92 for att01_pe_None
 
+Val AF1 report for 20200409_attention_grid_n2_train_mass_kc [pe_factor 10000]
+AF1 65.75/1.21 [0.5] 67.62/0.60 [0.30, 0.34, 0.32, 0.30], F1(03) 78.02/0.70, AP/AR-STD 4.32/5.53 for att01_d_512_h_8_fc_0
+Val AF1 report for 20200411_att01_task_pe_grid_n2_train_mass_kc
+AF1 65.21/2.03 [0.5] 66.81/1.04 [0.24, 0.36, 0.38, 0.36], F1(03) 77.65/0.99, AP/AR-STD 4.28/5.24 for att01_pe_1000
+AF1 38.84/2.28 [0.5] 51.03/1.97 [0.16, 0.16, 0.18, 0.16], F1(03) 67.77/1.86, AP/AR-STD 3.99/6.90 for att01_pe_None
+
+ATT04CONCAT
+
+Val AF1 report for 20200411_att04concat_task_pe_grid_n2_train_mass_ss
+AF1 66.64/2.37 [0.5] 67.51/2.81 [0.48, 0.54, 0.50, 0.42], F1(03) 80.03/2.02, AP/AR-STD 6.50/6.77 for att04c_pe_1000
+AF1 66.65/1.96 [0.5] 67.43/2.68 [0.40, 0.46, 0.54, 0.40], F1(03) 79.83/2.08, AP/AR-STD 6.33/7.10 for att04c_pe_10000
+AF1 65.81/1.60 [0.5] 67.30/2.58 [0.38, 0.54, 0.52, 0.40], F1(03) 79.72/1.80, AP/AR-STD 6.12/6.92 for att04c_pe_None
+
+Val AF1 report for 20200411_att04concat_task_pe_grid_n2_train_mass_kc
+AF1 73.30/0.38 [0.5] 73.37/0.31 [0.52, 0.48, 0.54, 0.46], F1(03) 80.79/0.68, AP/AR-STD 4.05/4.39 for att04c_pe_10000
+AF1 72.90/0.22 [0.5] 73.10/0.29 [0.46, 0.50, 0.54, 0.48], F1(03) 80.52/0.56, AP/AR-STD 4.06/4.44 for att04c_pe_None
+AF1 73.12/0.42 [0.5] 73.08/0.34 [0.54, 0.46, 0.56, 0.58], F1(03) 80.49/0.62, AP/AR-STD 4.24/4.41 for att04c_pe_1000
+
+BEST RED TIME:
+Val AF1 report for 20191106_bsf_update_e1_n2_train_mass_ss
+AF1 66.75/2.05 [0.5] 67.53/2.57 [0.46, 0.52, 0.52, 0.40], F1(03) 79.89/1.76, AP/AR-STD 6.28/6.75 for v11
+Val AF1 report for 20191106_bsf_update_e1_n2_train_mass_kc
+AF1 73.05/0.55 [0.5] 73.42/0.41 [0.48, 0.60, 0.56, 0.56], F1(03) 80.59/0.56, AP/AR-STD 3.90/4.18 for v11
 
 
 
