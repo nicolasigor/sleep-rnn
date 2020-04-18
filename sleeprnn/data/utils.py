@@ -453,11 +453,19 @@ def split_ids_list_v2(subject_ids, split_id, train_fraction=0.75, verbose=False)
     n_val = n_subjects - n_train
     start_idx = split_id * n_val
     epoch = int(start_idx / n_subjects)
-    random_idx_1 = np.random.RandomState(seed=epoch).permutation(n_subjects)
-    random_idx_2 = np.random.RandomState(seed=epoch+1).permutation(n_subjects)
-    random_idx = np.concatenate([random_idx_1, random_idx_2])
-    start_idx_relative = start_idx % n_subjects
-    val_idx = random_idx[start_idx_relative:(start_idx_relative + n_val)]
+    attempts = 1
+    while True:
+        random_idx_1 = np.random.RandomState(seed=epoch).permutation(n_subjects)
+        random_idx_2 = np.random.RandomState(seed=epoch+attempts).permutation(n_subjects)
+        random_idx = np.concatenate([random_idx_1, random_idx_2])
+        start_idx_relative = start_idx % n_subjects
+        val_idx = random_idx[start_idx_relative:(start_idx_relative + n_val)]
+        if np.unique(val_idx).size == n_val:
+            break
+        else:
+            print("Attempting new split due to replication in val set")
+            attempts = attempts + 1000
+
     val_ids = [subject_ids[i] for i in val_idx]
     train_ids = [sub_id for sub_id in subject_ids if sub_id not in val_ids]
     val_ids.sort()
