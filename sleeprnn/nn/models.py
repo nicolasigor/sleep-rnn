@@ -403,7 +403,8 @@ class WaveletBLSTM(BaseModel):
                 constants.ATT02,
                 constants.ATT03,
                 constants.ATT04,
-                constants.ATT04C
+                constants.ATT04C,
+                constants.V35
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -503,6 +504,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_att04
         elif model_version == constants.ATT04C:
             model_fn = networks.wavelet_blstm_net_att04c
+        elif model_version == constants.V35:
+            model_fn = networks.wavelet_blstm_net_v35
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:
