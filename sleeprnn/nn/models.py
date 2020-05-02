@@ -524,7 +524,11 @@ class WaveletBLSTM(BaseModel):
                 constants.DICE_LOSS,
                 constants.FOCAL_LOSS,
                 constants.WORST_MINING_LOSS,
-                constants.WORST_MINING_V2_LOSS
+                constants.WORST_MINING_V2_LOSS,
+                constants.CROSS_ENTROPY_NEG_ENTROPY_LOSS,
+                constants.CROSS_ENTROPY_SMOOTHING_LOSS,
+                constants.CROSS_ENTROPY_HARD_CLIP_LOSS,
+                constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -544,6 +548,22 @@ class WaveletBLSTM(BaseModel):
                 self.logits, self.labels,
                 self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
                 self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
+        elif type_loss == constants.CROSS_ENTROPY_NEG_ENTROPY_LOSS:
+            loss, loss_summ = losses.cross_entropy_negentropy_loss_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.NEG_ENTROPY_PARAMETER])
+        elif type_loss == constants.CROSS_ENTROPY_SMOOTHING_LOSS:
+            loss, loss_summ = losses.cross_entropy_smoothing_loss_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.SOFT_LABEL_PARAMETER])
+        elif type_loss == constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS:
+            loss, loss_summ = losses.cross_entropy_smoothing_clip_loss_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.SOFT_LABEL_PARAMETER])
+        elif type_loss == constants.CROSS_ENTROPY_HARD_CLIP_LOSS:
+            loss, loss_summ = losses.cross_entropy_hard_clip_loss_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.SOFT_LABEL_PARAMETER])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)

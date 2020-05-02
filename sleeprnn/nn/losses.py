@@ -10,22 +10,8 @@ import tensorflow as tf
 from sleeprnn.common import constants
 
 
-def cross_entropy_loss_fn(logits, labels, class_weights):
-    """Returns the cross-entropy loss to be minimized.
-
-    Args:
-        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
-        labels: (2d tensor) binary tensor of shape [batch, timelen]
-        class_weights: ({None, BALANCED, array_like}) Determines the class
-            weights to be applied when computing the loss. If None, no weights
-            are applied. If BALANCED, the weights balance the class
-            frequencies. If is an array of shape [2,], class_weights[i]
-            is the weight applied to class i. If BALANCED_DROP, then
-            outputs related to the negative class are randomly dropped
-            so that their number approx equals that of the positive class.
-    """
-    print('Using Cross Entropy Loss')
-    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+def get_weights(logits, labels, class_weights):
+    with tf.variable_scope('loss_weights'):
         if class_weights is None:
             print('No weight balancing')
             class_weights = tf.constant([1.0, 1.0], dtype=tf.float32)
@@ -72,7 +58,7 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             n_negative_to_add = tf.nn.relu(
                 n_positive - n_negative_already_added)
             p_keep_negative = n_negative_to_add / (
-                        n_negative + 1e-3)  # in (0, 1)
+                    n_negative + 1e-3)  # in (0, 1)
             p_drop_negative = 1 - p_keep_negative
 
             random_mask = tf.random.uniform(
@@ -87,16 +73,32 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
             print('Balancing with weights', class_weights)
             class_weights = tf.constant(class_weights)
             weights = tf.gather(class_weights, labels)
+    return weights
 
-        # loss = tf.losses.sparse_softmax_cross_entropy(
-        #     labels=labels, logits=logits, weights=weights)
 
+def cross_entropy_loss_fn(logits, labels, class_weights):
+    """Returns the cross-entropy loss to be minimized.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        class_weights: ({None, BALANCED, array_like}) Determines the class
+            weights to be applied when computing the loss. If None, no weights
+            are applied. If BALANCED, the weights balance the class
+            frequencies. If is an array of shape [2,], class_weights[i]
+            is the weight applied to class i. If BALANCED_DROP, then
+            outputs related to the negative class are randomly dropped
+            so that their number approx equals that of the positive class.
+    """
+    print('Using Cross Entropy Loss')
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)
         # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
         loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
-
+        # Summaries
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
 
@@ -117,6 +119,7 @@ def dice_loss_fn(probabilities, labels):
         size_labels = tf.reduce_sum(labels)
         dice = 2 * intersection / (size_prob + size_labels)
         loss = 1 - dice
+        # Summaries
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
 
@@ -139,87 +142,99 @@ def focal_loss_fn(logits, labels, class_weights, gamma):
             so that their number approx equals that of the positive class.
         gamma: Focusing parameter (Non-negative)
     """
-    print('Using Focal Loss')
+    print('Using Focal Loss (gamma = %1.4f)' % gamma)
     with tf.variable_scope(constants.FOCAL_LOSS):
-        if class_weights is None:
-            print('No weight balancing')
-            class_weights = tf.constant([1.0, 1.0], dtype=tf.float32)
-            weights = tf.gather(class_weights, labels)
-        elif class_weights == constants.BALANCED:
-            print('Class freq as weight to balance')
-            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
-            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
-            total = n_negative + n_positive
-            weight_negative = n_positive / total
-            weight_positive = n_negative / total
-            class_weights = tf.stack([weight_negative, weight_positive], axis=0)
-            weights = tf.gather(class_weights, labels)
-        elif class_weights == constants.BALANCED_DROP:
-            print('Random negative class dropping to balance')
-            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
-            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
-            p_drop_negative = (n_negative - n_positive) / n_negative
-            random_mask = tf.random.uniform(
-                tf.shape(labels),
-                minval=0.0,
-                maxval=1.0,
-                dtype=tf.float32)
-            random_mask = random_mask + tf.cast(labels, tf.float32)
-            weights = tf.cast(
-                tf.math.greater(random_mask, p_drop_negative), tf.float32)
-        elif class_weights == constants.BALANCED_DROP_V2:
-            print('Random negative class dropping to balance (V2)')
-            n_negative = tf.cast(tf.reduce_sum(1 - labels), tf.float32)
-            n_positive = tf.cast(tf.reduce_sum(labels), tf.float32)
-
-            # Add negative labels on the neighborhood of positive ones
-            neighbor_radius = 4
-
-            labels_2d = tf.expand_dims(tf.cast(labels, tf.float32), 1)
-            labels_2d = tf.expand_dims(labels_2d, 3)
-            spread_labels = tf.nn.conv2d(
-                labels_2d, filter=np.ones((1, 2 * neighbor_radius + 1, 1, 1)),
-                strides=[1, 1, 1, 1], padding='SAME')
-            spread_labels = tf.squeeze(spread_labels, [1, 3])
-            spread_labels = tf.cast(
-                tf.math.greater(spread_labels, 0), tf.float32)
-            n_negative_already_added = tf.reduce_sum(spread_labels) - n_positive
-            n_negative_to_add = tf.nn.relu(
-                n_positive - n_negative_already_added)
-            p_keep_negative = n_negative_to_add / (
-                        n_negative + 1e-3)  # in (0, 1)
-            p_drop_negative = 1 - p_keep_negative
-
-            random_mask = tf.random.uniform(
-                tf.shape(labels),
-                minval=0.0,
-                maxval=1.0,
-                dtype=tf.float32)
-            random_mask = random_mask + spread_labels
-            weights = tf.cast(
-                tf.math.greater(random_mask, p_drop_negative), tf.float32)
-        else:
-            print('Balancing with weights', class_weights)
-            class_weights = tf.constant(class_weights)
-            weights = tf.gather(class_weights, labels)
-
-        # loss = tf.losses.sparse_softmax_cross_entropy(
-        #     labels=labels, logits=logits, weights=weights)
-
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)
+        # Apply focusing parameter
         probabilities = tf.nn.softmax(logits)
         labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
         proba_correct_class = tf.reduce_sum(
             probabilities * labels_onehot, axis=2)  # output shape [batch, time]
-
-        # Apply focusing parameter
         loss = ((1.0 - proba_correct_class) ** gamma) * loss
-
         # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
         loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
 
+
+def cross_entropy_negentropy_loss_fn(logits, labels, class_weights, beta):
+    print('Using Cross Entropy Loss with Entropy Regularization (beta = %1.4f)' % beta)
+    with tf.variable_scope(constants.CROSS_ENTROPY_NEG_ENTROPY_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Regularization
+        probabilities = tf.nn.softmax(logits)
+        neg_entropy = tf.reduce_sum(
+            probabilities * tf.log(probabilities + 1e-6), axis=2)  # output shape [batch, time]
+        loss = loss + beta * neg_entropy
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def cross_entropy_smoothing_loss_fn(logits, labels, class_weights, epsilon):
+    print('Using Cross Entropy Loss with Label Smoothing (eps = %1.4f)' % epsilon)
+    with tf.variable_scope(constants.CROSS_ENTROPY_SMOOTHING_LOSS):
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        smooth_labels = labels_onehot * (1.0 - 2.0 * epsilon) + epsilon
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            labels=smooth_labels,
+            logits=logits)
+        offset = -tf.reduce_sum(smooth_labels * tf.log(smooth_labels + 1e-6), axis=2)
+        loss = loss - offset
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def cross_entropy_hard_clip_loss_fn(logits, labels, class_weights, epsilon):
+    print('Using Cross Entropy Loss with Hard Clip (eps = %1.4f)' % epsilon)
+    with tf.variable_scope(constants.CROSS_ENTROPY_HARD_CLIP_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Clip
+        offset = -tf.log(1.0 - epsilon)
+        loss = tf.nn.relu(loss - offset)
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def cross_entropy_smoothing_clip_loss_fn(logits, labels, class_weights, epsilon):
+    print('Using Cross Entropy Loss with Label Smoothing and Clip (eps = %1.4f)' % epsilon)
+    with tf.variable_scope(constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS):
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        smooth_labels = labels_onehot * (1.0 - 2.0 * epsilon) + epsilon
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            labels=smooth_labels,
+            logits=logits)
+        offset = -tf.reduce_sum(smooth_labels * tf.log(smooth_labels + 1e-6), axis=2)
+        loss = loss - offset
+        # Clip
+        probabilities = tf.nn.softmax(logits)
+        distance_to_hard_label = tf.reduce_sum((probabilities - labels_onehot) ** 2, axis=2)
+        distance_thr = 2 * (epsilon ** 2)
+        mask = tf.cast(tf.math.greater(distance_to_hard_label, distance_thr), tf.float32)
+        loss = loss * mask
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
 

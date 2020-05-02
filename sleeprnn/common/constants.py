@@ -70,12 +70,16 @@ BALANCED = 'balanced'
 BALANCED_DROP = 'balanced_drop'
 BALANCED_DROP_V2 = 'balanced_drop_v2'
 
-# Types of loss
+# Types of losses
 CROSS_ENTROPY_LOSS = 'cross_entropy_loss'
 DICE_LOSS = 'dice_loss'
 FOCAL_LOSS = 'focal_loss'
 WORST_MINING_LOSS = 'worst_mining_loss'
 WORST_MINING_V2_LOSS = 'worst_mining_v2_loss'
+CROSS_ENTROPY_NEG_ENTROPY_LOSS = 'cross_entropy_neg_entropy_loss'
+CROSS_ENTROPY_SMOOTHING_LOSS = 'cross_entropy_smoothing_loss'
+CROSS_ENTROPY_HARD_CLIP_LOSS = 'cross_entropy_hard_clip_loss'
+CROSS_ENTROPY_SMOOTHING_CLIP_LOSS = 'cross_entropy_smoothing_clip_loss'
 
 # Types of optimizer
 ADAM_OPTIMIZER = 'adam_optimizer'

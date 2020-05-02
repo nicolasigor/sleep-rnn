@@ -170,6 +170,8 @@ TYPE_LOSS = 'type_loss'
 FOCUSING_PARAMETER = 'focusing_parameter'
 WORST_MINING_MIN_NEGATIVE = 'worst_mining_min_negative'
 WORST_MINING_FACTOR_NEGATIVE = 'worst_mining_factor_negative'
+NEG_ENTROPY_PARAMETER = 'neg_entropy_parameter'
+SOFT_LABEL_PARAMETER = 'soft_label_parameter'
 
 
 """ Optimizer params
@@ -296,8 +298,6 @@ default_params = {
     CWT_RETURN_IMAG_PART: True,
     CWT_RETURN_MAGNITUDE: False,
     CWT_RETURN_PHASE: False,
-    INIT_POSITIVE_PROBA: 0.5,
-    FOCUSING_PARAMETER: None,
     WORST_MINING_MIN_NEGATIVE: None,
     WORST_MINING_FACTOR_NEGATIVE: None,
     KEEP_BEST_VALIDATION: False,
@@ -313,5 +313,9 @@ default_params = {
     ATT_PE_FACTOR: 10000,
     ATT_DROP_RATE: 0.1,
     ATT_LSTM_DIM: 256,
-    ATT_PE_CONCAT_DIM: 256
+    ATT_PE_CONCAT_DIM: 256,
+    INIT_POSITIVE_PROBA: 0.5,
+    FOCUSING_PARAMETER: None,
+    NEG_ENTROPY_PARAMETER: None,
+    SOFT_LABEL_PARAMETER: None
 }
