@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [i for i in range(10)]
+    id_try_list = [0, 1, 2, 3, 4]
 
     # ----- Experiment settings
     experiment_name = 'timePLUScwt_pte2_10runs_e1'

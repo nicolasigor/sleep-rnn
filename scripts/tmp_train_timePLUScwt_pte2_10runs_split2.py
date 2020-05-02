@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3, 4]
+    id_try_list = [5, 6, 7, 8, 9]
 
     # ----- Experiment settings
     experiment_name = 'timePLUScwt_pte2_10runs_e1'
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_fb_list = [
-        (constants.V35, 1.5)
+        (constants.V35, 1.0)
     ]
 
     # Base parameters
