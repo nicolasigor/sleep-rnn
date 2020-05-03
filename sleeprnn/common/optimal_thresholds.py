@@ -111,8 +111,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20200409_att04_head_grid_n2_train_mass_ss', 'att04_h_08'): [0.46, 0.52, 0.52, 0.44],
     os.path.join('20200410_att04_task_pe_grid_n2_train_mass_ss', 'att04_pe_10000'): [0.44, 0.56, 0.50, 0.50],
-    os.path.join('20200410_att04_task_pe_grid_n2_train_mass_kc', 'att04_pe_10000'): [0.52, 0.52, 0.56, 0.58]
+    os.path.join('20200410_att04_task_pe_grid_n2_train_mass_kc', 'att04_pe_10000'): [0.52, 0.52, 0.56, 0.58],
 
+    os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_1.0'): [0.42, 0.52, 0.50, 0.44, 0.46, 0.48, 0.50, 0.46, 0.48, 0.50],
+    os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_0.5'): [0.44, 0.48, 0.50, 0.44, 0.44, 0.48, 0.50, 0.46, 0.46, 0.46],
+    os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_1.5'): [0.44, 0.54, 0.54, 0.42, 0.50, 0.48, 0.50, 0.48, 0.44, 0.48]
 }
 
 
