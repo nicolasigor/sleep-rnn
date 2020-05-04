@@ -8,7 +8,8 @@ PALETTE = {
     constants.BLUE: '#0277bd',
     constants.GREEN: '#43a047',
     constants.DARK: '#1b2631',
-    constants.CYAN: '#00838F'
+    constants.CYAN: '#00838F',
+    constants.PURPLE: '#8E24AA',
 }
 
 GREY_COLORS = {

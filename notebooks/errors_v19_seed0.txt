@@ -1,0 +1,7 @@
+Database: mass_ss, Expert: 1
+Errors for RED-CWT and Seed 0
+
+Subject 05 (341 annotations)
+FN: 85
+IoU < 0.75: 26
+FP 53

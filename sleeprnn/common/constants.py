@@ -102,6 +102,7 @@ GREEN = 'green'
 GREY = 'grey'
 DARK = 'dark'
 CYAN = 'cyan'
+PURPLE = 'purple'
 
 # Model versions
 DUMMY = 'dummy'

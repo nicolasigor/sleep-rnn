@@ -53,11 +53,13 @@ class FeederDataset(Dataset):
     def get_stamps(
             self,
             which_expert=None,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
+        if pages_subset is None:
+            pages_subset = self.task_mode
         subset_marks = super(FeederDataset, self).get_stamps(
             which_expert=which_expert,
             pages_subset=pages_subset,
@@ -68,11 +70,13 @@ class FeederDataset(Dataset):
             self,
             subject_id_list,
             which_expert=None,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
+        if pages_subset is None:
+            pages_subset = self.task_mode
         subset_marks = super(FeederDataset, self).get_subset_stamps(
             subject_id_list=subject_id_list,
             which_expert=which_expert,
@@ -84,11 +88,13 @@ class FeederDataset(Dataset):
             self,
             subject_id,
             which_expert=None,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
+        if pages_subset is None:
+            pages_subset = self.task_mode
         marks = super(FeederDataset, self).get_subject_stamps(
             subject_id=subject_id,
             which_expert=which_expert,
