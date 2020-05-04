@@ -1,13 +1,15 @@
+[FIXED, antes se estaba ocupando stamps expertas fuera de N2]
+
 Val AF1 report for 20200502_grid_losses_2020_n2_train_mass_ss
-AF1 66.73/0.19 [0.5] 68.11/1.32 [0.36, 0.44], F1(03) 80.01/1.80, AP/AR-STD 5.56/6.38 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.05_gNone_pi0.05
-AF1 66.83/0.19 [0.5] 68.01/1.21 [0.42, 0.46], F1(03) 79.86/1.48, AP/AR-STD 5.42/6.69 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.1_gNone_pi0.1
-AF1 66.31/0.10 [0.5] 68.00/1.54 [0.32, 0.46], F1(03) 79.78/1.92, AP/AR-STD 5.43/6.62 for v11_cross_entropy_loss_bNone_eNone_gNone_pi0.01
-AF1 66.80/0.12 [0.5] 67.98/0.85 [0.42, 0.48], F1(03) 79.84/1.01, AP/AR-STD 5.26/6.53 for v11_cross_entropy_smoothing_loss_bNone_e0.1_gNone_pi0.1
-AF1 66.92/0.02 [0.5] 67.90/1.01 [0.44, 0.48], F1(03) 79.62/1.38, AP/AR-STD 5.44/6.87 for v11_cross_entropy_neg_entropy_loss_b0.5_eNone_gNone_pi0.1
-AF1 67.39/0.53 [0.5] 67.86/1.16 [0.42, 0.44], F1(03) 79.76/1.33, AP/AR-STD 5.33/6.40 for v11_cross_entropy_hard_clip_loss_bNone_e0.1_gNone_pi0.1
-AF1 65.93/0.37 [0.5] 67.66/1.37 [0.40, 0.50], F1(03) 79.30/1.62, AP/AR-STD 5.30/6.94 for v11_cross_entropy_neg_entropy_loss_b0.4_eNone_gNone_pi0.05
-AF1 62.46/4.14 [0.5] 67.50/1.70 [0.36, 0.44], F1(03) 79.42/2.02, AP/AR-STD 6.27/6.29 for v11_focal_loss_bNone_eNone_g1.5_pi0.1
-AF1 66.71/0.46 [0.5] 67.48/1.45 [0.40, 0.42], F1(03) 79.22/1.69, AP/AR-STD 5.91/6.61 for v11_cross_entropy_hard_clip_loss_bNone_e0.05_gNone_pi0.05
-AF1 65.01/1.55 [0.5] 67.46/1.68 [0.38, 0.44], F1(03) 79.37/2.37, AP/AR-STD 6.17/6.40 for v11_focal_loss_bNone_eNone_g1.0_pi0.05
-AF1 66.29/0.27 [0.5] 67.36/1.35 [0.40, 0.44], F1(03) 79.15/1.78, AP/AR-STD 5.54/6.23 for v11_cross_entropy_smoothing_loss_bNone_e0.05_gNone_pi0.05
+AF1 67.07/0.30 [0.5] 68.44/1.43 [0.36, 0.44], F1(03) 80.40/1.93, AP/AR-STD 5.56/6.04 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.05_gNone_pi0.05
+AF1 67.17/0.31 [0.5] 68.34/1.33 [0.42, 0.46], F1(03) 80.26/1.62, AP/AR-STD 5.42/6.34 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.1_gNone_pi0.1
+AF1 66.65/0.22 [0.5] 68.33/1.66 [0.32, 0.46], F1(03) 80.18/2.05, AP/AR-STD 5.43/6.28 for v11_cross_entropy_loss_bNone_eNone_gNone_pi0.01
+AF1 67.14/0.24 [0.5] 68.32/0.97 [0.42, 0.48], F1(03) 80.23/1.15, AP/AR-STD 5.26/6.19 for v11_cross_entropy_smoothing_loss_bNone_e0.1_gNone_pi0.1
+AF1 67.27/0.14 [0.5] 68.24/1.13 [0.44, 0.48], F1(03) 80.02/1.51, AP/AR-STD 5.44/6.54 for v11_cross_entropy_neg_entropy_loss_b0.5_eNone_gNone_pi0.1
+AF1 67.73/0.65 [0.5] 68.20/1.28 [0.42, 0.44], F1(03) 80.15/1.47, AP/AR-STD 5.33/6.06 for v11_cross_entropy_hard_clip_loss_bNone_e0.1_gNone_pi0.1
+AF1 66.27/0.25 [0.5] 68.00/1.49 [0.40, 0.50], F1(03) 79.69/1.75, AP/AR-STD 5.30/6.61 for v11_cross_entropy_neg_entropy_loss_b0.4_eNone_gNone_pi0.05
+AF1 62.79/4.04 [0.5] 67.83/1.82 [0.36, 0.44], F1(03) 79.80/2.16, AP/AR-STD 6.27/5.95 for v11_focal_loss_bNone_eNone_g1.5_pi0.1
+AF1 67.05/0.58 [0.5] 67.81/1.57 [0.40, 0.42], F1(03) 79.61/1.83, AP/AR-STD 5.91/6.29 for v11_cross_entropy_hard_clip_loss_bNone_e0.05_gNone_pi0.05
+AF1 65.34/1.44 [0.5] 67.79/1.80 [0.38, 0.44], F1(03) 79.75/2.51, AP/AR-STD 6.17/6.07 for v11_focal_loss_bNone_eNone_g1.0_pi0.05
+AF1 66.63/0.40 [0.5] 67.69/1.48 [0.40, 0.44], F1(03) 79.54/1.93, AP/AR-STD 5.54/5.91 for v11_cross_entropy_smoothing_loss_bNone_e0.05_gNone_pi0.05
 
