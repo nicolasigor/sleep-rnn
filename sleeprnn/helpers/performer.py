@@ -26,6 +26,8 @@ def performance_vs_iou_with_seeds(
     tmp_precision_vs_iou = []
     tmp_mean_af1 = []
     tmp_mean_iou = []
+    tmp_iqr_low_iou = []
+    tmp_iqr_high_iou = []
     tmp_iou_hist = []
     for k in seed_id_list:
         # Expert
@@ -45,12 +47,16 @@ def performance_vs_iou_with_seeds(
         tmp_precision_vs_iou.append(results[constants.PRECISION_VS_IOU])
         tmp_mean_af1.append(results[constants.MEAN_AF1])
         tmp_mean_iou.append(results[constants.MEAN_IOU])
+        tmp_iqr_low_iou.append(results[constants.IQR_LOW_IOU])
+        tmp_iqr_high_iou.append(results[constants.IQR_HIGH_IOU])
         tmp_iou_hist.append(results[constants.IOU_HIST_VALUES])
     tmp_f1_vs_iou = np.stack(tmp_f1_vs_iou, axis=0)
     tmp_recall_vs_iou = np.stack(tmp_recall_vs_iou, axis=0)
     tmp_precision_vs_iou = np.stack(tmp_precision_vs_iou, axis=0)
     tmp_mean_af1 = np.stack(tmp_mean_af1, axis=0)
     tmp_mean_iou = np.stack(tmp_mean_iou, axis=0)
+    tmp_iqr_low_iou = np.stack(tmp_iqr_low_iou, axis=0)
+    tmp_iqr_high_iou = np.stack(tmp_iqr_high_iou, axis=0)
     tmp_iou_hist = np.stack(tmp_iou_hist, axis=0)
     model_data_dict = {
         constants.F1_VS_IOU: tmp_f1_vs_iou,
@@ -60,7 +66,9 @@ def performance_vs_iou_with_seeds(
         constants.IOU_CURVE_AXIS: iou_curve_axis,
         constants.IOU_HIST_VALUES: tmp_iou_hist,
         constants.MEAN_IOU: tmp_mean_iou,
-        constants.MEAN_AF1: tmp_mean_af1
+        constants.MEAN_AF1: tmp_mean_af1,
+        constants.IQR_LOW_IOU: tmp_iqr_low_iou,
+        constants.IQR_HIGH_IOU: tmp_iqr_high_iou
     }
     return model_data_dict
 
@@ -84,13 +92,22 @@ def performance_vs_iou(events, detections, iou_curve_axis, iou_hist_bins):
         events, detections, iou_matching_list=iou_matchings)
     seed_mean_iou = []
     seed_iou_hist = []
+    seed_iqr_low_iou = []
+    seed_iqr_high_iou = []
     for i in range(len(events)):
         iou_nonzero = iou_matchings[i][idx_matchings[i] > -1]
+        iou_mean = np.mean(iou_nonzero)
+        iou_low_iqr = np.percentile(iou_nonzero, 25)
+        iou_high_iqr = np.percentile(iou_nonzero, 75)
         iou_hist, _ = np.histogram(
             iou_nonzero, bins=iou_hist_bins, density=True)
-        seed_mean_iou.append(np.mean(iou_nonzero))
+        seed_mean_iou.append(iou_mean)
+        seed_iqr_low_iou.append(iou_low_iqr)
+        seed_iqr_high_iou.append(iou_high_iqr)
         seed_iou_hist.append(iou_hist)
     seed_mean_iou = np.stack(seed_mean_iou, axis=0).mean(axis=0)
+    seed_iqr_low_iou = np.stack(seed_iqr_low_iou, axis=0).mean(axis=0)
+    seed_iqr_high_iou = np.stack(seed_iqr_high_iou, axis=0).mean(axis=0)
     seed_iou_hist = np.stack(seed_iou_hist, axis=0).mean(axis=0)
     results = {
         constants.F1_VS_IOU: seed_f1_vs_iou,
@@ -100,7 +117,9 @@ def performance_vs_iou(events, detections, iou_curve_axis, iou_hist_bins):
         constants.IOU_CURVE_AXIS: iou_curve_axis,
         constants.IOU_HIST_VALUES: seed_iou_hist,
         constants.MEAN_IOU: seed_mean_iou,
-        constants.MEAN_AF1: seed_mean_af1
+        constants.MEAN_AF1: seed_mean_af1,
+        constants.IQR_LOW_IOU: seed_iqr_low_iou,
+        constants.IQR_HIGH_IOU: seed_iqr_high_iou
     }
     return results
 

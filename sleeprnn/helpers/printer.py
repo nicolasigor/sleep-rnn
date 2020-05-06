@@ -1,3 +1,5 @@
+import numpy as np
+
 from . import misc
 from sleeprnn.common import constants
 
@@ -18,11 +20,14 @@ def print_available_ckpt(optimal_thr_for_ckpt_dict, filter_dates, file=None):
 
 def print_performance_at_iou(
         performance_data_dict, iou_thr, label, file=None,
-        decimal_precision=1
+        decimal_precision=1, show_iqr_iou=True
 ):
-    str_to_print = '%%%d.%df / %%%d.%df' % (
-        decimal_precision, decimal_precision, decimal_precision,
-        decimal_precision)
+    str_to_print = '%%%d.%df \u00B1 %%%d.%df' % (
+        1, decimal_precision, 1, decimal_precision)
+
+    str_to_print_iqr = '%%%d.%df \u00B1 %%%d.%df [%%%d.%df - %%%d.%df]' % (
+        1, decimal_precision, 1, decimal_precision,
+        1, decimal_precision, 1, decimal_precision)
 
     iou_curve_axis = performance_data_dict[constants.IOU_CURVE_AXIS]
     idx_to_show = misc.closest_index(iou_thr, iou_curve_axis)
@@ -46,10 +51,19 @@ def print_performance_at_iou(
     msg = msg + ', AF1 ' + str_to_print % (
         100*performance_data_dict[constants.MEAN_AF1].mean(),
         100*performance_data_dict[constants.MEAN_AF1].std())
-    msg = msg + ', IoU ' + str_to_print % (
-        100*performance_data_dict[constants.MEAN_IOU].mean(),
-        100*performance_data_dict[constants.MEAN_IOU].std()
-    )
+
+    if show_iqr_iou:
+        msg = msg + ', IoU ' + str_to_print_iqr % (
+            100*performance_data_dict[constants.MEAN_IOU].mean(),
+            100*performance_data_dict[constants.MEAN_IOU].std(),
+            100*performance_data_dict[constants.IQR_LOW_IOU].mean(),
+            100*performance_data_dict[constants.IQR_HIGH_IOU].mean()
+        )
+    else:
+        msg = msg + ', IoU ' + str_to_print % (
+            100 * performance_data_dict[constants.MEAN_IOU].mean(),
+            100 * performance_data_dict[constants.MEAN_IOU].std()
+        )
 
     msg = msg + ' for %s' % label
     if file is not None:
@@ -59,13 +73,17 @@ def print_performance_at_iou(
 
 def print_formatted_performance_at_iou(
         performance_data_dict, iou_thr, label, print_header=True,
-        decimal_precision=1, file=None
+        decimal_precision=1, file=None, show_iqr_iou=True
 ):
     iou_curve_axis = performance_data_dict[constants.IOU_CURVE_AXIS]
     idx_to_show = misc.closest_index(iou_thr, iou_curve_axis)
 
-    str_to_print = '%%%d.%df / %%%d.%df' % (
-        decimal_precision, decimal_precision, decimal_precision, decimal_precision)
+    str_to_print = '%%%d.%df \u00B1 %%%d.%df' % (
+        1, decimal_precision, 1, decimal_precision)
+
+    str_to_print_iqr = '%%%d.%df \u00B1 %%%d.%df [%%%d.%df - %%%d.%df]' % (
+        1, decimal_precision, 1, decimal_precision,
+        1, decimal_precision, 1, decimal_precision)
 
     if print_header:
         if file is not None:
@@ -93,10 +111,19 @@ def print_formatted_performance_at_iou(
     msg = msg + '; ' + str_to_print % (
         100*performance_data_dict[constants.MEAN_AF1].mean(),
         100*performance_data_dict[constants.MEAN_AF1].std())
-    msg = msg + '; ' + str_to_print % (
-        100*performance_data_dict[constants.MEAN_IOU].mean(),
-        100*performance_data_dict[constants.MEAN_IOU].std()
-    )
+
+    if show_iqr_iou:
+        msg = msg + '; ' + str_to_print_iqr % (
+            100 * performance_data_dict[constants.MEAN_IOU].mean(),
+            100 * performance_data_dict[constants.MEAN_IOU].std(),
+            100 * performance_data_dict[constants.IQR_LOW_IOU].mean(),
+            100 * performance_data_dict[constants.IQR_HIGH_IOU].mean()
+        )
+    else:
+        msg = msg + '; ' + str_to_print % (
+            100 * performance_data_dict[constants.MEAN_IOU].mean(),
+            100 * performance_data_dict[constants.MEAN_IOU].std()
+        )
     if file is not None:
         print(msg, file=file)
     print(msg)

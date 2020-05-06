@@ -91,9 +91,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20191227_bsf_10runs_e1_n2_train_inta_ss', 'v19'): [0.50, 0.44, 0.46, 0.50, 0.52, 0.50, 0.46, 0.50, 0.48, 0.46],
     os.path.join('20191227_bsf_10runs_e1_n2_train_inta_ss', 'v11'): [0.48, 0.44, 0.46, 0.46, 0.48, 0.52, 0.48, 0.46, 0.42, 0.42],
 
-    os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_512_h_8_fc_0'): [0.36, 0.50, 0.54, 0.46],
+    os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_512_h_8_fc_0'): [0.38, 0.50, 0.54, 0.46],
     os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_512_h_8_fc_128'): [0.44, 0.50, 0.48, 0.46],
-    os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_256_h_8_fc_128'): [0.42, 0.46, 0.48, 0.46],
+    os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_256_h_8_fc_128'): [0.42, 0.46, 0.50, 0.46],
     os.path.join('20200407_attention_grid_n2_train_mass_ss', 'att01_d_256_h_8_fc_0'): [0.42, 0.42, 0.50, 0.44],
 
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_256_h_8_fc_0'): [0.40, 0.54, 0.54, 0.44],
@@ -101,23 +101,35 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_512_h_8_fc_128'): [0.46, 0.50, 0.52, 0.44],
     os.path.join('20200408_att03_grid_n2_train_mass_ss', 'att03_d_256_h_8_fc_128'): [0.46, 0.50, 0.48, 0.44],
 
-    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_512_h_8_fc_0'): [0.30, 0.34, 0.32, 0.30],
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_512_h_8_fc_0'): [0.32, 0.34, 0.32, 0.30],
     os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_512_h_8_fc_128'): [0.38, 0.36, 0.36, 0.40],
     os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_256_h_8_fc_0'): [0.36, 0.32, 0.30, 0.28],
-    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_256_h_8_fc_128'): [0.36, 0.36, 0.36, 0.40],
+    os.path.join('20200409_attention_grid_n2_train_mass_kc', 'att01_d_256_h_8_fc_128'): [0.38, 0.36, 0.36, 0.40],
 
     os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_512_h_8_fc_0'): [0.40, 0.42, 0.36, 0.38],
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_512_h_8_fc_128'): [0.40, 0.46, 0.48, 0.42],
     os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_256_h_8_fc_128'): [0.42, 0.44, 0.46, 0.40],
-    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_256_h_8_fc_0'): [0.38, 0.42, 0.38, 0.42],
-    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_512_h_8_fc_128'): [0.40, 0.46, 0.40, 0.42],
+    os.path.join('20200409_att03_grid_n2_train_mass_kc', 'att03_d_256_h_8_fc_0'): [0.44, 0.42, 0.38, 0.42],
 
     os.path.join('20200409_att04_head_grid_n2_train_mass_ss', 'att04_h_08'): [0.46, 0.52, 0.52, 0.44],
     os.path.join('20200410_att04_task_pe_grid_n2_train_mass_ss', 'att04_pe_10000'): [0.44, 0.56, 0.50, 0.50],
-    os.path.join('20200410_att04_task_pe_grid_n2_train_mass_kc', 'att04_pe_10000'): [0.52, 0.52, 0.56, 0.58],
+    os.path.join('20200410_att04_task_pe_grid_n2_train_mass_kc', 'att04_pe_10000'): [0.52, 0.52, 0.58, 0.58],
 
     os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_1.0'): [0.42, 0.52, 0.50, 0.44, 0.46, 0.48, 0.50, 0.46, 0.48, 0.50],
     os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_0.5'): [0.44, 0.48, 0.50, 0.44, 0.44, 0.48, 0.50, 0.46, 0.46, 0.46],
-    os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_1.5'): [0.44, 0.54, 0.54, 0.42, 0.50, 0.48, 0.50, 0.48, 0.44, 0.48]
+    os.path.join('20200502_timePLUScwt_fb_10runs_e1_n2_train_mass_ss', 'v35_fb_1.5'): [0.44, 0.54, 0.54, 0.42, 0.50, 0.48, 0.50, 0.48, 0.44, 0.48],
+
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_clip_loss_bNone_e0.05_gNone_pi0.05'): [0.36, 0.44],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_clip_loss_bNone_e0.1_gNone_pi0.1'): [0.42, 0.46],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_loss_bNone_eNone_gNone_pi0.01'): [0.32, 0.46],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_loss_bNone_e0.1_gNone_pi0.1'): [0.42, 0.48],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_neg_entropy_loss_b0.5_eNone_gNone_pi0.1'): [0.44, 0.48],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_hard_clip_loss_bNone_e0.1_gNone_pi0.1'): [0.42, 0.44],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_neg_entropy_loss_b0.4_eNone_gNone_pi0.05'): [0.40, 0.50],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_focal_loss_bNone_eNone_g1.5_pi0.1'): [0.36, 0.44],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_hard_clip_loss_bNone_e0.05_gNone_pi0.05'): [0.40, 0.42],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_focal_loss_bNone_eNone_g1.0_pi0.05'): [0.38, 0.44],
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_loss_bNone_e0.05_gNone_pi0.05'): [0.40, 0.44]
 }
 
 

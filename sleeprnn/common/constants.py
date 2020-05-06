@@ -41,6 +41,8 @@ IOU_CURVE_AXIS = 'iou_curve_axis'
 IOU_HIST_VALUES = 'iou_hist_values'
 MEAN_IOU = 'mean_iou'
 MEAN_AF1 = 'mean_af1'
+IQR_LOW_IOU = 'iqr_low_iou'
+IQR_HIGH_IOU = 'iqr_high_iou'
 
 # Type of padding
 PAD_SAME = 'same'

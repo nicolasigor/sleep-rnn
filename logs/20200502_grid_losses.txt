@@ -1,5 +1,7 @@
 [FIXED, antes se estaba ocupando stamps expertas fuera de N2]
 
+Se uso RED-Time con seeds 0 y 1 solamente
+
 Val AF1 report for 20200502_grid_losses_2020_n2_train_mass_ss
 AF1 67.07/0.30 [0.5] 68.44/1.43 [0.36, 0.44], F1(03) 80.40/1.93, AP/AR-STD 5.56/6.04 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.05_gNone_pi0.05
 AF1 67.17/0.31 [0.5] 68.34/1.33 [0.42, 0.46], F1(03) 80.26/1.62, AP/AR-STD 5.42/6.34 for v11_cross_entropy_smoothing_clip_loss_bNone_e0.1_gNone_pi0.1
