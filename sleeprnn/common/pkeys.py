@@ -154,6 +154,9 @@ ATT_PE_FACTOR = 'att_pe_factor'
 ATT_DROP_RATE = 'att_drop_rate'
 ATT_LSTM_DIM = 'att_lstm_dim'
 ATT_PE_CONCAT_DIM = 'att_pe_concat_dim'
+ABLATION_TYPE_BATCHNORM_INPUT = 'ablation_type_batchnorm_input'
+ABLATION_TYPE_BATCHNORM_CONV = 'ablation_type_batchnorm_conv'
+ABLATION_DROP_RATE = 'ablation_drop_rate'
 
 
 """ Loss params
@@ -317,5 +320,8 @@ default_params = {
     INIT_POSITIVE_PROBA: 0.5,
     FOCUSING_PARAMETER: None,
     NEG_ENTROPY_PARAMETER: None,
-    SOFT_LABEL_PARAMETER: None
+    SOFT_LABEL_PARAMETER: None,
+    ABLATION_TYPE_BATCHNORM_INPUT: None,
+    ABLATION_TYPE_BATCHNORM_CONV: None,
+    ABLATION_DROP_RATE: None
 }
