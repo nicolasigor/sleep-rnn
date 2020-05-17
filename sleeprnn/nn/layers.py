@@ -14,6 +14,31 @@ from sleeprnn.common import constants
 from sleeprnn.common import checks
 
 
+def upsampling_1d_linear(inputs, name, up_factor):
+    """Upsampling of features by factor 'up_factor'.
+
+    The upsampling is linear, aligned, and it is performed in the feature axis.
+
+    Args:
+        inputs: (tensor) Tensor of shape [batch_size, feat_len, channels].
+        name: (string) A name for the operation.
+        up_factor: (int) Upsampling factor. Output has shape
+            [batch_size, up_factor * feat_len, channels].
+    """
+    with tf.variable_scope(name):
+        outputs = tf.expand_dims(inputs, 2)
+        outputs = tf.keras.layers.UpSampling2D(
+            size=(up_factor, 1), interpolation='bilinear')(outputs)
+        outputs = tf.squeeze(outputs, 2)
+        pad = up_factor // 2
+        outputs = tf.concat(
+            [inputs[:, 0:1, :]] * pad + [outputs[:, :-pad, :]], axis=1)
+        if up_factor % 2 == 0:
+            outputs = tf.keras.layers.AveragePooling1D(
+                pool_size=2, strides=1, padding="same")(outputs)
+    return outputs
+
+
 def batchnorm_layer(
         inputs,
         name,
