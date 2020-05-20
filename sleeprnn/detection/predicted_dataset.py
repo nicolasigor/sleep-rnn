@@ -139,7 +139,7 @@ class PredictedDataset(Dataset):
         else:
             parent_dataset = self.parent_dataset
         if not parent_dataset.exists_filt_signal_cache():
-            print('Creating cache that does not exists')
+            print('Creating cache that does not exist')
             parent_dataset.create_signal_cache()
         signals = parent_dataset.get_subset_filt_signals(self.all_ids)
         return signals
