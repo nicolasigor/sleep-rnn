@@ -12,6 +12,7 @@ prefetch_buffer_size: (int) Size of the buffer to prefetch the batches. If 0,
     no prefetch is applied.
 page_duration: (int) Size of a EEG page in seconds.
 """
+CLIP_VALUE = 'clip_value'
 NORM_COMPUTATION_MODE = 'norm_computation_mode'
 BATCH_SIZE = 'batch_size'
 SHUFFLE_BUFFER_SIZE = 'shuffle_buffer_size'
@@ -230,6 +231,7 @@ PREDICT_WITH_AUGMENTED_PAGE = 'predict_with_augmented_page'
 # Default parameters dictionary
 default_params = {
     FS: 200,
+    CLIP_VALUE: 10,
     NORM_COMPUTATION_MODE: constants.NORM_GLOBAL,
     BATCH_SIZE: 32,
     SHUFFLE_BUFFER_SIZE: 10000,

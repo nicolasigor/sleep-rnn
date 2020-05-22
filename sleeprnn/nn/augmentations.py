@@ -41,6 +41,7 @@ def gaussian_noise(feat, probability, std):
 
 
 def rescale_uniform(feat, probability, intensity):
+    # Intensity is a float number representing fraction.
     checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('rescale_uniform'):
         uniform_random = tf.random.uniform([], 0.0, 1.0)

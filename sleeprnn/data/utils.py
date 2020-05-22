@@ -246,7 +246,7 @@ def norm_clip_signal(
     checks.check_valid_value(
         norm_computation, 'norm_computation',
         [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL])
-
+    print('Clipping at %s' % clip_value)
     if norm_computation == constants.NORM_IQR:
         norm_signal, clip_mask = norm_clip_signal_iqr(
             signal, pages_indices, page_size, clip_value)
@@ -263,7 +263,7 @@ def norm_clip_signal(
 
 
 def norm_clip_signal_global(signal, global_std, clip_value=10):
-    # print('Normalizing with Global STD of %s' % global_std)
+    print('Normalizing with Global STD of %s' % global_std)
     norm_signal = signal / global_std
     # Now clip to clip_value (only if clip is not None)
     if clip_value:
@@ -298,6 +298,7 @@ def norm_clip_signal_std(signal, pages_indices, page_size, clip_value=10):
     outlier_thr = np.percentile(np.abs(n2_signal), 98)
     tmp_signal = n2_signal[np.abs(n2_signal) <= outlier_thr]
     signal_std = tmp_signal.std()
+    print('Signal STD: %1.4f' % signal_std)
 
     # Normalize entire signal, we assume zero-centered data
     norm_signal = signal / signal_std
@@ -335,6 +336,8 @@ def norm_clip_signal_iqr(signal, pages_indices, page_size, clip_value=10):
     n2_signal = np.concatenate(n2_data)
     signal_std = iqr(n2_signal) / 1.349
     signal_median = np.median(n2_signal)
+
+    print('Signal STD: %1.4f' % signal_std)
 
     # Normalize entire signal
     norm_signal = (signal - signal_median) / signal_std

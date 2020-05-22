@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = ''
+    ckpt_folder = '20200511_ablation'
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
 

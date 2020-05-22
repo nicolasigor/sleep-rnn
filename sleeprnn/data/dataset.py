@@ -431,7 +431,7 @@ class Dataset(object):
 
         if normalize_clip:
             if normalization_mode == constants.WN_RECORD:
-                if verbose:
+                if True:  # verbose:
                     print('Normalization with stats from '
                           'pages containing true events.')
                 # Normalize using stats from pages with true events.
@@ -445,16 +445,16 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std)
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
             else:
-                if verbose:
+                if True:  # verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
                 signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std)
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
 
         # Extract segments
         signal = utils.extract_pages(

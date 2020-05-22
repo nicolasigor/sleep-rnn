@@ -405,7 +405,8 @@ class WaveletBLSTM(BaseModel):
                 constants.ATT04,
                 constants.ATT04C,
                 constants.V35,
-                constants.V11_ABLATION
+                constants.V11_ABLATION,
+                constants.V11_ABLATION_SCALED
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -509,6 +510,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v35
         elif model_version == constants.V11_ABLATION:
             model_fn = networks.wavelet_blstm_net_v11_ablation
+        elif model_version == constants.V11_ABLATION_SCALED:
+            model_fn = networks.wavelet_blstm_net_v11_ablation_scaled
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

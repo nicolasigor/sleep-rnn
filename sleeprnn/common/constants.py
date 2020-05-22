@@ -160,3 +160,4 @@ ATT04 = 'att04'  # 1d attention with 2 lstm
 ATT04C = 'att04c'  # 1d attention with 2 lstm and concat PE.
 V35 = 'v35'  # RED-Time+CWT (at last FC)
 V11_ABLATION = 'v11_ablation'  # BN and Dropout ablation
+V11_ABLATION_SCALED = 'v11_ablation_scaled'  # BN and Dropout ablation with scaled input
