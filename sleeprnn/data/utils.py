@@ -340,7 +340,8 @@ def norm_clip_signal_iqr(signal, pages_indices, page_size, clip_value=10):
     print('Signal STD: %1.4f' % signal_std)
 
     # Normalize entire signal
-    norm_signal = (signal - signal_median) / signal_std
+    # norm_signal = (signal - signal_median) / signal_std
+    norm_signal = signal / signal_std
 
     # Now clip to clip_value (only if clip is not None)
     if clip_value:
