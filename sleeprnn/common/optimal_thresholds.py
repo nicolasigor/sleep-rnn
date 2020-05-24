@@ -129,7 +129,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_focal_loss_bNone_eNone_g1.5_pi0.1'): [0.36, 0.44],
     os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_hard_clip_loss_bNone_e0.05_gNone_pi0.05'): [0.40, 0.42],
     os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_focal_loss_bNone_eNone_g1.0_pi0.05'): [0.38, 0.44],
-    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_loss_bNone_e0.05_gNone_pi0.05'): [0.40, 0.44]
+    os.path.join('20200502_grid_losses_2020_n2_train_mass_ss', 'v11_cross_entropy_smoothing_loss_bNone_e0.05_gNone_pi0.05'): [0.40, 0.44],
+
+    os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_global'): [0.40, 0.50, 0.50, 0.44],
+    os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_iqr'): [0.40, 0.54, 0.48, 0.42],
+    os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_std'): [0.42, 0.52, 0.50, 0.50]
 }
 
 

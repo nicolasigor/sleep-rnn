@@ -176,6 +176,7 @@ WORST_MINING_MIN_NEGATIVE = 'worst_mining_min_negative'
 WORST_MINING_FACTOR_NEGATIVE = 'worst_mining_factor_negative'
 NEG_ENTROPY_PARAMETER = 'neg_entropy_parameter'
 SOFT_LABEL_PARAMETER = 'soft_label_parameter'
+MIS_WEIGHT_PARAMETER = 'mis_weight_parameter'
 
 
 """ Optimizer params
@@ -325,5 +326,6 @@ default_params = {
     SOFT_LABEL_PARAMETER: None,
     ABLATION_TYPE_BATCHNORM_INPUT: None,
     ABLATION_TYPE_BATCHNORM_CONV: None,
-    ABLATION_DROP_RATE: None
+    ABLATION_DROP_RATE: None,
+    MIS_WEIGHT_PARAMETER: None
 }

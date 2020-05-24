@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'ablation_scaled'
+    experiment_name = 'mod_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ]
     which_expert = 1
 
-    description_str = 'v11 ablation BN and Drop scaled'
+    description_str = 'v11 with mod focal and init proba 0.01'
     verbose = True
 
     # Complement experiment folder name with date
@@ -53,21 +53,15 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    proba_intens_list = [
-        (1.0, 0.2),
-        (1.0, 0.1),
-        (0.0, None)
-    ]
-    type_bn_conv_list = [None, constants.BN]
-    params_list = itertools.product(proba_intens_list, type_bn_conv_list)
+    gamma_list = [2, 3, 4, 5]
+    w_0_list = [2, 4, 8, 16]
+    params_list = itertools.product(gamma_list, w_0_list)
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.MODEL_VERSION] = constants.V11_ABLATION_SCALED
-    params[pkeys.DROP_RATE_BEFORE_LSTM] = None
-    params[pkeys.DROP_RATE_HIDDEN] = None
-    params[pkeys.ABLATION_TYPE_BATCHNORM_INPUT] = None
-    params[pkeys.ABLATION_DROP_RATE] = 0.3
+    params[pkeys.MODEL_VERSION] = constants.V11
+    params[pkeys.TYPE_LOSS] = constants.MOD_FOCAL_LOSS
+    params[pkeys.INIT_POSITIVE_PROBA] = 0.01
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -93,17 +87,14 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for proba_intens, type_bn_conv in params_list:
-                    rescale_proba = proba_intens[0]
-                    rescale_intens = proba_intens[1]
-                    params[pkeys.AUG_RESCALE_UNIFORM_PROBA] = rescale_proba
-                    params[pkeys.AUG_RESCALE_UNIFORM_INTENSITY] = rescale_intens
-                    params[pkeys.ABLATION_TYPE_BATCHNORM_CONV] = type_bn_conv
-                    drop_rate = params[pkeys.ABLATION_DROP_RATE]
+                for gamma, w_0 in params_list:
+                    params[pkeys.FOCUSING_PARAMETER] = gamma
+                    params[pkeys.MIS_WEIGHT_PARAMETER] = w_0
+                    init_proba = params[pkeys.INIT_POSITIVE_PROBA]
                     model_version = params[pkeys.MODEL_VERSION]
 
-                    folder_name = '%s_aug_%s_%s_conv_%s_dr_%s' % (
-                        model_version, rescale_proba, rescale_intens, type_bn_conv, drop_rate
+                    folder_name = '%s_g%d_w%02d_pi%1.2f' % (
+                        model_version, gamma, w_0, init_proba
                     )
 
                     base_dir = os.path.join(

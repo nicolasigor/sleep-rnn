@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'ablation_scaled'
+    experiment_name = 'ablation_v2'
     task_mode_list = [
         constants.N2_RECORD
     ]

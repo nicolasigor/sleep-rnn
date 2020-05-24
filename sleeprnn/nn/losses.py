@@ -124,6 +124,59 @@ def dice_loss_fn(probabilities, labels):
     return loss, loss_summ
 
 
+def mod_focal_loss_fn(logits, labels, class_weights, gamma, mis_weight):
+    """Returns the MODIFIED focal loss to be minimized.
+
+    "Focal Loss for Dense Object Detection"
+    https://arxiv.org/abs/1708.02002
+
+    If p is probability of correct class, the original Focal loss weights the
+    cross-entropy loss with:
+    w = (1-p) ^ gamma
+
+    The modified version weights the cross-entropy loss with:
+    w = 1 + (mis_weight - 1) * (1-p) ^ gamma
+
+    If mis_weight = 1 or gamma = 0, this reduces to w = 1 for all samples
+    (regular cross-entropy)
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        class_weights: ({None, BALANCED, array_like}) Determines the class
+            weights to be applied when computing the loss. If None, no weights
+            are applied. If BALANCED, the weights balance the class
+            frequencies. If is an array of shape [2,], class_weights[i]
+            is the weight applied to class i. If BALANCED_DROP, then
+            outputs related to the negative class are randomly dropped
+            so that their number approx equals that of the positive class.
+        gamma: Focusing parameter (Non-negative)
+        mis_weight: Weight for misclassification (greater or equal to 1).
+    """
+    print(
+        'Using MODIFIED Focal Loss (gamma = %1.4f, mis_weight = %1.4f)' % (
+            gamma, mis_weight))
+    with tf.variable_scope(constants.MOD_FOCAL_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Apply focusing parameter
+        probabilities = tf.nn.softmax(logits)
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        proba_correct_class = tf.reduce_sum(
+            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+
+        focal_term = (1.0 - proba_correct_class) ** gamma
+        error_weight = 1.0 + (mis_weight - 1.0) * focal_term
+        loss = error_weight * loss
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
 def focal_loss_fn(logits, labels, class_weights, gamma):
     """Returns the focal loss to be minimized.
 
