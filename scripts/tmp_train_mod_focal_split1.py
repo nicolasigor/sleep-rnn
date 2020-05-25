@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [3]
 
     # ----- Experiment settings
     experiment_name = 'mod_focal'
@@ -49,13 +49,14 @@ if __name__ == '__main__':
     verbose = True
 
     # Complement experiment folder name with date
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    # this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20200524'
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
     gamma_list = [2, 3, 4, 5]
     w_0_list = [2, 4, 8, 16]
-    params_list = itertools.product(gamma_list, w_0_list)
+    params_list = list(itertools.product(gamma_list, w_0_list))
 
     # Base parameters
     params = pkeys.default_params.copy()

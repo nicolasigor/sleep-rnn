@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [1, 2, 3]
 
     # ----- Experiment settings
     experiment_name = 'ablation_v2'
@@ -49,7 +49,8 @@ if __name__ == '__main__':
     verbose = True
 
     # Complement experiment folder name with date
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    # this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20200524'
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
@@ -59,7 +60,7 @@ if __name__ == '__main__':
         (0.0, None)
     ]
     type_bn_conv_list = [None, constants.BN]
-    params_list = itertools.product(proba_intens_list, type_bn_conv_list)
+    params_list = list(itertools.product(proba_intens_list, type_bn_conv_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
