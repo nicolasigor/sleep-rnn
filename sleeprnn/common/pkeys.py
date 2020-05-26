@@ -158,6 +158,7 @@ ATT_PE_CONCAT_DIM = 'att_pe_concat_dim'
 ABLATION_TYPE_BATCHNORM_INPUT = 'ablation_type_batchnorm_input'
 ABLATION_TYPE_BATCHNORM_CONV = 'ablation_type_batchnorm_conv'
 ABLATION_DROP_RATE = 'ablation_drop_rate'
+OUTPUT_RESIDUAL_FC_SIZE = 'output_residual_fc_size'
 
 
 """ Loss params
@@ -327,5 +328,6 @@ default_params = {
     ABLATION_TYPE_BATCHNORM_INPUT: None,
     ABLATION_TYPE_BATCHNORM_CONV: None,
     ABLATION_DROP_RATE: None,
-    MIS_WEIGHT_PARAMETER: None
+    MIS_WEIGHT_PARAMETER: None,
+    OUTPUT_RESIDUAL_FC_SIZE: None
 }

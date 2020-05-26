@@ -1,0 +1,8 @@
+Val AF1 report for 20200524_ablation_v2_n2_train_mass_ss
+AF1 67.01/2.40 [0.5] 67.91/2.97 [0.40, 0.54, 0.52, 0.42], F1(03) 80.28/2.09, AP/AR-STD 6.47/6.23 for v11_ablation_scaled_aug_0.0_None_conv_bn_dr_0.3
+AF1 66.61/2.21 [0.5] 67.91/2.72 [0.40, 0.52, 0.48, 0.42], F1(03) 80.59/2.03, AP/AR-STD 6.52/6.73 for v11_ablation_scaled_aug_1.0_0.2_conv_None_dr_0.3
+AF1 66.46/1.20 [0.5] 67.86/2.58 [0.40, 0.48, 0.46, 0.36], F1(03) 80.71/1.98, AP/AR-STD 6.41/6.53 for v11_ablation_scaled_aug_1.0_0.1_conv_None_dr_0.3
+AF1 67.36/2.56 [0.5] 67.86/2.88 [0.44, 0.52, 0.50, 0.46], F1(03) 80.52/2.00, AP/AR-STD 6.38/6.07 for v11_ablation_scaled_aug_1.0_0.1_conv_bn_dr_0.3
+AF1 67.19/3.33 [0.5] 67.73/3.59 [0.42, 0.52, 0.48, 0.46], F1(03) 80.54/3.14, AP/AR-STD 7.32/6.08 for v11_ablation_scaled_aug_1.0_0.2_conv_bn_dr_0.3
+AF1 66.16/1.25 [0.5] 67.47/2.93 [0.38, 0.46, 0.44, 0.34], F1(03) 80.17/2.03, AP/AR-STD 6.59/6.75 for v11_ablation_scaled_aug_0.0_None_conv_None_dr_0.3
+
