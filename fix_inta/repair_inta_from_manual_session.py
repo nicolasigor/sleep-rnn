@@ -29,22 +29,24 @@ def get_mark_from_idx(idx_mark, raw_1, raw_2):
 
 if __name__ == '__main__':
 
-    subject_id = 11
+    subject_id = 2
 
+    subject_name = NAMES[subject_id - 1]
+    print('Processing %s' % subject_name)
     fs = 200
-    raw_stamps_1 = np.loadtxt('mark_files/%s_raw_1.txt' % NAMES[subject_id - 1]).astype(np.int32)
-    raw_stamps_2 = np.loadtxt('mark_files/%s_raw_2.txt' % NAMES[subject_id - 1]).astype(np.int32)
-    marks_without_doubt = np.loadtxt('mark_files/%s_without_doubt.txt' % NAMES[subject_id - 1]).astype(np.int32)
+    raw_stamps_1 = np.loadtxt('mark_files/%s_raw_1.txt' % subject_name).astype(np.int32)
+    raw_stamps_2 = np.loadtxt('mark_files/%s_raw_2.txt' % subject_name).astype(np.int32)
+    marks_without_doubt = np.loadtxt('mark_files/%s_without_doubt.txt' % subject_name).astype(np.int32)
 
     # print(raw_stamps_1)
     # print(raw_stamps_2)
     # print(marks_without_doubt)
 
-    accepted_df = pd.read_csv('mark_files/%s_garrido_accepted_20190805.csv' % NAMES[subject_id - 1])
+    accepted_df = pd.read_csv('mark_files/%s_garrido_accepted_20190805.csv' % subject_name)
     # print(accepted_df)
 
     rejected_df = pd.read_csv(
-        'mark_files/%s_garrido_rejected_20190805.csv' % NAMES[subject_id - 1])
+        'mark_files/%s_garrido_rejected_20190805.csv' % subject_name)
     # print(rejected_df)
 
     # Transform marks from df to the standard [start end] format
@@ -100,6 +102,15 @@ if __name__ == '__main__':
 
     print('Accepted marks:', accepted_marks.shape)
     print('Rejected marks:', rejected_marks.shape)
+
+    # Check overlap of accepted marks
+    overlap_check = utils.get_overlap_matrix(
+        accepted_marks, accepted_marks)
+    overlap_check = overlap_check.sum(axis=1) - 1
+    if np.any(overlap_check):
+        print(np.where(overlap_check != 0)[0])
+        print(accepted_marks[np.where(overlap_check != 0)[0], :])
+        raise ValueError('Manually accepted marks are overlapped.')
 
     # Now everything is in the right format
     # Start process of building the new mark file
@@ -161,5 +172,5 @@ if __name__ == '__main__':
         raise ValueError('Final marks are overlapped.')
 
     np.savetxt(
-        'mark_files/20190805_Revision_SS_%s.txt' % NAMES[subject_id-1],
+        'mark_files/20190805_Revision_SS_%s.txt' % subject_name,
         table, fmt='%i')
