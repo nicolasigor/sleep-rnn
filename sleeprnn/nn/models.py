@@ -410,7 +410,9 @@ class WaveletBLSTM(BaseModel):
                 constants.V11_D6K5,
                 constants.V11_D8K3,
                 constants.V11_D8K5,
-                constants.V11_OUTRES
+                constants.V11_OUTRES,
+                constants.V11_OUTPLUS,
+                constants.V11_SHIELD
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -524,6 +526,10 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v11_d8k5
         elif model_version == constants.V11_OUTRES:
             model_fn = networks.wavelet_blstm_net_v11_outres
+        elif model_version == constants.V11_OUTPLUS:
+            model_fn = networks.wavelet_blstm_net_v11_outplus
+        elif model_version == constants.V11_SHIELD:
+            model_fn = networks.wavelet_blstm_net_v11_shield
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

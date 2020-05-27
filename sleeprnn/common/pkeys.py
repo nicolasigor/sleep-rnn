@@ -159,6 +159,12 @@ ABLATION_TYPE_BATCHNORM_INPUT = 'ablation_type_batchnorm_input'
 ABLATION_TYPE_BATCHNORM_CONV = 'ablation_type_batchnorm_conv'
 ABLATION_DROP_RATE = 'ablation_drop_rate'
 OUTPUT_RESIDUAL_FC_SIZE = 'output_residual_fc_size'
+OUTPUT_USE_BN = 'output_use_bn'
+OUTPUT_USE_DROP = 'output_use_drop'
+FC_UNITS_1 = 'fc_units_1'
+FC_UNITS_2 = 'fc_units_2'
+SHIELD_LSTM_DOWN_FACTOR = 'shield_lstm_down_factor'
+SHIELD_LSTM_TYPE_POOL = 'shield_lstm_type_pool'
 
 
 """ Loss params
@@ -329,5 +335,11 @@ default_params = {
     ABLATION_TYPE_BATCHNORM_CONV: None,
     ABLATION_DROP_RATE: None,
     MIS_WEIGHT_PARAMETER: None,
-    OUTPUT_RESIDUAL_FC_SIZE: None
+    OUTPUT_RESIDUAL_FC_SIZE: None,
+    OUTPUT_USE_BN: None,
+    OUTPUT_USE_DROP: None,
+    FC_UNITS_1: None,
+    FC_UNITS_2: None,
+    SHIELD_LSTM_DOWN_FACTOR: None,
+    SHIELD_LSTM_TYPE_POOL: None
 }

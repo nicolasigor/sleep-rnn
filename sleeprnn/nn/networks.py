@@ -7625,3 +7625,301 @@ def wavelet_blstm_net_v11_outres(
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
 
+
+def wavelet_blstm_net_v11_outplus(
+        inputs,
+        params,
+        training,
+        name='model_v11_outplus'
+):
+    """ conv 1D and BLSTM to make a prediction.
+
+    This models has a standard convolutional stage on time-domain
+    (pre-activation BN). After this, the outputs is passed to
+    a 2-layers BLSTM.
+    The final classification is made with a 2 layers FC with 2 outputs.
+
+    Args:
+        inputs: (2d tensor) input tensor of shape [batch_size, time_len]
+        params: (dict) Parameters to configure the model (see common.param_keys)
+        training: (boolean) Indicates if it is the training phase or not.
+        name: (Optional, string, defaults to 'model_v11') A name for the network.
+    """
+    print('Using model V11 Output Plus (Time-Domain)')
+    with tf.variable_scope(name):
+
+        border_crop = int(
+            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        inputs = inputs[:, start_crop:end_crop]
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # 1D convolutions expect shape [batch, time_len, n_feats]
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_1],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_1')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_2],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_2')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_3],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_3')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        bn_at_fc = params[pkeys.OUTPUT_USE_BN]
+        drop_at_fc = params[pkeys.OUTPUT_USE_DROP]
+
+        with tf.variable_scope('fc_1'):
+            if drop_at_fc:
+                outputs = layers.dropout_layer(
+                    outputs, 'drop', drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                    dropout=params[pkeys.TYPE_DROPOUT],
+                    training=training)
+            outputs = tf.expand_dims(outputs, axis=2)
+            use_bias = not bn_at_fc
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=params[pkeys.FC_UNITS_1],
+                kernel_size=1, activation=None, padding=constants.PAD_SAME,
+                kernel_initializer=tf.initializers.he_normal(),
+                use_bias=use_bias,
+                name="conv1")
+            if bn_at_fc:
+                outputs = layers.batchnorm_layer(
+                    outputs, 'bn', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                    training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+            outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+        with tf.variable_scope('fc_2'):
+            if drop_at_fc:
+                outputs = layers.dropout_layer(
+                    outputs, 'drop', drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                    dropout=params[pkeys.TYPE_DROPOUT],
+                    training=training)
+            outputs = tf.expand_dims(outputs, axis=2)
+            use_bias = not bn_at_fc
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=params[pkeys.FC_UNITS_2],
+                kernel_size=1, activation=None, padding=constants.PAD_SAME,
+                kernel_initializer=tf.initializers.he_normal(),
+                use_bias=use_bias,
+                name="conv1")
+            if bn_at_fc:
+                outputs = layers.batchnorm_layer(
+                    outputs, 'bn', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                    training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+            outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v11_shield(
+        inputs,
+        params,
+        training,
+        name='model_v11_shield'
+):
+    """ conv 1D and BLSTM to make a prediction.
+
+    This models has a standard convolutional stage on time-domain
+    (pre-activation BN). After this, the outputs is passed to
+    a 2-layers BLSTM.
+    The final classification is made with a 2 layers FC with 2 outputs.
+
+    Args:
+        inputs: (2d tensor) input tensor of shape [batch_size, time_len]
+        params: (dict) Parameters to configure the model (see common.param_keys)
+        training: (boolean) Indicates if it is the training phase or not.
+        name: (Optional, string, defaults to 'model_v11') A name for the network.
+    """
+    print('Using model V11 LSTM Shielding (Time-Domain)')
+    with tf.variable_scope(name):
+
+        border_crop = int(
+            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        inputs = inputs[:, start_crop:end_crop]
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # 1D convolutions expect shape [batch, time_len, n_feats]
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_1],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_1')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_2],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_2')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_3],
+            training,
+            kernel_size_1=3,
+            kernel_size_2=3,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_3')
+
+        shortcut = outputs
+        lstm_down_factor = params[pkeys.SHIELD_LSTM_DOWN_FACTOR]
+
+        if lstm_down_factor > 1:
+            outputs = layers.downsampling_1d(
+                outputs, 'shield_down', lstm_down_factor,
+                params[pkeys.SHIELD_LSTM_TYPE_POOL])
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if lstm_down_factor > 1:
+            outputs = layers.upsampling_1d_linear(
+                outputs, 'shield_up', lstm_down_factor)
+
+        outputs = tf.concat([outputs, shortcut], axis=2)
+
+        with tf.variable_scope('fc_1'):
+            outputs = layers.dropout_layer(
+                outputs, 'drop', drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                dropout=params[pkeys.TYPE_DROPOUT],
+                training=training)
+            outputs = tf.expand_dims(outputs, axis=2)
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=params[pkeys.FC_UNITS_1],
+                kernel_size=1, activation=None, padding=constants.PAD_SAME,
+                kernel_initializer=tf.initializers.he_normal(),
+                use_bias=True,
+                name="conv1")
+            outputs = tf.nn.relu(outputs)
+            outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+        with tf.variable_scope('fc_2'):
+            outputs = layers.dropout_layer(
+                outputs, 'drop', drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                dropout=params[pkeys.TYPE_DROPOUT],
+                training=training)
+            outputs = tf.expand_dims(outputs, axis=2)
+            outputs = tf.layers.conv2d(
+                inputs=outputs, filters=params[pkeys.FC_UNITS_2],
+                kernel_size=1, activation=None, padding=constants.PAD_SAME,
+                kernel_initializer=tf.initializers.he_normal(),
+                use_bias=True,
+                name="conv1")
+            outputs = tf.nn.relu(outputs)
+            outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn

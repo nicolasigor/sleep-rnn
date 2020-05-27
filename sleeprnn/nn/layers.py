@@ -39,6 +39,30 @@ def upsampling_1d_linear(inputs, name, up_factor):
     return outputs
 
 
+def downsampling_1d(inputs, name, down_factor, type_pooling):
+    """Downsampling of features by factor 'down_factor'.
+
+    The downsampling is type_pooling, and it is performed in the feature axis.
+
+    Args:
+        inputs: (tensor) Tensor of shape [batch_size, feat_len, channels].
+        name: (string) A name for the operation.
+        down_factor: (int) Downsampling factor. Output has shape
+            [batch_size, feat_len / down_factor, channels].
+        type_pooling: (string) One of ['maxpool', 'avgpool'].
+    """
+    checks.check_valid_value(
+        type_pooling, 'pooling', [constants.AVGPOOL, constants.MAXPOOL])
+    with tf.variable_scope(name):
+        if type_pooling == constants.AVGPOOL:
+            outputs = tf.keras.layers.AveragePooling1D(
+                pool_size=down_factor, strides=down_factor)(inputs)
+        else:  # MAXPOOL
+            outputs = tf.keras.layers.MaxPool1D(
+                pool_size=down_factor, strides=down_factor)(inputs)
+    return outputs
+
+
 def batchnorm_layer(
         inputs,
         name,
