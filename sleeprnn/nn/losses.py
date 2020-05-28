@@ -304,44 +304,52 @@ def worst_mining_loss_fn(logits, labels, factor_negative, min_negative):
             kept when balancing.
 
     """
-    print('Using Worst Mining Loss')
+    print('Using Worst Mining Loss (individual version)')
     with tf.variable_scope(constants.WORST_MINING_LOSS):
         print('Min negative:', min_negative)
         print('Factor negative:', factor_negative)
+        # Unstack batch
+        logits_list = tf.unstack(logits, axis=0)
+        labels_list = tf.unstack(labels, axis=0)
+        batch_size = len(logits_list)
+        sum_loss_batch = 0
+        for s_logits, s_labels in zip(logits_list, labels_list):
+            # # First we flatten the vectors
+            # logits = tf.reshape(logits, [-1, 2])  # [n_outputs, 2]
+            # labels = tf.reshape(labels, [-1])  # [n_outputs]
 
-        # First we flatten the vectors
-        logits = tf.reshape(logits, [-1, 2])  # [n_outputs, 2]
-        labels = tf.reshape(labels, [-1])  # [n_outputs]
+            # Number of positives and negatives
+            labels_float = tf.cast(s_labels, tf.float32)
+            n_negative = tf.reduce_sum(1 - labels_float)
+            n_positive = tf.reduce_sum(labels_float)
 
-        labels_float = tf.cast(labels, tf.float32)
+            # Compute number of negatives to keep
+            feasible_min_negative = tf.minimum(min_negative, n_negative)
+            n_negative_to_keep = tf.minimum(
+                factor_negative * n_positive,
+                n_negative)
+            n_negative_to_keep = tf.maximum(
+                n_negative_to_keep,
+                feasible_min_negative)
 
-        n_negative = tf.reduce_sum(1 - labels_float)
-        n_positive = tf.reduce_sum(labels_float)
+            # Compute loss
+            loss_raw = tf.nn.sparse_softmax_cross_entropy_with_logits(
+                labels=s_labels,
+                logits=s_logits)
+            loss_positive = loss_raw * labels_float
+            loss_negative = loss_raw * (1 - labels_float)
+            loss_negative_to_keep, _ = tf.nn.top_k(
+                loss_negative,
+                k=tf.cast(n_negative_to_keep, tf.int32))
+            sum_loss = tf.reduce_sum(loss_positive) + tf.reduce_sum(loss_negative_to_keep)
+            n_examples = n_positive + n_negative_to_keep
+            s_loss = sum_loss / n_examples
 
-        n_negative_to_keep = tf.minimum(
-            factor_negative * n_positive,
-            n_negative
-        )
-        n_negative_to_keep = tf.maximum(
-            n_negative_to_keep,
-            min_negative
-        )
+            # Add to batch sum
+            sum_loss_batch = sum_loss_batch + s_loss
 
-        loss_raw = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=labels,
-            logits=logits)
-
-        loss_positive = loss_raw * labels_float
-        loss_negative = loss_raw * (1 - labels_float)
-        loss_negative_to_keep, _ = tf.nn.top_k(
-            loss_negative,
-            k=tf.cast(n_negative_to_keep, tf.int32)
-        )
-
-        total_loss = tf.reduce_sum(loss_positive) + tf.reduce_sum(loss_negative_to_keep)
-        total_examples = n_positive + n_negative_to_keep
-        loss = total_loss / total_examples
-
+        # Loss is mean of single losses
+        loss = sum_loss_batch / batch_size
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ
 
