@@ -308,7 +308,8 @@ def worst_mining_loss_fn(logits, labels, factor_negative, min_negative):
     with tf.variable_scope(constants.WORST_MINING_LOSS):
         print('Min negative:', min_negative)
         print('Factor negative:', factor_negative)
-
+        min_negative = tf.cast(min_negative, tf.float32)
+        factor_negative = tf.cast(factor_negative, tf.float32)
         batch_size = 32
         print("-----------------------------------")
         print("-----------------------------------")
