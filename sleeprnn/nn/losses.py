@@ -308,10 +308,17 @@ def worst_mining_loss_fn(logits, labels, factor_negative, min_negative):
     with tf.variable_scope(constants.WORST_MINING_LOSS):
         print('Min negative:', min_negative)
         print('Factor negative:', factor_negative)
+
+        batch_size = 32
+        print("-----------------------------------")
+        print("-----------------------------------")
+        print("AT LOSS, BATCH SIZE HARDCODED AS %d" % batch_size)
+        print("-----------------------------------")
+        print("-----------------------------------")
+
         # Unstack batch
-        logits_list = tf.unstack(logits, axis=0)
-        labels_list = tf.unstack(labels, axis=0)
-        batch_size = len(logits_list)
+        logits_list = tf.unstack(logits, axis=0, num=batch_size)
+        labels_list = tf.unstack(labels, axis=0, num=batch_size)
         sum_loss_batch = 0
         for s_logits, s_labels in zip(logits_list, labels_list):
             # # First we flatten the vectors
