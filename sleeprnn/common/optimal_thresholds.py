@@ -133,7 +133,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_global'): [0.40, 0.50, 0.50, 0.44],
     os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_iqr'): [0.40, 0.54, 0.48, 0.42],
-    os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_std'): [0.42, 0.52, 0.50, 0.50]
+    os.path.join('20200522_normalizations_n2_train_mass_ss', 'v11_norm_std'): [0.42, 0.52, 0.50, 0.50],
+
+    os.path.join('20200529_worst_negatives_2020_v2_n2_train_mass_ss', 'v11_r4_min100'): [0.40, 0.40, 0.50, 0.36]
 }
 
 

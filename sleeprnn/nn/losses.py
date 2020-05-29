@@ -154,7 +154,7 @@ def mod_focal_loss_fn(logits, labels, class_weights, gamma, mis_weight):
         mis_weight: Weight for misclassification (greater or equal to 1).
     """
     print(
-        'Using MODIFIED Focal Loss (gamma = %1.4f, mis_weight = %1.4f)' % (
+        'Using MODIFIED Focal Loss INDIVIDUAL (gamma = %1.4f, mis_weight = %1.4f)' % (
             gamma, mis_weight))
     with tf.variable_scope(constants.MOD_FOCAL_LOSS):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
@@ -165,13 +165,22 @@ def mod_focal_loss_fn(logits, labels, class_weights, gamma, mis_weight):
         labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
         proba_correct_class = tf.reduce_sum(
             probabilities * labels_onehot, axis=2)  # output shape [batch, time]
-
         focal_term = (1.0 - proba_correct_class) ** gamma
-        error_weight = 1.0 + (mis_weight - 1.0) * focal_term
-        loss = error_weight * loss
-        # Weighted loss
-        weights = get_weights(logits, labels, class_weights)
-        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+
+        # Compute weights
+        weight_focal = 1.0 + (mis_weight - 1.0) * focal_term
+        weight_c = get_weights(logits, labels, class_weights)
+        weights = weight_focal * weight_c
+
+        # Apply weights
+        loss = weights * loss  # weighted loss
+
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+
         # Summaries
         loss_summ = tf.summary.scalar('loss', loss)
     return loss, loss_summ

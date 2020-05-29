@@ -1,3 +1,5 @@
+Seeds 0 y 1
+
 Val AF1 report for 20200528_worst_negatives_2020_n2_train_mass_ss
 AF1 66.17/0.44 [0.5] 68.01/1.32 [0.36, 0.44], F1(03) 80.36/1.50, AP/AR-STD 5.38/5.86 for v11_r4_min100
 AF1 67.02/0.41 [0.5] 67.92/1.31 [0.42, 0.50], F1(03) 79.65/1.49, AP/AR-STD 5.43/6.79 for v11_r1_min100
@@ -21,3 +23,15 @@ Val AF1 report for 20200526_larger_conv_n2_train_mass_ss
 AF1 67.07/0.41 [0.5] 68.06/1.14 [0.40, 0.52], F1(03) 79.90/1.27, AP/AR-STD 5.45/6.19 for v11
 Val AF1 report for 20200528_lite_conv_n2_train_mass_ss
 AF1 67.14/0.41 [0.5] 68.01/1.37 [0.44, 0.46], F1(03) 79.90/1.59, AP/AR-STD 5.69/6.03 for v11
+
+# Regular v11 con todas las semillas
+Val AF1 report for 20200522_normalizations_n2_train_mass_ss
+AF1 67.31/2.06 [0.5] 67.95/2.62 [0.40, 0.50, 0.50, 0.44], F1(03) 80.32/1.77, AP/AR-STD 6.20/6.60 for v11_norm_global
+Val AF1 report for 20200511_ablation_n2_train_mass_ss
+AF1 67.39/2.55 [0.5] 68.06/2.92 [0.40, 0.46, 0.54, 0.42], F1(03) 80.60/2.06, AP/AR-STD 6.42/6.27 for v11_ablation_in_bn_conv_bn_dr_0.3
+AF1 67.53/3.59 [0.5] 67.80/3.32 [0.50, 0.60, 0.54, 0.52], F1(03) 80.18/2.46, AP/AR-STD 6.75/6.60 for v11_ablation_in_bn_conv_bn_dr_0.5
+
+# Ahora worst con todas las semillas
+Val AF1 report for 20200529_worst_negatives_2020_v2_n2_train_mass_ss
+AF1 66.62/1.35 [0.5] 67.70/2.28 [0.40, 0.40, 0.50, 0.36], F1(03) 80.13/1.32, AP/AR-STD 5.89/6.37 for v11_r4_min100
+

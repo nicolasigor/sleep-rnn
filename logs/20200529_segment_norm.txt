@@ -1,0 +1,2 @@
+Val AF1 report for 20200529_segment_norm_n2_train_mass_ss
+AF1 64.30/4.83 [0.5] 65.40/4.11 [0.46, 0.58, 0.44, 0.48], F1(03) 77.72/4.07, AP/AR-STD 9.01/8.25 for v11_norm_border10
