@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
     experiment_name = 'segment_norm'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.MODEL_VERSION] = constants.V11_NORM
-    params[pkeys.BORDER_DURATION] = 20
+    params[pkeys.BORDER_DURATION] = 10
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
