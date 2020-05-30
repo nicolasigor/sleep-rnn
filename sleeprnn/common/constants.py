@@ -83,6 +83,8 @@ CROSS_ENTROPY_SMOOTHING_LOSS = 'cross_entropy_smoothing_loss'
 CROSS_ENTROPY_HARD_CLIP_LOSS = 'cross_entropy_hard_clip_loss'
 CROSS_ENTROPY_SMOOTHING_CLIP_LOSS = 'cross_entropy_smoothing_clip_loss'
 MOD_FOCAL_LOSS = 'mod_focal_loss'
+CROSS_ENTROPY_BORDERS_LOSS = 'cross_entropy_borders_loss'
+CROSS_ENTROPY_BORDERS_IND_LOSS = 'cross_entropy_borders_ind_loss'
 
 # Types of optimizer
 ADAM_OPTIMIZER = 'adam_optimizer'

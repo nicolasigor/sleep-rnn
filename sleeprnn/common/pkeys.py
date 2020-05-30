@@ -184,6 +184,8 @@ WORST_MINING_FACTOR_NEGATIVE = 'worst_mining_factor_negative'
 NEG_ENTROPY_PARAMETER = 'neg_entropy_parameter'
 SOFT_LABEL_PARAMETER = 'soft_label_parameter'
 MIS_WEIGHT_PARAMETER = 'mis_weight_parameter'
+BORDER_WEIGHT_AMPLITUDE = 'border_weight_amplitude'
+BORDER_WEIGHT_HALF_WIDTH = 'border_weight_half_width'
 
 
 """ Optimizer params
@@ -341,5 +343,7 @@ default_params = {
     FC_UNITS_1: None,
     FC_UNITS_2: None,
     SHIELD_LSTM_DOWN_FACTOR: None,
-    SHIELD_LSTM_TYPE_POOL: None
+    SHIELD_LSTM_TYPE_POOL: None,
+    BORDER_WEIGHT_AMPLITUDE: None,
+    BORDER_WEIGHT_HALF_WIDTH: None
 }

@@ -10,6 +10,41 @@ import tensorflow as tf
 from sleeprnn.common import constants
 
 
+def get_border_weights(labels, amplitude, half_width):
+    print('Border weights with A=%1.2f and half_s=%1.2f' % (
+        amplitude, half_width))
+    with tf.variable_scope('loss_border_weights'):
+        # Edge detector definition
+        kernel_edge = [-0.5, 0, 0.5]
+        kernel_edge = tf.constant(kernel_edge, dtype=tf.float32)
+        # Gaussian window definition
+        std_kernel = (2 * half_width + 1) / 6
+        kernel_steps = np.arange(2 * half_width + 1) - half_width
+        exp_term = -(kernel_steps ** 2) / (2 * (std_kernel ** 2))
+        kernel_gauss = (amplitude - 1) * np.exp(exp_term)
+        kernel_gauss = tf.constant(kernel_gauss, dtype=tf.float32)
+        # Prepare labels
+        first_label = labels[:, 0:1]
+        last_label = labels[:, -1:]
+        labels_extended = tf.concat(
+            [first_label, labels, last_label], axis=1)
+        labels_extended = tf.cast(labels_extended, dtype=tf.float32)
+        # Prepare shapes for convolution
+        kernel_edge = kernel_edge[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        kernel_gauss = kernel_gauss[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        labels_extended = labels_extended[:, :, tf.newaxis, tf.newaxis]
+        # Filter
+        output = labels_extended
+        output = tf.nn.conv2d(
+            output, kernel_edge, strides=[1, 1, 1, 1], padding='VALID')
+        output = tf.abs(output)
+        output = tf.nn.conv2d(
+            output, kernel_gauss, strides=[1, 1, 1, 1], padding='SAME')
+        output = 1.0 + output
+        weights = output[:, :, 0, 0]
+    return weights
+
+
 def get_weights(logits, labels, class_weights):
     with tf.variable_scope('loss_weights'):
         if class_weights is None:
@@ -74,6 +109,64 @@ def get_weights(logits, labels, class_weights):
             class_weights = tf.constant(class_weights)
             weights = tf.gather(class_weights, labels)
     return weights
+
+
+def cross_entropy_loss_borders_fn(logits, labels, amplitude, half_width):
+    """Returns the cross-entropy loss to be minimized.
+    
+    It computes border weights with a gaussian window of maximum amplitude
+    edge_weight and half size of half_width, which is 3*sigma.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        amplitude: (float) Maximum amplitude of gaussian.
+        half_width: (float) Number of samples on one half of the window, which
+            is used to compute sigma as half_width = 3 * sigma.
+    """
+    print('Using Cross Entropy Loss BORDERS')
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Weighted loss
+        weights = get_border_weights(labels, amplitude, half_width)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def cross_entropy_loss_borders_ind_fn(logits, labels, amplitude, half_width):
+    """Returns the cross-entropy loss to be minimized.
+
+    It computes border weights with a gaussian window of maximum amplitude
+    edge_weight and half size of half_width, which is 3*sigma.
+
+    Individual version
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        amplitude: (float) Maximum amplitude of gaussian.
+        half_width: (float) Number of samples on one half of the window, which
+            is used to compute sigma as half_width = 3 * sigma.
+    """
+    print('Using Cross Entropy Loss BORDERS INDIVIDUAL')
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Weighted loss
+        weights = get_border_weights(labels, amplitude, half_width)
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
 
 
 def cross_entropy_loss_fn(logits, labels, class_weights):

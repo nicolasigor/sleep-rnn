@@ -559,7 +559,9 @@ class WaveletBLSTM(BaseModel):
                 constants.CROSS_ENTROPY_SMOOTHING_LOSS,
                 constants.CROSS_ENTROPY_HARD_CLIP_LOSS,
                 constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS,
-                constants.MOD_FOCAL_LOSS
+                constants.MOD_FOCAL_LOSS,
+                constants.CROSS_ENTROPY_BORDERS_LOSS,
+                constants.CROSS_ENTROPY_BORDERS_IND_LOSS
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -600,6 +602,16 @@ class WaveletBLSTM(BaseModel):
                 self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
                 self.params[pkeys.FOCUSING_PARAMETER],
                 self.params[pkeys.MIS_WEIGHT_PARAMETER])
+        elif type_loss == constants.CROSS_ENTROPY_BORDERS_LOSS:
+            loss, loss_summ = losses.cross_entropy_loss_borders_fn(
+                self.logits, self.labels,
+                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
+                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH])
+        elif type_loss == constants.CROSS_ENTROPY_BORDERS_IND_LOSS:
+            loss, loss_summ = losses.cross_entropy_loss_borders_ind_fn(
+                self.logits, self.labels,
+                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
+                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
