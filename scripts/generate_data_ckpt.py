@@ -8,8 +8,6 @@ import sys
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.dreams_kc import DreamsKC
-from sleeprnn.data.dreams_ss import DreamsSS
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.inta_ss import IntaSS
@@ -20,7 +18,7 @@ if __name__ == '__main__':
 
     datasets_class = [MassSS, MassKC, IntaSS]
     repair_inta = False
-    params = {pkeys.FS: 128}
+    params = {pkeys.FS: 200}
 
     for data_class in datasets_class:
         # Create checkpoint and load to check

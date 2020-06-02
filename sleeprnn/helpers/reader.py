@@ -5,8 +5,6 @@ import numpy as np
 import pyedflib
 
 from sleeprnn.common import checks, constants
-from sleeprnn.data.dreams_kc import DreamsKC
-from sleeprnn.data.dreams_ss import DreamsSS
 from sleeprnn.data.inta_ss import IntaSS
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
@@ -153,9 +151,7 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True):
         [
             constants.MASS_KC_NAME,
             constants.MASS_SS_NAME,
-            constants.INTA_SS_NAME,
-            constants.DREAMS_KC_NAME,
-            constants.DREAMS_SS_NAME
+            constants.INTA_SS_NAME
         ])
     if dataset_name == constants.MASS_SS_NAME:
         dataset = MassSS(
@@ -163,14 +159,8 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True):
     elif dataset_name == constants.MASS_KC_NAME:
         dataset = MassKC(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose)
-    elif dataset_name == constants.INTA_SS_NAME:
-        dataset = IntaSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
-    elif dataset_name == constants.DREAMS_SS_NAME:
-        dataset = DreamsSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     else:
-        dataset = DreamsKC(
+        dataset = IntaSS(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     return dataset
 
