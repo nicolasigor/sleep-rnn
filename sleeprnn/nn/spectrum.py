@@ -133,15 +133,15 @@ def compute_wavelets(
         raise ValueError("Expected positive lower_freq.")
 
     # Generate initial and last scale
-    s_0 = fs / upper_freq
-    s_n = fs / lower_freq
+    s_0 = 1 / upper_freq
+    s_n = 1 / lower_freq
 
     # Generate the array of scales
     base = np.power(s_n / s_0, 1 / (n_scales - 1))
     scales = s_0 * np.power(base, np.arange(n_scales))
 
     # Generate the frequency range
-    frequencies = fs / scales
+    frequencies = 1 / scales
 
     with tf.variable_scope(name):
         # Generate the wavelets
@@ -155,9 +155,10 @@ def compute_wavelets(
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
-            one_side = size_factor * int(scales[-1] * np.sqrt(5 * fb))
+            one_side = size_factor * int(scales[-1] * fs * np.sqrt(4.5 * fb))
             kernel_size = 2 * one_side + 1
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
+            k_array = k_array / fs  # Time units
             # Wavelet bank shape: 1, kernel_size, 1, n_scales
             wavelet_bank_real = []
             wavelet_bank_imag = []
@@ -165,7 +166,7 @@ def compute_wavelets(
             # wavelet_bank_imag = np.zeros((1, kernel_size, 1, n_scales))
             for i in range(n_scales):
                 scale = scales[i]
-                norm_constant = tf.sqrt(np.pi * fb_tensor * scale)
+                norm_constant = tf.sqrt(np.pi * fb_tensor) * scale * fs / 2.0
                 exp_term = tf.exp(-((k_array / scale) ** 2) / fb_tensor)
                 kernel_base = exp_term / norm_constant
                 kernel_real = kernel_base * np.cos(2 * np.pi * k_array / scale)
@@ -239,6 +240,7 @@ def apply_wavelets(
         for j in range(n_scalograms):
             with tf.name_scope('%s_%d' % (name, j)):
                 bank_real, bank_imag = wavelets[j]  # n_scales filters each
+                bank_imag = -bank_imag  # Conjugation
                 out_real = tf.nn.conv2d(
                     input=inputs_expand, filter=bank_real,
                     strides=[1, 1, stride, 1], padding="SAME")
@@ -307,6 +309,7 @@ def apply_wavelets_rectangular(
         for j in range(n_scalograms):
             with tf.name_scope('%s_%d' % (name, j)):
                 bank_real, bank_imag = wavelets[j]  # n_scales filters each
+                bank_imag = -bank_imag  # Conjugation
                 out_real = tf.nn.conv2d(
                     input=inputs_expand, filter=bank_real,
                     strides=[1, 1, stride, 1], padding="SAME")

@@ -209,7 +209,7 @@ def cmorlet_layer(
             cwt, wavelets = compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=1,
+                flattening=False, border_crop=border_crop, stride=1,
                 trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
@@ -217,7 +217,7 @@ def cmorlet_layer(
             cwt, wavelets = compute_cwt(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=stride,
+                flattening=False, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
         if use_log:
             # Apply log only to magnitude part of cwt
@@ -307,7 +307,7 @@ def cmorlet_layer_rectangular(
             cwt, wavelets = compute_cwt_rectangular(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=1,
+                flattening=False, border_crop=border_crop, stride=1,
                 trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
@@ -315,7 +315,7 @@ def cmorlet_layer_rectangular(
             cwt, wavelets = compute_cwt_rectangular(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=stride,
+                flattening=False, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
         if use_log:
             cwt = tf.log(cwt + 1e-8)
@@ -400,7 +400,7 @@ def cmorlet_layer_general(
             cwt, wavelets = compute_cwt_rectangular(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=1,
+                flattening=False, border_crop=border_crop, stride=1,
                 trainable=trainable_wavelet)
             cwt = tf.layers.average_pooling2d(
                 inputs=cwt, pool_size=(stride, 1), strides=(stride, 1))
@@ -408,7 +408,7 @@ def cmorlet_layer_general(
             cwt, wavelets = compute_cwt_rectangular(
                 inputs, fb_list, fs, lower_freq, upper_freq, n_scales,
                 size_factor=size_factor,
-                flattening=True, border_crop=border_crop, stride=stride,
+                flattening=False, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
 
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
