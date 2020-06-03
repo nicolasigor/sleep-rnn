@@ -111,6 +111,59 @@ def get_weights(logits, labels, class_weights):
     return weights
 
 
+def weighted_cross_entropy_loss(
+        logits, labels,
+        border_amplitude, border_half_width,
+        focal_gamma, focal_weight,
+        class_weights,
+        mix_weights_strategy
+):
+    print('Using Weighted Cross Entropy Loss')
+    print('By-segment mean loss')
+    print('Class weights:', class_weights)
+    print('Borders A: %1.2f HW: %1.2f' % (border_amplitude, border_half_width))
+    print('Mod focal G: %1.2f W0: %1.2f' % (focal_gamma, focal_weight))
+    print('Mix weights strategy:', mix_weights_strategy)
+
+    with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS):
+        # Border weights
+        weight_border = get_border_weights(
+            labels, border_amplitude, border_half_width)
+
+        # Modified focal weights with class weights
+        probabilities = tf.nn.softmax(logits)
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        proba_correct_class = tf.reduce_sum(
+            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+        focal_term = (1.0 - proba_correct_class) ** focal_gamma
+        weight_focal_raw = 1.0 + (focal_weight - 1.0) * focal_term
+        weight_label = get_weights(logits, labels, class_weights)
+        weight_focal = weight_focal_raw * weight_label
+
+        # Combine weights
+        if mix_weights_strategy == constants.MIX_WEIGHTS_MAX:
+            weights = tf.maximum(weight_border, weight_focal)
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_SUM:
+            weights = weight_border + weight_focal - 1.0
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_PRODUCT:
+            weights = weight_border * weight_focal
+        else:
+            raise ValueError('mix_strategy "%s" invalid' % mix_weights_strategy)
+
+        # Weighted
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
 def cross_entropy_loss_borders_fn(logits, labels, amplitude, half_width):
     """Returns the cross-entropy loss to be minimized.
     
@@ -125,7 +178,7 @@ def cross_entropy_loss_borders_fn(logits, labels, amplitude, half_width):
             is used to compute sigma as half_width = 3 * sigma.
     """
     print('Using Cross Entropy Loss BORDERS')
-    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+    with tf.variable_scope(constants.CROSS_ENTROPY_BORDERS_LOSS):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)
@@ -153,7 +206,7 @@ def cross_entropy_loss_borders_ind_fn(logits, labels, amplitude, half_width):
             is used to compute sigma as half_width = 3 * sigma.
     """
     print('Using Cross Entropy Loss BORDERS INDIVIDUAL')
-    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+    with tf.variable_scope(constants.CROSS_ENTROPY_BORDERS_IND_LOSS):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)

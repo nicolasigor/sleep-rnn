@@ -186,6 +186,7 @@ SOFT_LABEL_PARAMETER = 'soft_label_parameter'
 MIS_WEIGHT_PARAMETER = 'mis_weight_parameter'
 BORDER_WEIGHT_AMPLITUDE = 'border_weight_amplitude'
 BORDER_WEIGHT_HALF_WIDTH = 'border_weight_half_width'
+MIX_WEIGHTS_STRATEGY = 'mix_weights_strategy'
 
 
 """ Optimizer params
@@ -345,5 +346,6 @@ default_params = {
     SHIELD_LSTM_DOWN_FACTOR: None,
     SHIELD_LSTM_TYPE_POOL: None,
     BORDER_WEIGHT_AMPLITUDE: None,
-    BORDER_WEIGHT_HALF_WIDTH: None
+    BORDER_WEIGHT_HALF_WIDTH: None,
+    MIX_WEIGHTS_STRATEGY: None,
 }
