@@ -104,12 +104,19 @@ class BaseModel(object):
             self.training_ph = tf.placeholder(tf.bool, name="training_ph")
 
         # Learning rate variable
+        init_lr = self.params[pkeys.LEARNING_RATE]
         with tf.variable_scope('learning_rate'):
-            self.learning_rate = tf.Variable(
-                self.params[pkeys.LEARNING_RATE], trainable=False,
-                name='lr')
+            self.learning_rate = tf.Variable(init_lr, trainable=False, name='lr')
             self.lr_summ = tf.summary.scalar('lr', self.learning_rate)
             self.lr_updates = 0
+
+        # Weight decay variable
+        wd_factor = self.params[pkeys.WEIGHT_DECAY_FACTOR]
+        if wd_factor is not None:
+            with tf.variable_scope('weight_decay'):
+                # Has the same decay than learning rate
+                self.weight_decay = wd_factor * (self.learning_rate / init_lr)
+                self.wd_summ = tf.summary.scalar('wd', self.weight_decay)
 
         with tf.variable_scope('feeding'):
             # Training iterator

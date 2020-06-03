@@ -140,6 +140,7 @@ class WaveletBLSTM(BaseModel):
                iter_per_epoch,
                x_train.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
+        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
         start_time = time.time()
 
         # split set into two parts
@@ -562,7 +563,8 @@ class WaveletBLSTM(BaseModel):
                 constants.MOD_FOCAL_LOSS,
                 constants.CROSS_ENTROPY_BORDERS_LOSS,
                 constants.CROSS_ENTROPY_BORDERS_IND_LOSS,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS
+                constants.WEIGHTED_CROSS_ENTROPY_LOSS,
+                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2,
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -622,6 +624,16 @@ class WaveletBLSTM(BaseModel):
                 self.params[pkeys.MIS_WEIGHT_PARAMETER],
                 self.params[pkeys.CLASS_WEIGHTS],
                 self.params[pkeys.MIX_WEIGHTS_STRATEGY])
+        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2:
+            loss, loss_summ = losses.weighted_cross_entropy_loss_v2(
+                self.logits, self.labels,
+                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
+                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
+                self.params[pkeys.FOCUSING_PARAMETER],
+                self.params[pkeys.MIS_WEIGHT_PARAMETER],
+                self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.MIX_WEIGHTS_STRATEGY],
+                self.params[pkeys.PREDICTION_VARIABILITY_REGULARIZER])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
@@ -631,12 +643,20 @@ class WaveletBLSTM(BaseModel):
         type_optimizer = self.params[pkeys.TYPE_OPTIMIZER]
         checks.check_valid_value(
             type_optimizer, 'type_optimizer',
-            [constants.ADAM_OPTIMIZER, constants.SGD_OPTIMIZER,
-             constants.RMSPROP_OPTIMIZER])
+            [
+                constants.ADAM_OPTIMIZER,
+                constants.SGD_OPTIMIZER,
+                constants.RMSPROP_OPTIMIZER,
+                constants.ADAM_W_OPTIMIZER
+            ])
 
         if type_optimizer == constants.ADAM_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
                 self.loss, self.learning_rate,
+                self.params[pkeys.CLIP_NORM])
+        elif type_optimizer == constants.ADAM_W_OPTIMIZER:
+            train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_w_optimizer_fn(
+                self.loss, self.learning_rate, self.weight_decay,
                 self.params[pkeys.CLIP_NORM])
         elif type_optimizer == constants.RMSPROP_OPTIMIZER:
             train_step, reset_optimizer_op, grad_norm_summ = optimizers.rmsprop_optimizer_fn(

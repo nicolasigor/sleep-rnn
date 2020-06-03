@@ -8,6 +8,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 from sleeprnn.common import constants
+from . import adam_w
 
 
 def generic_optimizer_fn(optimizer, loss, clip_norm):
@@ -52,6 +53,21 @@ def adam_optimizer_fn(
     """
     with tf.name_scope(constants.ADAM_OPTIMIZER):
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+    return generic_optimizer_fn(optimizer, loss, clip_norm)
+
+
+def adam_w_optimizer_fn(
+        loss, learning_rate, weight_decay, clip_norm):
+    """Returns the optimizer operation to minimize the loss with Adam W.
+
+    Args:
+        loss: (tensor) loss to be minimized
+        learning_rate: (float) learning rate for the optimizer
+        weight_decay: (float) Weight decay for the optimizer.
+        clip_norm: (float) Global norm to clip.
+    """
+    with tf.name_scope(constants.ADAM_W_OPTIMIZER):
+        optimizer = adam_w.AdamW(weight_decay, learning_rate=learning_rate)
     return generic_optimizer_fn(optimizer, loss, clip_norm)
 
 

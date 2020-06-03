@@ -187,6 +187,7 @@ MIS_WEIGHT_PARAMETER = 'mis_weight_parameter'
 BORDER_WEIGHT_AMPLITUDE = 'border_weight_amplitude'
 BORDER_WEIGHT_HALF_WIDTH = 'border_weight_half_width'
 MIX_WEIGHTS_STRATEGY = 'mix_weights_strategy'
+PREDICTION_VARIABILITY_REGULARIZER = 'prediction_variability_regularizer'
 
 
 """ Optimizer params
@@ -204,6 +205,7 @@ CLIP_NORM = 'clip_norm'
 MOMENTUM = 'momentum'
 USE_NESTEROV_MOMENTUM = 'use_nesterov'
 TYPE_OPTIMIZER = 'type_optimizer'
+WEIGHT_DECAY_FACTOR = 'weight_decay_factor'
 
 
 """ Training params
@@ -348,4 +350,6 @@ default_params = {
     BORDER_WEIGHT_AMPLITUDE: None,
     BORDER_WEIGHT_HALF_WIDTH: None,
     MIX_WEIGHTS_STRATEGY: None,
+    PREDICTION_VARIABILITY_REGULARIZER: None,
+    WEIGHT_DECAY_FACTOR: None,
 }

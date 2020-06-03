@@ -84,6 +84,7 @@ MOD_FOCAL_LOSS = 'mod_focal_loss'
 CROSS_ENTROPY_BORDERS_LOSS = 'cross_entropy_borders_loss'
 CROSS_ENTROPY_BORDERS_IND_LOSS = 'cross_entropy_borders_ind_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS = 'weighted_cross_entropy_loss'
+WEIGHTED_CROSS_ENTROPY_LOSS_V2 = 'weighted_cross_entropy_loss_v2'
 
 # Mix weight strategies
 MIX_WEIGHTS_SUM = 'mix_weights_sum'
@@ -92,6 +93,7 @@ MIX_WEIGHTS_MAX = 'mix_weights_max'
 
 # Types of optimizer
 ADAM_OPTIMIZER = 'adam_optimizer'
+ADAM_W_OPTIMIZER = 'adam_w_optimizer'
 SGD_OPTIMIZER = 'sgd_optimizer'
 RMSPROP_OPTIMIZER = 'rmsprop_optimizer'
 
