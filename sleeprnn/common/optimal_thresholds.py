@@ -138,8 +138,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200529_worst_negatives_2020_v2_n2_train_mass_ss', 'v11_r4_min100'): [0.40, 0.40, 0.50, 0.36],
 
     os.path.join('20200530_border_weights_n2_train_mass_ss', 'v11_xent_borders_ind_a04_hw08'): [0.48, 0.62, 0.56, 0.50],
-    os.path.join('20200529_mod_focal_ind_n2_train_mass_ss', 'v11_g3_w02_pi0.10'): [0.38, 0.40, 0.44, 0.38]
-
+    os.path.join('20200529_mod_focal_ind_n2_train_mass_ss', 'v11_g3_w02_pi0.10'): [0.38, 0.40, 0.44, 0.38],
+    os.path.join('20200602_best_border_weights_n2_train_mass_kc', 'v11_xent_borders_ind_a04_hw08'): [0.48, 0.60, 0.58, 0.62],
+    os.path.join('20200602_best_mod_focal_ind_n2_train_mass_kc', 'v11_g3_w02_pi0.10'): [0.46, 0.46, 0.52, 0.46],
 }
 
 

@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # Grid parameters
     border_amplitude_list = [4]
     focal_weight_list = [2]
-    positive_class_weight_list = [1.0, 1.5, 2.0, 2.5, 3.0]
+    positive_class_weight_list = [0.25, 0.5, 1.0, 2.0]
     mix_weights_strategy_list = [
         constants.MIX_WEIGHTS_PRODUCT,
         constants.MIX_WEIGHTS_SUM,
@@ -109,7 +109,7 @@ if __name__ == '__main__':
                     params[pkeys.CLASS_WEIGHTS] = [1.0, positive_class_weight]
                     params[pkeys.MIX_WEIGHTS_STRATEGY] = mix_weights_strategy
 
-                    folder_name = '%s_a%d_m%d_c%1.1f_%s' % (
+                    folder_name = '%s_a%d_m%d_c%1.2f_%s' % (
                         model_version,
                         border_amplitude, focal_weight, positive_class_weight,
                         mix_weights_strategy.split("_")[-1][:4]
