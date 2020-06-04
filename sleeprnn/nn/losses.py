@@ -111,6 +111,110 @@ def get_weights(logits, labels, class_weights):
     return weights
 
 
+def weighted_cross_entropy_loss_hard(
+        logits, labels,
+        border_amplitude, border_half_width,
+        class_weights,
+        mix_weights_strategy
+):
+    print('Using Weighted Cross Entropy Loss - with regular Cross-entropy')
+    print('By-segment mean loss')
+    print('Class weights:', class_weights)
+    print('Borders A: %1.2f HW: %1.2f' % (border_amplitude, border_half_width))
+    print('Mix weights strategy:', mix_weights_strategy)
+
+    with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS_HARD):
+        # Border weights
+        weight_border = get_border_weights(
+            labels, border_amplitude, border_half_width)
+
+        # Class weights
+        weight_label = get_weights(logits, labels, class_weights)
+
+        # Combine weights
+        if mix_weights_strategy == constants.MIX_WEIGHTS_MAX:
+            weights = tf.maximum(weight_border, weight_label)
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_SUM:
+            weights = weight_border + weight_label - 1.0
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_PRODUCT:
+            weights = weight_border * weight_label
+        else:
+            raise ValueError('mix_strategy "%s" invalid' % mix_weights_strategy)
+
+        # Weighted loss
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def weighted_cross_entropy_loss_soft(
+        logits, labels,
+        border_amplitude, border_half_width,
+        soft_epsilon,
+        class_weights,
+        mix_weights_strategy
+):
+    print('Using Weighted Cross Entropy Loss - with Soft-Clip Cross-entropy')
+    print('By-segment mean loss')
+    print('Class weights:', class_weights)
+    print('Borders A: %1.2f HW: %1.2f' % (border_amplitude, border_half_width))
+    print('Soft epsilon:', soft_epsilon)
+    print('Mix weights strategy:', mix_weights_strategy)
+
+    with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS_SOFT):
+        # Border weights
+        weight_border = get_border_weights(
+            labels, border_amplitude, border_half_width)
+
+        # Class weights
+        weight_label = get_weights(logits, labels, class_weights)
+
+        # Combine weights
+        if mix_weights_strategy == constants.MIX_WEIGHTS_MAX:
+            weights = tf.maximum(weight_border, weight_label)
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_SUM:
+            weights = weight_border + weight_label - 1.0
+        elif mix_weights_strategy == constants.MIX_WEIGHTS_PRODUCT:
+            weights = weight_border * weight_label
+        else:
+            raise ValueError('mix_strategy "%s" invalid' % mix_weights_strategy)
+
+        # Cross-entropy loss with soft labels
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        smooth_labels = labels_onehot * (1.0 - 2.0 * soft_epsilon) + soft_epsilon
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            labels=smooth_labels,
+            logits=logits)
+        offset = -tf.reduce_sum(
+            smooth_labels * tf.log(smooth_labels + 1e-6), axis=2)
+        loss = loss - offset
+        # Set loss to zero when prediction is beyond soft_epsilon
+        probabilities = tf.nn.softmax(logits)
+        distance_to_hard_label = tf.reduce_sum(
+            (probabilities - labels_onehot) ** 2, axis=2)
+        distance_thr = 2 * (soft_epsilon ** 2)
+        mask = tf.cast(
+            tf.math.greater(distance_to_hard_label, distance_thr), tf.float32)
+        loss = loss * mask
+        # Weighted loss
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
 def weighted_cross_entropy_loss(
         logits, labels,
         border_amplitude, border_half_width,

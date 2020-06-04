@@ -84,6 +84,8 @@ MOD_FOCAL_LOSS = 'mod_focal_loss'
 CROSS_ENTROPY_BORDERS_LOSS = 'cross_entropy_borders_loss'
 CROSS_ENTROPY_BORDERS_IND_LOSS = 'cross_entropy_borders_ind_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS = 'weighted_cross_entropy_loss'
+WEIGHTED_CROSS_ENTROPY_LOSS_HARD = 'weighted_cross_entropy_loss_hard'
+WEIGHTED_CROSS_ENTROPY_LOSS_SOFT = 'weighted_cross_entropy_loss_soft'
 WEIGHTED_CROSS_ENTROPY_LOSS_V2 = 'weighted_cross_entropy_loss_v2'
 
 # Mix weight strategies

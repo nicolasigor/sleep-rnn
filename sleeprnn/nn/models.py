@@ -565,6 +565,8 @@ class WaveletBLSTM(BaseModel):
                 constants.CROSS_ENTROPY_BORDERS_IND_LOSS,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2,
+                constants.WEIGHTED_CROSS_ENTROPY_LOSS_HARD,
+                constants.WEIGHTED_CROSS_ENTROPY_LOSS_SOFT,
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -634,6 +636,21 @@ class WaveletBLSTM(BaseModel):
                 self.params[pkeys.CLASS_WEIGHTS],
                 self.params[pkeys.MIX_WEIGHTS_STRATEGY],
                 self.params[pkeys.PREDICTION_VARIABILITY_REGULARIZER])
+        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_HARD:
+            loss, loss_summ = losses.weighted_cross_entropy_loss_hard(
+                self.logits, self.labels,
+                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
+                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
+                self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.MIX_WEIGHTS_STRATEGY])
+        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_SOFT:
+            loss, loss_summ = losses.weighted_cross_entropy_loss_soft(
+                self.logits, self.labels,
+                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
+                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
+                self.params[pkeys.SOFT_LABEL_PARAMETER],
+                self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.MIX_WEIGHTS_STRATEGY])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
