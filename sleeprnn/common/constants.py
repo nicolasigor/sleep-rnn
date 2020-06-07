@@ -87,6 +87,8 @@ WEIGHTED_CROSS_ENTROPY_LOSS = 'weighted_cross_entropy_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS_HARD = 'weighted_cross_entropy_loss_hard'
 WEIGHTED_CROSS_ENTROPY_LOSS_SOFT = 'weighted_cross_entropy_loss_soft'
 WEIGHTED_CROSS_ENTROPY_LOSS_V2 = 'weighted_cross_entropy_loss_v2'
+WEIGHTED_CROSS_ENTROPY_LOSS_V3 = 'weighted_cross_entropy_loss_v3'
+WEIGHTED_CROSS_ENTROPY_LOSS_V4 = 'weighted_cross_entropy_loss_v4'
 
 # Mix weight strategies
 MIX_WEIGHTS_SUM = 'mix_weights_sum'

@@ -151,6 +151,15 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200603_best_mix_weights_n2_train_mass_kc', 'v11_a4_m2_c1.00_sum'): [0.46, 0.46, 0.48, 0.46],
     os.path.join('20200603_best_mix_weights_n2_train_mass_kc', 'v11_a4_m2_c0.50_sum'): [0.42, 0.38, 0.44, 0.38],
     os.path.join('20200603_best_mix_weights_n2_train_mass_kc', 'v11_a4_m2_c0.25_sum'): [0.34, 0.34, 0.42, 0.38],
+
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-5.0'): [0.34, 0.42],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-1.0'): [0.36, 0.40],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-3.0'): [0.36, 0.40],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-6.0'): [0.36, 0.42],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_1.0'): [0.34, 0.38],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-2.0'): [0.32, 0.40],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_0.0'): [0.34, 0.42],
+    os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-4.0'): [0.32, 0.40],
 }
 
 
