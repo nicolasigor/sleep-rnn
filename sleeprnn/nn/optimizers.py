@@ -13,7 +13,13 @@ from . import adam_w
 
 def generic_optimizer_fn(optimizer, loss, clip_norm):
     """Applies the optimizer to the loss."""
-    original_gvs = optimizer.compute_gradients(loss)
+
+    if type(optimizer) == adam_w.AdamW:
+        train_vars = tf.trainable_variables()
+        grads = optimizer.get_gradients(loss, train_vars)
+        original_gvs = [(grad, var) for grad, var in zip(grads, train_vars)]
+    else:
+        original_gvs = optimizer.compute_gradients(loss)
 
     gradients = [gv[0] for gv in original_gvs]
     grad_norm = tf.global_norm(gradients, name='gradient_norm')
