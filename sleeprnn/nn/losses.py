@@ -325,14 +325,13 @@ def weighted_cross_entropy_loss_v2(
         probabilities_1_left = probabilities_1[:, :-1]
         proba_difference = (probabilities_1_right - probabilities_1_left) ** 2
         penalization_term = tf.reduce_mean(proba_difference)
-        var_summ = tf.summary.scalar('variability', penalization_term)
-        unreg_loss_summ = tf.summary.scalar('unregularized_loss', loss)
+        tf.summary.scalar('variability', penalization_term)
+        tf.summary.scalar('unregularized_loss', loss)
 
         loss = loss + (prediction_variability_regularizer * penalization_term)
 
         # Summaries
         loss_summ = tf.summary.scalar('loss', loss)
-        loss_summ = tf.summary.merge([loss_summ, unreg_loss_summ, var_summ])
 
     return loss, loss_summ
 
