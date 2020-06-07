@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
     experiment_name = 'var_reg_bimodal_first_grid'
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     reg_param_list = [10 ** s_exp for s_exp in range(-3, 2+1)]
-    type_loss = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3
+    type_loss = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4
 
     # Base parameters
     params = pkeys.default_params.copy()
