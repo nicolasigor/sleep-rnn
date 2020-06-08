@@ -188,6 +188,7 @@ BORDER_WEIGHT_AMPLITUDE = 'border_weight_amplitude'
 BORDER_WEIGHT_HALF_WIDTH = 'border_weight_half_width'
 MIX_WEIGHTS_STRATEGY = 'mix_weights_strategy'
 PREDICTION_VARIABILITY_REGULARIZER = 'prediction_variability_regularizer'
+PREDICTION_VARIABILITY_LAG = 'prediction_variability_lag'
 
 
 """ Optimizer params
@@ -352,4 +353,5 @@ default_params = {
     MIX_WEIGHTS_STRATEGY: None,
     PREDICTION_VARIABILITY_REGULARIZER: None,
     WEIGHT_DECAY_FACTOR: None,
+    PREDICTION_VARIABILITY_LAG: 1
 }

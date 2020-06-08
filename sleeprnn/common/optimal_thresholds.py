@@ -160,6 +160,16 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-2.0'): [0.32, 0.40],
     os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_0.0'): [0.34, 0.42],
     os.path.join('20200606_var_reg_first_grid_n2_train_mass_ss', 'v11_reg_-4.0'): [0.32, 0.40],
+
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_0.0'): [0.32, 0.38],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_-1.0'): [0.34, 0.40],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_-2.0'): [0.34, 0.42],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_-2.0'): [0.36, 0.40],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_-1.0'): [0.36, 0.38],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_-3.0'): [0.34, 0.38],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_0.0'): [0.36, 0.42],
+    os.path.join('20200607_var_reg_bimodal_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_-3.0'): [0.32, 0.40],
+
 }
 
 

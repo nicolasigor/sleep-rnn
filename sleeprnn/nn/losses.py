@@ -342,7 +342,8 @@ def weighted_cross_entropy_loss_v3(
         focal_gamma, focal_weight,
         class_weights,
         mix_weights_strategy,
-        prediction_variability_regularizer
+        prediction_variability_regularizer,
+        prediction_variability_lag
 ):
     print('Using Weighted Cross Entropy Loss V3 (max at 0.5, L2)')
     print('By-segment mean loss')
@@ -351,6 +352,7 @@ def weighted_cross_entropy_loss_v3(
     print('Mod focal G: %1.2f W0: %1.2f' % (focal_gamma, focal_weight))
     print('Mix weights strategy:', mix_weights_strategy)
     print('Pred. variability regularizer:', prediction_variability_regularizer)
+    print('Pred. variability lag:', prediction_variability_lag)
 
     with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3):
         # Border weights
@@ -388,9 +390,10 @@ def weighted_cross_entropy_loss_v3(
         loss = tf.reduce_mean(loss)
 
         # Add regularization of variability in predictions
+        lag = prediction_variability_lag
         probabilities_1 = probabilities[:, :, 1]
-        probabilities_1_right = probabilities_1[:, 1:]
-        probabilities_1_left = probabilities_1[:, :-1]
+        probabilities_1_right = probabilities_1[:, lag:]
+        probabilities_1_left = probabilities_1[:, :-lag]
         proba_diff = tf.abs(probabilities_1_right - probabilities_1_left)
         proba_diff_cost = 1 - (2 * proba_diff - 1) ** 2
         # proba_diff_cost = 1.0 - 4.0 * ((proba_diff - 0.5) ** 2)
@@ -413,7 +416,8 @@ def weighted_cross_entropy_loss_v4(
         focal_gamma, focal_weight,
         class_weights,
         mix_weights_strategy,
-        prediction_variability_regularizer
+        prediction_variability_regularizer,
+        prediction_variability_lag
 ):
     print('Using Weighted Cross Entropy Loss V4 (max at 0.5, L1)')
     print('By-segment mean loss')
@@ -422,6 +426,7 @@ def weighted_cross_entropy_loss_v4(
     print('Mod focal G: %1.2f W0: %1.2f' % (focal_gamma, focal_weight))
     print('Mix weights strategy:', mix_weights_strategy)
     print('Pred. variability regularizer:', prediction_variability_regularizer)
+    print('Pred. variability lag:', prediction_variability_lag)
 
     with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4):
         # Border weights
@@ -459,9 +464,10 @@ def weighted_cross_entropy_loss_v4(
         loss = tf.reduce_mean(loss)
 
         # Add regularization of variability in predictions
+        lag = prediction_variability_lag
         probabilities_1 = probabilities[:, :, 1]
-        probabilities_1_right = probabilities_1[:, 1:]
-        probabilities_1_left = probabilities_1[:, :-1]
+        probabilities_1_right = probabilities_1[:, lag:]
+        probabilities_1_left = probabilities_1[:, :-lag]
         proba_diff = tf.abs(probabilities_1_right - probabilities_1_left)
         proba_diff_cost_a = 2 * proba_diff
         proba_diff_cost_b = 2 * (1 - proba_diff)
@@ -556,6 +562,39 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels,
             logits=logits)
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
+def hinge_loss_fn(logits, labels, class_weights):
+    """Returns the hinge loss to be minimized.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        class_weights: ({None, BALANCED, array_like}) Determines the class
+            weights to be applied when computing the loss. If None, no weights
+            are applied. If BALANCED, the weights balance the class
+            frequencies. If is an array of shape [2,], class_weights[i]
+            is the weight applied to class i. If BALANCED_DROP, then
+            outputs related to the negative class are randomly dropped
+            so that their number approx equals that of the positive class.
+    """
+    print('Using Hinge Loss')
+    with tf.variable_scope(constants.HINGE_LOSS):
+        # A softmax with 2 logits is equivalent to a sigmoid with logit l1-l0
+        # We satisfy that the boundary of the classes is l=0 (p=0.5).
+        logits_sigmoid = logits[:, :, 1] - logits[:, :, 0]
+
+        loss = tf.losses.hinge_loss(
+            labels=labels,
+            logits=logits_sigmoid,
+            reduction="none")
+
         # Weighted loss
         weights = get_weights(logits, labels, class_weights)
         loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
