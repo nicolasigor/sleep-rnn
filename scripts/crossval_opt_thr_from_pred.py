@@ -26,12 +26,12 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20191227_bsf_10runs_e1'
+    ckpt_folder = '20200610_hinge_loss'
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
 
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.MASS_KC_NAME
     id_try_list = [0, 1, 2, 3]
 
     which_expert = 1
@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.2
-    end_thr = 0.8
+    start_thr = 0.3
+    end_thr = 0.7
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------

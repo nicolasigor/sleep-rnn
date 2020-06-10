@@ -1,0 +1,12 @@
+Val AF1 report for 20200610_hinge_loss_n2_train_mass_ss
+AF1 65.06/2.21 [0.5] 65.90/2.81 [0.30, 0.38, 0.44, 0.30], F3 78.44/1.47, P3 81.6/11.2, R3 78.4/12.3 for v11_hinge_loss_pi0.5
+
+os.path.join('20200610_hinge_loss_n2_train_mass_ss', 'v11_hinge_loss_pi0.5'): [0.30, 0.38, 0.44, 0.30],
+
+Val AF1 report for 20200610_hinge_loss_n2_train_mass_kc
+AF1 73.58/0.74 [0.5] 73.60/0.78 [0.50, 0.60, 0.56, 0.52], F3 80.89/0.79, P3 81.5/ 3.9, R3 80.6/ 5.2 for v11_hinge_loss_pi0.5
+
+os.path.join('20200610_hinge_loss_n2_train_mass_kc', 'v11_hinge_loss_pi0.5'): [0.50, 0.60, 0.56, 0.52],
+
+
+Compararlo con xentropy y ver donde residen las diferencias principalmente.
