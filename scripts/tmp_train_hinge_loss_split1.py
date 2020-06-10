@@ -41,7 +41,6 @@ if __name__ == '__main__':
     ]
 
     dataset_name_list = [
-        constants.MASS_SS_NAME,
         constants.MASS_KC_NAME
     ]
     which_expert = 1
