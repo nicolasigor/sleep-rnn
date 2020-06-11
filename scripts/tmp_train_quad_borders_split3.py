@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [3]
 
     # ----- Experiment settings
     experiment_name = 'quad_borders'
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     params[pkeys.BORDER_WEIGHT_AMPLITUDE] = 4
     params[pkeys.MIS_WEIGHT_PARAMETER] = 2
     params[pkeys.FOCUSING_PARAMETER] = 3
-    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
+    params[pkeys.CLASS_WEIGHTS] = [0.75, 0.25]
     params[pkeys.MIX_WEIGHTS_STRATEGY] = constants.MIX_WEIGHTS_SUM
     params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS
 
