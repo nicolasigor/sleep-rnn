@@ -10,6 +10,40 @@ import tensorflow as tf
 from sleeprnn.common import constants
 
 
+def get_border_weights_quad(labels, amplitude, half_width):
+    print('Border weights QUADRATIC with A=%1.2f and half_s=%1.2f' % (
+        amplitude, half_width))
+    with tf.variable_scope('loss_border_weights'):
+        # Edge detector definition
+        kernel_edge = [-0.5, 0, 0.5]
+        kernel_edge = tf.constant(kernel_edge, dtype=tf.float32)
+        # Quadratic window definition (1st order approx of Gauss)
+        kernel_steps = np.arange(2 * half_width + 1) - half_width
+        kernel_quad = (amplitude - 1) * (1 - (kernel_steps / half_width) ** 2)
+        print('Border kernel', kernel_quad)
+        kernel_quad = tf.constant(kernel_quad, dtype=tf.float32)
+        # Prepare labels
+        first_label = labels[:, 0:1]
+        last_label = labels[:, -1:]
+        labels_extended = tf.concat(
+            [first_label, labels, last_label], axis=1)
+        labels_extended = tf.cast(labels_extended, dtype=tf.float32)
+        # Prepare shapes for convolution
+        kernel_edge = kernel_edge[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        kernel_quad = kernel_quad[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        labels_extended = labels_extended[:, :, tf.newaxis, tf.newaxis]
+        # Filter
+        output = labels_extended
+        output = tf.nn.conv2d(
+            output, kernel_edge, strides=[1, 1, 1, 1], padding='VALID')
+        output = tf.abs(output)
+        output = tf.nn.conv2d(
+            output, kernel_quad, strides=[1, 1, 1, 1], padding='SAME')
+        output = 1.0 + output
+        weights = output[:, :, 0, 0]
+    return weights
+
+
 def get_border_weights(labels, amplitude, half_width):
     print('Border weights with A=%1.2f and half_s=%1.2f' % (
         amplitude, half_width))
@@ -222,7 +256,7 @@ def weighted_cross_entropy_loss(
         class_weights,
         mix_weights_strategy
 ):
-    print('Using Weighted Cross Entropy Loss')
+    print('Using Weighted Cross Entropy Loss (QUADRATIC BORDERS)')
     print('By-segment mean loss')
     print('Class weights:', class_weights)
     print('Borders A: %1.2f HW: %1.2f' % (border_amplitude, border_half_width))
@@ -231,7 +265,7 @@ def weighted_cross_entropy_loss(
 
     with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS):
         # Border weights
-        weight_border = get_border_weights(
+        weight_border = get_border_weights_quad(
             labels, border_amplitude, border_half_width)
 
         # Modified focal weights with class weights
