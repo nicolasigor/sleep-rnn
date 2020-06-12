@@ -246,7 +246,7 @@ def norm_clip_signal(
     checks.check_valid_value(
         norm_computation, 'norm_computation',
         [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL])
-    print('Clipping at %s' % clip_value)
+    # print('Clipping at %s' % clip_value)
     if norm_computation == constants.NORM_IQR:
         norm_signal, clip_mask = norm_clip_signal_iqr(
             signal, pages_indices, page_size, clip_value)
@@ -263,7 +263,7 @@ def norm_clip_signal(
 
 
 def norm_clip_signal_global(signal, global_std, clip_value=10):
-    print('Normalizing with Global STD of %s' % global_std)
+    # print('Normalizing with Global STD of %s' % global_std)
     norm_signal = signal / global_std
     # Now clip to clip_value (only if clip is not None)
     if clip_value:

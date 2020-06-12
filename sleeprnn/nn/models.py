@@ -99,6 +99,7 @@ class WaveletBLSTM(BaseModel):
             data_train: FeederDataset,
             data_val: FeederDataset,
             fine_tune=False,
+            extra_data_train=None,
             verbose=False):
         """Fits the model to the training data."""
         border_size = int(
@@ -120,6 +121,16 @@ class WaveletBLSTM(BaseModel):
         y_train = np.concatenate(y_train, axis=0)
         x_val = np.concatenate(x_val, axis=0)
         y_val = np.concatenate(y_val, axis=0)
+
+        # Add extra training data
+        if extra_data_train is not None:
+            x_extra, y_extra = extra_data_train
+            print('CHECK: Sum extra y:', y_extra.sum())
+            print('Current train data x, y:', x_train.shape, y_train.shape)
+            x_train = np.concatenate([x_train, x_extra], axis=0)
+            y_train = np.concatenate([y_train, y_extra], axis=0)
+            print('Extra data to be added x, y:', x_extra.shape, y_extra.shape)
+            print('New train data', x_train.shape, y_train.shape)
 
         # Shuffle training set
         x_train, y_train = utils.shuffle_data(

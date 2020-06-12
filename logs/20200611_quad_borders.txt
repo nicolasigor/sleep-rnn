@@ -1,0 +1,15 @@
+RESUMEN MOD FOCAL
+Val AF1 report for 20200603_best_mix_weights_n2_train_mass_ss
+AF1 65.60/1.37 [0.5] 68.44/2.47 [0.34, 0.38, 0.42, 0.36], F3 80.27/1.41, P3 79.6/ 8.8, R3 82.9/ 9.6 for v11_a4_m2_c0.25_sum ** 
+
+MASS_SS
+
+Val AF1 report for 20200611_quad_borders_n2_train_mass_ss
+AF1 65.17/1.83 [0.5] 67.81/2.71 [0.34, 0.38, 0.40, 0.36], F3 79.76/1.45, P3 80.4/ 9.0, R3 81.2/10.4 for v11_weighted_cross_entropy_loss_hw4
+AF1 62.50/3.29 [0.5] 67.77/2.86 [0.30, 0.36, 0.36, 0.30], F3 80.22/1.70, P3 80.4/ 9.1, R3 82.0/10.0 for v11_weighted_cross_entropy_loss_hw3
+AF1 60.71/3.77 [0.5] 67.53/2.39 [0.30, 0.34, 0.34, 0.32], F3 79.89/1.29, P3 81.8/ 9.3, R3 80.2/10.8 for v11_weighted_cross_entropy_loss_hw2
+
+os.path.join('20200611_quad_borders_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_hw4'): [0.34, 0.38, 0.40, 0.36],
+os.path.join('20200611_quad_borders_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_hw3'): [0.30, 0.36, 0.36, 0.30],
+os.path.join('20200611_quad_borders_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_hw2'): [0.30, 0.34, 0.34, 0.32],
+

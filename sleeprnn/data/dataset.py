@@ -447,7 +447,7 @@ class Dataset(object):
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
                     global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
             else:
-                if True:  # verbose:
+                if verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]

@@ -176,6 +176,15 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200610_hinge_loss_n2_train_mass_ss', 'v11_hinge_loss_pi0.5'): [0.30, 0.38, 0.44, 0.30],
     os.path.join('20200610_hinge_loss_n2_train_mass_kc', 'v11_hinge_loss_pi0.5'): [0.50, 0.60, 0.56, 0.52],
 
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-1.0'): [0.32, 0.40],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-1.0'): [0.34, 0.40],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-2.0'): [0.38, 0.40],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-4.0'): [0.36, 0.42],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-3.0'): [0.32, 0.38],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-2.0'): [0.34, 0.40],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-4.0'): [0.34, 0.42],
+    os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-3.0'): [0.36, 0.42],
+
 }
 
 

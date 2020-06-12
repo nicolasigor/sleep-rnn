@@ -114,6 +114,25 @@ AF1 65.29/2.53 [0.5] 68.37/1.33 [0.34, 0.42], F3 79.62/1.63, P3 78.0/ 8.0, R3 82
 AF1 65.29/2.62 [0.5] 68.23/0.87 [0.20, 0.28], F3 79.91/1.08, P3 80.7/ 8.3, R3 80.6/ 8.0 for v11_weighted_cross_entropy_loss_v3_lag6_0.0
 AF1 65.17/2.16 [0.5] 68.13/0.75 [0.34, 0.42], F3 79.42/0.92, P3 79.1/ 8.4, R3 81.3/ 8.0 for v11_weighted_cross_entropy_loss_v4_lag6_-4.0
 
+lag4 only:
+AF1 65.32/2.82 [0.5] 69.70/1.25 [0.32, 0.40], F3 81.24/1.19, P3 80.1/ 7.7, R3 83.5/ 6.2 for v11_weighted_cross_entropy_loss_v3_lag4_-1.0
+AF1 66.00/2.53 [0.5] 69.53/0.90 [0.34, 0.40], F3 80.91/0.97, P3 80.4/ 8.1, R3 82.8/ 7.2 for v11_weighted_cross_entropy_loss_v4_lag4_-1.0
+AF1 66.51/1.79 [0.5] 69.29/0.23 [0.38, 0.40], F3 80.70/0.38, P3 80.4/ 7.6, R3 82.3/ 7.8 for v11_weighted_cross_entropy_loss_v4_lag4_-2.0
+AF1 66.05/1.83 [0.5] 69.10/0.92 [0.36, 0.42], F3 80.34/1.08, P3 79.5/ 7.7, R3 82.4/ 6.6 for v11_weighted_cross_entropy_loss_v3_lag4_-4.0
+AF1 65.22/2.85 [0.5] 69.04/1.19 [0.32, 0.38], F3 80.37/1.38, P3 79.1/ 7.7, R3 82.7/ 5.9 for v11_weighted_cross_entropy_loss_v4_lag4_-3.0
+AF1 66.12/1.69 [0.5] 68.98/1.32 [0.34, 0.40], F3 80.40/1.47, P3 78.6/ 7.2, R3 83.3/ 6.3 for v11_weighted_cross_entropy_loss_v3_lag4_-2.0
+AF1 65.30/2.30 [0.5] 68.86/1.34 [0.34, 0.42], F3 80.10/1.37, P3 78.8/ 8.4, R3 82.8/ 7.0 for v11_weighted_cross_entropy_loss_v4_lag4_-4.0
+AF1 66.21/1.47 [0.5] 68.85/0.97 [0.36, 0.42], F3 80.20/1.00, P3 78.5/ 7.8, R3 83.4/ 7.4 for v11_weighted_cross_entropy_loss_v3_lag4_-3.0
+
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-1.0'): [0.32, 0.40],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-1.0'): [0.34, 0.40],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-2.0'): [0.38, 0.40],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-4.0'): [0.36, 0.42],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-3.0'): [0.32, 0.38],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-2.0'): [0.34, 0.40],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-4.0'): [0.34, 0.42],
+os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-3.0'): [0.36, 0.42],
+
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-1.0'): [0.32, 0.40],
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-1.0'): [0.34, 0.40],
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag6_-1.0'): [0.30, 0.44],
@@ -144,7 +163,6 @@ os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighte
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag6_-4.0'): [0.34, 0.42],
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag6_0.0'): [0.20, 0.28],
 os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag6_-4.0'): [0.34, 0.42],
-
 
 
 
