@@ -29,6 +29,20 @@ def get_mark_from_idx(idx_mark, raw_1, raw_2):
 
 if __name__ == '__main__':
 
+    # IMPORTANT:
+    # This correction strategy assumes that all conflicting overlaps
+    # (i.e. group of marks not represented by automatically accepted ones)
+    # were solved during the manual session.
+    # Therefore, the correction is as follows:
+    # 1. Add all manually accepted marks.
+    # 2. Add green marks (previously accepted marks) only if
+    # they do not intersect with manually rejected or accepted ones.
+    #
+    # In consequence, all remaining conflicts are implicitly rejected.
+    # This behavior produces unwanted results if the manual session is
+    # incomplete. Please do not use the corrected marks generated for an
+    # incomplete manual session as the new labels.
+
     subject_id = 2
 
     subject_name = NAMES[subject_id - 1]
