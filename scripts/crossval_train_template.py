@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0, 1, 2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'var_reg_bimodal_first_grid'
+    experiment_name = 'template'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ]
     which_expert = 1
 
-    description_str = 'v11 with variability regularization'
+    description_str = 'template'
     verbose = True
 
     # Complement experiment folder name with date
@@ -53,21 +53,11 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    reg_param_list = [10 ** s_exp for s_exp in range(-3, 2+1)]
-    type_loss = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3
+    params_list = [0.0001, 0.001, 0.01]
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.MODEL_VERSION] = constants.V11
-    params[pkeys.INIT_POSITIVE_PROBA] = 0.1
-    params[pkeys.BORDER_WEIGHT_AMPLITUDE] = 4
-    params[pkeys.BORDER_WEIGHT_HALF_WIDTH] = 8
-    params[pkeys.MIS_WEIGHT_PARAMETER] = 2
-    params[pkeys.FOCUSING_PARAMETER] = 3
-    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
-    params[pkeys.MIX_WEIGHTS_STRATEGY] = constants.MIX_WEIGHTS_SUM
-
-    params[pkeys.TYPE_LOSS] = type_loss
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -93,13 +83,14 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for reg_param in reg_param_list:
+                for lr in params_list:
                     model_version = params[pkeys.MODEL_VERSION]
+                    params[pkeys.LEARNING_RATE] = lr
 
-                    params[pkeys.PREDICTION_VARIABILITY_REGULARIZER] = reg_param
-
-                    folder_name = '%s_%s_%s' % (
-                        model_version, type_loss, np.log10(reg_param))
+                    folder_name = '%s_lr%s' % (
+                        model_version,
+                        lr
+                    )
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

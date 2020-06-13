@@ -185,6 +185,14 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-4.0'): [0.34, 0.42],
     os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-3.0'): [0.36, 0.42],
 
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_W'): [0.36, 0.46, 0.46, 0.38],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_R'): [0.38, 0.50, 0.44, 0.38],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-W-R'): [0.40, 0.44, 0.48, 0.42],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1'): [0.38, 0.46, 0.48, 0.40],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-R'): [0.32, 0.48, 0.54, 0.46],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_W-R'): [0.44, 0.40, 0.50, 0.40],
+    os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-W'): [0.38, 0.42, 0.52, 0.38],
+
 }
 
 
