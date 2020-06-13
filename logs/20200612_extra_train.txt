@@ -1,0 +1,23 @@
+pi = 0.1, deeptime
+
+Val AF1 report for 20200611_extra_train_n2_train_mass_ss
+AF1 66.94/1.40 [0.5] 68.20/2.59 [0.36, 0.46, 0.46, 0.38], F3 80.64/1.70, P3 79.7/ 9.1, R3 83.6/ 9.7 for v11_stages_W
+AF1 67.17/1.99 [0.5] 68.20/3.07 [0.38, 0.50, 0.44, 0.38], F3 80.63/2.21, P3 78.8/ 9.6, R3 84.4/ 8.5 for v11_stages_R
+AF1 67.27/2.15 [0.5] 68.11/2.90 [0.40, 0.44, 0.48, 0.42], F3 80.54/2.03, P3 79.1/ 9.2, R3 83.9/ 9.1 for v11_stages_1-W-R
+AF1 66.96/1.78 [0.5] 68.09/2.60 [0.38, 0.46, 0.48, 0.40], F3 80.47/1.78, P3 79.7/ 9.4, R3 83.3/ 9.7 for v11_stages_1
+AF1 66.81/1.97 [0.5] 68.03/2.43 [0.32, 0.48, 0.54, 0.46], F3 80.33/1.73, P3 79.7/ 8.9, R3 82.8/ 9.5 for v11_stages_1-R
+AF1 67.11/1.55 [0.5] 67.80/2.39 [0.44, 0.40, 0.50, 0.40], F3 80.23/1.68, P3 79.4/ 9.2, R3 83.0/ 9.6 for v11_stages_W-R
+AF1 66.80/1.95 [0.5] 67.74/2.67 [0.38, 0.42, 0.52, 0.38], F3 80.31/1.76, P3 79.7/ 8.8, R3 82.8/ 9.8 for v11_stages_1-W
+
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_W'): [0.36, 0.46, 0.46, 0.38],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_R'): [0.38, 0.50, 0.44, 0.38],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-W-R'): [0.40, 0.44, 0.48, 0.42],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1'): [0.38, 0.46, 0.48, 0.40],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-R'): [0.32, 0.48, 0.54, 0.46],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_W-R'): [0.44, 0.40, 0.50, 0.40],
+os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-W'): [0.38, 0.42, 0.52, 0.38],
+
+pi = 0.5, deepspace
+
+
+
