@@ -126,9 +126,7 @@ INITIAL_LSTM_UNITS = 'initial_lstm_units'
 FC_UNITS = 'fc_units'
 OUTPUT_LSTM_UNITS = 'output_lstm_units'
 # Time-domain convolutional params
-TIME_CONV_FILTERS_1 = 'time_conv_filters_1'
-TIME_CONV_FILTERS_2 = 'time_conv_filters_2'
-TIME_CONV_FILTERS_3 = 'time_conv_filters_3'
+TIME_CONV_INITIAL_FILTERS = 'time_conv_initial_filters'
 SIGMA_FILTER_NTAPS = 'sigma_filter_ntaps'
 # cwt domain convolutional params
 CWT_CONV_FILTERS_1 = 'cwt_conv_filters_1'
@@ -285,9 +283,7 @@ default_params = {
     FC_UNITS: 128,
     OUTPUT_LSTM_UNITS: None,
     LAST_OUTPUT_CONV_FILTERS: None,
-    TIME_CONV_FILTERS_1: 64,
-    TIME_CONV_FILTERS_2: 128,
-    TIME_CONV_FILTERS_3: 256,
+    TIME_CONV_INITIAL_FILTERS: 64,
     CLASS_WEIGHTS: None,
     TYPE_LOSS: constants.CROSS_ENTROPY_LOSS,
     LEARNING_RATE: 1e-4,

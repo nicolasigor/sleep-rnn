@@ -42,6 +42,12 @@ MEAN_AF1 = 'mean_af1'
 IQR_LOW_IOU = 'iqr_low_iou'
 IQR_HIGH_IOU = 'iqr_high_iou'
 
+# MODEL OUTPUT KEYS
+LOGITS = 'logits'
+PROBABILITIES = 'probabilities'
+SCALOGRAM = 'scalogram'
+ATTENTION_WEIGHTS = 'attention_weights'
+
 # Type of padding
 PAD_SAME = 'same'
 PAD_VALID = 'valid'

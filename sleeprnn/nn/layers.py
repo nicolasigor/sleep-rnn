@@ -63,6 +63,48 @@ def downsampling_1d(inputs, name, down_factor, type_pooling):
     return outputs
 
 
+def blstm_wrapper(
+        inputs,
+        num_units,
+        name=None):
+    """ Builds an LSTM layer that can be applied directly to a sequence.
+    """
+    with tf.variable_scope(name):
+        use_cudnn = tf.test.is_gpu_available(cuda_only=True)
+        # Whether we use CUDNN implementation or CPU implementation, we will
+        # use Fused implementations, which are the most efficient. Notice that
+        # the inputs to any FusedRNNCell instance should be time-major, this can
+        # be done by just transposing the tensor before calling the cell.
+
+        inputs = tf.transpose(inputs, (1, 0, 2), name="to_time_major")
+        if use_cudnn:  # GPU is available
+            forward_cell = tf.keras.layers.CuDNNLSTM(
+                units=num_units, return_sequences=True, name="forward")
+            backward_cell = tf.keras.layers.CuDNNLSTM(
+                units=num_units, return_sequences=True, name="backward")
+            forward_outputs = forward_cell(inputs)
+            inputs_reversed = reverse_time(inputs)
+            backward_outputs_reversed = backward_cell(inputs_reversed)
+            backward_outputs = reverse_time(backward_outputs_reversed)
+            outputs = tf.concat([forward_outputs, backward_outputs], -1)
+        else:  # Only CPU is available
+            forward_cell = tf.keras.layers.LSTM(
+                units=num_units, return_sequences=True, implementation=2,
+                recurrent_activation="sigmoid", name="forward", time_major=True)
+            backward_cell = tf.keras.layers.LSTM(
+                units=num_units, return_sequences=True, implementation=2,
+                recurrent_activation="sigmoid", name="backward", time_major=True)
+            forward_outputs = forward_cell(inputs)
+            inputs_reversed = reverse_time(inputs)
+            backward_outputs_reversed = backward_cell(inputs_reversed)
+            backward_outputs = reverse_time(backward_outputs_reversed)
+            outputs = tf.concat([forward_outputs, backward_outputs], -1)
+        # Return to batch_major
+        outputs = tf.transpose(outputs, (1, 0, 2), name='to_batch_major')
+    return outputs
+
+
+
 def batchnorm_layer(
         inputs,
         name,
