@@ -9,9 +9,106 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
-from .spectrum import compute_cwt, compute_cwt_rectangular
+from .spectrum import compute_cwt, compute_cwt_rectangular, compute_wavelets, apply_wavelets_rectangular
 from sleeprnn.common import constants
 from sleeprnn.common import checks
+
+
+def power_ratio_literature_fixed_layer(
+        inputs,
+        fb_list,
+        fs,
+        lower_freq,
+        upper_freq,
+        n_scales,
+        training,
+        border_crop=0,
+        use_log=False,
+        name="pr_lit_fixed"):
+    """Fixed power ratios from SS det literature."""
+
+    print('Using fixed power ratios from CWT')
+    with tf.variable_scope(name):
+        # Input sequence has shape [batch_size, time_len]
+        wavelets, freqs = compute_wavelets(
+            fb_list=fb_list,
+            fs=fs,
+            lower_freq=lower_freq,
+            upper_freq=upper_freq,
+            n_scales=n_scales,
+            name='cmorlet')
+        cwt = apply_wavelets_rectangular(
+            inputs=inputs,
+            wavelets=wavelets,
+            border_crop=border_crop,
+            name='cwt')
+        # Output sequence has shape [batch_size, time_len, n_scales, channels]
+        # Collapse real and imaginary channels to magnitude channel
+        cwt_mag = tf.sqrt(tf.reduce_sum(cwt ** 2, axis=-1))
+        # output is [batch_size, time_len, n_scales], is 1D
+
+        def get_band_weights(freq_vals, lim_low, lim_high):
+            """Weights have shape [1, 1, n_scales]."""
+            band_low = (freq_vals >= lim_low).astype(np.float32)
+            band_high = (freq_vals <= lim_high).astype(np.float32)
+            band_weights = band_low * band_high
+            band_weights = np.reshape(band_weights, (1, 1, -1))
+            return band_weights
+
+        def get_band_power(power_vals, freq_vals, lim_low, lim_high, mode):
+            if mode not in ["mean", "max"]:
+                raise ValueError()
+            w = get_band_weights(freq_vals, lim_low, lim_high)
+            weighted_power = w * power_vals
+            if mode == "mean":
+                band_power = tf.reduce_sum(weighted_power, axis=2) / tf.reduce_sum(w)
+            else:
+                band_power = tf.reduce_max(weighted_power, axis=2)
+            return band_power
+
+        # ----------------------
+        # Kulkarni (SpindleNet) power ratio
+        with tf.variable_scope("kulkarni"):
+            num_power = get_band_power(cwt_mag, freqs, 9, 16, mode="mean")
+            den_power = get_band_power(cwt_mag, freqs, 2, 8, mode="mean")
+            pr_spindlendet = num_power / (den_power + 1e-6)  # [batch, time_len]
+
+        # Lacourse (A7) power ratio
+        with tf.variable_scope("lacourse"):
+            num_power = get_band_power(cwt_mag, freqs, 11, 16, mode="mean")
+            den_power = get_band_power(cwt_mag, freqs, 4.5, 30, mode="mean")
+            pr_a7 = num_power / (den_power + 1e-6)
+
+        # Huupponen (sigma index) power ratio
+        with tf.variable_scope("huupponen"):
+            num_power = get_band_power(cwt_mag, freqs, 10.5, 16, mode="max")
+            den_power_1 = get_band_power(cwt_mag, freqs, 4, 10, mode="mean")
+            den_power_2 = get_band_power(cwt_mag, freqs, 20, 40, mode="mean")
+            alpha_power = get_band_power(cwt_mag, freqs, 7.5, 10, mode="max")
+            pr_huupp = 2.0 * num_power / (den_power_1 + den_power_2 + 1e-6)
+            pr_huupp_alfa = num_power / (alpha_power + 1e-6)
+
+        # Known medical frequency bands
+        with tf.variable_scope("medical_bands"):
+            delta_power = get_band_power(cwt_mag, freqs, 0.5, 4, mode="mean")
+            theta_power = get_band_power(cwt_mag, freqs, 4, 8, mode="mean")
+            alpha_power = get_band_power(cwt_mag, freqs, 8, 12, mode="mean")
+            sigma_power = get_band_power(cwt_mag, freqs, 12, 15, mode="mean")
+            beta_power = get_band_power(cwt_mag, freqs, 15, 30, mode="mean")
+
+        power_ratios = tf.stack(
+            [
+                pr_spindlendet, pr_a7, pr_huupp, pr_huupp_alfa,
+                delta_power, theta_power, alpha_power, sigma_power, beta_power
+            ], axis=2)
+
+        # Optional logarithm
+        if use_log:
+            power_ratios = tf.log(power_ratios + 1e-6)
+        # Batch normalization
+        power_ratios = batchnorm_layer(power_ratios, 'bn_pr', training=training)
+
+    return power_ratios
 
 
 def upsampling_1d_linear(inputs, name, up_factor):
