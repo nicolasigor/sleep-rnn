@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'power_ratios_fixed'
+    experiment_name = 'power_ratios_fixed_drop'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -61,13 +61,13 @@ if __name__ == '__main__':
         constants.V11_PR_3C
     ]
     use_log_list = [
-        True, False
+        False
     ]
     params_list = list(itertools.product(model_version_list, use_log_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.N_SCALES] = 128
+    params[pkeys.N_SCALES] = 64
     params[pkeys.FB_LIST] = [0.9]
 
     for task_mode in task_mode_list:

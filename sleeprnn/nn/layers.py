@@ -90,7 +90,8 @@ def power_ratio_literature_fixed_layer(
 
         # Known medical frequency bands
         with tf.variable_scope("medical_bands"):
-            delta_power = get_band_power(cwt_mag, freqs, 0.5, 4, mode="mean")
+            delta_1_power = get_band_power(cwt_mag, freqs, 0.5, 2, mode="mean")
+            delta_2_power = get_band_power(cwt_mag, freqs, 2, 4, mode="mean")
             theta_power = get_band_power(cwt_mag, freqs, 4, 8, mode="mean")
             alpha_power = get_band_power(cwt_mag, freqs, 8, 12, mode="mean")
             sigma_power = get_band_power(cwt_mag, freqs, 12, 15, mode="mean")
@@ -99,7 +100,8 @@ def power_ratio_literature_fixed_layer(
         power_ratios = tf.stack(
             [
                 pr_spindlendet, pr_a7, pr_huupp, pr_huupp_alfa,
-                delta_power, theta_power, alpha_power, sigma_power, beta_power
+                delta_1_power, delta_2_power, theta_power,
+                alpha_power, sigma_power, beta_power
             ], axis=2)
 
         # Optional logarithm
@@ -107,6 +109,9 @@ def power_ratio_literature_fixed_layer(
             power_ratios = tf.log(power_ratios + 1e-6)
         # Batch normalization
         power_ratios = batchnorm_layer(power_ratios, 'bn_pr', training=training)
+        # Dropout
+        power_ratios = dropout_layer(
+            power_ratios, 'drop_pr', drop_rate=0.3, training=training)
 
     return power_ratios
 
