@@ -165,6 +165,8 @@ FC_UNITS_1 = 'fc_units_1'
 FC_UNITS_2 = 'fc_units_2'
 SHIELD_LSTM_DOWN_FACTOR = 'shield_lstm_down_factor'
 SHIELD_LSTM_TYPE_POOL = 'shield_lstm_type_pool'
+PR_RETURN_RATIOS = 'pr_return_ratios'
+PR_RETURN_BANDS = 'pr_return_bands'
 
 
 """ Loss params
@@ -353,5 +355,7 @@ default_params = {
     MIX_WEIGHTS_STRATEGY: None,
     PREDICTION_VARIABILITY_REGULARIZER: None,
     WEIGHT_DECAY_FACTOR: None,
-    PREDICTION_VARIABILITY_LAG: 1
+    PREDICTION_VARIABILITY_LAG: 1,
+    PR_RETURN_RATIOS: None,
+    PR_RETURN_BANDS: None,
 }

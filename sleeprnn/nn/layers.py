@@ -24,6 +24,8 @@ def power_ratio_literature_fixed_layer(
         training,
         border_crop=0,
         use_log=False,
+        return_power_bands=True,
+        return_power_ratios=True,
         name="pr_lit_fixed"):
     """Fixed power ratios from SS det literature."""
 
@@ -66,52 +68,55 @@ def power_ratio_literature_fixed_layer(
                 band_power = tf.reduce_max(weighted_power, axis=2)
             return band_power
 
-        # ----------------------
-        # Kulkarni (SpindleNet) power ratio
-        with tf.variable_scope("kulkarni"):
-            num_power = get_band_power(cwt_mag, freqs, 9, 16, mode="mean")
-            den_power = get_band_power(cwt_mag, freqs, 2, 8, mode="mean")
-            pr_spindlendet = num_power / (den_power + 1e-6)  # [batch, time_len]
+        outputs_to_concat = []
+        if return_power_ratios:
+            # ----------------------
+            # Kulkarni (SpindleNet) power ratio
+            with tf.variable_scope("kulkarni"):
+                num_power = get_band_power(cwt_mag, freqs, 9, 16, mode="mean")
+                den_power = get_band_power(cwt_mag, freqs, 2, 8, mode="mean")
+                pr_spindlendet = num_power / (den_power + 1e-6)  # [batch, time_len]
 
-        # Lacourse (A7) power ratio
-        with tf.variable_scope("lacourse"):
-            num_power = get_band_power(cwt_mag, freqs, 11, 16, mode="mean")
-            den_power = get_band_power(cwt_mag, freqs, 4.5, 30, mode="mean")
-            pr_a7 = num_power / (den_power + 1e-6)
+            # Lacourse (A7) power ratio
+            with tf.variable_scope("lacourse"):
+                num_power = get_band_power(cwt_mag, freqs, 11, 16, mode="mean")
+                den_power = get_band_power(cwt_mag, freqs, 4.5, 30, mode="mean")
+                pr_a7 = num_power / (den_power + 1e-6)
 
-        # Huupponen (sigma index) power ratio
-        with tf.variable_scope("huupponen"):
-            num_power = get_band_power(cwt_mag, freqs, 10.5, 16, mode="max")
-            den_power_1 = get_band_power(cwt_mag, freqs, 4, 10, mode="mean")
-            den_power_2 = get_band_power(cwt_mag, freqs, 20, 40, mode="mean")
-            alpha_power = get_band_power(cwt_mag, freqs, 7.5, 10, mode="max")
-            pr_huupp = 2.0 * num_power / (den_power_1 + den_power_2 + 1e-6)
-            pr_huupp_alfa = num_power / (alpha_power + 1e-6)
+            # Huupponen (sigma index) power ratio
+            with tf.variable_scope("huupponen"):
+                num_power = get_band_power(cwt_mag, freqs, 10.5, 16, mode="max")
+                den_power_1 = get_band_power(cwt_mag, freqs, 4, 10, mode="mean")
+                den_power_2 = get_band_power(cwt_mag, freqs, 20, 40, mode="mean")
+                alpha_power = get_band_power(cwt_mag, freqs, 7.5, 10, mode="max")
+                pr_huupp = 2.0 * num_power / (den_power_1 + den_power_2 + 1e-6)
+                pr_huupp_alfa = num_power / (alpha_power + 1e-6)
 
-        # Known medical frequency bands
-        with tf.variable_scope("medical_bands"):
-            delta_1_power = get_band_power(cwt_mag, freqs, 0.5, 2, mode="mean")
-            delta_2_power = get_band_power(cwt_mag, freqs, 2, 4, mode="mean")
-            theta_power = get_band_power(cwt_mag, freqs, 4, 8, mode="mean")
-            alpha_power = get_band_power(cwt_mag, freqs, 8, 12, mode="mean")
-            sigma_power = get_band_power(cwt_mag, freqs, 12, 15, mode="mean")
-            beta_power = get_band_power(cwt_mag, freqs, 15, 30, mode="mean")
+            outputs_to_concat.extend([
+                pr_spindlendet, pr_a7, pr_huupp, pr_huupp_alfa
+            ])
+        if return_power_bands:
+            # Known medical frequency bands
+            with tf.variable_scope("medical_bands"):
+                delta_1_power = get_band_power(cwt_mag, freqs, 0.5, 2, mode="mean")
+                delta_2_power = get_band_power(cwt_mag, freqs, 2, 4, mode="mean")
+                theta_power = get_band_power(cwt_mag, freqs, 4, 8, mode="mean")
+                alpha_power = get_band_power(cwt_mag, freqs, 8, 12, mode="mean")
+                sigma_power = get_band_power(cwt_mag, freqs, 12, 15, mode="mean")
+                beta_power = get_band_power(cwt_mag, freqs, 15, 30, mode="mean")
 
-        power_ratios = tf.stack(
-            [
-                pr_spindlendet, pr_a7, pr_huupp, pr_huupp_alfa,
+            outputs_to_concat.extend([
                 delta_1_power, delta_2_power, theta_power,
                 alpha_power, sigma_power, beta_power
-            ], axis=2)
+            ])
+
+        power_ratios = tf.stack(outputs_to_concat, axis=2)
 
         # Optional logarithm
         if use_log:
             power_ratios = tf.log(power_ratios + 1e-6)
         # Batch normalization
         power_ratios = batchnorm_layer(power_ratios, 'bn_pr', training=training)
-        # Dropout
-        power_ratios = dropout_layer(
-            power_ratios, 'drop_pr', drop_rate=0.3, training=training)
 
     return power_ratios
 

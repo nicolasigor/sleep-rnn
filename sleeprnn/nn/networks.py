@@ -8194,6 +8194,8 @@ def wavelet_blstm_net_v11_pr_1(
             params[pkeys.N_SCALES],
             training,
             border_crop=border_crop,
+            return_power_bands=params[pkeys.PR_RETURN_BANDS],
+            return_power_ratios=params[pkeys.PR_RETURN_RATIOS],
             use_log=params[pkeys.USE_LOG])
 
         start_crop = border_crop
@@ -8314,6 +8316,8 @@ def wavelet_blstm_net_v11_pr_2p(
             params[pkeys.N_SCALES],
             training,
             border_crop=border_crop,
+            return_power_bands=params[pkeys.PR_RETURN_BANDS],
+            return_power_ratios=params[pkeys.PR_RETURN_RATIOS],
             use_log=params[pkeys.USE_LOG])
         power_ratios = tf.keras.layers.AveragePooling1D(
             pool_size=params[pkeys.TOTAL_DOWNSAMPLING_FACTOR])(power_ratios)
@@ -8436,6 +8440,8 @@ def wavelet_blstm_net_v11_pr_3p(
             params[pkeys.N_SCALES],
             training,
             border_crop=border_crop,
+            return_power_bands=params[pkeys.PR_RETURN_BANDS],
+            return_power_ratios=params[pkeys.PR_RETURN_RATIOS],
             use_log=params[pkeys.USE_LOG])
         power_ratios = tf.keras.layers.AveragePooling1D(
             pool_size=params[pkeys.TOTAL_DOWNSAMPLING_FACTOR])(power_ratios)
@@ -8558,6 +8564,8 @@ def wavelet_blstm_net_v11_pr_2c(
             params[pkeys.N_SCALES],
             training,
             border_crop=border_crop,
+            return_power_bands=params[pkeys.PR_RETURN_BANDS],
+            return_power_ratios=params[pkeys.PR_RETURN_RATIOS],
             use_log=params[pkeys.USE_LOG])
         # Convolutional stage (standard feed-forward)
         power_ratios = layers.conv1d_prebn_block(
@@ -8706,6 +8714,8 @@ def wavelet_blstm_net_v11_pr_3c(
             params[pkeys.N_SCALES],
             training,
             border_crop=border_crop,
+            return_power_bands=params[pkeys.PR_RETURN_BANDS],
+            return_power_ratios=params[pkeys.PR_RETURN_RATIOS],
             use_log=params[pkeys.USE_LOG])
         # Convolutional stage (standard feed-forward)
         power_ratios = layers.conv1d_prebn_block(

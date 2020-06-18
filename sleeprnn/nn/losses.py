@@ -256,7 +256,7 @@ def weighted_cross_entropy_loss(
         class_weights,
         mix_weights_strategy
 ):
-    print('Using Weighted Cross Entropy Loss (QUADRATIC BORDERS)')
+    print('Using Weighted Cross Entropy Loss')
     print('By-segment mean loss')
     print('Class weights:', class_weights)
     print('Borders A: %1.2f HW: %1.2f' % (border_amplitude, border_half_width))
@@ -264,17 +264,26 @@ def weighted_cross_entropy_loss(
     print('Mix weights strategy:', mix_weights_strategy)
 
     with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS):
-        # Border weights
-        weight_border = get_border_weights_quad(
-            labels, border_amplitude, border_half_width)
+        if border_amplitude > 1:
+            # Border weights
+            weight_border = get_border_weights(
+                labels, border_amplitude, border_half_width)
+        else:
+            print("Not using border weights")
+            weight_border = 1.0
 
-        # Modified focal weights with class weights
-        probabilities = tf.nn.softmax(logits)
-        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
-        proba_correct_class = tf.reduce_sum(
-            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
-        focal_term = (1.0 - proba_correct_class) ** focal_gamma
-        weight_focal_raw = 1.0 + (focal_weight - 1.0) * focal_term
+        if focal_weight > 1:
+            # Modified focal weights with class weights
+            probabilities = tf.nn.softmax(logits)
+            labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+            proba_correct_class = tf.reduce_sum(
+                probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+            focal_term = (1.0 - proba_correct_class) ** focal_gamma
+            weight_focal_raw = 1.0 + (focal_weight - 1.0) * focal_term
+        else:
+            print("Not using focal weights")
+            weight_focal_raw = 1.0
+
         weight_label = get_weights(logits, labels, class_weights)
         weight_focal = weight_focal_raw * weight_label
 

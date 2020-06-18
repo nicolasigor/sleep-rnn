@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'power_ratios_fixed_drop'
+    experiment_name = 'power_ratios_ablation'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -53,22 +53,30 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_version_list = [
-        constants.V11_PR_1,
-        constants.V11_PR_2P,
-        constants.V11_PR_2C,
-        constants.V11_PR_3P,
-        constants.V11_PR_3C
+    model_bands_ratios_list = [
+        (constants.V11_PR_2C, True, True),
+        (constants.V11_PR_2C, True, False),
+        (constants.V11_PR_2C, False, True),
+        (constants.V11_PR_2P, True, True),
+        (constants.V11_PR_2P, True, False),
+        (constants.V11_PR_2P, False, True),
+        (constants.V11, False, False),
     ]
-    use_log_list = [
-        False
-    ]
-    params_list = list(itertools.product(model_version_list, use_log_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.N_SCALES] = 64
+    params[pkeys.N_SCALES] = 128
     params[pkeys.FB_LIST] = [0.9]
+    params[pkeys.USE_LOG] = False
+    params[pkeys.DROP_RATE_BEFORE_LSTM] = 0.5
+    params[pkeys.INIT_POSITIVE_PROBA] = 0.1
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS
+    params[pkeys.BORDER_WEIGHT_AMPLITUDE] = 1
+    params[pkeys.BORDER_WEIGHT_HALF_WIDTH] = 8
+    params[pkeys.MIS_WEIGHT_PARAMETER] = 2
+    params[pkeys.FOCUSING_PARAMETER] = 3
+    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
+    params[pkeys.MIX_WEIGHTS_STRATEGY] = constants.MIX_WEIGHTS_SUM
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -94,12 +102,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_log in params_list:
+                for model_version, return_bands, return_ratios in model_bands_ratios_list:
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.USE_LOG] = use_log
+                    params[pkeys.PR_RETURN_BANDS] = return_bands
+                    params[pkeys.PR_RETURN_RATIOS] = return_ratios
 
-                    folder_name = '%s_log%s' % (
-                        model_version, use_log)
+                    folder_name = '%s_bands%d_ratios%d' % (
+                        model_version, return_bands, return_ratios)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
