@@ -167,6 +167,11 @@ SHIELD_LSTM_DOWN_FACTOR = 'shield_lstm_down_factor'
 SHIELD_LSTM_TYPE_POOL = 'shield_lstm_type_pool'
 PR_RETURN_RATIOS = 'pr_return_ratios'
 PR_RETURN_BANDS = 'pr_return_bands'
+LLC_STFT_N_SAMPLES = 'llc_stft_n_samples'
+LLC_STFT_FREQ_POOL = 'llc_stft_freq_pool'
+LLC_STFT_USE_LOG = 'llc_stft_use_log'
+LLC_STFT_N_HIDDEN = 'llc_stft_n_hidden'
+LLC_STFT_DROP_RATE = 'llc_stft_drop_rate'
 
 
 """ Loss params
@@ -358,4 +363,9 @@ default_params = {
     PREDICTION_VARIABILITY_LAG: 1,
     PR_RETURN_RATIOS: None,
     PR_RETURN_BANDS: None,
+    LLC_STFT_N_SAMPLES: None,
+    LLC_STFT_FREQ_POOL: None,
+    LLC_STFT_USE_LOG: None,
+    LLC_STFT_N_HIDDEN: None,
+    LLC_STFT_DROP_RATE: None,
 }

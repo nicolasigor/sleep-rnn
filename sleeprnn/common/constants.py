@@ -188,3 +188,5 @@ V11_PR_2P = 'v11_pr_2p'
 V11_PR_2C = 'v11_pr_2c'
 V11_PR_3P = 'v11_pr_3p'
 V11_PR_3C = 'v11_pr_3c'
+V11_LLC_STFT = 'v11_llc_stft'
+
