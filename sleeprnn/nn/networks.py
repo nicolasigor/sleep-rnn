@@ -8861,48 +8861,44 @@ def wavelet_blstm_net_v11_llc_stft(
             training=training)
 
         with tf.variable_scope('stft_module'):
+            window_length = params[pkeys.LLC_STFT_N_SAMPLES]
             outputs_llc = tf.signal.stft(
-                outputs[:, :, 0],
-                params[pkeys.LLC_STFT_N_SAMPLES],
-                params[pkeys.LLC_STFT_N_SAMPLES] // 2,
-                name="stft")
-            outputs_llc = tf.abs(outputs_llc)  # complex to real
-            # TODO: remove unnecesary bins (probar con un toy problem en jupyter)
-            # TODO: remove 0hz and f>30Hz
-            # TODO: avgpool de freqs antes de quitar f>30 y despues de quitar 0Hz
-            # TODO: editar las convoluciones para aceptar un vector de contexto.
-            # TODO: cada vector de contexto se le aplica un dense sin bias ni activation,
-            # TODO: se le hace un reshape a [None, 1, feats] para broadcasting,
-            # TODO: y se suma a la salida de la conv antes del BN,
-
-            # Output shape [batch, time, freq_bins] and real
-            outputs_llc = tf.expand_dims(outputs_llc, axis=3)
-            # output shape [batch, time, freq, 1]
-            outputs_llc = tf.keras.layers.AvgPool2D(
-                pool_size=(1, params[pkeys.LLC_STFT_FREQ_POOL]))(outputs_llc)
-            # output shape [batch, time, freq, 1]
-            outputs_llc = outputs_llc[:, :, :, 0]
-            # output shape [batch, time, freq]
+                outputs[:, :, 0], frame_length=window_length,
+                frame_step=window_length // 2, name="stft")
+            norm_factor = 2 / np.sum(np.hanning(window_length))
+            outputs_llc = tf.abs(outputs_llc) * norm_factor  # complex to real
+            frequency_axis = np.linspace(
+                0, params[pkeys.FS] // 2, window_length // 2 + 1)
+            # Drop O Hz
+            outputs_llc = outputs_llc[..., 1:]
+            frequency_axis = frequency_axis[1:]
+            # Now we have a spectrogram of shape
+            # [batch, times, freq=window_length//2] which is a power of 2
+            # Now we could pool frequencies nicely
+            pool_size = params[pkeys.LLC_STFT_FREQ_POOL]
+            if pool_size is not None:
+                outputs_llc = outputs_llc[..., tf.newaxis]
+                outputs_llc = tf.keras.layers.AvgPool2D(pool_size=(1, pool_size))(outputs_llc)
+                outputs_llc = outputs_llc[..., 0]
+                frequency_axis = frequency_axis.reshape((-1, pool_size)).mean(axis=1).flatten()
+            # Now we remove frequencies above 35Hz (our preprocessing range)
+            remove_idx = np.where(frequency_axis > 35)[0][0]
+            outputs_llc = outputs_llc[..., :remove_idx]
             if params[pkeys.LLC_STFT_USE_LOG]:
                 outputs_llc = tf.log(outputs_llc + 1e-6)
-            outputs_llc = layers.batchnorm_layer(
-                outputs_llc, 'bn_stft',
-                batchnorm=params[pkeys.TYPE_BATCHNORM],
-                training=training)
+            outputs_llc = tf.layers.batch_normalization(
+                inputs=outputs_llc, training=training, name='bn_stft')
             outputs_llc = tf.keras.layers.GlobalAvgPool1D()(outputs_llc)
             # output shape [batch, freq]
             # Now the dense layer
             n_hid = params[pkeys.LLC_STFT_N_HIDDEN]
             if n_hid > 0:
                 outputs_llc = tf.keras.layers.Dense(n_hid)(outputs_llc)
-                outputs_llc = layers.batchnorm_layer(
-                    outputs_llc, 'bn_stft_hid',
-                    batchnorm=params[pkeys.TYPE_BATCHNORM],
-                    training=training)
+                outputs_llc = tf.layers.batch_normalization(
+                    inputs=outputs_llc, training=training, name='bn_stft_hid')
                 outputs_llc = tf.nn.relu(outputs_llc)
                 outputs_llc = tf.layers.dropout(
-                    outputs_llc, training=training,
-                    rate=params[pkeys.LLC_STFT_DROP_RATE])
+                    outputs_llc, training=training, rate=params[pkeys.LLC_STFT_DROP_RATE])
             # Now we are ready to produce linear projections of this vector
 
         # -----------------------------------------------------------
@@ -8916,8 +8912,9 @@ def wavelet_blstm_net_v11_llc_stft(
         # 1D convolutions expect shape [batch, time_len, n_feats]
 
         # Convolutional stage (standard feed-forward)
-        outputs = layers.conv1d_prebn_block(
+        outputs = layers.conv1d_prebn_block_with_context(
             outputs,
+            outputs_llc,
             params[pkeys.TIME_CONV_FILTERS_1],
             training,
             kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
@@ -8926,8 +8923,9 @@ def wavelet_blstm_net_v11_llc_stft(
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1d_1')
 
-        outputs = layers.conv1d_prebn_block(
+        outputs = layers.conv1d_prebn_block_with_context(
             outputs,
+            outputs_llc,
             params[pkeys.TIME_CONV_FILTERS_2],
             training,
             batchnorm=params[pkeys.TYPE_BATCHNORM],
@@ -8935,8 +8933,9 @@ def wavelet_blstm_net_v11_llc_stft(
             kernel_init=tf.initializers.he_normal(),
             name='convblock_1d_2')
 
-        outputs = layers.conv1d_prebn_block(
+        outputs = layers.conv1d_prebn_block_with_context(
             outputs,
+            outputs_llc,
             params[pkeys.TIME_CONV_FILTERS_3],
             training,
             batchnorm=params[pkeys.TYPE_BATCHNORM],

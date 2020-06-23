@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
     experiment_name = 'llc_stft'
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    n_samples_list = [256, 512]
-    freq_pool_list = [2, 4]
+    n_samples_list = [256]  # Se puede afinar despues
+    freq_pool_list = [None]  # Se puede afinar despues
     use_log_list = [True, False]
-    n_hidden_list = [0, 128]
+    n_hidden_list = [512, 256, 128, 64, 0]
 
     params_list = list(itertools.product(
         n_samples_list, freq_pool_list, use_log_list, n_hidden_list))
@@ -64,7 +64,8 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.MODEL_VERSION] = constants.V11_LLC_STFT
-    params[pkeys.LLC_STFT_DROP_RATE] = 0.15
+    params[pkeys.LLC_STFT_DROP_RATE] = 0.1
+    params[pkeys.BORDER_DURATION] = 40
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -96,7 +97,7 @@ if __name__ == '__main__':
                     params[pkeys.LLC_STFT_USE_LOG] = use_log
                     params[pkeys.LLC_STFT_N_HIDDEN] = n_hidden
 
-                    folder_name = 'samples%d_pool%d_log%d_hid%d' % (
+                    folder_name = 'samples%d_pool%s_log%d_hid%d' % (
                         n_samples, freq_pool, use_log, n_hidden)
 
                     base_dir = os.path.join(
@@ -110,55 +111,55 @@ if __name__ == '__main__':
 
                     # Create and train model
                     model = WaveletBLSTM(params=params, logdir=logdir)
-                    # model.fit(data_train, data_val, verbose=verbose)
-                    #
-                    # # --------------  Predict
-                    # # Save path for predictions
-                    # save_dir = os.path.abspath(os.path.join(
-                    #     RESULTS_PATH, 'predictions_%s' % dataset_name,
-                    #     base_dir))
-                    # checks.ensure_directory(save_dir)
-                    #
-                    # feeders_dict = {
-                    #     constants.TRAIN_SUBSET: data_train,
-                    #     constants.TEST_SUBSET: data_test,
-                    #     constants.VAL_SUBSET: data_val
-                    # }
-                    # for set_name in feeders_dict.keys():
-                    #     print('Predicting %s' % set_name, flush=True)
-                    #     data_inference = feeders_dict[set_name]
-                    #     prediction = model.predict_dataset(
-                    #         data_inference, verbose=verbose)
-                    #     filename = os.path.join(
-                    #         save_dir,
-                    #         'prediction_%s_%s.pkl' % (task_mode, set_name))
-                    #     with open(filename, 'wb') as handle:
-                    #         pickle.dump(
-                    #             prediction,
-                    #             handle,
-                    #             protocol=pickle.HIGHEST_PROTOCOL)
-                    #
-                    #     if set_name == constants.VAL_SUBSET:
-                    #         # Validation AF1
-                    #         # ----- Obtain AF1 metric
-                    #         print('Computing Validation AF1...', flush=True)
-                    #         detections_val = prediction.get_stamps()
-                    #         events_val = data_val.get_stamps()
-                    #         val_af1_at_half_thr = metrics.average_metric_with_list(
-                    #             events_val, detections_val, verbose=False)
-                    #         print('Validation AF1 with thr 0.5: %1.6f'
-                    #               % val_af1_at_half_thr)
-                    #
-                    #         metric_dict = {
-                    #             'description': description_str,
-                    #             'val_seed': id_try,
-                    #             'database': dataset_name,
-                    #             'task_mode': task_mode,
-                    #             'val_af1': float(val_af1_at_half_thr)
-                    #         }
-                    #         with open(os.path.join(model.logdir, 'metric.json'),
-                    #                   'w') as outfile:
-                    #             json.dump(metric_dict, outfile)
-                    #
-                    # print('Predictions saved at %s' % save_dir)
-                    # print('')
+                    model.fit(data_train, data_val, verbose=verbose)
+
+                    # --------------  Predict
+                    # Save path for predictions
+                    save_dir = os.path.abspath(os.path.join(
+                        RESULTS_PATH, 'predictions_%s' % dataset_name,
+                        base_dir))
+                    checks.ensure_directory(save_dir)
+
+                    feeders_dict = {
+                        constants.TRAIN_SUBSET: data_train,
+                        constants.TEST_SUBSET: data_test,
+                        constants.VAL_SUBSET: data_val
+                    }
+                    for set_name in feeders_dict.keys():
+                        print('Predicting %s' % set_name, flush=True)
+                        data_inference = feeders_dict[set_name]
+                        prediction = model.predict_dataset(
+                            data_inference, verbose=verbose)
+                        filename = os.path.join(
+                            save_dir,
+                            'prediction_%s_%s.pkl' % (task_mode, set_name))
+                        with open(filename, 'wb') as handle:
+                            pickle.dump(
+                                prediction,
+                                handle,
+                                protocol=pickle.HIGHEST_PROTOCOL)
+
+                        if set_name == constants.VAL_SUBSET:
+                            # Validation AF1
+                            # ----- Obtain AF1 metric
+                            print('Computing Validation AF1...', flush=True)
+                            detections_val = prediction.get_stamps()
+                            events_val = data_val.get_stamps()
+                            val_af1_at_half_thr = metrics.average_metric_with_list(
+                                events_val, detections_val, verbose=False)
+                            print('Validation AF1 with thr 0.5: %1.6f'
+                                  % val_af1_at_half_thr)
+
+                            metric_dict = {
+                                'description': description_str,
+                                'val_seed': id_try,
+                                'database': dataset_name,
+                                'task_mode': task_mode,
+                                'val_af1': float(val_af1_at_half_thr)
+                            }
+                            with open(os.path.join(model.logdir, 'metric.json'),
+                                      'w') as outfile:
+                                json.dump(metric_dict, outfile)
+
+                    print('Predictions saved at %s' % save_dir)
+                    print('')
