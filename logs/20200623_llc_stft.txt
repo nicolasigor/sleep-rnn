@@ -1,0 +1,9 @@
+FIRST we test v11 for sanity check with default params (pi=0.5, xentropy loss)
+
+Val AF1 report for 20200623_testing_v11_n2_train_mass_ss
+AF1 66.73/2.16 [0.5] 67.53/2.72 [0.36, 0.50, 0.50, 0.48], F3 80.00/1.98, P3 80.4/10.0, R3 81.9/10.3 for v11
+
+os.path.join('20200623_testing_v11_n2_train_mass_ss', 'v11'): [0.36, 0.50, 0.50, 0.48],
+
+EVERYTHING SEEMS TO BE IN ORDER
+
