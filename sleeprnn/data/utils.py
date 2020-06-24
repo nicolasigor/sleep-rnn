@@ -385,13 +385,22 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
 
     max_sample = (pages_indices.max() + 1) * page_size + border_size + 1
     extended_sequence = np.zeros(max_sample).astype(sequence.dtype)
-    extended_sequence[:sequence.size] = sequence
+    if extended_sequence.size > sequence.size:
+        extended_sequence[:sequence.size] = sequence
+    else:
+        extended_sequence = sequence
 
     pages_list = []
     for page in pages_indices:
         sample_start = page * page_size - border_size
         sample_end = (page + 1) * page_size + border_size
-        page_signal = extended_sequence[sample_start:sample_end]
+        if sample_start < 0:
+            missing_samples = np.abs(sample_start)
+            page_signal = extended_sequence[:sample_end]
+            missing_part = np.zeros(missing_samples).astype(page_signal.dtype)
+            page_signal = np.concatenate([missing_part, page_signal])
+        else:
+            page_signal = extended_sequence[sample_start:sample_end]
         pages_list.append(page_signal)
     pages_data = np.stack(pages_list, axis=0)
     return pages_data
