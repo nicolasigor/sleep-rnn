@@ -366,7 +366,8 @@ def power_spectrum(signal, fs):
 
 
 def extract_pages(sequence, pages_indices, page_size, border_size=0):
-    """Extracts and returns the given set of pages from the sequence.
+    """Extracts and returns the given set of pages from the sequence
+    with zero padding if border is beyond the end of the sequence.
 
     Args:
         sequence: (1-D Array) sequence from where to extract data.
@@ -379,11 +380,18 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
         pages_data: (2-D Array) array of shape [n_pages,page_size+2*border_size]
             that contains the extracted data.
     """
+    sequence = np.asarray(sequence)
+    pages_indices = np.asarray(pages_indices)
+
+    max_sample = (pages_indices.max() + 1) * page_size + border_size + 1
+    extended_sequence = np.zeros(max_sample).astype(sequence.dtype)
+    extended_sequence[:sequence.size] = sequence
+
     pages_list = []
     for page in pages_indices:
         sample_start = page * page_size - border_size
         sample_end = (page + 1) * page_size + border_size
-        page_signal = sequence[sample_start:sample_end]
+        page_signal = extended_sequence[sample_start:sample_end]
         pages_list.append(page_signal)
     pages_data = np.stack(pages_list, axis=0)
     return pages_data
