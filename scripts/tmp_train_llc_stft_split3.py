@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [3]
 
     # ----- Experiment settings
     experiment_name = 'llc_stft'
