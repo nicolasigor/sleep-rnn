@@ -193,6 +193,8 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_W-R'): [0.44, 0.40, 0.50, 0.40],
     os.path.join('20200611_extra_train_n2_train_mass_ss', 'v11_stages_1-W'): [0.38, 0.42, 0.52, 0.38],
 
+    os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log1_hid128'): [0.42, 0.54, 0.56, 0.48],
+
 }
 
 
