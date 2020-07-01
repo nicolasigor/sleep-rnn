@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.V11_LLC_STFT_1
+        constants.V11_LLC_STFT_3
     ]
     use_log_list = [True, False]
 

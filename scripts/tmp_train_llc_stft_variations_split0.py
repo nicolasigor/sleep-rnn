@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0, 2]
 
     # ----- Experiment settings
     experiment_name = 'llc_stft_variations'
@@ -49,13 +49,12 @@ if __name__ == '__main__':
     verbose = True
 
     # Complement experiment folder name with date
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    # this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = "20200630"
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
     model_version_list = [
-        constants.V11_LLC_STFT_1,
-        constants.V11_LLC_STFT_2,
         constants.V11_LLC_STFT_3
     ]
     use_log_list = [True, False]
