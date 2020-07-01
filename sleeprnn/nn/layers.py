@@ -2151,11 +2151,13 @@ def tcn_block(
             outputs = tf.nn.relu(outputs)
             outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop_1")
 
-        # Now we do conv - bn-relu-drop - conv
+        # Bottleneck design
         conv_use_bias = (batchnorm is None)
+        down_factor = 4
+
         outputs = tf.layers.conv2d(
-            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
-            padding=constants.PAD_SAME, dilation_rate=dilation,
+            inputs=outputs, filters=filters//down_factor, kernel_size=1,
+            padding=constants.PAD_SAME,
             name='conv_1', reuse=reuse,
             use_bias=conv_use_bias, kernel_initializer=kernel_init)
 
@@ -2167,9 +2169,22 @@ def tcn_block(
         outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop_2")
 
         outputs = tf.layers.conv2d(
-            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+            inputs=outputs, filters=filters//down_factor, kernel_size=(kernel_size, 1),
             padding=constants.PAD_SAME, dilation_rate=dilation,
             name='conv_2', reuse=reuse,
+            use_bias=conv_use_bias, kernel_initializer=kernel_init)
+
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_3', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+        outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop_3")
+
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=1,
+            padding=constants.PAD_SAME,
+            name='conv_3', reuse=reuse,
             use_bias=conv_use_bias, kernel_initializer=kernel_init)
 
         outputs = outputs + shortcut
