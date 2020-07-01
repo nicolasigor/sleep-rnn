@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1, 3]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'llc_stft_variations'
+    experiment_name = 'llc_stft_cwt'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -45,17 +45,18 @@ if __name__ == '__main__':
     ]
     which_expert = 1
 
-    description_str = 'v11 with LLC-STFT module variations'
+    description_str = 'v19 with LLC-STFT module variations'
     verbose = True
 
     # Complement experiment folder name with date
-    # this_date = datetime.datetime.now().strftime("%Y%m%d")
-    this_date = "20200630"
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
     model_version_list = [
-        constants.V11_LLC_STFT_2
+        constants.V19_LLC_STFT_2,
+        constants.V19_LLC_STFT_3,
+        constants.V19
     ]
     use_log_list = [True, False]
 
@@ -64,7 +65,6 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.BORDER_DURATION] = 40
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -93,6 +93,11 @@ if __name__ == '__main__':
                 for model_version, use_log in params_list:
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.LLC_STFT_USE_LOG] = use_log
+
+                    if model_version == constants.V19:
+                        params[pkeys.BORDER_DURATION] = 5
+                    else:
+                        params[pkeys.BORDER_DURATION] = 40
 
                     folder_name = '%s_log%d' % (model_version, use_log)
 

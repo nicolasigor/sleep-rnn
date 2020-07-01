@@ -9403,3 +9403,280 @@ def wavelet_blstm_net_v11_llc_stft_3(
             tf.summary.histogram('probabilities', probabilities)
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v19_llc_stft_2(
+        inputs,
+        params,
+        training,
+        name='model_v19_llc_stft_2'
+):
+    print('Using model V19_llc_stft_2 (general cwt)')
+    with tf.variable_scope(name):
+
+        with tf.variable_scope('stft_module'):
+            window_length = params[pkeys.LLC_STFT_N_SAMPLES]
+            use_log = params[pkeys.LLC_STFT_USE_LOG]
+            n_hidden = params[pkeys.LLC_STFT_N_HIDDEN]
+            drop_rate = params[pkeys.LLC_STFT_DROP_RATE]
+
+            outputs_llc = tf.signal.stft(
+                inputs, frame_length=window_length,
+                frame_step=window_length // 2, name="stft")
+            norm_factor = 2 / np.sum(np.hanning(window_length))
+            outputs_llc = tf.abs(outputs_llc) * norm_factor  # complex to real
+            # Drop frequencies outside [0.5, 30] Hz
+            frequency_axis = np.linspace(
+                0, params[pkeys.FS] // 2, window_length // 2 + 1)
+            lower_idx = np.where(frequency_axis < 0.5)[0][-1]
+            upper_idx = np.where(frequency_axis > 30)[0][0]
+            outputs_llc = outputs_llc[..., (lower_idx + 1):upper_idx]
+            # Optional logarithm
+            outputs_llc = tf.log(outputs_llc + 1e-6) if use_log else outputs_llc
+            # BN and global avg pooling -> [batch, freq]
+            outputs_llc = tf.layers.batch_normalization(
+                inputs=outputs_llc, training=training, name='bn_stft')
+            outputs_llc = tf.keras.layers.GlobalAvgPool1D()(outputs_llc)
+            # First dense layer
+            outputs_llc = tf.layers.dropout(
+                outputs_llc, training=training, rate=drop_rate)
+            outputs_llc = tf.keras.layers.Dense(n_hidden)(outputs_llc)
+            outputs_llc = tf.nn.relu(outputs_llc)
+            # Second dense layer
+            outputs_llc = tf.layers.dropout(
+                outputs_llc, training=training, rate=drop_rate)
+            outputs_llc = tf.keras.layers.Dense(n_hidden)(outputs_llc)
+            outputs_llc = tf.nn.relu(outputs_llc)
+            # Now we are ready to produce linear projections of this vector
+
+        # CWT stage
+        # Crop 5 seconds less of borders
+        border_total = params[pkeys.BORDER_DURATION]
+        border_pre_cwt = border_total - 5
+        border_crop_pre_cwt = int(border_pre_cwt * params[pkeys.FS])
+        start_crop = border_crop_pre_cwt
+        end_crop = (-border_crop_pre_cwt) if (border_crop_pre_cwt > 0) else None
+        inputs = inputs[:, start_crop:end_crop]
+        border_crop = int(5 * params[pkeys.FS])
+
+        outputs, cwt_prebn = layers.cmorlet_layer_general(
+            inputs,
+            params[pkeys.FB_LIST],
+            params[pkeys.FS],
+            return_real_part=params[pkeys.CWT_RETURN_REAL_PART],
+            return_imag_part=params[pkeys.CWT_RETURN_IMAG_PART],
+            return_magnitude=params[pkeys.CWT_RETURN_MAGNITUDE],
+            return_phase=params[pkeys.CWT_RETURN_PHASE],
+            lower_freq=params[pkeys.LOWER_FREQ],
+            upper_freq=params[pkeys.UPPER_FREQ],
+            n_scales=params[pkeys.N_SCALES],
+            stride=2,
+            size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
+            border_crop=border_crop,
+            training=training,
+            trainable_wavelet=params[pkeys.TRAINABLE_WAVELET],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            name='spectrum')
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_1],
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1')
+
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_2],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2')
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer_with_context(
+                outputs,
+                outputs_llc,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+
+        return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v19_llc_stft_3(
+        inputs,
+        params,
+        training,
+        name='model_v19_llc_stft_3'
+):
+    print('Using model V19_llc_stft_3 (general cwt)')
+    with tf.variable_scope(name):
+        with tf.variable_scope('stft_module'):
+            window_length = params[pkeys.LLC_STFT_N_SAMPLES]
+            use_log = params[pkeys.LLC_STFT_USE_LOG]
+            n_hidden = params[pkeys.LLC_STFT_N_HIDDEN]
+            drop_rate = params[pkeys.LLC_STFT_DROP_RATE]
+
+            outputs_llc = tf.signal.stft(
+                inputs, frame_length=window_length,
+                frame_step=window_length // 2, name="stft")
+            norm_factor = 2 / np.sum(np.hanning(window_length))
+            outputs_llc = tf.abs(outputs_llc) * norm_factor  # complex to real
+            # Drop frequencies outside [0.5, 30] Hz
+            frequency_axis = np.linspace(
+                0, params[pkeys.FS] // 2, window_length // 2 + 1)
+            lower_idx = np.where(frequency_axis < 0.5)[0][-1]
+            upper_idx = np.where(frequency_axis > 30)[0][0]
+            outputs_llc = outputs_llc[..., (lower_idx + 1):upper_idx]
+            # Optional logarithm
+            outputs_llc = tf.log(outputs_llc + 1e-6) if use_log else outputs_llc
+            # BN and global avg pooling -> [batch, freq]
+            outputs_llc = tf.layers.batch_normalization(
+                inputs=outputs_llc, training=training, name='bn_stft')
+            outputs_llc = tf.keras.layers.GlobalAvgPool1D()(outputs_llc)
+            # First dense layer
+            outputs_llc = tf.layers.dropout(
+                outputs_llc, training=training, rate=drop_rate)
+            outputs_llc = tf.keras.layers.Dense(n_hidden)(outputs_llc)
+            outputs_llc = tf.nn.relu(outputs_llc)
+            # Second dense layer
+            outputs_llc = tf.layers.dropout(
+                outputs_llc, training=training, rate=drop_rate)
+            outputs_llc = tf.keras.layers.Dense(n_hidden)(outputs_llc)
+            outputs_llc = tf.nn.relu(outputs_llc)
+            # Now we are ready to produce linear projections of this vector
+
+        # CWT stage
+        # Crop 5 seconds less of borders
+        border_total = params[pkeys.BORDER_DURATION]
+        border_pre_cwt = border_total - 5
+        border_crop_pre_cwt = int(border_pre_cwt * params[pkeys.FS])
+        start_crop = border_crop_pre_cwt
+        end_crop = (-border_crop_pre_cwt) if (border_crop_pre_cwt > 0) else None
+        inputs = inputs[:, start_crop:end_crop]
+        border_crop = int(5 * params[pkeys.FS])
+
+        outputs, cwt_prebn = layers.cmorlet_layer_general(
+            inputs,
+            params[pkeys.FB_LIST],
+            params[pkeys.FS],
+            return_real_part=params[pkeys.CWT_RETURN_REAL_PART],
+            return_imag_part=params[pkeys.CWT_RETURN_IMAG_PART],
+            return_magnitude=params[pkeys.CWT_RETURN_MAGNITUDE],
+            return_phase=params[pkeys.CWT_RETURN_PHASE],
+            lower_freq=params[pkeys.LOWER_FREQ],
+            upper_freq=params[pkeys.UPPER_FREQ],
+            n_scales=params[pkeys.N_SCALES],
+            stride=2,
+            size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
+            border_crop=border_crop,
+            training=training,
+            trainable_wavelet=params[pkeys.TRAINABLE_WAVELET],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            name='spectrum')
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_1],
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1')
+
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_2],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2')
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer_with_context(
+            outputs,
+            outputs_llc,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+
+        return logits, probabilities, cwt_prebn

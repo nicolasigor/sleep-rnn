@@ -192,3 +192,5 @@ V11_LLC_STFT = 'v11_llc_stft'  # All conv blocks
 V11_LLC_STFT_1 = 'v11_llc_stft_1'  # 3rd conv block
 V11_LLC_STFT_2 = 'v11_llc_stft_2'  # 1st fc
 V11_LLC_STFT_3 = 'v11_llc_stft_3'  # logits
+V19_LLC_STFT_2 = 'v19_llc_stft_2'  # 1st fc
+V19_LLC_STFT_3 = 'v19_llc_stft_3'  # logits
