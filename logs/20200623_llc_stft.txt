@@ -29,3 +29,24 @@ os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log0_hid
 os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log0_hid128'): [0.46, 0.50, 0.48, 0.48],
 os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log0_hid0'): [0.42, 0.52, 0.52, 0.46],
 os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log0_hid512'): [0.48, 0.56, 0.60, 0.48],
+
+
+STFT VARIATIONS, se fijo n_samples 256, drop 0.1, n_hidden (128, 128), se quito BN, el rango de freqs es (0,30)Hz
+
+Val AF1 report for 20200630_llc_stft_variations_n2_train_mass_ss
+AF1 67.49/3.05 [0.5] 67.74/3.37 [0.42, 0.52, 0.44, 0.48], F3 79.97/2.85, P3 78.4/11.3, R3 84.0/ 8.5 for v11_llc_stft_1_log1
+AF1 66.38/2.77 [0.5] 67.62/3.21 [0.44, 0.56, 0.52, 0.42], F3 79.98/3.07, P3 79.7/11.4, R3 82.6/ 8.8 for v11_llc_stft_1_log0
+AF1 66.08/1.37 [0.5] 67.57/2.33 [0.36, 0.48, 0.46, 0.38], F3 80.13/1.54, P3 79.9/10.2, R3 82.8/10.1 for v11_llc_stft_3_log0
+AF1 66.71/2.18 [0.5] 67.46/2.43 [0.38, 0.54, 0.48, 0.50], F3 79.82/1.74, P3 79.9/11.3, R3 82.6/10.9 for v11_llc_stft_2_log0
+AF1 66.17/2.21 [0.5] 67.44/2.77 [0.40, 0.56, 0.52, 0.42], F3 80.18/2.21, P3 79.2/ 9.8, R3 83.2/ 9.3 for v11_llc_stft_3_log1
+AF1 66.79/2.27 [0.5] 67.34/2.28 [0.44, 0.56, 0.48, 0.52], F3 79.84/1.87, P3 79.9/10.8, R3 82.4/10.7 for v11_llc_stft_2_log1
+
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_1_log1'): [0.42, 0.52, 0.44, 0.48],
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_1_log0'): [0.44, 0.56, 0.52, 0.42],
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_3_log0'): [0.36, 0.48, 0.46, 0.38],
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_2_log0'): [0.38, 0.54, 0.48, 0.50],
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_3_log1'): [0.40, 0.56, 0.52, 0.42],
+os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_2_log1'): [0.44, 0.56, 0.48, 0.52],
+
+
+
