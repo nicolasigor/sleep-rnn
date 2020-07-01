@@ -172,6 +172,10 @@ LLC_STFT_FREQ_POOL = 'llc_stft_freq_pool'
 LLC_STFT_USE_LOG = 'llc_stft_use_log'
 LLC_STFT_N_HIDDEN = 'llc_stft_n_hidden'
 LLC_STFT_DROP_RATE = 'llc_stft_drop_rate'
+TCN_FILTERS = "tcn_filters"
+TCN_KERNEL_SIZE = "tcn_kernel_size"
+TCN_DROP_RATE = "tcn_drop_rate"
+TCN_N_BLOCKS = "tcn_n_blocks"
 
 
 """ Loss params
@@ -368,4 +372,8 @@ default_params = {
     LLC_STFT_USE_LOG: None,
     LLC_STFT_N_HIDDEN: 128,
     LLC_STFT_DROP_RATE: 0.1,
+    TCN_FILTERS: 256,
+    TCN_KERNEL_SIZE: 3,
+    TCN_DROP_RATE: 0.1,
+    TCN_N_BLOCKS: None
 }

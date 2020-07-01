@@ -2112,3 +2112,82 @@ def naive_multihead_attention_layer(queries, keys, values, n_heads, name=None):
 def multihead_attention_layer(queries, keys, values, n_heads, name=None):
     # TODO: implement multi-head concatenating heads along the batch size
     pass
+
+
+def tcn_block(
+        inputs,
+        filters,
+        kernel_size,
+        dilation,
+        drop_rate,
+        training,
+        is_first_unit=False,
+        batchnorm=constants.BN,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    with tf.variable_scope(name):
+
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        shortcut = inputs
+        # Projection if necessary
+        input_filters = shortcut.get_shape().as_list()[-1]
+        if input_filters != filters:
+            shortcut = tf.layers.conv2d(
+                inputs=shortcut, filters=filters, kernel_size=1,
+                padding=constants.PAD_SAME, use_bias=False,
+                kernel_initializer=kernel_init, name='projection', reuse=reuse)
+
+        outputs = inputs
+
+        if not is_first_unit:
+            if batchnorm:
+                outputs = batchnorm_layer(
+                    outputs, 'bn_1', batchnorm=batchnorm,
+                    reuse=reuse, training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+            outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop_1")
+
+        # Now we do conv - bn-relu-drop - conv
+        conv_use_bias = (batchnorm is None)
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+            padding=constants.PAD_SAME, dilation_rate=dilation,
+            name='conv_1', reuse=reuse,
+            use_bias=conv_use_bias, kernel_initializer=kernel_init)
+
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_2', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+        outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop_2")
+
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+            padding=constants.PAD_SAME, dilation_rate=dilation,
+            name='conv_2', reuse=reuse,
+            use_bias=conv_use_bias, kernel_initializer=kernel_init)
+
+        outputs = outputs + shortcut
+
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+    return outputs
+
+
+def spatial_dropout_2d(inputs, drop_rate, training, name):
+    # Input shape [batch, h, w, channels]
+    with tf.variable_scope(name):
+        # Dropout Spatial (drop entire feature map)
+        in_shape = tf.shape(inputs)
+        noise_shape = [in_shape[0], 1, 1, in_shape[3]]
+        outputs = tf.layers.dropout(
+            inputs, training=training, rate=drop_rate,
+            noise_shape=noise_shape)
+    return outputs
+
