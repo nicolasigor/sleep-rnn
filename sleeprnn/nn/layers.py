@@ -2132,6 +2132,9 @@ def tcn_block(
         # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
         inputs = tf.expand_dims(inputs, axis=2)
 
+        if is_first_unit:
+            inputs = spatial_dropout_2d(inputs, drop_rate, training, "drop_1")
+
         shortcut = inputs
         # Projection if necessary
         input_filters = shortcut.get_shape().as_list()[-1]

@@ -68,10 +68,10 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.BATCH_SIZE] = 32
-    params[pkeys.TIME_CONV_FILTERS_1] = 64
-    params[pkeys.TIME_CONV_FILTERS_2] = 128
-    params[pkeys.TIME_CONV_FILTERS_3] = 256
-    params[pkeys.TCN_FILTERS] = 256
+    params[pkeys.TIME_CONV_FILTERS_1] = 32
+    params[pkeys.TIME_CONV_FILTERS_2] = 64
+    params[pkeys.TIME_CONV_FILTERS_3] = 128
+    params[pkeys.TCN_FILTERS] = 128
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
