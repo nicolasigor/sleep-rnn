@@ -1,0 +1,5 @@
+Val AF1 report for 20200701_tcn_basic_n2_train_mass_ss
+AF1 64.49/1.12 [0.5] 65.84/2.80 [0.34, 0.46, 0.38, 0.34], F3 79.44/1.98, P3 78.7/10.1, R3 82.5/10.5 for tcn01_blocks6_border6
+
+os.path.join('20200701_tcn_basic_n2_train_mass_ss', 'tcn01_blocks6_border6'): [0.34, 0.46, 0.38, 0.34],
+

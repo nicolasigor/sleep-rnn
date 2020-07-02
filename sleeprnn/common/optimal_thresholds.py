@@ -195,6 +195,8 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log1_hid128'): [0.42, 0.54, 0.56, 0.48],
 
+    os.path.join('20200701_tcn_basic_n2_train_mass_ss', 'tcn01_blocks6_border6'): [0.34, 0.46, 0.38, 0.34],
+
 }
 
 
