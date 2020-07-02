@@ -4,6 +4,8 @@
 MASS_SS_NAME = 'mass_ss'
 INTA_SS_NAME = 'inta_ss'
 MASS_KC_NAME = 'mass_kc'
+MASS_SS_INV_NAME = 'mass_ss_inv'
+MASS_KC_INV_NAME = 'mass_kc_inv'
 
 # Database split
 TRAIN_SUBSET = 'train'
