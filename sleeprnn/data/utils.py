@@ -133,7 +133,7 @@ def pages2seq(pages_data, pages_indices):
     return global_sequence
 
 
-def broad_filter(signal, fs, lowcut=0.3, highcut=35):
+def broad_filter(signal, fs, lowcut=0.1, highcut=35):
     """Returns filtered signal sampled at fs Hz, with a [lowcut, highcut] Hz
     bandpass."""
     # Generate butter bandpass of order 3.

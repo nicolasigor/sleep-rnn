@@ -49,4 +49,23 @@ os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_3_lo
 os.path.join('20200630_llc_stft_variations_n2_train_mass_ss', 'v11_llc_stft_2_log1'): [0.44, 0.56, 0.48, 0.52],
 
 
+STFT VARIATIONS ON RED-CWT
+
+Val AF1 report for 20200701_llc_stft_cwt_n2_train_mass_ss
+AF1 67.42/1.98 [0.5] 67.88/2.38 [0.44, 0.52, 0.48, 0.46], F3 80.42/1.43, P3 80.1/ 9.6, R3 82.8/ 9.4 for v19_log0
+AF1 66.72/2.31 [0.5] 67.59/2.91 [0.36, 0.50, 0.46, 0.44], F3 80.27/1.98, P3 79.3/10.1, R3 83.4/ 9.3 for v19_log1
+AF1 66.66/2.11 [0.5] 67.37/2.31 [0.42, 0.52, 0.52, 0.46], F3 79.80/1.61, P3 79.5/10.6, R3 82.7/10.4 for v19_llc_stft_2_log1
+AF1 66.81/2.02 [0.5] 67.27/2.34 [0.42, 0.50, 0.52, 0.48], F3 79.92/1.67, P3 80.4/ 9.5, R3 81.6/10.2 for v19_llc_stft_3_log1
+AF1 66.86/2.50 [0.5] 67.25/2.64 [0.50, 0.50, 0.54, 0.42], F3 79.78/2.05, P3 79.3/10.7, R3 82.7/10.0 for v19_llc_stft_2_log0
+AF1 65.88/1.29 [0.5] 67.05/2.21 [0.40, 0.48, 0.52, 0.42], F3 79.76/1.59, P3 80.4/10.8, R3 81.8/11.1 for v19_llc_stft_3_log0
+
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_log0'): [0.44, 0.52, 0.48, 0.46],
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_log1'): [0.36, 0.50, 0.46, 0.44],
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_llc_stft_2_log1'): [0.42, 0.52, 0.52, 0.46],
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_llc_stft_3_log1'): [0.42, 0.50, 0.52, 0.48],
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_llc_stft_2_log0'): [0.50, 0.50, 0.54, 0.42],
+os.path.join('20200701_llc_stft_cwt_n2_train_mass_ss', 'v19_llc_stft_3_log0'): [0.40, 0.48, 0.52, 0.42],
+
+
+
 
