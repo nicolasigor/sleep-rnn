@@ -834,14 +834,13 @@ class WaveletBLSTM(BaseModel):
         return eval_metrics_dict, eval_metrics_summ
 
     def _split_train(self, x_train, y_train):
-        # TODO: Hay un error aca, las divisiones quedan con una dimension extra
         n_train = x_train.shape[0]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
         # Remove to recover single page from augmented page
         remove_size = border_size + page_size // 2
         activity = y_train[:, remove_size:-remove_size]
-        activity = np.sum(activity, axis=1)
+        activity = np.sum(activity, axis=(1, 2))
 
         # Find pages with activity
         exists_activity_idx = np.where(activity > 0)[0]
