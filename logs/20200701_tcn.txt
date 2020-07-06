@@ -5,7 +5,7 @@ AF1 64.49/1.12 [0.5] 65.84/2.80 [0.34, 0.46, 0.38, 0.34], F3 79.44/1.98, P3 78.7
 
 os.path.join('20200701_tcn_basic_n2_train_mass_ss', 'tcn01_blocks6_border6'): [0.34, 0.46, 0.38, 0.34],
 
-Corrida arreglada:
+Corrida arreglada con bottleneck:
 
 Val AF1 report for 20200702_tcn_fix_n2_train_mass_ss
 AF1 64.66/1.14 [0.5] 66.42/2.70 [0.36, 0.40, 0.44, 0.38], F3 79.82/1.80, P3 80.3/ 9.5, R3 81.4/10.2 for tcn02_blocks6_border8
@@ -33,5 +33,15 @@ AF1 65.67/1.10 [0.5] 67.02/2.27 [0.38, 0.46, 0.46, 0.40], F3 80.24/1.42, P3 80.1
 
 os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn04_blocks6_border8'): [0.30, 0.34, 0.34, 0.34],
 os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn03_blocks6_border8'): [0.38, 0.46, 0.46, 0.40],
+
+
+Kernel size grid:
+
+Val AF1 report for 20200706_tcn_kernel_n2_train_mass_ss
+AF1 64.69/0.99 [0.5] 66.60/2.29 [0.36, 0.38, 0.44, 0.36], F3 79.81/1.48, P3 80.1/ 9.8, R3 81.8/10.8 for tcn02_k7_blocks6_border8
+AF1 64.44/1.06 [0.5] 66.51/2.02 [0.34, 0.46, 0.38, 0.36], F3 79.84/1.06, P3 80.5/ 8.7, R3 81.2/10.5 for tcn02_k9_blocks6_border8
+AF1 63.40/1.55 [0.5] 66.24/2.14 [0.32, 0.42, 0.40, 0.32], F3 79.72/1.23, P3 80.9/ 9.3, R3 80.7/10.8 for tcn02_k3_blocks6_border8
+AF1 63.76/1.56 [0.5] 65.90/2.05 [0.34, 0.42, 0.42, 0.38], F3 79.19/1.00, P3 80.9/ 9.8, R3 80.0/11.7 for tcn02_k5_blocks6_border8
+
 
 
