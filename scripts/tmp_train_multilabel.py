@@ -32,10 +32,11 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [0, 1, 2, 3]
 
     # Grid parameters
     model_version_list = [
+        constants.V19_MULTI,
         constants.V11_MULTI
     ]
 
@@ -58,8 +59,6 @@ if __name__ == '__main__':
     params = pkeys.default_params.copy()
     params[pkeys.N_LABELS] = len(labels)
     params[pkeys.TYPE_LOSS] = constants.CROSS_ENTROPY_LOSS_MULTI
-    params[pkeys.MAX_ITERS] = 2000
-    params[pkeys.ITERS_STATS] = 200
 
     for id_try in id_try_list:
         print('\nModel training on MASS with labels %s' % labels)
