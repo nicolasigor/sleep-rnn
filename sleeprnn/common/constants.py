@@ -198,3 +198,5 @@ V19_LLC_STFT_2 = 'v19_llc_stft_2'  # 1st fc
 V19_LLC_STFT_3 = 'v19_llc_stft_3'  # logits
 TCN01 = 'tcn01'  # TCN time and generic block design.
 TCN02 = 'tcn02'  # TCN time and dilations go up and then down
+TCN03 = 'tcn03'  # TCN time without residual blocks.
+TCN04 = 'tcn04'  # TCN time without residual blocks, with dilations up-down.

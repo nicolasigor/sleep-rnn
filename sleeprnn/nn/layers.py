@@ -2220,6 +2220,38 @@ def tcn_block(
     return outputs
 
 
+def tcn_block_simple(
+        inputs,
+        filters,
+        kernel_size,
+        dilation,
+        drop_rate,
+        training,
+        batchnorm=constants.BN,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    with tf.variable_scope(name):
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        outputs = tf.expand_dims(inputs, axis=2)
+        outputs = spatial_dropout_2d(outputs, drop_rate, training, "drop")
+        conv_use_bias = (batchnorm is None)
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+            padding=constants.PAD_SAME, dilation_rate=dilation,
+            name='conv', reuse=reuse,
+            use_bias=conv_use_bias, kernel_initializer=kernel_init)
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
 def conv1d_prebn(
         inputs,
         filters,

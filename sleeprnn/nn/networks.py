@@ -9901,3 +9901,203 @@ def wavelet_blstm_net_tcn02(
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
 
+
+def wavelet_blstm_net_tcn03(
+        inputs,
+        params,
+        training,
+        name='model_tcn03'
+):
+    print('Using model TCN03 (Time-Domain, TCN01 without residual)')
+    with tf.variable_scope(name):
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # 1D convolutions expect shape [batch, time_len, n_feats]
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_1],
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_1')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_2],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_2')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_3],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_3')
+
+        # Now the TCN part
+        n_blocks = params[pkeys.TCN_N_BLOCKS]
+        for i in range(n_blocks):
+            dilation = 2 ** i
+            outputs = layers.tcn_block_simple(
+                outputs,
+                params[pkeys.TCN_FILTERS],
+                params[pkeys.TCN_KERNEL_SIZE],
+                dilation,
+                params[pkeys.TCN_DROP_RATE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="tcn_%d" % i)
+
+        # The crop is performed at the end
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS] / 8)
+        outputs = outputs[:, border_crop:-border_crop, :]
+
+        for i in range(params[pkeys.TCN_LAST_CONV_N_LAYERS]):
+            outputs = layers.conv1d_prebn(
+                outputs,
+                params[pkeys.TCN_LAST_CONV_FILTERS],
+                params[pkeys.TCN_LAST_CONV_KERNEL_SIZE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="last_conv_%i" % i)
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_tcn04(
+        inputs,
+        params,
+        training,
+        name='model_tcn04'
+):
+    print('Using model TCN04 (Time-Domain, TCN02 without residual)')
+    with tf.variable_scope(name):
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # 1D convolutions expect shape [batch, time_len, n_feats]
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_1],
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_1')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_2],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_2')
+
+        outputs = layers.conv1d_prebn_block(
+            outputs,
+            params[pkeys.TIME_CONV_FILTERS_3],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1d_3')
+
+        # Now the TCN part
+        n_blocks = params[pkeys.TCN_N_BLOCKS]
+        for i in range(n_blocks):
+            dilation = 2 ** i
+            print("Dilation", dilation)
+            outputs = layers.tcn_block_simple(
+                outputs,
+                params[pkeys.TCN_FILTERS],
+                params[pkeys.TCN_KERNEL_SIZE],
+                dilation,
+                params[pkeys.TCN_DROP_RATE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="tcn_block_up_%d" % i)
+        for i in range(n_blocks - 1):
+            dilation = 2 ** (n_blocks - 2 - i)
+            print("Dilation", dilation)
+            outputs = layers.tcn_block_simple(
+                outputs,
+                params[pkeys.TCN_FILTERS],
+                params[pkeys.TCN_KERNEL_SIZE],
+                dilation,
+                params[pkeys.TCN_DROP_RATE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="tcn_block_down_%d" % i)
+
+        # The crop is performed at the end
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS] / 8)
+        outputs = outputs[:, border_crop:-border_crop, :]
+
+        for i in range(params[pkeys.TCN_LAST_CONV_N_LAYERS]):
+            outputs = layers.conv1d_prebn(
+                outputs,
+                params[pkeys.TCN_LAST_CONV_FILTERS],
+                params[pkeys.TCN_LAST_CONV_KERNEL_SIZE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="last_conv_%i" % i)
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
+
