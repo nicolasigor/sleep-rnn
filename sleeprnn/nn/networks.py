@@ -9740,6 +9740,7 @@ def wavelet_blstm_net_tcn01(
                 dilation,
                 params[pkeys.TCN_DROP_RATE],
                 training,
+                bottleneck=params[pkeys.TCN_USE_BOTTLENECK],
                 is_first_unit=(i == 0),
                 batchnorm=params[pkeys.TYPE_BATCHNORM],
                 kernel_init=tf.initializers.he_normal(),
@@ -9755,6 +9756,16 @@ def wavelet_blstm_net_tcn01(
                 outputs, 'bn_last', batchnorm=batchnorm,
                 training=training, scale=False)
         outputs = tf.nn.relu(outputs)
+
+        for i in range(params[pkeys.TCN_LAST_CONV_N_LAYERS]):
+            outputs = layers.conv1d_prebn(
+                outputs,
+                params[pkeys.TCN_LAST_CONV_FILTERS],
+                params[pkeys.TCN_LAST_CONV_KERNEL_SIZE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="last_conv_%i" % i)
 
         # Final FC classification layer
         logits = layers.sequence_output_2class_layer(
@@ -9832,6 +9843,7 @@ def wavelet_blstm_net_tcn02(
                 dilation,
                 params[pkeys.TCN_DROP_RATE],
                 training,
+                bottleneck=params[pkeys.TCN_USE_BOTTLENECK],
                 is_first_unit=(i == 0),
                 batchnorm=params[pkeys.TYPE_BATCHNORM],
                 kernel_init=tf.initializers.he_normal(),
@@ -9846,6 +9858,7 @@ def wavelet_blstm_net_tcn02(
                 dilation,
                 params[pkeys.TCN_DROP_RATE],
                 training,
+                bottleneck=params[pkeys.TCN_USE_BOTTLENECK],
                 is_first_unit=False,
                 batchnorm=params[pkeys.TYPE_BATCHNORM],
                 kernel_init=tf.initializers.he_normal(),
@@ -9861,6 +9874,16 @@ def wavelet_blstm_net_tcn02(
                 outputs, 'bn_last', batchnorm=batchnorm,
                 training=training, scale=False)
         outputs = tf.nn.relu(outputs)
+
+        for i in range(params[pkeys.TCN_LAST_CONV_N_LAYERS]):
+            outputs = layers.conv1d_prebn(
+                outputs,
+                params[pkeys.TCN_LAST_CONV_FILTERS],
+                params[pkeys.TCN_LAST_CONV_KERNEL_SIZE],
+                training,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                kernel_init=tf.initializers.he_normal(),
+                name="last_conv_%i" % i)
 
         # Final FC classification layer
         logits = layers.sequence_output_2class_layer(

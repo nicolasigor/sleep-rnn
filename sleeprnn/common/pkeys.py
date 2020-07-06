@@ -176,6 +176,10 @@ TCN_FILTERS = "tcn_filters"
 TCN_KERNEL_SIZE = "tcn_kernel_size"
 TCN_DROP_RATE = "tcn_drop_rate"
 TCN_N_BLOCKS = "tcn_n_blocks"
+TCN_USE_BOTTLENECK = 'tcn_use_bottleneck'
+TCN_LAST_CONV_N_LAYERS = "tcn_last_conv_n_layers"
+TCN_LAST_CONV_FILTERS = "tcn_last_conv_filters"
+TCN_LAST_CONV_KERNEL_SIZE = "tcn_last_conv_kernel_size"
 
 
 """ Loss params
@@ -372,8 +376,12 @@ default_params = {
     LLC_STFT_USE_LOG: None,
     LLC_STFT_N_HIDDEN: 128,
     LLC_STFT_DROP_RATE: 0.1,
-    TCN_FILTERS: 256,
+    TCN_FILTERS: None,
     TCN_KERNEL_SIZE: 3,
     TCN_DROP_RATE: 0.1,
-    TCN_N_BLOCKS: None
+    TCN_N_BLOCKS: None,
+    TCN_USE_BOTTLENECK: True,
+    TCN_LAST_CONV_N_LAYERS: 0,
+    TCN_LAST_CONV_FILTERS: None,
+    TCN_LAST_CONV_KERNEL_SIZE: 3,
 }
