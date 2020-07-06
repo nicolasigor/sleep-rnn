@@ -9,9 +9,13 @@ import tensorflow as tf
 from sleeprnn.common import constants
 
 
-def confusion_matrix(logits, labels):
+def confusion_matrix(logits, labels, which_task):
     """Returns TP, FP and FN"""
     with tf.variable_scope('confusion_matrix'):
+        print("using task", which_task)
+        logits = logits[..., which_task]
+        labels = labels[..., which_task]
+        logits = tf.stack([1-logits, logits], axis=2)
         predictions_sparse = tf.argmax(logits, axis=-1)
         labels_zero = tf.equal(labels, tf.zeros_like(labels))
         labels_one = tf.equal(labels, tf.ones_like(labels))

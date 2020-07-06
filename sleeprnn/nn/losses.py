@@ -613,6 +613,26 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
     return loss, loss_summ
 
 
+def cross_entropy_loss_multi_fn(logits, labels):
+    """Returns the cross-entropy loss to be minimized.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, n_labels]
+        labels: (3d tensor) binary tensor of shape [batch, timelen, n_labels]
+    """
+    print('Using Cross Entropy Loss Multilabel')
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS_MULTI):
+        labels = tf.cast(labels, tf.float32)
+        loss = tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        print('Multilabel xent loss', loss)
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
 def hinge_loss_fn(logits, labels, class_weights):
     """Returns the hinge loss to be minimized.
 

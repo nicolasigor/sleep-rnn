@@ -50,9 +50,9 @@ class WaveletBLSTM(BaseModel):
         augmented_input_length = 2*(page_size + border_size)
         time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         feat_train_shape = [augmented_input_length]
-        label_train_shape = feat_train_shape
+        label_train_shape = [augmented_input_length, self.params[pkeys.N_LABELS]]
         feat_eval_shape = [page_size + 2 * border_size]
-        label_eval_shape = [page_size / time_stride]
+        label_eval_shape = [page_size / time_stride, self.params[pkeys.N_LABELS]]
         super().__init__(
             feat_train_shape,
             label_train_shape,
@@ -74,6 +74,9 @@ class WaveletBLSTM(BaseModel):
 
     def check_train_inputs(self, x_train, y_train, x_val, y_val):
         """Ensures that validation data has the proper shape."""
+        if y_train.ndim != 3 or y_val.ndim != 3:
+            raise ValueError("Expected 3D label arrays (multilabel)")
+
         time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
@@ -88,18 +91,22 @@ class WaveletBLSTM(BaseModel):
             aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
             if aligned_down:
                 print('ALIGNED DOWNSAMPLING at checking inputs for fit')
-                y_val = y_val.reshape((-1, int(page_size/time_stride), time_stride))
+                print("y has three axis, shape", y_val.shape)
+                y_val = np.transpose(y_val, (0, 2, 1))
+                y_val = y_val.reshape(
+                    (y_val.shape[0], y_val.shape[1], int(page_size / time_stride), time_stride))
                 y_val = np.round(y_val.mean(axis=-1) + 1e-3).astype(np.int32)
+                y_val = np.transpose(y_val, (0, 2, 1))
+                print("new shape", y_val.shape)
             else:
                 y_val = y_val[:, ::time_stride]
         return x_train, y_train, x_val, y_val
 
     def fit(
             self,
-            data_train: FeederDataset,
-            data_val: FeederDataset,
+            data_train_list,  # lista
+            data_val_list,  # lista
             fine_tune=False,
-            extra_data_train=None,
             verbose=False):
         """Fits the model to the training data."""
         border_size = int(
@@ -107,30 +114,37 @@ class WaveletBLSTM(BaseModel):
         forced_mark_separation_size = int(
             self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
 
-        x_train, y_train = data_train.get_data_for_training(
+        x_train, _ = data_train_list[0].get_data_for_training(
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
             verbose=verbose)
-        x_val, y_val = data_val.get_data_for_training(
-            border_size=border_size,
-            forced_mark_separation_size=forced_mark_separation_size,
-            verbose=verbose)
-
-        # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
-        y_train = np.concatenate(y_train, axis=0)
-        x_val = np.concatenate(x_val, axis=0)
-        y_val = np.concatenate(y_val, axis=0)
 
-        # Add extra training data
-        if extra_data_train is not None:
-            x_extra, y_extra = extra_data_train
-            print('CHECK: Sum extra y:', y_extra.sum())
-            print('Current train data x, y:', x_train.shape, y_train.shape)
-            x_train = np.concatenate([x_train, x_extra], axis=0)
-            y_train = np.concatenate([y_train, y_extra], axis=0)
-            print('Extra data to be added x, y:', x_extra.shape, y_extra.shape)
-            print('New train data', x_train.shape, y_train.shape)
+        x_val, _ = data_val_list[0].get_data_for_training(
+            border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
+            verbose=verbose)
+        x_val = np.concatenate(x_val, axis=0)
+
+        y_train = []
+        for i, data_train in enumerate(data_train_list):
+            _, y = data_train.get_data_for_training(
+                border_size=border_size,
+                forced_mark_separation_size=forced_mark_separation_size,
+                verbose=verbose)
+            y = np.concatenate(y, axis=0)
+            y_train.append(y)
+        y_train = np.stack(y_train, axis=2)
+
+        y_val = []
+        for i, data_val in enumerate(data_val_list):
+            _, y = data_val.get_data_for_training(
+                border_size=border_size,
+                forced_mark_separation_size=forced_mark_separation_size,
+                verbose=verbose)
+            y = np.concatenate(y, axis=0)
+            y_val.append(y)
+        y_val = np.stack(y_val, axis=2)
 
         # Shuffle training set
         x_train, y_train = utils.shuffle_data(
@@ -296,10 +310,11 @@ class WaveletBLSTM(BaseModel):
         crop_size = page_size + 2 * border_size
         # Random crop
         label_cast = tf.cast(label, dtype=tf.float32)
-        stack = tf.stack([feat, label_cast], axis=0)
-        stack_crop = tf.random_crop(stack, [2, crop_size])
-        feat = stack_crop[0, :]
-        label = tf.cast(stack_crop[1, :], dtype=tf.int32)
+        stack = tf.concat([feat[:, tf.newaxis], label_cast], axis=1)
+        stack_crop = tf.random_crop(
+            stack, [crop_size, 1 + self.params[pkeys.N_LABELS]])
+        feat = stack_crop[:, 0]
+        label = tf.cast(stack_crop[:, 1:], dtype=tf.int32)
 
         # Apply data augmentation
         feat, label = self._augmentation_fn(feat, label)
@@ -311,8 +326,10 @@ class WaveletBLSTM(BaseModel):
         if aligned_down:
             print('ALIGNED DOWNSAMPLING at iterator')
             label = tf.cast(label, tf.float32)
-            label = tf.reshape(label, [-1, time_stride])
+            label = tf.transpose(label, [1, 0])
+            label = tf.reshape(label, [self.params[pkeys.N_LABELS], -1, time_stride])
             label = tf.reduce_mean(label, axis=-1)
+            label = tf.transpose(label, [1, 0])
             label = tf.round(label + 1e-3)
             label = tf.cast(label, tf.int32)
         else:
@@ -441,7 +458,9 @@ class WaveletBLSTM(BaseModel):
                 constants.TCN01,
                 constants.TCN02,
                 constants.TCN03,
-                constants.TCN04
+                constants.TCN04,
+                constants.V11_MULTI,
+                constants.V19_MULTI
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -593,6 +612,10 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_tcn03
         elif model_version == constants.TCN04:
             model_fn = networks.wavelet_blstm_net_tcn04
+        elif model_version == constants.V11_MULTI:
+            model_fn = networks.wavelet_blstm_net_v11_multi
+        elif model_version == constants.V19_MULTI:
+            model_fn = networks.wavelet_blstm_net_v19_multi
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:
@@ -625,7 +648,8 @@ class WaveletBLSTM(BaseModel):
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4,
-                constants.HINGE_LOSS
+                constants.HINGE_LOSS,
+                constants.CROSS_ENTROPY_LOSS_MULTI
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -735,6 +759,9 @@ class WaveletBLSTM(BaseModel):
         elif type_loss == constants.HINGE_LOSS:
             loss, loss_summ = losses.hinge_loss_fn(
                 self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
+        elif type_loss == constants.CROSS_ENTROPY_LOSS_MULTI:
+            loss, loss_summ = losses.cross_entropy_loss_multi_fn(
+                self.logits, self.labels)
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
@@ -773,7 +800,7 @@ class WaveletBLSTM(BaseModel):
 
     def _batch_metrics_fn(self):
         with tf.variable_scope('batch_metrics'):
-            tp, fp, fn = metrics.confusion_matrix(self.logits, self.labels)
+            tp, fp, fn = metrics.confusion_matrix(self.logits, self.labels, which_task=0)
             precision, recall, f1_score = metrics.precision_recall_f1score(
                 tp, fp, fn)
             prec_summ = tf.summary.scalar(KEY_PRECISION, precision)

@@ -92,6 +92,7 @@ WEIGHTED_CROSS_ENTROPY_LOSS_V2 = 'weighted_cross_entropy_loss_v2'
 WEIGHTED_CROSS_ENTROPY_LOSS_V3 = 'weighted_cross_entropy_loss_v3'
 WEIGHTED_CROSS_ENTROPY_LOSS_V4 = 'weighted_cross_entropy_loss_v4'
 HINGE_LOSS = 'hinge_loss'
+CROSS_ENTROPY_LOSS_MULTI = 'cross_entropy_loss_multi'
 
 # Mix weight strategies
 MIX_WEIGHTS_SUM = 'mix_weights_sum'
@@ -200,3 +201,5 @@ TCN01 = 'tcn01'  # TCN time and generic block design.
 TCN02 = 'tcn02'  # TCN time and dilations go up and then down
 TCN03 = 'tcn03'  # TCN time without residual blocks.
 TCN04 = 'tcn04'  # TCN time without residual blocks, with dilations up-down.
+V11_MULTI = 'v11_multi'  # multilabel
+V19_MULTI = 'v19_multi'  # multilabel

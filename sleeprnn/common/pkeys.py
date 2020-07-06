@@ -180,6 +180,7 @@ TCN_USE_BOTTLENECK = 'tcn_use_bottleneck'
 TCN_LAST_CONV_N_LAYERS = "tcn_last_conv_n_layers"
 TCN_LAST_CONV_FILTERS = "tcn_last_conv_filters"
 TCN_LAST_CONV_KERNEL_SIZE = "tcn_last_conv_kernel_size"
+N_LABELS = 'n_labels'
 
 
 """ Loss params
@@ -384,4 +385,5 @@ default_params = {
     TCN_LAST_CONV_N_LAYERS: 0,
     TCN_LAST_CONV_FILTERS: None,
     TCN_LAST_CONV_KERNEL_SIZE: 3,
+    N_LABELS: None,
 }
