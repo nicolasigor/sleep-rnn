@@ -15,4 +15,13 @@ os.path.join('20200702_tcn_fix_n2_train_mass_ss', 'tcn02_blocks6_border8'): [0.3
 os.path.join('20200702_tcn_fix_n2_train_mass_ss', 'tcn01_blocks6_border8'): [0.32, 0.42, 0.48, 0.40],
 
 
+Corrida sin bottleneck:
+
+Val AF1 report for 20200705_tcn_without_neck_n2_train_mass_ss
+AF1 65.64/1.14 [0.5] 66.95/2.47 [0.38, 0.42, 0.50, 0.40], F3 80.23/1.96, P3 79.9/ 9.9, R3 82.9/10.2 for tcn01_blocks6_border8
+AF1 65.20/0.92 [0.5] 66.93/2.39 [0.38, 0.42, 0.42, 0.34], F3 79.78/1.44, P3 80.2/ 9.5, R3 81.7/11.0 for tcn02_blocks6_border8
+
+os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn01_blocks6_border8'): [0.38, 0.42, 0.50, 0.40],
+os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn02_blocks6_border8'): [0.38, 0.42, 0.42, 0.34],
+
 
