@@ -834,6 +834,7 @@ class WaveletBLSTM(BaseModel):
         return eval_metrics_dict, eval_metrics_summ
 
     def _split_train(self, x_train, y_train):
+        # TODO: Hay un error aca, las divisiones quedan con una dimension extra
         n_train = x_train.shape[0]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
