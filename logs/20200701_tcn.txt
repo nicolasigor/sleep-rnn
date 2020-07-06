@@ -25,3 +25,13 @@ os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn01_blocks6_border
 os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn02_blocks6_border8'): [0.38, 0.42, 0.42, 0.34],
 
 
+Corrida sin bloque residual:
+
+Val AF1 report for 20200706_tcn_without_residual_n2_train_mass_ss
+AF1 64.61/1.27 [0.5] 67.13/2.57 [0.30, 0.34, 0.34, 0.34], F3 80.08/1.54, P3 80.5/ 9.9, R3 81.9/10.3 for tcn04_blocks6_border8
+AF1 65.67/1.10 [0.5] 67.02/2.27 [0.38, 0.46, 0.46, 0.40], F3 80.24/1.42, P3 80.1/ 9.6, R3 82.6/10.2 for tcn03_blocks6_border8
+
+os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn04_blocks6_border8'): [0.30, 0.34, 0.34, 0.34],
+os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn03_blocks6_border8'): [0.38, 0.46, 0.46, 0.40],
+
+

@@ -206,6 +206,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn01_blocks6_border8'): [0.38, 0.42, 0.50, 0.40],
     os.path.join('20200705_tcn_without_neck_n2_train_mass_ss', 'tcn02_blocks6_border8'): [0.38, 0.42, 0.42, 0.34],
 
+    os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn04_blocks6_border8'): [0.30, 0.34, 0.34, 0.34],
+    os.path.join('20200706_tcn_without_residual_n2_train_mass_ss', 'tcn03_blocks6_border8'): [0.38, 0.46, 0.46, 0.40],
+
 }
 
 
