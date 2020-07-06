@@ -1,0 +1,19 @@
+Se agregaron los 4 sujetos invalidos a todos los sets de entrenamiento (los conjuntos de validacion y test son los mismos que antes).
+
+Val AF1 report for 20200702_invalids_n2_train_mass_ss
+AF1 68.36/2.46 [0.5] 68.36/2.44 [0.52, 0.44, 0.58, 0.48], F3 80.88/2.10, P3 80.6/ 7.7, R3 82.5/ 8.5 for v19
+AF1 67.56/1.90 [0.5] 68.33/2.59 [0.40, 0.56, 0.48, 0.44], F3 80.83/1.94, P3 80.0/ 9.3, R3 83.5/ 9.0 for v11
+
+os.path.join('20200702_invalids_n2_train_mass_ss', 'v19'): [0.52, 0.44, 0.58, 0.48],
+os.path.join('20200702_invalids_n2_train_mass_ss', 'v11'): [0.40, 0.56, 0.48, 0.44],
+
+Val AF1 report for 20200702_invalids_n2_train_mass_kc
+AF1 75.39/0.57 [0.5] 75.73/0.55 [0.46, 0.56, 0.44, 0.42], F3 83.01/0.76, P3 82.2/ 4.0, R3 84.2/ 5.0 for v19
+AF1 74.98/0.96 [0.5] 75.15/0.89 [0.52, 0.58, 0.58, 0.52], F3 82.36/0.90, P3 79.7/ 4.2, R3 85.4/ 3.7 for v11
+
+os.path.join('20200702_invalids_n2_train_mass_kc', 'v19'): [0.46, 0.56, 0.44, 0.42],
+os.path.join('20200702_invalids_n2_train_mass_kc', 'v11'): [0.52, 0.58, 0.58, 0.52],
+
+
+
+

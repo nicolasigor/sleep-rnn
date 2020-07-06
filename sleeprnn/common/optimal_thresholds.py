@@ -195,7 +195,13 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20200624_llc_stft_n2_train_mass_ss', 'samples256_poolNone_log1_hid128'): [0.42, 0.54, 0.56, 0.48],
 
-    os.path.join('20200701_tcn_basic_n2_train_mass_ss', 'tcn01_blocks6_border6'): [0.34, 0.46, 0.38, 0.34],
+    os.path.join('20200702_tcn_fix_n2_train_mass_ss', 'tcn02_blocks6_border8'): [0.36, 0.40, 0.44, 0.38],
+    os.path.join('20200702_tcn_fix_n2_train_mass_ss', 'tcn01_blocks6_border8'): [0.32, 0.42, 0.48, 0.40],
+
+    os.path.join('20200702_invalids_n2_train_mass_ss', 'v11'): [0.40, 0.56, 0.48, 0.44],
+    os.path.join('20200702_invalids_n2_train_mass_kc', 'v11'): [0.52, 0.58, 0.58, 0.52],
+    os.path.join('20200702_invalids_n2_train_mass_ss', 'v19'): [0.52, 0.44, 0.58, 0.48],
+    os.path.join('20200702_invalids_n2_train_mass_kc', 'v19'): [0.46, 0.56, 0.44, 0.42],
 
 }
 
