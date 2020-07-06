@@ -256,6 +256,7 @@ class BaseModel(object):
     def predict_dataset(
             self,
             data_inference: FeederDataset,
+            desired_label,
             verbose=False,
             input_scale_factor=1.0  # for scaling experiment
     ):
@@ -270,7 +271,7 @@ class BaseModel(object):
         x_inference = [
             single_x * input_scale_factor for single_x in x_inference]
         probabilies_list = self.predict_proba_with_list(
-            x_inference, verbose=verbose, with_augmented_page=with_augmented_page)
+            x_inference, desired_label, verbose=verbose, with_augmented_page=with_augmented_page)
         # Now create PredictedDataset object
         probabilities_dict = {}
         all_ids = data_inference.get_ids()
@@ -287,7 +288,7 @@ class BaseModel(object):
             params=self.params.copy())
         return prediction
 
-    def predict_proba(self, x, with_augmented_page=False):
+    def predict_proba(self, x, desired_label, with_augmented_page=False):
         """Predicts the class probabilities over the data x."""
         niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
@@ -338,8 +339,9 @@ class BaseModel(object):
             probabilities_list.append(probabilities)
         final_probabilities = np.concatenate(probabilities_list, axis=0)
 
-        # Keep only probability of class 1
-        final_probabilities = final_probabilities[..., 1]
+        # Keep only probability of desired class
+        print("Keeping prediction for label %d" % desired_label)
+        final_probabilities = final_probabilities[..., desired_label]
 
         # Transform to float16 precision
         final_probabilities = final_probabilities.astype(np.float16)
@@ -347,7 +349,7 @@ class BaseModel(object):
         return final_probabilities
 
     def predict_proba_with_list(
-            self, x_list, verbose=False, with_augmented_page=False):
+            self, x_list, desired_label, verbose=False, with_augmented_page=False):
         """Predicts the class probabilities over a list of data x."""
         probabilities_list = []
         if verbose:
@@ -360,7 +362,7 @@ class BaseModel(object):
                 print('Predicting %d / %d ... '
                       % (i+1, len(x_list)), end='', flush=True)
             this_pred = self.predict_proba(
-                x, with_augmented_page=with_augmented_page)
+                x, desired_label, with_augmented_page=with_augmented_page)
             probabilities_list.append(this_pred)
             if verbose:
                 print('Done', flush=True)
