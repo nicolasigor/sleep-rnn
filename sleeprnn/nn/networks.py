@@ -4,6 +4,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+
+PATH_THIS_DIR = os.path.dirname(__file__)
+PATH_RESOURCES = os.path.join(PATH_THIS_DIR, '..', '..', 'resources')
+
 import numpy as np
 import tensorflow as tf
 
@@ -10101,3 +10106,110 @@ def wavelet_blstm_net_tcn04(
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
 
+
+def wavelet_blstm_net_v19_frozen(
+        inputs,
+        params,
+        training,
+        name='model_v19_frozen'
+):
+    print('Using model V19 with BN at cwt frozen(general cwt)')
+    with tf.variable_scope(name):
+        # CWT stage
+        border_crop = int(
+            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+
+        outputs, cwt_prebn = layers.cmorlet_layer_general(
+            inputs,
+            params[pkeys.FB_LIST],
+            params[pkeys.FS],
+            return_real_part=params[pkeys.CWT_RETURN_REAL_PART],
+            return_imag_part=params[pkeys.CWT_RETURN_IMAG_PART],
+            return_magnitude=params[pkeys.CWT_RETURN_MAGNITUDE],
+            return_phase=params[pkeys.CWT_RETURN_PHASE],
+            lower_freq=params[pkeys.LOWER_FREQ],
+            upper_freq=params[pkeys.UPPER_FREQ],
+            n_scales=params[pkeys.N_SCALES],
+            stride=2,
+            size_factor=params[pkeys.WAVELET_SIZE_FACTOR],
+            border_crop=border_crop,
+            training=training,
+            trainable_wavelet=params[pkeys.TRAINABLE_WAVELET],
+            batchnorm=None,
+            name='spectrum')
+
+        # Fixed batchnorm
+        print('Using fixed normalization after CWT')
+        bn_cwt_weights = np.load(os.path.join(PATH_RESOURCES, 'bn_cwt_weights.npz'))
+        bn_cwt_beta = bn_cwt_weights['beta'].reshape(1, 1, 32, 1)
+        bn_cwt_gamma = bn_cwt_weights['gamma'].reshape(1, 1, 32, 1)
+        bn_cwt_moving_mean = bn_cwt_weights['moving_mean'].reshape(1, 1, 32, 1)
+        bn_cwt_moving_variance = bn_cwt_weights['moving_variance'].reshape(1, 1, 32, 1)
+        epsilon = 0.001
+        bn_cwt_std = np.sqrt(bn_cwt_moving_variance + epsilon)
+        outputs = (outputs - bn_cwt_moving_mean) / bn_cwt_std
+        outputs = bn_cwt_gamma * outputs + bn_cwt_beta
+
+        # Convolutional stage (standard feed-forward)
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_1],
+            training,
+            kernel_size_1=params[pkeys.INITIAL_KERNEL_SIZE],
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_1')
+
+        outputs = layers.conv2d_prebn_block(
+            outputs,
+            params[pkeys.CWT_CONV_FILTERS_2],
+            training,
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            downsampling=params[pkeys.CONV_DOWNSAMPLING],
+            kernel_init=tf.initializers.he_normal(),
+            name='convblock_2')
+
+        # Flattening for dense part
+        outputs = layers.sequence_flatten(outputs, 'flatten')
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+
+        return logits, probabilities, cwt_prebn

@@ -200,3 +200,4 @@ TCN01 = 'tcn01'  # TCN time and generic block design.
 TCN02 = 'tcn02'  # TCN time and dilations go up and then down
 TCN03 = 'tcn03'  # TCN time without residual blocks.
 TCN04 = 'tcn04'  # TCN time without residual blocks, with dilations up-down.
+V19_FROZEN = 'v19_frozen'  # BN at CWT is replaced by fixed normalization.
