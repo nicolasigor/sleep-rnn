@@ -49,6 +49,30 @@ os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k3_blocks6_border8')
 os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k5_blocks6_border8'): [0.34, 0.42, 0.42, 0.38],
 
 
+Last conv grid (tcn_kernel_size = 7), last_conv_filters = 64:
+
+Val AF1 report for 20200706_tcn_last_conv_n2_train_mass_ss
+AF1 65.02/1.28 [0.5] 67.25/2.39 [0.28, 0.36, 0.40, 0.34], F3 80.34/1.52, P3 80.8/ 8.7, R3 81.7/10.2 for tcn02_k3_n1_blocks6_border8
+AF1 64.45/1.62 [0.5] 67.11/2.15 [0.30, 0.40, 0.42, 0.38], F3 79.99/1.15, P3 81.3/ 9.5, R3 80.9/10.6 for tcn02_k5_n1_blocks6_border8
+AF1 63.32/2.59 [0.5] 66.99/2.29 [0.26, 0.40, 0.34, 0.32], F3 80.08/1.38, P3 81.6/ 8.9, R3 80.5/10.4 for tcn02_k3_n2_blocks6_border8
+AF1 63.00/2.81 [0.5] 66.82/2.10 [0.26, 0.42, 0.36, 0.28], F3 79.66/0.77, P3 81.8/ 8.7, R3 79.8/11.5 for tcn02_k3_n4_blocks6_border8
+AF1 63.74/1.94 [0.5] 66.68/2.52 [0.26, 0.40, 0.34, 0.28], F3 79.70/1.53, P3 80.4/ 9.4, R3 81.3/10.9 for tcn02_k5_n2_blocks6_border8
+AF1 62.92/2.42 [0.5] 66.18/2.60 [0.28, 0.36, 0.30, 0.30], F3 79.28/1.56, P3 80.6/10.4, R3 80.6/11.9 for tcn02_k5_n4_blocks6_border8
+
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k3_n1_blocks6_border8'): [0.28, 0.36, 0.40, 0.34],
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k5_n1_blocks6_border8'): [0.30, 0.40, 0.42, 0.38],
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k3_n2_blocks6_border8'): [0.26, 0.40, 0.34, 0.32],
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k3_n4_blocks6_border8'): [0.26, 0.42, 0.36, 0.28],
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k5_n2_blocks6_border8'): [0.26, 0.40, 0.34, 0.28],
+os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k5_n4_blocks6_border8'): [0.28, 0.36, 0.30, 0.30],
+
+
+
+
+
+
+
+
 
 
 
