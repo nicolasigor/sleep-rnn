@@ -1,0 +1,4 @@
+Val AF1 report for 20200706_bncwtfixed_n2_train_mass_ss
+AF1 67.06/1.74 [0.5] 67.93/2.31 [0.44, 0.54, 0.50, 0.42], F3 80.47/1.72, P3 80.6/ 8.8, R3 82.2/ 9.4 for v19_frozen
+
+os.path.join('20200706_bncwtfixed_n2_train_mass_ss', 'v19_frozen'): [0.44, 0.54, 0.50, 0.42],

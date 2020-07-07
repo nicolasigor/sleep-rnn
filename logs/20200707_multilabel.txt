@@ -1,0 +1,25 @@
+Val AF1 report for 20200706_multilabel_e1_n2_train_mass_ss
+AF1 66.81/1.63 [0.5] 67.62/2.31 [0.44, 0.44, 0.52, 0.40], F3 80.63/1.65, P3 79.4/ 8.8, R3 83.7/ 9.2 for v19_multi
+AF1 66.37/1.25 [0.5] 67.37/1.84 [0.40, 0.48, 0.46, 0.36], F3 80.30/1.02, P3 80.1/ 8.6, R3 82.3/10.0 for v11_multi
+
+os.path.join('20200706_multilabel_e1_n2_train_mass_ss', 'v19_multi'): [0.44, 0.44, 0.52, 0.40],
+os.path.join('20200706_multilabel_e1_n2_train_mass_ss', 'v11_multi'): [0.40, 0.48, 0.46, 0.36],
+
+
+Val AF1 report for 20200706_multilabel_e2_n2_train_mass_ss
+AF1 67.79/1.40 [0.5] 67.88/1.38 [0.48, 0.46, 0.46, 0.46], F3 85.34/1.10, P3 85.1/ 6.9, R3 86.3/ 5.5 for v19_multi
+AF1 67.02/1.51 [0.5] 67.30/1.41 [0.50, 0.48, 0.44, 0.44], F3 84.99/1.12, P3 85.6/ 6.9, R3 85.2/ 5.9 for v11_multi
+
+os.path.join('20200706_multilabel_e2_n2_train_mass_ss', 'v19_multi'): [0.48, 0.46, 0.46, 0.46],
+os.path.join('20200706_multilabel_e2_n2_train_mass_ss', 'v11_multi'): [0.50, 0.48, 0.44, 0.44],
+
+
+Val AF1 report for 20200706_multilabel_e1_n2_train_mass_kc
+AF1 73.24/0.76 [0.5] 73.36/0.77 [0.46, 0.52, 0.48, 0.54], F3 81.33/0.95, P3 78.3/ 4.8, R3 84.9/ 3.6 for v11_multi
+AF1 71.47/0.76 [0.5] 72.23/0.64 [0.42, 0.44, 0.42, 0.42], F3 81.27/0.91, P3 80.2/ 4.4, R3 82.7/ 4.4 for v19_multi
+
+os.path.join('20200706_multilabel_e1_n2_train_mass_kc', 'v11_multi'): [0.46, 0.52, 0.48, 0.54],
+os.path.join('20200706_multilabel_e1_n2_train_mass_kc', 'v19_multi'): [0.42, 0.44, 0.42, 0.42],
+
+
+

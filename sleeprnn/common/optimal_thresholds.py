@@ -213,6 +213,33 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k5_blocks6_border8'): [0.34, 0.42, 0.42, 0.38],
     os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k7_blocks6_border8'): [0.36, 0.38, 0.44, 0.36],
     os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k9_blocks6_border8'): [0.34, 0.46, 0.38, 0.36],
+
+    os.path.join('20200706_tcn_last_conv_n2_train_mass_ss', 'tcn02_k3_n1_blocks6_border8'): [0.28, 0.36, 0.40, 0.34],
+
+    os.path.join('20200706_bncwtfixed_n2_train_mass_ss', 'v19_frozen'): [0.44, 0.54, 0.50, 0.42],
+
+    os.path.join('20200706_multilabel_e1_n2_train_mass_ss', 'v19_multi'): [0.44, 0.44, 0.52, 0.40],
+    os.path.join('20200706_multilabel_e1_n2_train_mass_ss', 'v11_multi'): [0.40, 0.48, 0.46, 0.36],
+
+    os.path.join('20200706_multilabel_e2_n2_train_mass_ss', 'v19_multi'): [0.48, 0.46, 0.46, 0.46],
+    os.path.join('20200706_multilabel_e2_n2_train_mass_ss', 'v11_multi'): [0.50, 0.48, 0.44, 0.44],
+
+    os.path.join('20200706_multilabel_e1_n2_train_mass_kc', 'v11_multi'): [0.46, 0.52, 0.48, 0.54],
+    os.path.join('20200706_multilabel_e1_n2_train_mass_kc', 'v19_multi'): [0.42, 0.44, 0.42, 0.42],
+
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n6'): [0.38, 0.42, 0.38, 0.34],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n8'): [0.28, 0.40, 0.30, 0.32],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n6'): [0.30, 0.38, 0.38, 0.36],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n5'): [0.34, 0.46, 0.42, 0.34],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n7'): [0.34, 0.42, 0.28, 0.34],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n7'): [0.38, 0.44, 0.40, 0.34],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n5'): [0.34, 0.38, 0.40, 0.32],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n8'): [0.32, 0.46, 0.38, 0.38],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n4'): [0.32, 0.42, 0.38, 0.28],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n4'): [0.34, 0.38, 0.40, 0.34],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn02_n3'): [0.32, 0.34, 0.34, 0.32],
+    os.path.join('20200707_tcn_context_n2_train_mass_ss', 'tcn01_n3'): [0.32, 0.34, 0.34, 0.30],
+
 }
 
 
