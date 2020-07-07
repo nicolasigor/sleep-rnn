@@ -43,5 +43,13 @@ AF1 64.44/1.06 [0.5] 66.51/2.02 [0.34, 0.46, 0.38, 0.36], F3 79.84/1.06, P3 80.5
 AF1 63.40/1.55 [0.5] 66.24/2.14 [0.32, 0.42, 0.40, 0.32], F3 79.72/1.23, P3 80.9/ 9.3, R3 80.7/10.8 for tcn02_k3_blocks6_border8
 AF1 63.76/1.56 [0.5] 65.90/2.05 [0.34, 0.42, 0.42, 0.38], F3 79.19/1.00, P3 80.9/ 9.8, R3 80.0/11.7 for tcn02_k5_blocks6_border8
 
+os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k7_blocks6_border8'): [0.36, 0.38, 0.44, 0.36],
+os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k9_blocks6_border8'): [0.34, 0.46, 0.38, 0.36],
+os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k3_blocks6_border8'): [0.32, 0.42, 0.40, 0.32],
+os.path.join('20200706_tcn_kernel_n2_train_mass_ss', 'tcn02_k5_blocks6_border8'): [0.34, 0.42, 0.42, 0.38],
+
+
+
+
 
 
