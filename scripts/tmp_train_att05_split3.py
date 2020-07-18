@@ -98,6 +98,11 @@ if __name__ == '__main__':
 
                 for v_indep_linear, v_add_band_enc, k_indep_linear, k_add_band_enc in params_list:
 
+                    cond1 = v_indep_linear and v_add_band_enc
+                    cond2 = not (k_indep_linear or k_add_band_enc)
+                    if cond1 or cond2:
+                        continue
+
                     params[pkeys.ATT_BANDS_V_INDEP_LINEAR] = v_indep_linear
                     params[pkeys.ATT_BANDS_V_ADD_BAND_ENC] = v_add_band_enc
                     params[pkeys.ATT_BANDS_K_INDEP_LINEAR] = k_indep_linear
