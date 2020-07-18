@@ -1509,6 +1509,7 @@ def sequence_fc_layer(
         drop_rate=0,
         activation=None,
         kernel_init=None,
+        use_bias=True,
         reuse=False,
         name=None):
     """ Builds a FC layer that can be applied directly to a sequence.
@@ -1552,7 +1553,7 @@ def sequence_fc_layer(
         outputs = tf.layers.conv2d(
             inputs=inputs, filters=num_units, kernel_size=1,
             activation=activation, padding=constants.PAD_SAME,
-            kernel_initializer=kernel_init,
+            kernel_initializer=kernel_init, use_bias=use_bias,
             name="conv1", reuse=reuse)
         # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")

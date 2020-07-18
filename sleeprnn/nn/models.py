@@ -18,7 +18,7 @@ from sleeprnn.data import utils
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
-from . import networks
+from . import networks, networks_v2
 from . import losses, optimizers, metrics, augmentations
 
 # Metrics dict
@@ -442,7 +442,8 @@ class WaveletBLSTM(BaseModel):
                 constants.TCN02,
                 constants.TCN03,
                 constants.TCN04,
-                constants.V19_FROZEN
+                constants.V19_FROZEN,
+                constants.ATT05
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -596,6 +597,8 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_tcn04
         elif model_version == constants.V19_FROZEN:
             model_fn = networks.wavelet_blstm_net_v19_frozen
+        elif model_version == constants.ATT05:
+            model_fn = networks_v2.wavelet_blstm_net_att05
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

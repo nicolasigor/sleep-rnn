@@ -180,6 +180,10 @@ TCN_USE_BOTTLENECK = 'tcn_use_bottleneck'
 TCN_LAST_CONV_N_LAYERS = "tcn_last_conv_n_layers"
 TCN_LAST_CONV_FILTERS = "tcn_last_conv_filters"
 TCN_LAST_CONV_KERNEL_SIZE = "tcn_last_conv_kernel_size"
+ATT_BANDS_V_INDEP_LINEAR = "att_bands_v_indep_linear"
+ATT_BANDS_K_INDEP_LINEAR = "att_bands_k_indep_linear"
+ATT_BANDS_V_ADD_BAND_ENC = "att_bands_v_add_band_enc"
+ATT_BANDS_K_ADD_BAND_ENC = "att_bands_k_add_band_enc"
 
 
 """ Loss params
@@ -384,4 +388,8 @@ default_params = {
     TCN_LAST_CONV_N_LAYERS: 0,
     TCN_LAST_CONV_FILTERS: None,
     TCN_LAST_CONV_KERNEL_SIZE: 3,
+    ATT_BANDS_V_INDEP_LINEAR: None,
+    ATT_BANDS_K_INDEP_LINEAR: None,
+    ATT_BANDS_V_ADD_BAND_ENC: None,
+    ATT_BANDS_K_ADD_BAND_ENC: None
 }
