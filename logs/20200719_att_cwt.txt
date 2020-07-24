@@ -1,0 +1,36 @@
+Val AF1 report for 20200719_att05_n2_train_mass_ss
+AF1 66.86/2.31 [0.5] 67.69/2.85 [0.42, 0.52, 0.52, 0.44], F3 80.44/2.29, P3 79.0/10.2, R3 84.2/ 9.2 for att05_v_ind0enc0_k_ind1enc0
+AF1 66.98/2.59 [0.5] 67.66/2.70 [0.48, 0.54, 0.56, 0.42], F3 80.22/2.04, P3 79.1/10.1, R3 83.6/ 9.6 for att05_v_ind1enc0_k_ind1enc1
+AF1 66.61/2.36 [0.5] 67.57/2.07 [0.48, 0.56, 0.60, 0.44], F3 80.31/1.51, P3 79.6/ 9.8, R3 83.4/10.3 for att05_v_ind1enc1_k_ind1enc0
+AF1 67.28/2.44 [0.5] 67.57/2.29 [0.50, 0.54, 0.54, 0.48], F3 80.24/1.68, P3 79.6/ 9.4, R3 83.0/ 9.7 for att05_v_ind0enc1_k_ind1enc1
+
+AF1 66.66/2.75 [0.5] 67.54/2.58 [0.40, 0.60, 0.48, 0.48], F3 80.16/1.99, P3 79.2/10.1, R3 83.3/ 9.3 for att05_v_ind0enc0_k_ind1enc1
+AF1 67.24/2.44 [0.5] 67.48/2.48 [0.50, 0.50, 0.54, 0.44], F3 80.22/1.72, P3 79.6/10.0, R3 83.1/ 9.8 for att05_v_ind1enc1_k_ind1enc1
+AF1 66.93/2.33 [0.5] 67.44/2.61 [0.44, 0.52, 0.50, 0.48], F3 80.16/1.95, P3 78.8/10.3, R3 84.0/ 9.8 for att05_v_ind0enc1_k_ind1enc0
+AF1 66.67/2.05 [0.5] 67.41/2.60 [0.42, 0.52, 0.52, 0.44], F3 79.98/2.05, P3 79.5/10.5, R3 82.9/10.1 for att05_v_ind1enc1_k_ind0enc1
+AF1 66.59/2.39 [0.5] 67.39/2.38 [0.52, 0.56, 0.58, 0.42], F3 79.91/1.76, P3 79.9/10.3, R3 82.3/10.3 for att05_v_ind1enc0_k_ind0enc1
+AF1 66.67/2.63 [0.5] 67.30/3.02 [0.42, 0.52, 0.50, 0.44], F3 79.87/2.43, P3 78.7/11.4, R3 83.8/ 9.7 for att05_v_ind1enc0_k_ind1enc0
+AF1 67.05/2.68 [0.5] 67.27/2.76 [0.52, 0.52, 0.50, 0.44], F3 79.96/2.15, P3 79.3/10.8, R3 83.1/ 9.8 for att05_v_ind0enc1_k_ind0enc1
+AF1 66.67/1.92 [0.5] 67.23/2.47 [0.44, 0.50, 0.50, 0.44], F3 79.88/1.76, P3 79.6/10.9, R3 82.8/10.6 for att05_v_ind0enc0_k_ind0enc1
+
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc0_k_ind1enc0'): [0.42, 0.52, 0.52, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc0_k_ind1enc1'): [0.48, 0.54, 0.56, 0.42],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc1_k_ind1enc0'): [0.48, 0.56, 0.60, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc1_k_ind1enc1'): [0.50, 0.54, 0.54, 0.48],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc0_k_ind1enc1'): [0.40, 0.60, 0.48, 0.48],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc1_k_ind1enc1'): [0.50, 0.50, 0.54, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc1_k_ind1enc0'): [0.44, 0.52, 0.50, 0.48],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc1_k_ind0enc1'): [0.42, 0.52, 0.52, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc0_k_ind0enc1'): [0.52, 0.56, 0.58, 0.42],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind1enc0_k_ind1enc0'): [0.42, 0.52, 0.50, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc1_k_ind0enc1'): [0.52, 0.52, 0.50, 0.44],
+os.path.join('20200719_att05_n2_train_mass_ss', 'att05_v_ind0enc0_k_ind0enc1'): [0.44, 0.50, 0.50, 0.44],
+
+
+Obs:
+- Pareciera que es bueno que se extraiga una proyección lineal de k independiente para cada banda (k_ind1).
+- No queda claro si además hay que agregarle el encoding de banda al k. Quizás es irrelevante si ya se está haciendo una proyección independiente para cada banda.
+- Hay un riesgo de que el k_ind_1 colapse a solo atender a la banda sigma e ignorar las demás, hay que tener cuidado con eso. Hay que mirar los mapas de atención para algunos ejemplos aleatorios.
+- Se observa que la variabilidad en precision y recall es significativamente mayor que RED-CWT. Dejaré entrenando RED-CWT varias veces para ver si esta diferencia es significativa.
+- En cuanto a "v", pareciera que es mejor no agregar el enc de banda en cuanto a F1 score, pero agregarlo en el top4 permite mejorar la precision. Quizás el caso ind0enc0 es el caso del colapso a la banda sigma. 
+- Falta observar el PR por sujeto para saber de dónde viene el aumento de variabilidad.
