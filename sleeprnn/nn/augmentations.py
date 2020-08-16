@@ -40,6 +40,22 @@ def gaussian_noise(feat, probability, std):
     return new_feat
 
 
+def independent_gaussian_noise(feat, probability, std):
+    """Noise is AWGN"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    with tf.variable_scope('independent_gaussian_noise'):
+        print("Using AWGN std %1.6f with probability %1.2f" % (std, probability))
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: feat + tf.random.normal(
+                tf.shape(feat), mean=0.0, stddev=std),
+            lambda: feat
+        )
+    return new_feat
+
+
 def rescale_uniform(feat, probability, intensity):
     # Intensity is a float number representing fraction.
     checks.check_valid_range(probability, 'probability', [0, 1])

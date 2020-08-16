@@ -28,6 +28,9 @@ AUG_ELASTIC_PROBA = 'aug_elastic_proba'
 AUG_ELASTIC_ALPHA = 'aug_elastic_alpha'
 AUG_ELASTIC_SIGMA = 'aug_elastic_sigma'
 
+AUG_INDEP_GAUSSIAN_NOISE_PROBA = "aug_indep_gaussian_noise_proba"
+AUG_INDEP_GAUSSIAN_NOISE_STD = "aug_indep_gaussian_noise_std"
+
 """ Model params
 time_resolution_factor: (int) The original sampling frequency for the labels
     is downsampled using this factor.
@@ -279,6 +282,8 @@ default_params = {
     AUG_RESCALE_UNIFORM_INTENSITY: 0.1,
     AUG_ELASTIC_ALPHA: 0.2,
     AUG_ELASTIC_SIGMA: 0.1,
+    AUG_INDEP_GAUSSIAN_NOISE_PROBA: 0.0,
+    AUG_INDEP_GAUSSIAN_NOISE_STD: 0.0,
     MODEL_VERSION: constants.V21,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,

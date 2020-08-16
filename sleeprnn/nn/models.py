@@ -333,10 +333,14 @@ class WaveletBLSTM(BaseModel):
         elastic_alpha = self.params[pkeys.AUG_ELASTIC_ALPHA]
         elastic_sigma = self.params[pkeys.AUG_ELASTIC_SIGMA]
 
-        print('rescale proba, std:', rescale_proba, rescale_std)
-        print('noise proba, std:', noise_proba, noise_std)
-        print('rescale unif proba, intens:', rescale_unif_proba, rescale_unif_intens)
-        print('elastic proba, alpha, sigma:', elastic_proba, elastic_alpha, elastic_sigma)
+        indep_noise_proba = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_PROBA]
+        indep_noise_std = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_STD]
+
+        print('rescale proba %s, std %s' % (rescale_proba, rescale_std))
+        print('noise proba %s, std %s' % (noise_proba, noise_std))
+        print('rescale unif proba %s, intens %s' % (rescale_unif_proba, rescale_unif_intens))
+        print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
+        print('indep noise proba %s, std %s' % (indep_noise_proba, indep_noise_std))
 
         if rescale_proba > 0:
             print('Applying gaussian rescaling augmentation')
@@ -357,6 +361,11 @@ class WaveletBLSTM(BaseModel):
             feat, label = augmentations.elastic_1d_deformation_wrapper(
                 feat, label, elastic_proba, self.params[pkeys.FS],
                 elastic_alpha, elastic_sigma)
+
+        if indep_noise_proba > 0:
+            print('Applying INDEPENDENT gaussian noise augmentation')
+            feat = augmentations.independent_gaussian_noise(
+                feat, indep_noise_proba, indep_noise_std)
 
         return feat, label
 
