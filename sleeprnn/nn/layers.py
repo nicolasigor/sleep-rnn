@@ -462,6 +462,7 @@ def cmorlet_layer_general(
         size_factor=1.0,
         border_crop=0,
         use_avg_pool=True,
+        pool_scales=None,
         batchnorm=None,
         trainable_wavelet=False,
         reuse=False,
@@ -517,6 +518,9 @@ def cmorlet_layer_general(
                 size_factor=size_factor,
                 flattening=False, border_crop=border_crop, stride=stride,
                 trainable=trainable_wavelet)
+        if pool_scales is not None:
+            cwt = tf.layers.average_pooling2d(
+                cwt, pool_size=(1, pool_scales), strides=(1, pool_scales))
 
         # Output sequence has shape [batch_size, time_len, n_scales, channels]
         cwt_prebn = cwt

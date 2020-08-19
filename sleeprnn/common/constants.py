@@ -202,3 +202,4 @@ TCN03 = 'tcn03'  # TCN time without residual blocks.
 TCN04 = 'tcn04'  # TCN time without residual blocks, with dilations up-down.
 V19_FROZEN = 'v19_frozen'  # BN at CWT is replaced by fixed normalization.
 ATT05 = 'att05'  # 2d attention with 2 lstm
+V19_VAR = 'v19_var'  # v19 with pooled scales at cwt
