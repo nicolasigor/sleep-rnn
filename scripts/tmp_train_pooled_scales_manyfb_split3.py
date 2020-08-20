@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'pooled_scales'
+    experiment_name = 'pooled_scales_manyfb'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -57,6 +57,8 @@ if __name__ == '__main__':
     model_list = [
         constants.V19_VAR
     ]
+    fb_list = [0.2, 0.5, 0.9, 1.4, 2.0]
+    params_list = list(itertools.product(model_list, fb_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -85,12 +87,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version in model_list:
+                for model_version, init_fb in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
+                    params[pkeys.FB_LIST] = [init_fb]
 
-                    folder_name = '%s' % (
-                        model_version
+                    folder_name = '%s_fb%1.1f' % (
+                        model_version, init_fb
                     )
 
                     base_dir = os.path.join(
