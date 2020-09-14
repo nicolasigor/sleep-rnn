@@ -41,6 +41,7 @@ class PredictedDataset(Dataset):
             verbose=verbose
         )
         self.global_std = dataset.global_std
+        self.mean_fft_scaling = dataset.mean_fft_scaling
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
         ids_proba = list(self.probabilities_dict.keys())

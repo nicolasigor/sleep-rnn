@@ -43,6 +43,7 @@ class FeederDataset(Dataset):
             verbose=verbose
         )
         self.global_std = dataset.global_std
+        self.mean_fft_scaling = dataset.mean_fft_scaling
 
     def _load_from_source(self):
         """Loads the data from source."""

@@ -241,11 +241,12 @@ def norm_clip_signal(
         page_size,
         norm_computation=constants.NORM_IQR,
         clip_value=10,
-        global_std=None):
+        global_std=None,
+        mean_fft_scaling=None):
 
     checks.check_valid_value(
         norm_computation, 'norm_computation',
-        [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL])
+        [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL, constants.NORM_GLOBAL_FFT])
     # print('Clipping at %s' % clip_value)
     if norm_computation == constants.NORM_IQR:
         norm_signal, clip_mask = norm_clip_signal_iqr(
@@ -253,12 +254,44 @@ def norm_clip_signal(
     elif norm_computation == constants.NORM_STD:
         norm_signal, clip_mask = norm_clip_signal_std(
             signal, pages_indices, page_size, clip_value)
+    elif norm_computation == constants.NORM_GLOBAL_FFT:
+        if global_std is None:
+            raise ValueError(
+                'norm_computation is set to global_fft, but global_std is None')
+        if mean_fft_scaling is None:
+            raise ValueError(
+                'norm_computation is set to global_fft, but mean_fft_scaling is None')
+        norm_signal, clip_mask = norm_clip_signal_global_fft(
+            signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value)
     else:
         if global_std is None:
             raise ValueError(
                 'norm_computation is set to global, but global_std is None')
         norm_signal, clip_mask = norm_clip_signal_global(
             signal, global_std, clip_value)
+    return norm_signal, clip_mask
+
+
+def norm_clip_signal_global_fft(signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value=10):
+    global_std_fft = global_std * mean_fft_scaling
+    print('Normalizing with Global STD - FFT of %s' % global_std_fft)
+    amp_all = []
+    window_han = np.hanning(page_size)
+    for page in pages_indices:
+        start_page = page * page_size
+        end_page = start_page + page_size
+        amp, freq = power_spectrum(window_han * signal[start_page:end_page], 1)
+        amp_all.append(amp)
+    amp_all = np.stack(amp_all, axis=0).mean(axis=0)
+    fft_scaling_factor = 1 / np.mean(amp_all)
+    print("Normalizing with FFT scaling factor %s" % fft_scaling_factor)
+    norm_signal = fft_scaling_factor * signal / global_std_fft
+    # Now clip to clip_value (only if clip is not None)
+    if clip_value:
+        clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)
+        norm_signal = np.clip(norm_signal, -clip_value, clip_value)
+    else:
+        clip_mask = None
     return norm_signal, clip_mask
 
 

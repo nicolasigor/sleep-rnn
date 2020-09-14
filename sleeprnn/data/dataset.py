@@ -92,6 +92,9 @@ class Dataset(object):
         # Data loading
         self.data = self._load_data(verbose=verbose)
         self.global_std = 1.0
+        # FFT norm stuff
+        self.fft_scaling_factor_dict = self.compute_fft_scaling_factor()
+        self.mean_fft_scaling = 1.0
 
     def compute_global_std(self, subject_ids):
         x_list = self.get_subset_signals(
@@ -104,6 +107,23 @@ class Dataset(object):
         all_signals = np.concatenate(tmp_list)
         global_std = all_signals.std()
         return global_std
+
+    def compute_fft_scaling_factor(self):
+        # Using FFT on whole page
+        window_han = np.hanning(self.page_size)
+        fft_scaling_factor_dict = {}
+        for subject_id in self.all_ids:
+            amp_all = []
+            signal = self.get_subject_signal(subject_id, normalize_clip=False)
+            n2_pages = self.data[subject_id][KEY_N2_PAGES]
+            for page in n2_pages:
+                start_page = page * self.page_size
+                end_page = start_page + self.page_size
+                amp, freq = utils.power_spectrum(window_han * signal[start_page:end_page], self.fs)
+                amp_all.append(amp)
+            amp_all = np.stack(amp_all, axis=0).mean(axis=0)
+            fft_scaling_factor_dict[subject_id] = 1 / np.mean(amp_all)
+        return fft_scaling_factor_dict
 
     def get_subject_signal(
             self,
@@ -142,18 +162,18 @@ class Dataset(object):
                 activity = np.where(activity > 0)[0]
                 tmp_pages = tmp_pages[activity]
                 signal, _ = utils.norm_clip_signal(
-                    signal, tmp_pages, self.page_size,
+                    signal, tmp_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std)
+                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling)
             else:
                 if verbose:
                     print('Normalization with stats from '
                           'N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
                 signal, _ = utils.norm_clip_signal(
-                    signal, n2_pages, self.page_size,
+                    signal, n2_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std)
+                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling)
         return signal
 
     def get_subset_signals(
@@ -445,7 +465,8 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
+                    mean_fft_scaling=self.mean_fft_scaling)
             else:
                 if verbose:
                     print('Normalization with stats from '
@@ -454,7 +475,8 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
+                    mean_fft_scaling=self.mean_fft_scaling)
 
         # Extract segments
         signal = utils.extract_pages(
