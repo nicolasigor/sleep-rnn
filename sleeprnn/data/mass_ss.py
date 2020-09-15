@@ -95,12 +95,13 @@ class MassSS(Dataset):
         self.global_std = self.compute_global_std(self.train_ids)
         if verbose:
             print('Global STD:', self.global_std)
-        self.mean_fft_scaling = np.mean([self.fft_scaling_factor_dict[subject_id] for subject_id in self.train_ids])
+        fft_scaling_factor_dict = self.compute_fft_scaling_factor()
+        self.mean_fft_scaling = np.mean([fft_scaling_factor_dict[subject_id] for subject_id in self.train_ids])
         if verbose:
             print("Mean FFT Scaling of non-testing set:", self.mean_fft_scaling)
             print("Per subject FFT scaling:")
             for subject_id in self.all_ids:
-                print("S%02d: %1.4f" % (subject_id, self.fft_scaling_factor_dict[subject_id]))
+                print("S%02d: %1.4f" % (subject_id, fft_scaling_factor_dict[subject_id]))
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

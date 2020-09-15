@@ -93,7 +93,6 @@ class Dataset(object):
         self.data = self._load_data(verbose=verbose)
         self.global_std = 1.0
         # FFT norm stuff
-        self.fft_scaling_factor_dict = self.compute_fft_scaling_factor()
         self.mean_fft_scaling = 1.0
 
     def compute_global_std(self, subject_ids):

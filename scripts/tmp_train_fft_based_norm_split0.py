@@ -65,6 +65,7 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL_FFT
+    params[pkeys.MAX_ITERS] = 500
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
