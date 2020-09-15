@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'fft_based_norm'
+    experiment_name = 'without_fft_based_norm'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL_FFT
+    # params[pkeys.NORM_COMPUTATION_MODE] = constants.NORM_GLOBAL_FFT
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
