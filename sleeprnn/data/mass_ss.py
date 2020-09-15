@@ -99,9 +99,9 @@ class MassSS(Dataset):
         self.mean_fft_scaling = np.mean([fft_scaling_factor_dict[subject_id] for subject_id in self.train_ids])
         if verbose:
             print("Mean FFT Scaling of non-testing set:", self.mean_fft_scaling)
-            print("Per subject FFT scaling:")
+            print("Per subject FFT scaling / Mean:")
             for subject_id in self.all_ids:
-                print("S%02d: %1.4f" % (subject_id, fft_scaling_factor_dict[subject_id]))
+                print("S%02d: %1.4f" % (subject_id, fft_scaling_factor_dict[subject_id] / self.mean_fft_scaling))
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

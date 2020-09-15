@@ -273,8 +273,7 @@ def norm_clip_signal(
 
 
 def norm_clip_signal_global_fft(signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value=10):
-    global_std_fft = global_std * mean_fft_scaling
-    print('Normalizing with Global STD - FFT of %s' % global_std_fft)
+    print('Normalizing with Global STD of %s and Mean FFT Scaling of %s' % (global_std, mean_fft_scaling))
     amp_all = []
     window_han = np.hanning(page_size)
     for page in pages_indices:
@@ -284,8 +283,9 @@ def norm_clip_signal_global_fft(signal, global_std, mean_fft_scaling, pages_indi
         amp_all.append(amp)
     amp_all = np.stack(amp_all, axis=0).mean(axis=0)
     fft_scaling_factor = 1 / np.mean(amp_all)
+    fft_scaling_factor = fft_scaling_factor / mean_fft_scaling
     print("Normalizing with FFT scaling factor %s" % fft_scaling_factor)
-    norm_signal = fft_scaling_factor * signal / global_std_fft
+    norm_signal = fft_scaling_factor * signal / global_std
     # Now clip to clip_value (only if clip is not None)
     if clip_value:
         clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)

@@ -185,6 +185,29 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v4_lag4_-4.0'): [0.34, 0.42],
     os.path.join('20200610_var_reg_lagged_first_grid_n2_train_mass_ss', 'v11_weighted_cross_entropy_loss_v3_lag4_-3.0'): [0.36, 0.42],
 
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v19_rep2'): [0.46, 0.54, 0.56, 0.40],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v19_rep4'): [0.44, 0.52, 0.60, 0.46],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v19_rep1'): [0.52, 0.56, 0.56, 0.48],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v19_rep3'): [0.42, 0.52, 0.50, 0.46],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v11_rep2'): [0.44, 0.52, 0.42, 0.38],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v11_rep3'): [0.42, 0.48, 0.44, 0.44],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v11_rep4'): [0.42, 0.52, 0.46, 0.42],
+    os.path.join('20200724_reproduce_red_n2_train_mass_ss', 'v11_rep1'): [0.48, 0.48, 0.52, 0.44],
+
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v19_rep3'): [0.42, 0.48, 0.48, 0.42],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v19_rep2'): [0.52, 0.50, 0.42, 0.48],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v19_rep1'): [0.50, 0.52, 0.50, 0.52],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v19_rep4'): [0.56, 0.54, 0.46, 0.38],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v11_rep3'): [0.60, 0.58, 0.56, 0.46],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v11_rep2'): [0.60, 0.52, 0.56, 0.50],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v11_rep4'): [0.50, 0.58, 0.50, 0.58],
+    os.path.join('20200724_reproduce_red_n2_train_mass_kc', 'v11_rep1'): [0.52, 0.56, 0.46, 0.56],
+
+    os.path.join('20200914_fft_based_norm_n2_train_mass_ss', 'v11_rep2'): [0.40, 0.56, 0.52, 0.46],
+    os.path.join('20200914_fft_based_norm_n2_train_mass_ss', 'v11_rep1'): [0.50, 0.54, 0.54, 0.42],
+    os.path.join('20200914_fft_based_norm_n2_train_mass_ss', 'v19_rep2'): [0.46, 0.58, 0.54, 0.46],
+    os.path.join('20200914_fft_based_norm_n2_train_mass_ss', 'v19_rep1'): [0.44, 0.52, 0.62, 0.48],
+
 }
 
 
