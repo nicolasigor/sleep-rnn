@@ -273,7 +273,7 @@ def norm_clip_signal(
 
 
 def norm_clip_signal_global_fft(
-        signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value=10, band=[2, 6]):
+        signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value=10, band=[2, 6], fs=200):
     print('Normalizing with Global STD of %s and Mean FFT Scaling of %s' % (global_std, mean_fft_scaling))
     print("Using frequency band %s Hz" % band)
     amp_all = []
@@ -281,7 +281,7 @@ def norm_clip_signal_global_fft(
     for page in pages_indices:
         start_page = page * page_size
         end_page = start_page + page_size
-        amp, freq = power_spectrum(window_han * signal[start_page:end_page], 1)
+        amp, freq = power_spectrum(window_han * signal[start_page:end_page], fs)
         amp_all.append(amp)
     amp_all = np.stack(amp_all, axis=0).mean(axis=0)
     band_low = (freq >= band[0]).astype(np.float32)
