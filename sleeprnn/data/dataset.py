@@ -107,7 +107,7 @@ class Dataset(object):
         global_std = all_signals.std()
         return global_std
 
-    def compute_fft_scaling_factor(self):
+    def compute_fft_scaling_factor(self, band=[2, 6]):
         # Using FFT on whole page
         window_han = np.hanning(self.page_size)
         fft_scaling_factor_dict = {}
@@ -121,7 +121,11 @@ class Dataset(object):
                 amp, freq = utils.power_spectrum(window_han * signal[start_page:end_page], self.fs)
                 amp_all.append(amp)
             amp_all = np.stack(amp_all, axis=0).mean(axis=0)
-            fft_scaling_factor_dict[subject_id] = 1 / np.mean(amp_all)
+            band_low = (freq >= band[0]).astype(np.float32)
+            band_high = (freq <= band[1]).astype(np.float32)
+            band_weights = band_low * band_high
+            band_mean = np.sum(amp_all * band_weights) / np.sum(band_weights)
+            fft_scaling_factor_dict[subject_id] = 1 / band_mean
         return fft_scaling_factor_dict
 
     def get_subject_signal(
