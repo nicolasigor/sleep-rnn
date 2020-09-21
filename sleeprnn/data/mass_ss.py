@@ -55,7 +55,7 @@ class MassSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, verbose=True):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True, custom_scaling_dict=None):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -89,7 +89,8 @@ class MassSS(Dataset):
             event_name=constants.SPINDLE,
             n_experts=2,
             params=params,
-            verbose=verbose
+            verbose=verbose,
+            custom_scaling_dict=custom_scaling_dict
         )
 
         self.global_std = self.compute_global_std(self.train_ids)
@@ -102,6 +103,10 @@ class MassSS(Dataset):
             print("Per subject FFT scaling / Mean:")
             for subject_id in self.all_ids:
                 print("S%02d: %1.4f" % (subject_id, fft_scaling_factor_dict[subject_id] / self.mean_fft_scaling))
+        if verbose and self.custom_scaling_dict is not None:
+            print("Using Custom Scaling Dict")
+            for subject_id in self.all_ids:
+                print("S%02d: %1.4f" % (subject_id, self.custom_scaling_dict[subject_id]))
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

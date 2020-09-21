@@ -38,7 +38,8 @@ class Dataset(object):
             event_name,
             n_experts=1,
             params=None,
-            verbose=True
+            verbose=True,
+            custom_scaling_dict=None
     ):
         """Constructor.
 
@@ -94,6 +95,7 @@ class Dataset(object):
         self.global_std = 1.0
         # FFT norm stuff
         self.mean_fft_scaling = 1.0
+        self.custom_scaling_dict = custom_scaling_dict
 
     def compute_global_std(self, subject_ids):
         x_list = self.get_subset_signals(
@@ -167,7 +169,8 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling)
+                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling,
+                    custom_scaling=self.custom_scaling_dict[subject_id])
             else:
                 if verbose:
                     print('Normalization with stats from '
@@ -176,7 +179,8 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling)
+                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling,
+                    custom_scaling=self.custom_scaling_dict[subject_id])
         return signal
 
     def get_subset_signals(
@@ -469,7 +473,7 @@ class Dataset(object):
                     signal, tmp_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
                     global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
-                    mean_fft_scaling=self.mean_fft_scaling)
+                    mean_fft_scaling=self.mean_fft_scaling, custom_scaling=self.custom_scaling_dict[subject_id])
             else:
                 if verbose:
                     print('Normalization with stats from '
@@ -479,7 +483,7 @@ class Dataset(object):
                     signal, n2_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
                     global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
-                    mean_fft_scaling=self.mean_fft_scaling)
+                    mean_fft_scaling=self.mean_fft_scaling, custom_scaling=self.custom_scaling_dict[subject_id])
 
         # Extract segments
         signal = utils.extract_pages(

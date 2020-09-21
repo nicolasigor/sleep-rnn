@@ -242,11 +242,19 @@ def norm_clip_signal(
         norm_computation=constants.NORM_IQR,
         clip_value=10,
         global_std=None,
-        mean_fft_scaling=None):
+        mean_fft_scaling=None,
+        custom_scaling=None
+):
 
     checks.check_valid_value(
         norm_computation, 'norm_computation',
-        [constants.NORM_IQR, constants.NORM_STD, constants.NORM_GLOBAL, constants.NORM_GLOBAL_FFT])
+        [
+            constants.NORM_IQR,
+            constants.NORM_STD,
+            constants.NORM_GLOBAL,
+            constants.NORM_GLOBAL_FFT,
+            constants.NORM_GLOBAL_CUSTOM
+        ])
     # print('Clipping at %s' % clip_value)
     if norm_computation == constants.NORM_IQR:
         norm_signal, clip_mask = norm_clip_signal_iqr(
@@ -263,12 +271,34 @@ def norm_clip_signal(
                 'norm_computation is set to global_fft, but mean_fft_scaling is None')
         norm_signal, clip_mask = norm_clip_signal_global_fft(
             signal, global_std, mean_fft_scaling, pages_indices, page_size, clip_value)
+    elif norm_computation == constants.NORM_GLOBAL_CUSTOM:
+        if global_std is None:
+            raise ValueError(
+                'norm_computation is set to global_custom, but global_std is None')
+        if custom_scaling is None:
+            raise ValueError(
+                'norm_computation is set to global_custom, but custom_scaling is None')
+        norm_signal, clip_mask = norm_clip_signal_global_custom(
+            signal, global_std, custom_scaling, clip_value)
     else:
         if global_std is None:
             raise ValueError(
                 'norm_computation is set to global, but global_std is None')
         norm_signal, clip_mask = norm_clip_signal_global(
             signal, global_std, clip_value)
+    return norm_signal, clip_mask
+
+
+def norm_clip_signal_global_custom(
+        signal, global_std, custom_scaling, clip_value=10):
+    print("Normalizing with Global STD of %s and Custom Scaling of %s" % (global_std, custom_scaling))
+    norm_signal = custom_scaling * signal / global_std
+    # Now clip to clip_value (only if clip is not None)
+    if clip_value:
+        clip_mask = (np.abs(norm_signal) > clip_value).astype(np.int32)
+        norm_signal = np.clip(norm_signal, -clip_value, clip_value)
+    else:
+        clip_mask = None
     return norm_signal, clip_mask
 
 

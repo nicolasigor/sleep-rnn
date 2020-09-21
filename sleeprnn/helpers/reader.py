@@ -144,7 +144,7 @@ def load_raw_inta_stamps(
     return raw_stamps_1, raw_stamps_2
 
 
-def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True):
+def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, **kwargs):
     # Load data
     checks.check_valid_value(
         dataset_name, 'dataset_name',
@@ -155,13 +155,13 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True):
         ])
     if dataset_name == constants.MASS_SS_NAME:
         dataset = MassSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     elif dataset_name == constants.MASS_KC_NAME:
         dataset = MassKC(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     else:
         dataset = IntaSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     return dataset
 
 

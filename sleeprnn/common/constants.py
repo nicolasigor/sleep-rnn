@@ -113,6 +113,7 @@ NORM_IQR = 'norm_iqr'
 NORM_STD = 'norm_std'
 NORM_GLOBAL = 'norm_global'
 NORM_GLOBAL_FFT = "norm_global_fft"
+NORM_GLOBAL_CUSTOM = "norm_global_custom"
 
 # Colors
 RED = 'red'
