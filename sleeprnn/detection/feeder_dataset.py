@@ -40,7 +40,8 @@ class FeederDataset(Dataset):
             event_name=dataset.event_name,
             n_experts=dataset.n_experts,
             params=dataset.params.copy(),
-            verbose=verbose
+            verbose=verbose,
+            custom_scaling_dict=dataset.custom_scaling_dict
         )
         self.global_std = dataset.global_std
         self.mean_fft_scaling = dataset.mean_fft_scaling
