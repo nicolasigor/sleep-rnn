@@ -265,6 +265,15 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20200918_fft_based_norm_slow_n2_train_mass_ss', 'v19_rep1'): [0.46, 0.64, 0.52, 0.48],
 
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop0.50'): [0.50, 0.50, 0.54, 0.46],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop0.25'): [0.44, 0.52, 0.48, 0.48],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop0.75'): [0.48, 0.46, 0.46, 0.48],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop1.00'): [0.48, 0.38, 0.52, 0.54],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop1.25'): [0.52, 0.46, 0.50, 0.50],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop1.50'): [0.52, 0.46, 0.46, 0.52],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop1.75'): [0.54, 0.44, 0.36, 0.48],
+    os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop2.00'): [0.50, 0.46, 0.40, 0.52],
+
 }
 
 
