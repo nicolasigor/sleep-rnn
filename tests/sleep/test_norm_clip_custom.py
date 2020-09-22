@@ -35,10 +35,10 @@ if __name__ == '__main__':
     }
 
     params = {
-        pkeys.NORM_COMPUTATION_MODE: constants.NORM_GLOBAL_CUSTOM,
+        pkeys.NORM_COMPUTATION_MODE: constants.NORM_GLOBAL,
     }
     dataset_name = constants.MASS_SS_NAME
-    dataset = load_dataset(dataset_name, params=params, custom_scaling_dict=custom_scaling_dict)
+    dataset = load_dataset(dataset_name, params=params)#, custom_scaling_dict=custom_scaling_dict)
     signal = dataset.get_subject_signal(
         3, normalize_clip=True, normalization_mode=constants.N2_RECORD)
     plt.hist(signal)

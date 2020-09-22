@@ -95,7 +95,11 @@ class Dataset(object):
         self.global_std = 1.0
         # FFT norm stuff
         self.mean_fft_scaling = 1.0
-        self.custom_scaling_dict = custom_scaling_dict
+
+        if custom_scaling_dict is None:
+            self.custom_scaling_dict = {subject_id: 1.0 for subject_id in self.all_ids}
+        else:
+            self.custom_scaling_dict = custom_scaling_dict
 
     def compute_global_std(self, subject_ids):
         x_list = self.get_subset_signals(
