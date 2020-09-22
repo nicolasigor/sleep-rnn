@@ -337,10 +337,10 @@ class WaveletBLSTM(BaseModel):
         indep_noise_std = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_STD]
 
         print('rescale proba %s, std %s' % (rescale_proba, rescale_std))
-        print('noise proba %s, std %s' % (noise_proba, noise_std))
         print('rescale unif proba %s, intens %s' % (rescale_unif_proba, rescale_unif_intens))
-        print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
+        print('noise proba %s, std %s' % (noise_proba, noise_std))
         print('indep noise proba %s, std %s' % (indep_noise_proba, indep_noise_std))
+        print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
 
         if rescale_proba > 0:
             print('Applying gaussian rescaling augmentation')

@@ -11,20 +11,6 @@ import tensorflow_probability as tfp
 from sleeprnn.common import checks
 
 
-def rescale_normal(feat, probability, std):
-    checks.check_valid_range(probability, 'probability', [0, 1])
-    with tf.variable_scope('rescale_normal'):
-        uniform_random = tf.random.uniform([], 0.0, 1.0)
-        aug_condition = tf.less(uniform_random, probability)
-        new_feat = tf.cond(
-            aug_condition,
-            lambda: feat * tf.random.normal(
-                [], mean=1.0, stddev=std),
-            lambda: feat
-        )
-    return new_feat
-
-
 def gaussian_noise(feat, probability, std):
     """Noise is relative to each value"""
     checks.check_valid_range(probability, 'probability', [0, 1])
@@ -56,16 +42,30 @@ def independent_gaussian_noise(feat, probability, std):
     return new_feat
 
 
-def rescale_uniform(feat, probability, intensity):
-    # Intensity is a float number representing fraction.
+def rescale_normal(feat, probability, std):
     checks.check_valid_range(probability, 'probability', [0, 1])
-    with tf.variable_scope('rescale_uniform'):
+    with tf.variable_scope('rescale_normal'):
+        print("Using RandomScalingNorma std %1.6f and probability %1.2f" % (std, probability))
         uniform_random = tf.random.uniform([], 0.0, 1.0)
         aug_condition = tf.less(uniform_random, probability)
         new_feat = tf.cond(
             aug_condition,
-            lambda: feat * tf.random.uniform(
-                [], 1.0 - intensity, 1.0 + intensity),
+            lambda: feat * tf.random.normal([], mean=1.0, stddev=std),
+            lambda: feat
+        )
+    return new_feat
+
+
+def rescale_uniform(feat, probability, intensity):
+    # Intensity is a float number representing fraction.
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    with tf.variable_scope('rescale_uniform'):
+        print("Using RandomScalingUniform intensity %1.6f and probability %1.2f" % (intensity, probability))
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: feat * tf.random.uniform([], 1.0 - intensity, 1.0 + intensity),
             lambda: feat
         )
     return new_feat
