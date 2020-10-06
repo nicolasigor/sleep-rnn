@@ -119,6 +119,7 @@ N_SCALES = 'n_scales'
 LOWER_FREQ = 'lower_freq'
 UPPER_FREQ = 'upper_freq'
 USE_RELU = 'use_relu'
+CWT_NOISE_INTENSITY = "cwt_noise_intensity"
 # Convolutional stage
 INITIAL_KERNEL_SIZE = 'initial_kernel_size'
 INITIAL_CONV_FILTERS = 'initial_conv_filters'
@@ -396,5 +397,6 @@ default_params = {
     ATT_BANDS_V_INDEP_LINEAR: None,
     ATT_BANDS_K_INDEP_LINEAR: None,
     ATT_BANDS_V_ADD_BAND_ENC: None,
-    ATT_BANDS_K_ADD_BAND_ENC: None
+    ATT_BANDS_K_ADD_BAND_ENC: None,
+    CWT_NOISE_INTENSITY: None
 }
