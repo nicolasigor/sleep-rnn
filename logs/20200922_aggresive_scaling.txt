@@ -1,0 +1,7 @@
+Val AF1 report for 20200921_aggresive_rescaling_n2_train_mass_ss
+AF1 65.32/4.42 [0.5] 66.29/4.11 [0.44, 0.56, 0.46, 0.46], F3 79.30/3.86, P3 78.9/12.7, R3 82.9/10.2 for v19_unif0_normal1
+AF1 64.83/4.47 [0.5] 65.83/3.63 [0.44, 0.56, 0.46, 0.46], F3 78.44/3.39, P3 78.7/12.9, R3 81.6/11.0 for v19_unif1_normal0
+
+os.path.join('20200921_aggresive_rescaling_n2_train_mass_ss', 'v19_unif0_normal1'): [0.44, 0.56, 0.46, 0.46],
+os.path.join('20200921_aggresive_rescaling_n2_train_mass_ss', 'v19_unif1_normal0'): [0.44, 0.56, 0.46, 0.46],
+
