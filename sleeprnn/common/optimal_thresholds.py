@@ -274,6 +274,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop1.75'): [0.54, 0.44, 0.36, 0.48],
     os.path.join('20200920_custom_scaling_n2_train_mass_ss', 'v19_prop2.00'): [0.50, 0.46, 0.40, 0.52],
 
+    os.path.join('20201006_noisy_cwt_n2_train_mass_ss', 'v19_noisy_intens0.05'): [0.46, 0.58, 0.50, 0.42],
+    os.path.join('20201006_noisy_cwt_n2_train_mass_ss', 'v19_noisy_intens0.10'): [0.48, 0.52, 0.54, 0.46],
+
 }
 
 
