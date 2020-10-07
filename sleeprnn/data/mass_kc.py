@@ -12,6 +12,7 @@ import pyedflib
 
 from sleeprnn.common import constants
 from . import utils
+from . import stamp_correction
 from .dataset import Dataset
 from .dataset import KEY_EEG, KEY_MARKS
 from .dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
@@ -63,6 +64,9 @@ class MassKC(Dataset):
         self.state_ids = np.array(['1', '2', '3', '4', 'R', 'W', '?'])
         self.unknown_id = '?'  # Character for unknown state in hypnogram
         self.n2_id = '2'  # Character for N2 identification in hypnogram
+
+        # KComplex characteristics
+        self.min_kc_duration = 0.2  # Minimum duration of KC in seconds
 
         valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
         self.test_ids = IDS_TEST
@@ -204,6 +208,9 @@ class MassKC(Dataset):
         marks_time = np.stack((onsets, offsets), axis=1)  # time-stamps
         # Transforms to sample-stamps
         marks = np.round(marks_time * self.fs).astype(np.int32)
+        # Fix durations that are outside standards
+        marks = stamp_correction.filter_duration_stamps(
+            marks, self.fs, self.min_kc_duration, None)
         return marks
 
     def _read_states(self, path_states_file, signal_length):
