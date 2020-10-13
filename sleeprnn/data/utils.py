@@ -9,7 +9,7 @@ import os
 
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.signal import resample_poly, butter, filtfilt, firwin, lfilter
+from scipy.signal import resample_poly, butter, filtfilt, firwin, lfilter, freqz
 from scipy.stats import iqr
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -420,6 +420,13 @@ def norm_clip_signal_iqr(signal, pages_indices, page_size, clip_value=10):
         clip_mask = None
 
     return norm_signal, clip_mask
+
+
+def fir_freq_response(fir_filter, fs):
+    w, h = freqz(fir_filter)
+    resp_freq = w * fs / (2 * np.pi)
+    resp_amp = abs(h)
+    return resp_freq, resp_amp
 
 
 def power_spectrum(signal, fs):

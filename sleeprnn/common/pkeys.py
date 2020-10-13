@@ -31,6 +31,11 @@ AUG_ELASTIC_SIGMA = 'aug_elastic_sigma'
 AUG_INDEP_GAUSSIAN_NOISE_PROBA = "aug_indep_gaussian_noise_proba"
 AUG_INDEP_GAUSSIAN_NOISE_STD = "aug_indep_gaussian_noise_std"
 
+AUG_RANDOM_WAVES_PROBA = "aug_random_waves_proba"
+AUG_RANDOM_WAVES_PARAMS = "aug_random_waves_params"
+AUG_RANDOM_ANTI_WAVES_PROBA = "aug_random_anti_waves_proba"
+AUG_RANDOM_ANTI_WAVES_PARAMS = "aug_random_anti_waves_params"
+
 """ Model params
 time_resolution_factor: (int) The original sampling frequency for the labels
     is downsampled using this factor.
@@ -285,6 +290,10 @@ default_params = {
     AUG_ELASTIC_SIGMA: 0.1,
     AUG_INDEP_GAUSSIAN_NOISE_PROBA: 0.0,
     AUG_INDEP_GAUSSIAN_NOISE_STD: 0.0,
+    AUG_RANDOM_WAVES_PROBA: 0.0,
+    AUG_RANDOM_WAVES_PARAMS: None,
+    AUG_RANDOM_ANTI_WAVES_PROBA: 0.0,
+    AUG_RANDOM_ANTI_WAVES_PARAMS: None,
     MODEL_VERSION: constants.V21,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,

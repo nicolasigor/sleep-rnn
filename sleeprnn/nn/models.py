@@ -336,16 +336,24 @@ class WaveletBLSTM(BaseModel):
         indep_noise_proba = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_PROBA]
         indep_noise_std = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_STD]
 
+        random_waves_proba = self.params[pkeys.AUG_RANDOM_WAVES_PROBA]
+        random_waves_params = self.params[pkeys.AUG_RANDOM_WAVES_PARAMS]
+        random_anti_waves_proba = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA]
+        random_anti_waves_params = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS]
+
         print('rescale proba %s, std %s' % (rescale_proba, rescale_std))
         print('rescale unif proba %s, intens %s' % (rescale_unif_proba, rescale_unif_intens))
         print('noise proba %s, std %s' % (noise_proba, noise_std))
         print('indep noise proba %s, std %s' % (indep_noise_proba, indep_noise_std))
         print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
+        print('random waves proba %s, params %s' % (random_waves_proba, random_waves_params))
+        print('random anti waves proba %s, params %s' % (random_anti_waves_proba, random_anti_waves_params))
 
         if rescale_proba > 0:
             print('Applying gaussian rescaling augmentation')
             feat = augmentations.rescale_normal(
                 feat, rescale_proba, rescale_std)
+
         if noise_proba > 0:
             print('Applying gaussian noise augmentation')
             feat = augmentations.gaussian_noise(
@@ -366,6 +374,17 @@ class WaveletBLSTM(BaseModel):
             print('Applying INDEPENDENT gaussian noise augmentation')
             feat = augmentations.independent_gaussian_noise(
                 feat, indep_noise_proba, indep_noise_std)
+
+        if random_anti_waves_proba > 0:
+            print("Applying random anti waves augmentation")
+            feat = augmentations.random_anti_waves_wrapper(
+                feat, label, random_anti_waves_proba, self.params[pkeys.FS], random_anti_waves_params
+            )
+
+        if random_waves_proba > 0:
+            print("Applying random waves augmentation")
+            feat = augmentations.random_waves_wrapper(
+                feat, label, random_waves_proba, self.params[pkeys.FS], random_waves_params)
 
         return feat, label
 

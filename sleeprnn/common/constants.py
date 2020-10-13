@@ -115,6 +115,11 @@ NORM_GLOBAL = 'norm_global'
 NORM_GLOBAL_FFT = "norm_global_fft"
 NORM_GLOBAL_CUSTOM = "norm_global_custom"
 
+# Type of masking for wave augmentation
+MASK_KEEP_EVENTS = "mask_keep_events"
+MASK_KEEP_BACKGROUND = "mask_keep_background"
+MASK_NONE = "mask_none"
+
 # Colors
 RED = 'red'
 BLUE = 'blue'

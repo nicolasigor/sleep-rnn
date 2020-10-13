@@ -8,7 +8,98 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 import tensorflow_probability as tfp
 
-from sleeprnn.common import checks
+from sleeprnn.common import checks, constants
+from . import wave_augment
+
+
+def random_waves_wrapper(
+        feat,
+        label,
+        probability,
+        fs,
+        params_dict_list
+):
+    """Addition of waves randomly generated in given frequency bands"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    with tf.variable_scope('random_waves'):
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: random_waves(feat, label, fs, params_dict_list),
+            lambda: feat
+        )
+    return new_feat
+
+
+def random_waves(
+        feat,
+        label,
+        fs,
+        params_dict_list
+):
+    with tf.variable_scope('random_waves_generator'):
+        mask_keep_events = wave_augment.generate_soft_mask_from_labels_tf(label, fs, use_background=False)
+        mask_keep_background = 1.0 - mask_keep_events
+        mask_map_dict = {
+            constants.MASK_KEEP_EVENTS: mask_keep_events,
+            constants.MASK_KEEP_BACKGROUND: mask_keep_background,
+            constants.MASK_NONE: None,
+        }
+        feat_size = feat.get_shape().as_list()[0]
+        random_wave = 0
+        for params_dict in params_dict_list:
+            my_params = params_dict.copy()
+            my_params["mask"] = mask_map_dict[params_dict["mask"]]
+            random_wave += wave_augment.generate_wave_tf(
+                feat_size, fs, **my_params)
+        new_feat = random_wave + feat
+    return new_feat
+
+
+def random_anti_waves_wrapper(
+        feat,
+        label,
+        probability,
+        fs,
+        params_dict_list
+):
+    """Random attenuation of waves in given frequency bands"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    with tf.variable_scope('random_anti_waves'):
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: random_anti_waves(feat, label, fs, params_dict_list),
+            lambda: feat
+        )
+    return new_feat
+
+
+def random_anti_waves(
+        feat,
+        label,
+        fs,
+        params_dict_list
+):
+    with tf.variable_scope('random_anti_waves_generator'):
+        mask_keep_events = wave_augment.generate_soft_mask_from_labels_tf(label, fs, use_background=False)
+        mask_keep_background = 1.0 - mask_keep_events
+        mask_map_dict = {
+            constants.MASK_KEEP_EVENTS: mask_keep_events,
+            constants.MASK_KEEP_BACKGROUND: mask_keep_background,
+            constants.MASK_NONE: None,
+        }
+        feat_size = feat.get_shape().as_list()[0]
+        random_anti_wave = 0
+        for params_dict in params_dict_list:
+            my_params = params_dict.copy()
+            my_params["mask"] = mask_map_dict[params_dict["mask"]]
+            random_anti_wave += wave_augment.generate_anti_wave_tf(
+                feat + random_anti_wave, feat_size, fs, **my_params)
+        new_feat = random_anti_wave + feat
+    return new_feat
 
 
 def gaussian_noise(feat, probability, std):
