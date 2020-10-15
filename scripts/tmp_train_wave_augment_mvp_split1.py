@@ -57,10 +57,10 @@ if __name__ == '__main__':
         constants.V19,
     ]
     random_waves_proba_alpha_list = [
+        (1, 15), (1, 20), (1, 25), (1, 30),
         (0, 0),
-        (1, 15), (1, 20), (1, 25), (1, 30)
     ]  # uV, needs normalization
-    random_anti_waves_proba_list = [0, 1]
+    random_anti_waves_proba_list = [1, 0]
     params_list = list(itertools.product(
         model_list, random_anti_waves_proba_list, random_waves_proba_alpha_list))
 

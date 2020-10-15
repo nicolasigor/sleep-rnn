@@ -11,8 +11,9 @@ def apply_fir_filter_tf(signal, kernel):
     """For single signal, not batch"""
     signal = tf.reshape(signal, shape=[1, 1, -1, 1])
     kernel = tf.reshape(kernel, shape=[1, -1, 1, 1])
-    new_signal = tf.nn.conv2d(
-        input=signal, filter=kernel, strides=[1, 1, 1, 1], padding="SAME")
+    with tf.device("/cpu:0"):
+        new_signal = tf.nn.conv2d(
+            input=signal, filter=kernel, strides=[1, 1, 1, 1], padding="SAME")
     new_signal = new_signal[0, 0, :, 0]
     return new_signal
 
