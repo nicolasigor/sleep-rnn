@@ -277,6 +277,17 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201006_noisy_cwt_n2_train_mass_ss', 'v19_noisy_intens0.05'): [0.46, 0.58, 0.50, 0.42],
     os.path.join('20201006_noisy_cwt_n2_train_mass_ss', 'v19_noisy_intens0.10'): [0.48, 0.52, 0.54, 0.46],
 
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha15'): [0.48, 0.50, 0.54, 0.48],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha25'): [0.40, 0.56, 0.56, 0.50],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha20'): [0.52, 0.54, 0.56, 0.48],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha30'): [0.50, 0.56, 0.52, 0.52],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha20'): [0.48, 0.56, 0.54, 0.46],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha25'): [0.50, 0.56, 0.48, 0.48],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha30'): [0.40, 0.52, 0.50, 0.44],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha15'): [0.42, 0.52, 0.52, 0.48],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw1_alpha0'): [0.44, 0.54, 0.56, 0.42],
+    os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw0_alpha0'): [0.42, 0.56, 0.52, 0.50],
+
 }
 
 

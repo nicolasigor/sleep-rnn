@@ -1,0 +1,23 @@
+Val AF1 report for 20201015_wave_augment_mvp_n2_train_mass_ss
+AF1 67.91/2.69 [0.5] 68.23/2.72 [0.48, 0.50, 0.54, 0.48], F3 80.76/1.98, P3 79.5/ 8.8, R3 83.6/ 8.2 for v19_w1_aw1_alpha15
+AF1 67.30/3.31 [0.5] 68.21/3.13 [0.40, 0.56, 0.56, 0.50], F3 80.73/2.34, P3 79.2/ 8.9, R3 83.8/ 7.7 for v19_w1_aw1_alpha25
+AF1 67.87/2.97 [0.5] 68.13/2.69 [0.52, 0.54, 0.56, 0.48], F3 80.58/2.01, P3 79.6/ 8.9, R3 83.2/ 8.5 for v19_w1_aw0_alpha20
+AF1 67.84/2.76 [0.5] 68.10/2.69 [0.50, 0.56, 0.52, 0.52], F3 80.57/1.96, P3 79.8/ 9.1, R3 83.1/ 8.5 for v19_w1_aw1_alpha30
+AF1 67.49/2.86 [0.5] 68.05/2.81 [0.48, 0.56, 0.54, 0.46], F3 80.52/1.96, P3 79.8/ 9.2, R3 83.0/ 8.6 for v19_w1_aw1_alpha20
+AF1 67.65/2.78 [0.5] 67.92/2.85 [0.50, 0.56, 0.48, 0.48], F3 80.50/1.88, P3 79.8/ 9.3, R3 83.1/ 8.9 for v19_w1_aw0_alpha25
+AF1 67.08/2.45 [0.5] 67.90/3.08 [0.40, 0.52, 0.50, 0.44], F3 80.70/2.19, P3 79.2/ 9.2, R3 83.9/ 8.3 for v19_w1_aw0_alpha30
+AF1 67.25/2.74 [0.5] 67.76/2.87 [0.42, 0.52, 0.52, 0.48], F3 80.31/2.12, P3 79.1/ 9.0, R3 83.2/ 8.8 for v19_w1_aw0_alpha15
+AF1 66.86/2.27 [0.5] 67.72/2.36 [0.44, 0.54, 0.56, 0.42], F3 80.09/1.78, P3 79.5/ 9.6, R3 82.7/ 9.4 for v19_w0_aw1_alpha0
+AF1 66.87/2.09 [0.5] 67.68/2.14 [0.42, 0.56, 0.52, 0.50], F3 80.10/1.09, P3 80.5/ 9.1, R3 81.7/ 9.8 for v19_w0_aw0_alpha0
+
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha15'): [0.48, 0.50, 0.54, 0.48],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha25'): [0.40, 0.56, 0.56, 0.50],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha20'): [0.52, 0.54, 0.56, 0.48],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha30'): [0.50, 0.56, 0.52, 0.52],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw1_alpha20'): [0.48, 0.56, 0.54, 0.46],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha25'): [0.50, 0.56, 0.48, 0.48],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha30'): [0.40, 0.52, 0.50, 0.44],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w1_aw0_alpha15'): [0.42, 0.52, 0.52, 0.48],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw1_alpha0'): [0.44, 0.54, 0.56, 0.42],
+os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw0_alpha0'): [0.42, 0.56, 0.52, 0.50],
+
