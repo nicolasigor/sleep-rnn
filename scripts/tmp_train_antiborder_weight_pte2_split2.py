@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'antiborder_weight'
+    experiment_name = 'antiborder_weight_pte2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -56,12 +56,10 @@ if __name__ == '__main__':
     model_list = [
         constants.V19,
     ]
-    positive_class_weight_list = [1.0]  # [0.25, 0.5, 1.0]
-    soft_focal_eps_list = [1.0]  # [0.25, 0.5, 1.0]
+    positive_class_weight_list = [0.25, 0.5, 1.0]
+    soft_focal_eps_list = [0.25, 0.5, 1.0]
     antiborder_amplitude_halfwidth_list = [
-        (1, 8), (1, 6),
-        (0.5, 8), (0.5, 6),
-        (0, 6)
+        (0.5, 8),
     ]
 
     params_list = list(itertools.product(
