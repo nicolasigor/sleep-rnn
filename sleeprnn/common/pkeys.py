@@ -218,6 +218,11 @@ MIX_WEIGHTS_STRATEGY = 'mix_weights_strategy'
 PREDICTION_VARIABILITY_REGULARIZER = 'prediction_variability_regularizer'
 PREDICTION_VARIABILITY_LAG = 'prediction_variability_lag'
 
+SOFT_FOCAL_GAMMA = "soft_focal_gamma"
+SOFT_FOCAL_EPSILON = "soft_focal_epsilon"
+ANTIBORDER_AMPLITUDE = "antiborder_amplitude"
+ANTIBORDER_HALF_WIDTH = "antiborder_half_width"
+
 
 """ Optimizer params
 
@@ -407,5 +412,9 @@ default_params = {
     ATT_BANDS_K_INDEP_LINEAR: None,
     ATT_BANDS_V_ADD_BAND_ENC: None,
     ATT_BANDS_K_ADD_BAND_ENC: None,
-    CWT_NOISE_INTENSITY: None
+    CWT_NOISE_INTENSITY: None,
+    SOFT_FOCAL_GAMMA: None,
+    SOFT_FOCAL_EPSILON: None,
+    ANTIBORDER_AMPLITUDE: None,
+    ANTIBORDER_HALF_WIDTH: None,
 }

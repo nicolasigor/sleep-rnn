@@ -92,6 +92,7 @@ WEIGHTED_CROSS_ENTROPY_LOSS_V2 = 'weighted_cross_entropy_loss_v2'
 WEIGHTED_CROSS_ENTROPY_LOSS_V3 = 'weighted_cross_entropy_loss_v3'
 WEIGHTED_CROSS_ENTROPY_LOSS_V4 = 'weighted_cross_entropy_loss_v4'
 HINGE_LOSS = 'hinge_loss'
+WEIGHTED_CROSS_ENTROPY_LOSS_V5 = 'weighted_cross_entropy_loss_v5'
 
 # Mix weight strategies
 MIX_WEIGHTS_SUM = 'mix_weights_sum'

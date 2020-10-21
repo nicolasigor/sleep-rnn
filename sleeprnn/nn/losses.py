@@ -79,6 +79,42 @@ def get_border_weights(labels, amplitude, half_width):
     return weights
 
 
+def get_anti_border_weights(labels, amplitude, half_width):
+    print('Anti border weights with A=%1.2f and half_s=%1.2f' % (
+        amplitude, half_width))
+    with tf.variable_scope('loss__anti_border_weights'):
+        # Edge detector definition
+        kernel_edge = [-0.5, 0, 0.5]
+        kernel_edge = tf.constant(kernel_edge, dtype=tf.float32)
+        # Gaussian window definition
+        std_kernel = (2 * half_width + 1) / 6
+        kernel_steps = np.arange(2 * half_width + 1) - half_width
+        exp_term = -(kernel_steps ** 2) / (2 * (std_kernel ** 2))
+        kernel_gauss = np.exp(exp_term)
+        kernel_gauss = tf.constant(kernel_gauss, dtype=tf.float32)
+        # Prepare labels
+        first_label = labels[:, 0:1]
+        last_label = labels[:, -1:]
+        labels_extended = tf.concat(
+            [first_label, labels, last_label], axis=1)
+        labels_extended = tf.cast(labels_extended, dtype=tf.float32)
+        # Prepare shapes for convolution
+        kernel_edge = kernel_edge[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        kernel_gauss = kernel_gauss[:, tf.newaxis, tf.newaxis, tf.newaxis]
+        labels_extended = labels_extended[:, :, tf.newaxis, tf.newaxis]
+        # Filter
+        output = labels_extended
+        output = tf.nn.conv2d(
+            output, kernel_edge, strides=[1, 1, 1, 1], padding='VALID')
+        output = tf.abs(output)
+        output = tf.nn.conv2d(
+            output, kernel_gauss, strides=[1, 1, 1, 1], padding='SAME')
+        # Prepare proper formula
+        output = 1.0 - amplitude * output
+        weights = output[:, :, 0, 0]
+    return weights
+
+
 def get_weights(logits, labels, class_weights):
     with tf.variable_scope('loss_weights'):
         if class_weights is None:
@@ -249,6 +285,59 @@ def weighted_cross_entropy_loss_soft(
     return loss, loss_summ
 
 
+def weighted_cross_entropy_loss_v5(
+        logits, labels,
+        class_weights,
+        focal_gamma, focal_eps,
+        anti_border_amplitude, anti_border_half_width,
+        return_weights=False
+):
+    print('Using Weighted Cross Entropy Loss v5 (anti-borders)')
+    print('By-segment mean loss')
+    print('Class weights:', class_weights)
+    print('Soft focal G: %1.2f EPS: %1.2f' % (focal_gamma, focal_eps))
+    print('Anti Borders A: %1.2f HW: %1.2f' % (anti_border_amplitude, anti_border_half_width))
+
+    with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5):
+        # Border weights
+        weight_anti_border = get_anti_border_weights(
+            labels, anti_border_amplitude, anti_border_half_width)
+
+        # Modified focal weights with class weights
+        probabilities = tf.nn.softmax(logits)
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        proba_correct_class = tf.reduce_sum(
+            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+        focal_term = (1.0 - proba_correct_class) ** focal_gamma
+        weight_focal = focal_eps + (1.0 - focal_eps) * focal_term
+        weight_label = get_weights(logits, labels, class_weights)
+
+        # Combine weights
+        weights = weight_label * weight_focal * weight_anti_border
+
+        # Weighted loss
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+        if return_weights:
+            weights_dict = {
+                "w_class": weight_label,
+                "w_focal": weight_focal,
+                "w_border": weight_anti_border,
+                "w_total": weights
+            }
+            return loss, loss_summ, weights_dict
+        else:
+            return loss, loss_summ
+
+
 def weighted_cross_entropy_loss(
         logits, labels,
         border_amplitude, border_half_width,
@@ -264,26 +353,17 @@ def weighted_cross_entropy_loss(
     print('Mix weights strategy:', mix_weights_strategy)
 
     with tf.variable_scope(constants.WEIGHTED_CROSS_ENTROPY_LOSS):
-        if border_amplitude > 1:
-            # Border weights
-            weight_border = get_border_weights(
-                labels, border_amplitude, border_half_width)
-        else:
-            print("Not using border weights")
-            weight_border = 1.0
+        # Border weights
+        weight_border = get_border_weights(
+            labels, border_amplitude, border_half_width)
 
-        if focal_weight > 1:
-            # Modified focal weights with class weights
-            probabilities = tf.nn.softmax(logits)
-            labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
-            proba_correct_class = tf.reduce_sum(
-                probabilities * labels_onehot, axis=2)  # output shape [batch, time]
-            focal_term = (1.0 - proba_correct_class) ** focal_gamma
-            weight_focal_raw = 1.0 + (focal_weight - 1.0) * focal_term
-        else:
-            print("Not using focal weights")
-            weight_focal_raw = 1.0
-
+        # Modified focal weights with class weights
+        probabilities = tf.nn.softmax(logits)
+        labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+        proba_correct_class = tf.reduce_sum(
+            probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+        focal_term = (1.0 - proba_correct_class) ** focal_gamma
+        weight_focal_raw = 1.0 + (focal_weight - 1.0) * focal_term
         weight_label = get_weights(logits, labels, class_weights)
         weight_focal = weight_focal_raw * weight_label
 
