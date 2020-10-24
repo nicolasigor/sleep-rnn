@@ -288,6 +288,32 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw1_alpha0'): [0.44, 0.54, 0.56, 0.42],
     os.path.join('20201015_wave_augment_mvp_n2_train_mass_ss', 'v19_w0_aw0_alpha0'): [0.42, 0.56, 0.52, 0.50],
 
+    os.path.join('20201021_antiborder_weight_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab0.0_hw6'): [0.42, 0.52, 0.52, 0.44],
+    os.path.join('20201021_antiborder_weight_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab0.5_hw6'): [0.40, 0.48, 0.48, 0.42],
+    os.path.join('20201021_antiborder_weight_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab0.5_hw8'): [0.38, 0.54, 0.48, 0.42],
+    os.path.join('20201021_antiborder_weight_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab1.0_hw6'): [0.40, 0.56, 0.46, 0.30],
+    os.path.join('20201021_antiborder_weight_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab1.0_hw8'): [0.34, 0.42, 0.48, 0.38],
+
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab0.5_hw8'): [0.38, 0.52],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps0.25_ab0.5_hw6'): [0.34, 0.40],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps0.50_ab0.5_hw8'): [0.36, 0.42],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps0.50_ab0.5_hw8'): [0.44, 0.48],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps1.00_ab0.5_hw6'): [0.44, 0.48],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps1.00_ab0.5_hw6'): [0.28, 0.36],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps0.50_ab0.5_hw6'): [0.46, 0.50],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps0.50_ab0.5_hw6'): [0.32, 0.32],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps0.50_ab0.5_hw6'): [0.42, 0.40],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps0.25_ab0.5_hw6'): [0.42, 0.46],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps0.50_ab0.5_hw8'): [0.26, 0.30],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps0.25_ab0.5_hw6'): [0.46, 0.50],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps0.25_ab0.5_hw8'): [0.32, 0.40],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps1.00_ab0.5_hw8'): [0.24, 0.34],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.50_eps0.25_ab0.5_hw8'): [0.42, 0.46],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c1.00_eps0.25_ab0.5_hw8'): [0.48, 0.52],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps1.00_ab0.5_hw6'): [0.20, 0.20],
+    os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps1.00_ab0.5_hw8'): [0.20, 0.20],
+
+
 }
 
 
