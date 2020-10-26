@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'combi_completa'
+    experiment_name = 'combi_completa_slow'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Grid parameters
     random_waves_proba_list = [0.0, 1.0]
-    antiborder_amplitude_list = [0.0, 0.5]
+    antiborder_amplitude_list = [0.0]
     model_list = [constants.V19, constants.V19_NOISY]
     focal_eps_class_weight_list = [(0.25, 0.25), (1.0, 1.0)]
 
