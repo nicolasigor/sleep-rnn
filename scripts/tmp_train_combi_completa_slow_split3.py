@@ -68,6 +68,7 @@ if __name__ == '__main__':
     params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
     params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
     params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.LEARNING_RATE] = 5e-5
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
