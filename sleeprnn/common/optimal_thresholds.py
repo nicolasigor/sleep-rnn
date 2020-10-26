@@ -313,6 +313,22 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps1.00_ab0.5_hw6'): [0.20, 0.20],
     os.path.join('20201021_antiborder_weight_pte2_n2_train_mass_ss', 'v19_c0.25_eps1.00_ab0.5_hw8'): [0.20, 0.20],
 
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves1_ab0.0_focal1.00-1.00'): [0.46, 0.56, 0.56, 0.50],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal1.00-1.00'): [0.46, 0.54, 0.46, 0.52],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal1.00-1.00'): [0.44, 0.50, 0.56, 0.48],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00'): [0.40, 0.54, 0.50, 0.44],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal0.25-0.25'): [0.36, 0.40, 0.40, 0.36],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves1_ab0.0_focal0.25-0.25'): [0.36, 0.40, 0.42, 0.36],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves1_ab0.5_focal1.00-1.00'): [0.46, 0.56, 0.48, 0.44],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25'): [0.32, 0.36, 0.38, 0.34],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves0_ab0.5_focal1.00-1.00'): [0.42, 0.52, 0.50, 0.46],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25'): [0.34, 0.40, 0.40, 0.34],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves1_ab0.5_focal0.25-0.25'): [0.36, 0.40, 0.36, 0.36],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves1_ab0.5_focal1.00-1.00'): [0.44, 0.54, 0.56, 0.46],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves1_ab0.5_focal0.25-0.25'): [0.34, 0.40, 0.42, 0.32],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves0_ab0.5_focal1.00-1.00'): [0.48, 0.50, 0.48, 0.50],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_noisy_waves0_ab0.5_focal0.25-0.25'): [0.32, 0.38, 0.36, 0.34],
+    os.path.join('20201024_combi_completa_n2_train_mass_ss', 'v19_waves0_ab0.5_focal0.25-0.25'): [0.34, 0.36, 0.40, 0.32],
 
 }
 
