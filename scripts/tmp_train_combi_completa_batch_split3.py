@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [1, 2]
 
     # ----- Experiment settings
-    experiment_name = 'combi_completa_slow'
+    experiment_name = 'combi_completa_batch'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -57,9 +57,10 @@ if __name__ == '__main__':
     antiborder_amplitude_list = [0.0]
     model_list = [constants.V19, constants.V19_NOISY]
     focal_eps_class_weight_list = [(0.25, 0.25), (1.0, 1.0)]
+    batch_size_list = [8]
 
     params_list = list(itertools.product(
-        random_waves_proba_list, antiborder_amplitude_list, model_list, focal_eps_class_weight_list
+        random_waves_proba_list, antiborder_amplitude_list, model_list, focal_eps_class_weight_list, batch_size_list
     ))
 
     # Base parameters
@@ -68,7 +69,6 @@ if __name__ == '__main__':
     params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
     params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
     params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
-    params[pkeys.LEARNING_RATE] = 5e-5
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -94,7 +94,7 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for random_waves_proba, antiborder_amplitude, model_version, focal_eps_class_weight in params_list:
+                for random_waves_proba, antiborder_amplitude, model_version, focal_eps_class_weight, batch_size in params_list:
 
                     # Generate parameters for random wave augment
                     max_amplitude_list = [30, 20, 15, 5, 15, 5]  # uV, needs normalization
@@ -153,9 +153,11 @@ if __name__ == '__main__':
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.SOFT_FOCAL_EPSILON] = focal_eps
                     params[pkeys.CLASS_WEIGHTS] = [1.0, positive_class_weight]
+                    params[pkeys.BATCH_SIZE] = batch_size
 
-                    folder_name = '%s_waves%d_ab%1.1f_focal%1.2f-%1.2f' % (
-                        model_version, random_waves_proba, antiborder_amplitude, focal_eps, positive_class_weight)
+                    folder_name = '%s_waves%d_ab%1.1f_focal%1.2f-%1.2f_batch%d' % (
+                        model_version, random_waves_proba, antiborder_amplitude,
+                        focal_eps, positive_class_weight, batch_size)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
