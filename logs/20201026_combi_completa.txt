@@ -56,6 +56,80 @@ os.path.join('20201026_combi_completa_slow_n2_train_mass_ss', 'v19_waves1_ab0.0_
 os.path.join('20201026_combi_completa_slow_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00'): [0.48, 0.52, 0.42, 0.44],
 
 
+DIFFERENT BATCH SIZES, SEEDS 1 AND 2 ONLY (LOW PRECISION SEEDS)
+
+Val AF1 report for 20201028_combi_completa_batch_n2_train_mass_ss
+AF1 66.06/1.14 [0.5] 66.33/1.52 [0.54, 0.48], F3 79.42/0.06, P3 73.4/ 5.9, R3 87.6/ 6.7 for v19_waves0_ab0.0_focal1.00-1.00_batch64
+AF1 64.73/0.75 [0.5] 66.22/1.22 [0.58, 0.56], F3 79.15/0.06, P3 73.2/ 6.6, R3 87.5/ 6.8 for v19_waves1_ab0.0_focal1.00-1.00_batch64
+AF1 65.32/1.05 [0.5] 66.06/1.11 [0.54, 0.56], F3 79.25/0.20, P3 74.0/ 6.9, R3 86.7/ 7.1 for v19_noisy_waves0_ab0.0_focal1.00-1.00_batch32
+AF1 65.44/0.90 [0.5] 65.93/1.53 [0.56, 0.48], F3 79.14/0.37, P3 74.2/ 6.6, R3 86.1/ 7.4 for v19_waves0_ab0.0_focal1.00-1.00_batch32
+AF1 63.84/0.53 [0.5] 65.89/1.34 [0.38, 0.40], F3 78.79/0.17, P3 72.9/ 6.3, R3 87.0/ 6.6 for v19_noisy_waves1_ab0.0_focal0.25-0.25_batch64
+AF1 64.60/1.35 [0.5] 65.72/1.39 [0.56, 0.56], F3 78.83/0.03, P3 72.4/ 6.9, R3 87.8/ 6.8 for v19_noisy_waves1_ab0.0_focal1.00-1.00_batch32
+AF1 65.11/1.02 [0.5] 65.71/1.24 [0.56, 0.54], F3 78.67/0.19, P3 71.9/ 6.8, R3 88.1/ 6.2 for v19_noisy_waves0_ab0.0_focal1.00-1.00_batch64
+AF1 65.16/1.08 [0.5] 65.60/1.31 [0.54, 0.52], F3 78.41/0.12, P3 71.0/ 6.4, R3 88.7/ 6.1 for v19_noisy_waves1_ab0.0_focal1.00-1.00_batch64
+AF1 64.85/1.63 [0.5] 65.51/1.52 [0.56, 0.56], F3 78.51/0.17, P3 72.0/ 6.7, R3 87.7/ 6.9 for v19_waves1_ab0.0_focal1.00-1.00_batch32
+AF1 63.64/2.03 [0.5] 65.46/1.23 [0.40, 0.36], F3 79.01/0.03, P3 72.0/ 7.3, R3 88.8/ 5.7 for v19_waves1_ab0.0_focal0.25-0.25_batch64
+AF1 64.55/0.48 [0.5] 65.29/0.70 [0.38, 0.38], F3 78.48/0.80, P3 70.8/ 5.9, R3 89.0/ 5.5 for v19_waves0_ab0.0_focal0.25-0.25_batch64
+AF1 64.72/1.63 [0.5] 65.20/1.00 [0.40, 0.36], F3 78.60/0.52, P3 71.9/ 7.1, R3 88.1/ 6.9 for v19_noisy_waves0_ab0.0_focal0.25-0.25_batch32
+AF1 64.34/0.00 [0.5] 65.15/1.23 [0.38, 0.40], F3 78.49/0.12, P3 72.2/ 5.8, R3 87.1/ 6.7 for v19_noisy_waves0_ab0.0_focal0.25-0.25_batch64
+AF1 63.96/0.49 [0.5] 65.14/1.86 [0.36, 0.38], F3 78.66/0.49, P3 72.3/ 7.2, R3 87.7/ 6.7 for v19_waves0_ab0.0_focal0.25-0.25_batch32
+AF1 64.76/1.31 [0.5] 65.12/1.67 [0.56, 0.50], F3 78.46/0.11, P3 73.3/ 7.8, R3 86.1/ 7.9 for v19_waves1_ab0.0_focal1.00-1.00_batch8
+AF1 63.69/0.47 [0.5] 64.92/0.88 [0.38, 0.38], F3 78.56/0.37, P3 71.7/ 7.4, R3 88.3/ 6.7 for v19_waves1_ab0.0_focal0.25-0.25_batch32
+AF1 64.34/1.95 [0.5] 64.92/2.03 [0.52, 0.52], F3 78.31/0.67, P3 71.9/ 7.4, R3 87.4/ 6.9 for v19_noisy_waves0_ab0.0_focal1.00-1.00_batch16
+AF1 64.59/1.70 [0.5] 64.86/1.52 [0.52, 0.54], F3 78.26/0.10, P3 72.0/ 6.7, R3 87.1/ 7.0 for v19_noisy_waves1_ab0.0_focal1.00-1.00_batch16
+AF1 64.96/2.11 [0.5] 64.82/2.25 [0.50, 0.48], F3 78.37/0.91, P3 72.3/ 8.6, R3 87.4/ 7.2 for v19_noisy_waves0_ab0.0_focal1.00-1.00_batch8
+AF1 64.30/1.99 [0.5] 64.76/1.75 [0.48, 0.54], F3 78.16/0.10, P3 71.6/ 7.4, R3 87.6/ 6.9 for v19_waves0_ab0.0_focal1.00-1.00_batch16
+AF1 64.70/1.12 [0.5] 64.70/1.42 [0.52, 0.48], F3 77.93/0.02, P3 72.4/ 7.6, R3 86.2/ 8.3 for v19_noisy_waves1_ab0.0_focal1.00-1.00_batch8
+AF1 63.39/0.42 [0.5] 64.58/2.29 [0.42, 0.40], F3 78.05/0.89, P3 71.8/ 8.6, R3 87.5/ 7.2 for v19_noisy_waves1_ab0.0_focal0.25-0.25_batch16
+AF1 62.28/0.02 [0.5] 64.37/1.41 [0.38, 0.40], F3 77.95/0.01, P3 71.7/ 8.1, R3 87.2/ 7.4 for v19_waves1_ab0.0_focal0.25-0.25_batch16
+AF1 62.95/0.90 [0.5] 64.31/2.20 [0.40, 0.36], F3 78.60/0.79, P3 72.9/ 7.7, R3 86.9/ 7.4 for v19_waves0_ab0.0_focal0.25-0.25_batch16
+AF1 63.65/0.65 [0.5] 64.19/2.02 [0.40, 0.38], F3 77.97/0.63, P3 70.2/ 7.8, R3 89.2/ 6.1 for v19_noisy_waves1_ab0.0_focal0.25-0.25_batch32
+AF1 62.49/0.51 [0.5] 64.05/2.37 [0.38, 0.40], F3 78.26/0.68, P3 72.6/ 7.8, R3 86.5/ 7.4 for v19_noisy_waves0_ab0.0_focal0.25-0.25_batch16
+AF1 63.89/2.84 [0.5] 63.70/2.66 [0.48, 0.50], F3 77.32/1.10, P3 70.3/ 8.9, R3 87.9/ 7.0 for v19_waves1_ab0.0_focal1.00-1.00_batch16
+AF1 61.52/0.75 [0.5] 63.70/2.17 [0.38, 0.38], F3 77.48/0.84, P3 69.6/ 7.9, R3 89.1/ 6.1 for v19_noisy_waves1_ab0.0_focal0.25-0.25_batch8
+AF1 61.06/0.59 [0.5] 63.68/2.16 [0.38, 0.40], F3 77.96/0.34, P3 71.1/ 7.6, R3 87.9/ 7.0 for v19_waves1_ab0.0_focal0.25-0.25_batch8
+AF1 61.27/0.93 [0.5] 62.86/2.75 [0.38, 0.38], F3 77.23/1.07, P3 70.0/ 8.8, R3 88.0/ 6.5 for v19_noisy_waves0_ab0.0_focal0.25-0.25_batch8
+AF1 61.89/0.75 [0.5] 62.48/2.61 [0.42, 0.40], F3 77.15/0.69, P3 70.4/ 8.1, R3 87.1/ 7.4 for v19_waves0_ab0.0_focal0.25-0.25_batch8
+AF1 62.34/3.60 [0.5] 62.04/3.54 [0.46, 0.48], F3 76.59/1.50, P3 68.4/ 9.1, R3 89.0/ 5.9 for v19_waves0_ab0.0_focal1.00-1.00_batch8
+
+
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00_batch64'): [0.54, 0.48],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal1.00-1.00_batch64'): [0.58, 0.56],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal1.00-1.00_batch32'): [0.54, 0.56],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00_batch32'): [0.56, 0.48],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal0.25-0.25_batch64'): [0.38, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal1.00-1.00_batch32'): [0.56, 0.56],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal1.00-1.00_batch64'): [0.56, 0.54],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal1.00-1.00_batch64'): [0.54, 0.52],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal1.00-1.00_batch32'): [0.56, 0.56],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal0.25-0.25_batch64'): [0.40, 0.36],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25_batch64'): [0.38, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25_batch32'): [0.40, 0.36],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25_batch64'): [0.38, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25_batch32'): [0.36, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal1.00-1.00_batch8'): [0.56, 0.50],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal0.25-0.25_batch32'): [0.38, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal1.00-1.00_batch16'): [0.52, 0.52],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal1.00-1.00_batch16'): [0.52, 0.54],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal1.00-1.00_batch8'): [0.50, 0.48],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00_batch16'): [0.48, 0.54],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal1.00-1.00_batch8'): [0.52, 0.48],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal0.25-0.25_batch16'): [0.42, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal0.25-0.25_batch16'): [0.38, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25_batch16'): [0.40, 0.36],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal0.25-0.25_batch32'): [0.40, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25_batch16'): [0.38, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal1.00-1.00_batch16'): [0.48, 0.50],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves1_ab0.0_focal0.25-0.25_batch8'): [0.38, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves1_ab0.0_focal0.25-0.25_batch8'): [0.38, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25_batch8'): [0.38, 0.38],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25_batch8'): [0.42, 0.40],
+os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00_batch8'): [0.46, 0.48],
+
+
+
+
+
 
 
 
