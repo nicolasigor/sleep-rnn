@@ -473,7 +473,9 @@ class WaveletBLSTM(BaseModel):
                 constants.V19_FROZEN,
                 constants.ATT05,
                 constants.V19_VAR,
-                constants.V19_NOISY
+                constants.V19_NOISY,
+                constants.A7_V1,
+                constants.A7_V2
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -633,6 +635,10 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks.wavelet_blstm_net_v19_var
         elif model_version == constants.V19_NOISY:
             model_fn = networks.wavelet_blstm_net_v19_noisy
+        elif model_version == constants.A7_V1:
+            model_fn = networks_v2.deep_a7_v1
+        elif model_version == constants.A7_V2:
+            model_fn = networks_v2.deep_a7_v2
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

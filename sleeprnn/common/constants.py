@@ -121,6 +121,11 @@ MASK_KEEP_EVENTS = "mask_keep_events"
 MASK_KEEP_BACKGROUND = "mask_keep_background"
 MASK_NONE = "mask_none"
 
+# Type of dispersion mode for A7 features
+DISPERSION_STD = "std"
+DISPERSION_MADE = "made"
+DISPERSION_STD_ROBUST = "std_robust"
+
 # Colors
 RED = 'red'
 BLUE = 'blue'
@@ -212,3 +217,5 @@ V19_FROZEN = 'v19_frozen'  # BN at CWT is replaced by fixed normalization.
 ATT05 = 'att05'  # 2d attention with 2 lstm
 V19_VAR = 'v19_var'  # v19 with pooled scales at cwt
 V19_NOISY = 'v19_noisy'  # v19 but with uniform noise at scales
+A7_V1 = 'a7_v1'  # cnn DeepA7 model
+A7_V2 = 'a7_v2'  # lstm DeepA7 model

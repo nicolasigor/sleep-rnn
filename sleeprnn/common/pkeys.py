@@ -193,6 +193,23 @@ ATT_BANDS_V_INDEP_LINEAR = "att_bands_v_indep_linear"
 ATT_BANDS_K_INDEP_LINEAR = "att_bands_k_indep_linear"
 ATT_BANDS_V_ADD_BAND_ENC = "att_bands_v_add_band_enc"
 ATT_BANDS_K_ADD_BAND_ENC = "att_bands_k_add_band_enc"
+A7_WINDOW_DURATION = "a7_window_duration"
+A7_WINDOW_DURATION_ABS_SIG_POW = "a7_window_duration_abs_sig_pow"
+A7_USE_LOG_ABS_SIG_POW = "a7_use_log_abs_sig_pow"
+A7_USE_LOG_REL_SIG_POW = "a7_use_log_rel_sig_pow"
+A7_USE_LOG_SIG_COV = "a7_use_log_sig_cov"
+A7_USE_ZSCORE_REL_SIG_POW = "a7_use_zscore_rel_sig_pow"
+A7_USE_ZSCORE_SIG_COV = "a7_use_zscore_rel_sig_cov"
+A7_USE_ZSCORE_SIG_CORR = "a7_use_zscore_rel_sig_corr"
+A7_REMOVE_DELTA_IN_COV = "a7_remove_delta_in_cov"
+A7_DISPERSION_MODE = "a7_dispersion_mode"
+A7_CNN_FILTERS = "a7_cnn_filters"
+A7_CNN_KERNEL_SIZE = "a7_cnn_kernel_size"
+A7_CNN_N_LAYERS = "a7_cnn_n_layers"
+A7_CNN_DROP_RATE = "a7_cnn_drop_rate"
+A7_RNN_LSTM_UNITS = "a7_rnn_lstm_units"
+A7_RNN_DROP_RATE = "a7_rnn_drop_rate"
+A7_RNN_FC_UNITS = "a7_rnn_fc_units"
 
 
 """ Loss params
@@ -417,4 +434,21 @@ default_params = {
     SOFT_FOCAL_EPSILON: None,
     ANTIBORDER_AMPLITUDE: None,
     ANTIBORDER_HALF_WIDTH: None,
+    A7_WINDOW_DURATION: None,
+    A7_WINDOW_DURATION_ABS_SIG_POW: None,
+    A7_USE_LOG_ABS_SIG_POW: None,
+    A7_USE_LOG_REL_SIG_POW: None,
+    A7_USE_LOG_SIG_COV: None,
+    A7_USE_ZSCORE_REL_SIG_POW: None,
+    A7_USE_ZSCORE_SIG_COV: None,
+    A7_USE_ZSCORE_SIG_CORR: None,
+    A7_REMOVE_DELTA_IN_COV: None,
+    A7_DISPERSION_MODE: None,
+    A7_CNN_FILTERS: None,
+    A7_CNN_KERNEL_SIZE: None,
+    A7_CNN_N_LAYERS: None,
+    A7_CNN_DROP_RATE: None,
+    A7_RNN_LSTM_UNITS: None,
+    A7_RNN_DROP_RATE: None,
+    A7_RNN_FC_UNITS: None,
 }

@@ -10,6 +10,7 @@ PATH_RESOURCES = os.path.join(PATH_THIS_DIR, '..', '..', 'resources')
 import numpy as np
 import tensorflow as tf
 
+from .expert_feats import a7_layer_tf
 from . import layers
 from . import spectrum
 
@@ -275,6 +276,171 @@ def wavelet_blstm_net_att05(
                 kernel_init=tf.initializers.he_normal(),
                 dropout=params[pkeys.TYPE_DROPOUT],
                 drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
+
+
+def deep_a7_v1(
+        inputs,
+        params,
+        training,
+        name='model_a7_v1'
+):
+    print('Using model A7_V1 (A7 feats, convolutional)')
+    with tf.variable_scope(name):
+        # input is [batch, time_len]
+        inputs = a7_layer_tf(
+            inputs,
+            fs=params[pkeys.FS],
+            window_duration=params[pkeys.A7_WINDOW_DURATION],
+            window_duration_absSigPow=params[pkeys.A7_WINDOW_DURATION_ABS_SIG_POW],
+            use_log_absSigPow=params[pkeys.A7_USE_LOG_ABS_SIG_POW],
+            use_log_relSigPow=params[pkeys.A7_USE_LOG_REL_SIG_POW],
+            use_log_sigCov=params[pkeys.A7_USE_LOG_SIG_COV],
+            use_zscore_relSigPow=params[pkeys.A7_USE_ZSCORE_REL_SIG_POW],
+            use_zscore_sigCov=params[pkeys.A7_USE_ZSCORE_SIG_COV],
+            use_zscore_sigCorr=params[pkeys.A7_USE_ZSCORE_SIG_CORR],
+            remove_delta_in_cov=params[pkeys.A7_REMOVE_DELTA_IN_COV],
+            dispersion_mode=params[pkeys.A7_DISPERSION_MODE]
+        )
+
+        # Now is [batch, time_len, 4]
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        inputs = inputs[:, start_crop:end_crop, :]
+
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # Now pool to get proper length
+        outputs = tf.keras.layers.AveragePooling1D(pool_size=8)(outputs)
+
+        # Now convolutions
+        kernel_size = params[pkeys.A7_CNN_KERNEL_SIZE]
+        n_layers = params[pkeys.A7_CNN_N_LAYERS]
+        filters = params[pkeys.A7_CNN_FILTERS]
+        drop_rate_conv = params[pkeys.A7_CNN_DROP_RATE]
+        for i in range(n_layers):
+            with tf.variable_scope('conv_%d' % i):
+                if i > 0 and drop_rate_conv > 0:
+                    outputs = layers.dropout_layer(
+                        outputs, 'drop_%d' % i, training, dropout=params[pkeys.TYPE_DROPOUT], drop_rate=drop_rate_conv)
+                outputs = tf.keras.layers.Conv1D(
+                    filters=filters, kernel_size=kernel_size, padding='same', use_bias=False,
+                    kernel_initializer=tf.initializers.he_normal())(outputs)
+                outputs = layers.batchnorm_layer(
+                    outputs, 'bn_%d' % i, batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                outputs = tf.nn.relu(outputs)
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn
+
+
+def deep_a7_v2(
+        inputs,
+        params,
+        training,
+        name='model_a7_v2'
+):
+    print('Using model A7_V2 (A7 feats, recurrent)')
+    with tf.variable_scope(name):
+        # input is [batch, time_len]
+        inputs = a7_layer_tf(
+            inputs,
+            fs=params[pkeys.FS],
+            window_duration=params[pkeys.A7_WINDOW_DURATION],
+            window_duration_absSigPow=params[pkeys.A7_WINDOW_DURATION_ABS_SIG_POW],
+            use_log_absSigPow=params[pkeys.A7_USE_LOG_ABS_SIG_POW],
+            use_log_relSigPow=params[pkeys.A7_USE_LOG_REL_SIG_POW],
+            use_log_sigCov=params[pkeys.A7_USE_LOG_SIG_COV],
+            use_zscore_relSigPow=params[pkeys.A7_USE_ZSCORE_REL_SIG_POW],
+            use_zscore_sigCov=params[pkeys.A7_USE_ZSCORE_SIG_COV],
+            use_zscore_sigCorr=params[pkeys.A7_USE_ZSCORE_SIG_CORR],
+            remove_delta_in_cov=params[pkeys.A7_REMOVE_DELTA_IN_COV],
+            dispersion_mode=params[pkeys.A7_DISPERSION_MODE]
+        )
+
+        # Now is [batch, time_len, 4]
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS])
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        inputs = inputs[:, start_crop:end_crop, :]
+
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # Now pool to get proper length
+        outputs = tf.keras.layers.AveragePooling1D(pool_size=8)(outputs)
+
+        # Now recurrent
+        lstm_units = params[pkeys.A7_RNN_LSTM_UNITS]
+        fc_units = params[pkeys.A7_RNN_FC_UNITS]
+        drop_rate_hidden = params[pkeys.A7_RNN_DROP_RATE]
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            lstm_units,
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=0,
+            drop_rate_rest_lstm=drop_rate_hidden,
+            training=training,
+            name='multi_layer_blstm')
+
+        if fc_units > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                fc_units,
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=drop_rate_hidden,
                 training=training,
                 activation=tf.nn.relu,
                 name='fc_1')
