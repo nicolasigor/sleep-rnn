@@ -371,6 +371,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_noisy_waves0_ab0.0_focal0.25-0.25_batch8'): [None, 0.38, 0.38],
     os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal0.25-0.25_batch8'): [None, 0.42, 0.40],
     os.path.join('20201028_combi_completa_batch_n2_train_mass_ss', 'v19_waves0_ab0.0_focal1.00-1.00_batch8'): [None, 0.46, 0.48],
+    
+    os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v2'): [0.34, 0.42, 0.42, 0.36],
+    os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v1'): [0.20, 0.22, 0.20, 0.20],
 
 }
 
