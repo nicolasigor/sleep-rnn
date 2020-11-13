@@ -139,12 +139,12 @@ def a7_layer_tf(
             print("relSigPow: Using z-score.")
 
         # sigma covariance
-        sigma_centered = signal_sigma - tf.reduce_mean(signal_sigma, axis=1)
+        sigma_centered = signal_sigma - tf.reduce_mean(signal_sigma, axis=1, keepdims=True)
         if remove_delta_in_cov:
-            broad_centered = signal_no_delta - tf.reduce_mean(signal_no_delta, axis=1)
+            broad_centered = signal_no_delta - tf.reduce_mean(signal_no_delta, axis=1, keepdims=True)
             print("Removing delta band in covariance.")
         else:
-            broad_centered = signals - tf.reduce_mean(signals, axis=1)
+            broad_centered = signals - tf.reduce_mean(signals, axis=1, keepdims=True)
         sig_cov_raw = moving_average_tf(sigma_centered * broad_centered, lp_filter_size)
         sig_cov = tf.nn.relu(sig_cov_raw)  # no negatives
         if use_log_sigCov:
