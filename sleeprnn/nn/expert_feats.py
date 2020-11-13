@@ -59,12 +59,12 @@ def moving_average_tf(signals, lp_filter_size):
 
 
 def zscore_tf(signals, dispersion_mode=constants.DISPERSION_STD_ROBUST):
-    mean_signals = tf.reduce_mean(signals, axis=1)
+    mean_signals = tf.reduce_mean(signals, axis=1, keepdims=True)
     signals = signals - mean_signals
     if dispersion_mode == constants.DISPERSION_MADE:
-        std_signals = tf.reduce_mean(tf.math.abs(signals), axis=1)
+        std_signals = tf.reduce_mean(tf.math.abs(signals), axis=1, keepdims=True)
     elif dispersion_mode == constants.DISPERSION_STD:
-        std_signals = tf.math.sqrt(tf.reduce_mean(signals ** 2, axis=1))
+        std_signals = tf.math.sqrt(tf.reduce_mean(signals ** 2, axis=1, keepdims=True))
     elif dispersion_mode == constants.DISPERSION_STD_ROBUST:
         prc_range = [10, 90]  # valid percentile range to avoid extreme values
         signal_size = signals.get_shape().as_list()[1]
@@ -72,7 +72,7 @@ def zscore_tf(signals, dispersion_mode=constants.DISPERSION_STD_ROBUST):
         loc_prc_end = int(signal_size * prc_range[1] / 100)
         sorted_values = tf.sort(signals, axis=1)
         sorted_values_valid = sorted_values[:, loc_prc_start:loc_prc_end]
-        std_signals = tf.math.sqrt(tf.reduce_mean(sorted_values_valid ** 2, axis=1))
+        std_signals = tf.math.sqrt(tf.reduce_mean(sorted_values_valid ** 2, axis=1, keepdims=True))
     else:
         raise ValueError()
     signals = signals / std_signals
