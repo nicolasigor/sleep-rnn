@@ -6,3 +6,9 @@ os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v2'): [0.34, 0.42, 0
 os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v1'): [0.20, 0.22, 0.20, 0.20],
 
 
+
+Val AF1 report for 20201113_deep_a7_check_focal_n2_train_mass_ss
+AF1 45.62/7.10 [0.5] 61.82/2.22 [0.30, 0.32, 0.34, 0.32], F3 75.92/1.79, P3 75.5/ 9.3, R3 78.5/11.0 for a7_v2
+
+os.path.join('20201113_deep_a7_check_focal_n2_train_mass_ss', 'a7_v2'): [0.30, 0.32, 0.34, 0.32],
+
