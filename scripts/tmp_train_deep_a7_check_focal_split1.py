@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_check'
+    experiment_name = 'deep_a7_check_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -59,6 +59,14 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
+
+    # Loss Soft Focal
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.ANTIBORDER_AMPLITUDE] = 0
+    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
+    params[pkeys.SOFT_FOCAL_EPSILON] = 0.25
+    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
 
     # A7 moving average window sizes:
     params[pkeys.A7_WINDOW_DURATION] = 0.5
