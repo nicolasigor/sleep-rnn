@@ -90,7 +90,7 @@ def by_event_confusion(events, detections, iou_thr=0.3, iou_matching=None):
         tp = 0
         fp = n_detections
         fn = n_events
-        precision = 0
+        precision = 0 if n_detections > 0 else 1
         recall = 0
         f1_score = 0
 
