@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_grid_feats_1'
+    experiment_name = 'deep_a7_grid_feats_sqrt'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -59,10 +59,10 @@ if __name__ == '__main__':
     use_log_abs_sig_pow_list = [False, True]
     use_log_rel_sig_pow_list = [False, True]
     use_log_sig_cov_list = [False, True]
-    remove_delta_list = [True, False]
+    use_sqrt_sig_corr_list = [True, False]
 
     params_list = list(itertools.product(
-        model_list, use_log_abs_sig_pow_list, use_log_rel_sig_pow_list, use_log_sig_cov_list, remove_delta_list))
+        model_list, use_log_abs_sig_pow_list, use_log_rel_sig_pow_list, use_log_sig_cov_list, use_sqrt_sig_corr_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -83,6 +83,7 @@ if __name__ == '__main__':
     params[pkeys.A7_RNN_FC_UNITS] = 128
 
     # Other default values for A7 features
+    params[pkeys.A7_REMOVE_DELTA_IN_COV] = True
     params[pkeys.A7_USE_ZSCORE_REL_SIG_POW] = True
     params[pkeys.A7_USE_ZSCORE_SIG_COV] = True
     params[pkeys.A7_USE_ZSCORE_SIG_CORR] = False
@@ -112,16 +113,16 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, remove_delta in params_list:
+                for model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_sqrt_sig_corr in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.A7_USE_LOG_ABS_SIG_POW] = use_log_abs_sig_pow
                     params[pkeys.A7_USE_LOG_REL_SIG_POW] = use_log_rel_sig_pow
                     params[pkeys.A7_USE_LOG_SIG_COV] = use_log_sig_cov
-                    params[pkeys.A7_REMOVE_DELTA_IN_COV] = remove_delta
+                    params[pkeys.A7_USE_SQRT_SIG_CORR] = use_sqrt_sig_corr
 
-                    folder_name = '%s_logAbs%d_logRel%d_logCov%d_remDelta%d' % (
-                        model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, remove_delta)
+                    folder_name = '%s_logAbs%d_logRel%d_logCov%d_sqrtCorr%d' % (
+                        model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_sqrt_sig_corr)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

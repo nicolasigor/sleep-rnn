@@ -95,11 +95,13 @@ def a7_layer_tf(
         use_log_absSigPow=True,
         use_log_relSigPow=True,
         use_log_sigCov=True,
+        use_sqrt_sigCorr=False,
         use_zscore_relSigPow=True,
         use_zscore_sigCov=True,
         use_zscore_sigCorr=False,
         remove_delta_in_cov=False,
-        dispersion_mode=constants.DISPERSION_STD_ROBUST
+        dispersion_mode=constants.DISPERSION_STD_ROBUST,
+        return_raw_values=False
 ):
     with tf.variable_scope("a7_layer"):
         lp_filter_size = int(fs * window_duration)
@@ -121,19 +123,21 @@ def a7_layer_tf(
             abs_sig_pow = log10_tf(abs_sig_pow_raw + 1e-4)
             print("absSigPow: Using log10.")
         else:
-            abs_sig_pow = abs_sig_pow_raw
+            abs_sig_pow = tf.math.sqrt(abs_sig_pow_raw)
+            print("absSigPow: Using sqrt.")
 
         # relative sigma power
         signal_sigma_squared = signal_sigma ** 2
-        abs_sig_pow_raw = moving_average_tf(signal_sigma_squared, lp_filter_size)
+        abs_sig_pow_raw_2 = moving_average_tf(signal_sigma_squared, lp_filter_size)
         signal_no_delta_squared = signal_no_delta ** 2
         abs_no_delta_pow_raw = moving_average_tf(signal_no_delta_squared, lp_filter_size)
-        rel_sig_pow_raw = abs_sig_pow_raw / (abs_no_delta_pow_raw + 1e-6)
+        rel_sig_pow_raw = abs_sig_pow_raw_2 / (abs_no_delta_pow_raw + 1e-6)
         if use_log_relSigPow:
             rel_sig_pow = log10_tf(rel_sig_pow_raw + 1e-4)
             print("relSigPow: Using log10.")
         else:
-            rel_sig_pow = rel_sig_pow_raw
+            rel_sig_pow = tf.math.sqrt(rel_sig_pow_raw)
+            print("relSigPow: Using sqrt.")
         if use_zscore_relSigPow:
             rel_sig_pow = zscore_tf(rel_sig_pow, dispersion_mode)
             print("relSigPow: Using z-score.")
@@ -148,8 +152,11 @@ def a7_layer_tf(
         sig_cov_raw = moving_average_tf(sigma_centered * broad_centered, lp_filter_size)
         sig_cov = tf.nn.relu(sig_cov_raw)  # no negatives
         if use_log_sigCov:
-            sig_cov = log10_tf(sig_cov + 1)  # Add 1
-            print("sigCov: Using log10(x+1).")
+            sig_cov = log10_tf(sig_cov + 1e-4)
+            print("sigCov: Using log10.")
+        else:
+            sig_cov = tf.math.sqrt(sig_cov)
+            print("sigCov: Using sqrt.")
         if use_zscore_sigCov:
             sig_cov = zscore_tf(sig_cov, dispersion_mode)
             print("sigCov: Using z-score.")
@@ -159,10 +166,20 @@ def a7_layer_tf(
         broad_var_raw = moving_average_tf(broad_centered ** 2, lp_filter_size)
         sig_std_raw = tf.math.sqrt(sig_var_raw)
         broad_stf_raw = tf.math.sqrt(broad_var_raw)
-        sig_corr = sig_cov_raw / (sig_std_raw * broad_stf_raw + 1e-4)
+        sig_corr_raw = sig_cov_raw / (sig_std_raw * broad_stf_raw + 1e-6)
+        if use_sqrt_sigCorr:
+            sig_corr = tf.math.sqrt(tf.nn.relu(sig_corr_raw))
+            print("sigCorr: Using sqrt.")
+        else:
+            sig_corr = sig_corr_raw
+            print("sigCorr: Using raw.")
         if use_zscore_sigCorr:
             sig_corr = zscore_tf(sig_corr, dispersion_mode)
             print("sigCorr: Using z-score.")
 
         a7_parameters = tf.stack([abs_sig_pow, rel_sig_pow, sig_cov, sig_corr], axis=2)
-    return a7_parameters
+        if return_raw_values:
+            a7_parameters_raw = tf.stack([abs_sig_pow_raw, rel_sig_pow_raw, sig_cov_raw, sig_corr_raw], axis=2)
+            return a7_parameters, a7_parameters_raw
+        else:
+            return a7_parameters
