@@ -198,7 +198,7 @@ A7_WINDOW_DURATION_ABS_SIG_POW = "a7_window_duration_abs_sig_pow"
 A7_USE_LOG_ABS_SIG_POW = "a7_use_log_abs_sig_pow"
 A7_USE_LOG_REL_SIG_POW = "a7_use_log_rel_sig_pow"
 A7_USE_LOG_SIG_COV = "a7_use_log_sig_cov"
-A7_USE_SQRT_SIG_CORR = "a7_use_sqrt_sig_corr"
+A7_USE_LOG_SIG_CORR = "a7_use_log_sig_corr"
 A7_USE_ZSCORE_REL_SIG_POW = "a7_use_zscore_rel_sig_pow"
 A7_USE_ZSCORE_SIG_COV = "a7_use_zscore_rel_sig_cov"
 A7_USE_ZSCORE_SIG_CORR = "a7_use_zscore_rel_sig_corr"
@@ -440,7 +440,7 @@ default_params = {
     A7_USE_LOG_ABS_SIG_POW: None,
     A7_USE_LOG_REL_SIG_POW: None,
     A7_USE_LOG_SIG_COV: None,
-    A7_USE_SQRT_SIG_CORR: None,
+    A7_USE_LOG_SIG_CORR: None,
     A7_USE_ZSCORE_REL_SIG_POW: None,
     A7_USE_ZSCORE_SIG_COV: None,
     A7_USE_ZSCORE_SIG_CORR: None,

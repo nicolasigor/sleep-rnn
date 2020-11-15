@@ -95,7 +95,7 @@ def a7_layer_tf(
         use_log_absSigPow=True,
         use_log_relSigPow=True,
         use_log_sigCov=True,
-        use_sqrt_sigCorr=False,
+        use_log_sigCorr=False,
         use_zscore_relSigPow=True,
         use_zscore_sigCov=True,
         use_zscore_sigCorr=False,
@@ -167,9 +167,9 @@ def a7_layer_tf(
         sig_std_raw = tf.math.sqrt(sig_var_raw)
         broad_stf_raw = tf.math.sqrt(broad_var_raw)
         sig_corr_raw = sig_cov_raw / (sig_std_raw * broad_stf_raw + 1e-6)
-        if use_sqrt_sigCorr:
-            sig_corr = tf.math.sqrt(tf.nn.relu(sig_corr_raw))
-            print("sigCorr: Using sqrt.")
+        if use_log_sigCorr:
+            sig_corr = log10_tf(tf.nn.relu(sig_corr_raw) + 1e-4)
+            print("sigCorr: Using log10.")
         else:
             sig_corr = sig_corr_raw
             print("sigCorr: Using raw.")

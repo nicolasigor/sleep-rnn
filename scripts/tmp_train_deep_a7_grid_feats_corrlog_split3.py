@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_grid_feats_sqrt'
+    experiment_name = 'deep_a7_grid_feats_corrlog'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -56,13 +56,13 @@ if __name__ == '__main__':
     model_list = [
         constants.A7_V2
     ]
-    use_log_abs_sig_pow_list = [False, True]
-    use_log_rel_sig_pow_list = [False, True]
-    use_log_sig_cov_list = [False, True]
-    use_sqrt_sig_corr_list = [True, False]
+    use_log_abs_sig_pow_list = [False]
+    use_log_rel_sig_pow_list = [True]
+    use_log_sig_cov_list = [False]
+    use_log_sig_corr_list = [True]
 
     params_list = list(itertools.product(
-        model_list, use_log_abs_sig_pow_list, use_log_rel_sig_pow_list, use_log_sig_cov_list, use_sqrt_sig_corr_list))
+        model_list, use_log_abs_sig_pow_list, use_log_rel_sig_pow_list, use_log_sig_cov_list, use_log_sig_corr_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -113,16 +113,16 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_sqrt_sig_corr in params_list:
+                for model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_log_sig_corr in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.A7_USE_LOG_ABS_SIG_POW] = use_log_abs_sig_pow
                     params[pkeys.A7_USE_LOG_REL_SIG_POW] = use_log_rel_sig_pow
                     params[pkeys.A7_USE_LOG_SIG_COV] = use_log_sig_cov
-                    params[pkeys.A7_USE_SQRT_SIG_CORR] = use_sqrt_sig_corr
+                    params[pkeys.A7_USE_LOG_SIG_CORR] = use_log_sig_corr
 
-                    folder_name = '%s_logAbs%d_logRel%d_logCov%d_sqrtCorr%d' % (
-                        model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_sqrt_sig_corr)
+                    folder_name = '%s_logAbs%d_logRel%d_logCov%d_logCorr%d' % (
+                        model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_log_sig_corr)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
