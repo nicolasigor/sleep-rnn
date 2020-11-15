@@ -93,4 +93,10 @@ os.path.join('20201114_deep_a7_grid_feats_sqrt_n2_train_mass_ss', 'a7_v2_logAbs1
 
 
 
+Val AF1 report for 20201115_deep_a7_grid_feats_corrlog_n2_train_mass_ss
+AF1 60.18/1.79 [0.5] 63.51/1.96 [0.32, 0.40, 0.42, 0.30], F3 77.64/1.96, P3 77.1/ 8.8, R3 80.4/11.6 for a7_v2_logAbs0_logRel1_logCov0_logCorr1
+
+os.path.join('20201115_deep_a7_grid_feats_corrlog_n2_train_mass_ss', 'a7_v2_logAbs0_logRel1_logCov0_logCorr1'): [0.32, 0.40, 0.42, 0.30],
+
+
 
