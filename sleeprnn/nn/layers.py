@@ -1203,10 +1203,16 @@ def conv1d_prebn_block_with_zscore(
             use_bias=use_bias)
 
         with tf.variable_scope("zscore"):
-            outputs_mean = tf.reduce_mean(outputs, keepdims=True, axis=1)
-            outputs = outputs - outputs_mean
-            outputs_var = tf.reduce_mean(outputs ** 2, keepdims=True, axis=1)
-            outputs = outputs / tf.math.sqrt(outputs_var + 1e-4)
+            outputs_1 = outputs[..., :filters//2]  # Keep as-is
+            outputs_2 = outputs[..., filters//2:]  # Transform to z-score
+
+            outputs_2_mean = tf.reduce_mean(outputs_2, keepdims=True, axis=1)
+            outputs_2 = outputs_2 - outputs_2_mean
+            outputs_2_var = tf.reduce_mean(outputs_2 ** 2, keepdims=True, axis=1)
+            outputs_2 = outputs_2 / tf.math.sqrt(outputs_2_var + 1e-4)
+
+            # Now join again
+            outputs = tf.concat([outputs_1, outputs_2], axis=-1)
 
         if batchnorm:
             outputs = batchnorm_layer(
