@@ -194,7 +194,7 @@ ATT_BANDS_K_INDEP_LINEAR = "att_bands_k_indep_linear"
 ATT_BANDS_V_ADD_BAND_ENC = "att_bands_v_add_band_enc"
 ATT_BANDS_K_ADD_BAND_ENC = "att_bands_k_add_band_enc"
 A7_WINDOW_DURATION = "a7_window_duration"
-A7_WINDOW_DURATION_ABS_SIG_POW = "a7_window_duration_abs_sig_pow"
+A7_WINDOW_DURATION_REL_SIG_POW = "a7_window_duration_rel_sig_pow"
 A7_USE_LOG_ABS_SIG_POW = "a7_use_log_abs_sig_pow"
 A7_USE_LOG_REL_SIG_POW = "a7_use_log_rel_sig_pow"
 A7_USE_LOG_SIG_COV = "a7_use_log_sig_cov"
@@ -437,7 +437,7 @@ default_params = {
     ANTIBORDER_AMPLITUDE: None,
     ANTIBORDER_HALF_WIDTH: None,
     A7_WINDOW_DURATION: None,
-    A7_WINDOW_DURATION_ABS_SIG_POW: None,
+    A7_WINDOW_DURATION_REL_SIG_POW: None,
     A7_USE_LOG_ABS_SIG_POW: None,
     A7_USE_LOG_REL_SIG_POW: None,
     A7_USE_LOG_SIG_COV: None,

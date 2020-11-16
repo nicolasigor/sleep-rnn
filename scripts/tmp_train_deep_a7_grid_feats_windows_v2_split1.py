@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_grid_feats_windows'
+    experiment_name = 'deep_a7_grid_feats_windows_v2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -56,11 +56,10 @@ if __name__ == '__main__':
     model_list = [
         constants.A7_V2
     ]
-    window_duration_list = [0.3, 0.5, 1.0, 2.0]
-    window_duration_abs_sig_pow_list = [0.15, 0.3, 0.5]
+    window_duration_rel_sig_pow_list = [0.3, 0.5, 1.0, 2.0]
 
     params_list = list(itertools.product(
-        model_list, window_duration_list, window_duration_abs_sig_pow_list))
+        model_list, window_duration_rel_sig_pow_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -71,6 +70,7 @@ if __name__ == '__main__':
     params[pkeys.A7_USE_LOG_REL_SIG_POW] = True
     params[pkeys.A7_USE_LOG_SIG_COV] = False
     params[pkeys.A7_USE_LOG_SIG_CORR] = False
+    params[pkeys.A7_WINDOW_DURATION] = 0.3
 
     # CNN parameters
     params[pkeys.A7_CNN_DROP_RATE] = 0.1
@@ -113,14 +113,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, window_duration, window_duration_abs_sig_pow in params_list:
+                for model_version, window_duration_rel_sig_pow in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.A7_WINDOW_DURATION] = window_duration
-                    params[pkeys.A7_WINDOW_DURATION_ABS_SIG_POW] = window_duration_abs_sig_pow
+                    params[pkeys.A7_WINDOW_DURATION_REL_SIG_POW] = window_duration_rel_sig_pow
 
-                    folder_name = '%s_winDur%1.2f_winDurAbs%1.2f' % (
-                        model_version, window_duration, window_duration_abs_sig_pow)
+                    folder_name = '%s_winDurRel%1.2f' % (
+                        model_version, window_duration_rel_sig_pow)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

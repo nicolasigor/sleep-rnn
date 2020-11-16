@@ -91,7 +91,7 @@ def a7_layer_tf(
         signals,
         fs,
         window_duration,
-        window_duration_absSigPow,
+        window_duration_relSigPow,
         sigma_lowcut=11,
         sigma_highcut=16,
         use_log_absSigPow=True,
@@ -107,12 +107,12 @@ def a7_layer_tf(
 ):
     with tf.variable_scope("a7_layer"):
         lp_filter_size = int(fs * window_duration)
-        if window_duration_absSigPow is None:
-            window_duration_absSigPow = window_duration
-        lp_filter_size_absSigPow = int(fs * window_duration_absSigPow)
+        if window_duration_relSigPow is None:
+            window_duration_relSigPow = window_duration
+        lp_filter_size_relSigPow = int(fs * window_duration_relSigPow)
         print("Moving window: Using %1.2f s (%d samples)" % (window_duration, lp_filter_size))
-        print("Moving window in absSigPow: Using %1.2f s (%d samples)" % (
-            window_duration_absSigPow, lp_filter_size_absSigPow))
+        print("Moving window in relSigPow: Using %1.2f s (%d samples)" % (
+            window_duration_relSigPow, lp_filter_size_relSigPow))
         print("Z-score: Using '%s'" % dispersion_mode)
 
         signal_sigma = bandpass_tf_batch(signals, fs, sigma_lowcut, sigma_highcut)
@@ -120,7 +120,7 @@ def a7_layer_tf(
 
         # absolute sigma power
         signal_sigma_squared = signal_sigma ** 2
-        abs_sig_pow_raw = moving_average_tf(signal_sigma_squared, lp_filter_size_absSigPow)
+        abs_sig_pow_raw = moving_average_tf(signal_sigma_squared, lp_filter_size)
         if use_log_absSigPow:
             abs_sig_pow = log10_tf(abs_sig_pow_raw + 1e-4)
             print("absSigPow: Using log10.")
@@ -130,9 +130,9 @@ def a7_layer_tf(
 
         # relative sigma power
         signal_sigma_squared = signal_sigma ** 2
-        abs_sig_pow_raw_2 = moving_average_tf(signal_sigma_squared, lp_filter_size)
+        abs_sig_pow_raw_2 = moving_average_tf(signal_sigma_squared, lp_filter_size_relSigPow)
         signal_no_delta_squared = signal_no_delta ** 2
-        abs_no_delta_pow_raw = moving_average_tf(signal_no_delta_squared, lp_filter_size)
+        abs_no_delta_pow_raw = moving_average_tf(signal_no_delta_squared, lp_filter_size_relSigPow)
         rel_sig_pow_raw = abs_sig_pow_raw_2 / (abs_no_delta_pow_raw + 1e-6)
         if use_log_relSigPow:
             rel_sig_pow = log10_tf(rel_sig_pow_raw + 1e-4)

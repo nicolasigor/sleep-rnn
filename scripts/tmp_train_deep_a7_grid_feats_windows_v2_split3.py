@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_grid_feats_corrlog'
+    experiment_name = 'deep_a7_grid_feats_windows_v2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -56,20 +56,21 @@ if __name__ == '__main__':
     model_list = [
         constants.A7_V2
     ]
-    use_log_abs_sig_pow_list = [False]
-    use_log_rel_sig_pow_list = [True]
-    use_log_sig_cov_list = [False]
-    use_log_sig_corr_list = [True]
+    window_duration_rel_sig_pow_list = [0.3, 0.5, 1.0, 2.0]
 
     params_list = list(itertools.product(
-        model_list, use_log_abs_sig_pow_list, use_log_rel_sig_pow_list, use_log_sig_cov_list, use_log_sig_corr_list))
+        model_list, window_duration_rel_sig_pow_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
 
-    # A7 moving average window sizes:
-    params[pkeys.A7_WINDOW_DURATION] = 0.5
-    params[pkeys.A7_WINDOW_DURATION_ABS_SIG_POW] = 0.2
+    # Adjusted parameters (bsf)
+    params[pkeys.A7_REMOVE_DELTA_IN_COV] = True
+    params[pkeys.A7_USE_LOG_ABS_SIG_POW] = False
+    params[pkeys.A7_USE_LOG_REL_SIG_POW] = True
+    params[pkeys.A7_USE_LOG_SIG_COV] = False
+    params[pkeys.A7_USE_LOG_SIG_CORR] = False
+    params[pkeys.A7_WINDOW_DURATION] = 0.3
 
     # CNN parameters
     params[pkeys.A7_CNN_DROP_RATE] = 0.1
@@ -83,7 +84,6 @@ if __name__ == '__main__':
     params[pkeys.A7_RNN_FC_UNITS] = 128
 
     # Other default values for A7 features
-    params[pkeys.A7_REMOVE_DELTA_IN_COV] = True
     params[pkeys.A7_USE_ZSCORE_REL_SIG_POW] = True
     params[pkeys.A7_USE_ZSCORE_SIG_COV] = True
     params[pkeys.A7_USE_ZSCORE_SIG_CORR] = False
@@ -113,16 +113,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_log_sig_corr in params_list:
+                for model_version, window_duration_rel_sig_pow in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.A7_USE_LOG_ABS_SIG_POW] = use_log_abs_sig_pow
-                    params[pkeys.A7_USE_LOG_REL_SIG_POW] = use_log_rel_sig_pow
-                    params[pkeys.A7_USE_LOG_SIG_COV] = use_log_sig_cov
-                    params[pkeys.A7_USE_LOG_SIG_CORR] = use_log_sig_corr
+                    params[pkeys.A7_WINDOW_DURATION_REL_SIG_POW] = window_duration_rel_sig_pow
 
-                    folder_name = '%s_logAbs%d_logRel%d_logCov%d_logCorr%d' % (
-                        model_version, use_log_abs_sig_pow, use_log_rel_sig_pow, use_log_sig_cov, use_log_sig_corr)
+                    folder_name = '%s_winDurRel%1.2f' % (
+                        model_version, window_duration_rel_sig_pow)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
