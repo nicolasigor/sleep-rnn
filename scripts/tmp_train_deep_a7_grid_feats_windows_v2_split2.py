@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
     experiment_name = 'deep_a7_grid_feats_windows_v2'
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     model_list = [
         constants.A7_V2
     ]
-    window_duration_rel_sig_pow_list = [0.3, 0.5, 1.0, 2.0]
+    window_duration_rel_sig_pow_list = [2.0]
 
     params_list = list(itertools.product(
         model_list, window_duration_rel_sig_pow_list))
