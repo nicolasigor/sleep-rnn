@@ -20,6 +20,7 @@ def apply_fir_filter_tf_batch(signals, kernel):
 
 
 def lowpass_tf_batch(signals, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
+    print("Applying lowpass filter with cutoff %s Hz" % cutoff)
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
     lp_kernel = firwin(numtaps, cutoff=cutoff, window="hamming", fs=fs).astype(np.float32)
@@ -29,6 +30,7 @@ def lowpass_tf_batch(signals, fs, cutoff, filter_duration_ref=6, wave_expansion_
 
 
 def highpass_tf_batch(signals, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
+    print("Applying highpass filter with cutoff %s Hz" % cutoff)
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
     lp_kernel = firwin(numtaps, cutoff=cutoff, window="hamming", fs=fs).astype(np.float32)

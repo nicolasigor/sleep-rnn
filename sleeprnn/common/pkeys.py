@@ -211,7 +211,8 @@ A7_CNN_DROP_RATE = "a7_cnn_drop_rate"
 A7_RNN_LSTM_UNITS = "a7_rnn_lstm_units"
 A7_RNN_DROP_RATE = "a7_rnn_drop_rate"
 A7_RNN_FC_UNITS = "a7_rnn_fc_units"
-
+BP_INPUT_LOWCUT = "bp_input_lowcut"
+BP_INPUT_HIGHCUT = "bp_input_highcut"
 
 """ Loss params
 
@@ -453,4 +454,6 @@ default_params = {
     A7_RNN_LSTM_UNITS: None,
     A7_RNN_DROP_RATE: None,
     A7_RNN_FC_UNITS: None,
+    BP_INPUT_LOWCUT: None,
+    BP_INPUT_HIGHCUT: None,
 }

@@ -220,3 +220,5 @@ V19_NOISY = 'v19_noisy'  # v19 but with uniform noise at scales
 A7_V1 = 'a7_v1'  # cnn DeepA7 model
 A7_V2 = 'a7_v2'  # lstm DeepA7 model
 A7_V3 = 'a7_v3'  # RED-A7 model
+V11_BP = "v11_bp"  # band-passed input
+V19_BP = "v19_bp"  # band-passed input
