@@ -1,0 +1,14 @@
+Val AF1 report for 20201116_red_zscore_n2_train_mass_ss
+AF1 67.96/2.75 [0.5] 68.07/2.86 [0.46, 0.48, 0.48, 0.50], F3 80.38/2.01, P3 79.8/ 9.8, R3 83.1/ 9.5 for v11_ln
+
+os.path.join('20201116_red_zscore_n2_train_mass_ss', 'v11_ln'): [0.46, 0.48, 0.48, 0.50],
+
+
+Val AF1 report for 20201116_red_nodelta_n2_train_mass_ss
+AF1 64.88/2.51 [0.5] 66.08/3.10 [0.40, 0.56, 0.50, 0.44], F3 79.31/2.36, P3 79.5/ 9.0, R3 80.8/ 8.9 for v11_bp
+AF1 65.61/2.14 [0.5] 66.01/2.70 [0.42, 0.46, 0.46, 0.46], F3 79.35/2.13, P3 79.0/ 9.1, R3 81.6/ 9.1 for v19_bp
+
+os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v11_bp'): [0.40, 0.56, 0.50, 0.44],
+os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v19_bp'): [0.42, 0.46, 0.46, 0.46],
+
+
