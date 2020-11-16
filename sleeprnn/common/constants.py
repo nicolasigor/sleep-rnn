@@ -222,3 +222,5 @@ A7_V2 = 'a7_v2'  # lstm DeepA7 model
 A7_V3 = 'a7_v3'  # RED-A7 model
 V11_BP = "v11_bp"  # band-passed input
 V19_BP = "v19_bp"  # band-passed input
+V11_LN = "v11_ln"  # layer-norm at conv
+V19_LN = "v19_ln"  # layer-norm at conv

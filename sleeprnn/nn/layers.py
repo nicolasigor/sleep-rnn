@@ -1153,6 +1153,74 @@ def conv2d_prebn_block(
 #     return outputs
 
 
+def conv1d_prebn_block_with_zscore(
+        inputs,
+        filters,
+        training,
+        kernel_size_1=3,
+        kernel_size_2=3,
+        batchnorm=None,
+        downsampling=constants.MAXPOOL,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    checks.check_valid_value(
+        downsampling, 'downsampling',
+        [constants.AVGPOOL, constants.MAXPOOL, constants.STRIDEDCONV, None])
+
+    if downsampling == constants.STRIDEDCONV:
+        strides = 2
+        pooling = None
+    else:
+        strides = 1
+        pooling = downsampling
+
+    with tf.variable_scope(name):
+
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        use_bias = batchnorm is None
+
+        outputs = tf.layers.conv2d(
+            inputs=inputs, filters=filters, kernel_size=(kernel_size_1, 1),
+            padding=constants.PAD_SAME,
+            strides=(strides, 1), name='conv%d_1' % kernel_size_1, reuse=reuse,
+            kernel_initializer=kernel_init,
+            use_bias=use_bias)
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_1', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=(kernel_size_2, 1),
+            padding=constants.PAD_SAME,
+            strides=1, name='conv%d_2' % kernel_size_2, reuse=reuse,
+            kernel_initializer=kernel_init,
+            use_bias=use_bias)
+
+        with tf.variable_scope("zscore"):
+            outputs_mean = tf.reduce_mean(outputs, keepdims=True, axis=1)
+            outputs = outputs - outputs_mean
+            outputs_var = tf.reduce_mean(outputs ** 2, keepdims=True, axis=1)
+            outputs = outputs / tf.math.sqrt(outputs_var + 1e-4)
+
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_2', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+
+        outputs = pooling1d(outputs, pooling)
+
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
 def conv1d_prebn_block(
         inputs,
         filters,
