@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'red_nodelta'
+    experiment_name = 'red_nodeltaslow'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.BP_INPUT_LOWCUT] = 4
+    params[pkeys.BP_INPUT_LOWCUT] = 2
     params[pkeys.BP_INPUT_HIGHCUT] = None
 
     for task_mode in task_mode_list:
