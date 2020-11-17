@@ -374,6 +374,19 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     
     os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v2'): [0.34, 0.42, 0.42, 0.36],
     os.path.join('20201112_deep_a7_check_n2_train_mass_ss', 'a7_v1'): [0.20, 0.22, 0.20, 0.20],
+    
+    os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel2.00'): [0.32, 0.40, 0.40, 0.32],
+    os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel1.00'): [0.32, 0.40, 0.40, 0.36],
+    os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel0.50'): [0.34, 0.44, 0.42, 0.34],
+    os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel0.30'): [0.38, 0.44, 0.38, 0.36],
+    
+    os.path.join('20201116_red_zscore_n2_train_mass_ss', 'v11_ln'): [0.46, 0.48, 0.48, 0.50],
+    
+    os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v11_bp'): [0.40, 0.56, 0.50, 0.44],
+    os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v19_bp'): [0.42, 0.46, 0.46, 0.46],
+    
+    os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v19_bp'): [0.46, 0.48, 0.50, 0.44],
+    os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v11_bp'): [0.48, 0.54, 0.56, 0.40],
 
 }
 

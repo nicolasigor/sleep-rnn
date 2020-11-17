@@ -12,3 +12,10 @@ os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v11_bp'): [0.40, 0.56, 0.
 os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v19_bp'): [0.42, 0.46, 0.46, 0.46],
 
 
+Val AF1 report for 20201116_red_nodeltaslow_n2_train_mass_ss
+AF1 66.49/2.52 [0.5] 67.11/3.10 [0.46, 0.48, 0.50, 0.44], F3 79.95/2.14, P3 78.8/ 9.8, R3 83.1/ 8.5 for v19_bp
+AF1 66.16/2.20 [0.5] 67.08/2.65 [0.48, 0.54, 0.56, 0.40], F3 79.90/1.88, P3 79.7/ 9.6, R3 82.1/ 9.1 for v11_bp
+
+os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v19_bp'): [0.46, 0.48, 0.50, 0.44],
+os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v11_bp'): [0.48, 0.54, 0.56, 0.40],
+

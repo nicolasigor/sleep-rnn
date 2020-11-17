@@ -132,3 +132,23 @@ os.path.join('20201115_deep_a7_grid_feats_windows_n2_train_mass_ss', 'a7_v2_winD
 
 
 
+
+GRID WINDOWS V2:
+
+Val AF1 report for 20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss
+AF1 61.29/2.43 [0.5] 64.12/2.24 [0.32, 0.40, 0.40, 0.32], F3 78.16/2.06, P3 77.8/ 9.7, R3 81.0/11.2 for a7_v2_winDurRel2.00
+AF1 61.50/1.48 [0.5] 64.00/2.23 [0.32, 0.40, 0.40, 0.36], F3 78.00/2.07, P3 77.7/ 9.9, R3 80.9/11.3 for a7_v2_winDurRel1.00
+AF1 61.26/1.64 [0.5] 63.86/1.78 [0.34, 0.44, 0.42, 0.34], F3 77.70/1.85, P3 78.3/ 9.0, R3 79.5/11.7 for a7_v2_winDurRel0.50
+AF1 61.62/0.94 [0.5] 63.74/2.07 [0.38, 0.44, 0.38, 0.36], F3 77.71/1.95, P3 78.4/ 9.8, R3 79.7/12.1 for a7_v2_winDurRel0.30
+
+os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel2.00'): [0.32, 0.40, 0.40, 0.32],
+os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel1.00'): [0.32, 0.40, 0.40, 0.36],
+os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel0.50'): [0.34, 0.44, 0.42, 0.34],
+os.path.join('20201116_deep_a7_grid_feats_windows_v2_n2_train_mass_ss', 'a7_v2_winDurRel0.30'): [0.38, 0.44, 0.38, 0.36],
+
+
+
+
+
+
+
