@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'deep_a7_grid_feats_windows_v2'
+    experiment_name = 'deep_a7_grid_feats_zscore'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -56,21 +56,26 @@ if __name__ == '__main__':
     model_list = [
         constants.A7_V2
     ]
-    window_duration_rel_sig_pow_list = [0.3, 0.5, 1.0]
+    use_zscore_rel_sig_pow_list = [False, True]
+    use_zscore_sig_cov_list = [False, True]
+    use_zscore_sig_corr_list = [True, False]
+    dispersion_mode_list = [constants.DISPERSION_MADE, constants.DISPERSION_STD_ROBUST]
 
     params_list = list(itertools.product(
-        model_list, window_duration_rel_sig_pow_list))
+        model_list,
+        use_zscore_rel_sig_pow_list, use_zscore_sig_cov_list, use_zscore_sig_corr_list, dispersion_mode_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
 
     # Adjusted parameters (bsf)
     params[pkeys.A7_REMOVE_DELTA_IN_COV] = True
-    params[pkeys.A7_USE_LOG_ABS_SIG_POW] = False
+    params[pkeys.A7_USE_LOG_ABS_SIG_POW] = False  # sqrt instead
     params[pkeys.A7_USE_LOG_REL_SIG_POW] = True
-    params[pkeys.A7_USE_LOG_SIG_COV] = False
-    params[pkeys.A7_USE_LOG_SIG_CORR] = False
+    params[pkeys.A7_USE_LOG_SIG_COV] = False  # sqrt instead
+    params[pkeys.A7_USE_LOG_SIG_CORR] = False  # raw instead
     params[pkeys.A7_WINDOW_DURATION] = 0.3
+    params[pkeys.A7_WINDOW_DURATION_REL_SIG_POW] = 0.5
 
     # CNN parameters
     params[pkeys.A7_CNN_DROP_RATE] = 0.1
@@ -82,12 +87,6 @@ if __name__ == '__main__':
     params[pkeys.A7_RNN_DROP_RATE] = 0.3
     params[pkeys.A7_RNN_LSTM_UNITS] = 128
     params[pkeys.A7_RNN_FC_UNITS] = 128
-
-    # Other default values for A7 features
-    params[pkeys.A7_USE_ZSCORE_REL_SIG_POW] = True
-    params[pkeys.A7_USE_ZSCORE_SIG_COV] = True
-    params[pkeys.A7_USE_ZSCORE_SIG_CORR] = False
-    params[pkeys.A7_DISPERSION_MODE] = constants.DISPERSION_STD_ROBUST
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -113,13 +112,16 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, window_duration_rel_sig_pow in params_list:
+                for model_version, use_zscore_rel_sig_pow, use_zscore_sig_cov, use_zscore_sig_corr, dispersion_mode in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.A7_WINDOW_DURATION_REL_SIG_POW] = window_duration_rel_sig_pow
+                    params[pkeys.A7_USE_ZSCORE_REL_SIG_POW] = use_zscore_rel_sig_pow
+                    params[pkeys.A7_USE_ZSCORE_SIG_COV] = use_zscore_sig_cov
+                    params[pkeys.A7_USE_ZSCORE_SIG_CORR] = use_zscore_sig_corr
+                    params[pkeys.A7_DISPERSION_MODE] = dispersion_mode
 
-                    folder_name = '%s_winDurRel%1.2f' % (
-                        model_version, window_duration_rel_sig_pow)
+                    folder_name = '%s_normRel%d_normCov%d_normCorr%d_%s' % (
+                        model_version, use_zscore_rel_sig_pow, use_zscore_sig_cov, use_zscore_sig_corr, dispersion_mode)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
