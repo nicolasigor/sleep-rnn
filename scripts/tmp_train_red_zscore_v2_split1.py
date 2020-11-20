@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1, 2, 3]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'red_zscore'
+    experiment_name = 'red_zscore_v2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -54,7 +54,9 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_list = [
-        constants.V11_LN
+        constants.V11_LN2,
+        constants.V11_LN3,
+        constants.V19_LN2
     ]
 
     # Base parameters
