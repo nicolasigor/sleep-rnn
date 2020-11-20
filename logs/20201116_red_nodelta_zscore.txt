@@ -1,9 +1,3 @@
-Val AF1 report for 20201116_red_zscore_n2_train_mass_ss
-AF1 67.96/2.75 [0.5] 68.07/2.86 [0.46, 0.48, 0.48, 0.50], F3 80.38/2.01, P3 79.8/ 9.8, R3 83.1/ 9.5 for v11_ln
-
-os.path.join('20201116_red_zscore_n2_train_mass_ss', 'v11_ln'): [0.46, 0.48, 0.48, 0.50],
-
-
 Val AF1 report for 20201116_red_nodelta_n2_train_mass_ss
 AF1 64.88/2.51 [0.5] 66.08/3.10 [0.40, 0.56, 0.50, 0.44], F3 79.31/2.36, P3 79.5/ 9.0, R3 80.8/ 8.9 for v11_bp
 AF1 65.61/2.14 [0.5] 66.01/2.70 [0.42, 0.46, 0.46, 0.46], F3 79.35/2.13, P3 79.0/ 9.1, R3 81.6/ 9.1 for v19_bp
@@ -12,10 +6,38 @@ os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v11_bp'): [0.40, 0.56, 0.
 os.path.join('20201116_red_nodelta_n2_train_mass_ss', 'v19_bp'): [0.42, 0.46, 0.46, 0.46],
 
 
+--------------------
+
+
 Val AF1 report for 20201116_red_nodeltaslow_n2_train_mass_ss
 AF1 66.49/2.52 [0.5] 67.11/3.10 [0.46, 0.48, 0.50, 0.44], F3 79.95/2.14, P3 78.8/ 9.8, R3 83.1/ 8.5 for v19_bp
 AF1 66.16/2.20 [0.5] 67.08/2.65 [0.48, 0.54, 0.56, 0.40], F3 79.90/1.88, P3 79.7/ 9.6, R3 82.1/ 9.1 for v11_bp
 
 os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v19_bp'): [0.46, 0.48, 0.50, 0.44],
 os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v11_bp'): [0.48, 0.54, 0.56, 0.40],
+
+
+--------------------
+
+
+Val AF1 report for 20201116_red_zscore_n2_train_mass_ss
+AF1 67.96/2.75 [0.5] 68.07/2.86 [0.46, 0.48, 0.48, 0.50], F3 80.38/2.01, P3 79.8/ 9.8, R3 83.1/ 9.5 for v11_ln
+
+os.path.join('20201116_red_zscore_n2_train_mass_ss', 'v11_ln'): [0.46, 0.48, 0.48, 0.50],
+
+
+--------------------
+ESTOS MODELOS TIENEN BATCHNORM EN LA CAPA FC_1 (ALGO QUE NO ESTABA ANTES).
+QUIZAS EN VEZ DE PONER BATCHNORM SERIA MEJOR CREAR SIMPLEMENTE UNA VARIABLE "BIAS" A MANO Y HACER
+RELU( ZSCORE(FEATS) + BIAS ), ASI ES MAS SIMPLE Y NO ME PONGO A NORMALIZAR POR BATCHES PARA RECUPERAR
+EL COMPORTAMIENTO TIPICO DE ANTES.
+
+Val AF1 report for 20201119_red_zscore_v2_n2_train_mass_ss
+AF1 66.65/1.92 [0.5] 67.16/2.21 [0.44, 0.46, 0.54, 0.46], F3 79.69/1.67, P3 80.3/10.1, R3 81.5/10.7 for v11_ln3
+AF1 66.25/2.82 [0.5] 66.90/2.30 [0.48, 0.60, 0.58, 0.50], F3 79.48/1.69, P3 79.7/10.4, R3 81.9/10.8 for v11_ln2
+AF1 65.80/3.27 [0.5] 66.47/2.67 [0.52, 0.62, 0.52, 0.52], F3 79.09/1.77, P3 78.9/10.8, R3 81.9/10.3 for v19_ln2
+
+os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v11_ln3'): [0.44, 0.46, 0.54, 0.46],
+os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v11_ln2'): [0.48, 0.60, 0.58, 0.50],
+os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v19_ln2'): [0.52, 0.62, 0.52, 0.52],
 

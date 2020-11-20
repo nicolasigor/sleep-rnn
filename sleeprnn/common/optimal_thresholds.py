@@ -395,6 +395,10 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov0_normCorr0_std_robust'): [0.34, 0.42, 0.44, 0.34],
     os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov0_normCorr0_made'): [0.34, 0.38, 0.44, 0.32],
     
+    os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v11_ln3'): [0.44, 0.46, 0.54, 0.46],
+    os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v11_ln2'): [0.48, 0.60, 0.58, 0.50],
+    os.path.join('20201119_red_zscore_v2_n2_train_mass_ss', 'v19_ln2'): [0.52, 0.62, 0.52, 0.52],
+    
 
 }
 
