@@ -387,6 +387,14 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     
     os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v19_bp'): [0.46, 0.48, 0.50, 0.44],
     os.path.join('20201116_red_nodeltaslow_n2_train_mass_ss', 'v11_bp'): [0.48, 0.54, 0.56, 0.40],
+    
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel0_normCov1_normCorr0_made'): [0.36, 0.44, 0.46, 0.36],
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov1_normCorr0_made'): [0.34, 0.42, 0.42, 0.32],
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov1_normCorr0_std_robust'): [0.34, 0.46, 0.40, 0.36],
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel0_normCov1_normCorr0_std_robust'): [0.36, 0.42, 0.46, 0.36],
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov0_normCorr0_std_robust'): [0.34, 0.42, 0.44, 0.34],
+    os.path.join('20201117_deep_a7_grid_feats_zscore_n2_train_mass_ss', 'a7_v2_normRel1_normCov0_normCorr0_made'): [0.34, 0.38, 0.44, 0.32],
+    
 
 }
 
