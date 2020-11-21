@@ -13,7 +13,7 @@ from scipy.signal import resample_poly, butter, filtfilt, firwin, lfilter
 from scipy.stats import iqr
 
 PATH_THIS_DIR = os.path.dirname(__file__)
-PATH_DATA = os.path.join(PATH_THIS_DIR, '..', '..', 'resources', 'datasets')
+PATH_DATA = os.path.abspath(os.path.join(PATH_THIS_DIR, '..', '..', 'resources', 'datasets'))
 
 from sleeprnn.common import constants, checks
 
