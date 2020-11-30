@@ -693,7 +693,8 @@ class WaveletBLSTM(BaseModel):
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4,
                 constants.HINGE_LOSS,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5,
+                constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -806,6 +807,11 @@ class WaveletBLSTM(BaseModel):
                 self.params[pkeys.CLASS_WEIGHTS],
                 self.params[pkeys.SOFT_FOCAL_GAMMA], self.params[pkeys.SOFT_FOCAL_EPSILON],
                 self.params[pkeys.ANTIBORDER_AMPLITUDE], self.params[pkeys.ANTIBORDER_HALF_WIDTH]
+            )
+        elif type_loss == constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG:
+            loss, loss_summ = losses.cross_entropy_loss_with_logits_reg_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.LOGITS_REG_TYPE], self.params[pkeys.LOGITS_REG_WEIGHT]
             )
         elif type_loss == constants.HINGE_LOSS:
             loss, loss_summ = losses.hinge_loss_fn(

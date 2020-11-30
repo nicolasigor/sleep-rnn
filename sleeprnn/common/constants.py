@@ -93,6 +93,13 @@ WEIGHTED_CROSS_ENTROPY_LOSS_V3 = 'weighted_cross_entropy_loss_v3'
 WEIGHTED_CROSS_ENTROPY_LOSS_V4 = 'weighted_cross_entropy_loss_v4'
 HINGE_LOSS = 'hinge_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS_V5 = 'weighted_cross_entropy_loss_v5'
+CROSS_ENTROPY_LOSS_WITH_LOGITS_REG = 'cross_entropy_loss_with_logits_reg'
+
+# Types of logits reg
+LOGITS_REG_NORM = "logits_reg_norm"
+LOGITS_REG_NORM_SQRT = "logits_reg_norm_sqrt"
+LOGITS_REG_ATTRACTOR = "logits_reg_attractor"
+LOGITS_REG_ATTRACTOR_SQRT = "logits_reg_attractor_sqrt"
 
 # Mix weight strategies
 MIX_WEIGHTS_SUM = 'mix_weights_sum'

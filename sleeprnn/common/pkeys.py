@@ -242,6 +242,9 @@ SOFT_FOCAL_EPSILON = "soft_focal_epsilon"
 ANTIBORDER_AMPLITUDE = "antiborder_amplitude"
 ANTIBORDER_HALF_WIDTH = "antiborder_half_width"
 
+LOGITS_REG_TYPE = "logits_reg_type"
+LOGITS_REG_WEIGHT = "logits_reg_weight"
+
 
 """ Optimizer params
 
@@ -456,4 +459,6 @@ default_params = {
     A7_RNN_FC_UNITS: None,
     BP_INPUT_LOWCUT: None,
     BP_INPUT_HIGHCUT: None,
+    LOGITS_REG_TYPE: None,
+    LOGITS_REG_WEIGHT: None
 }

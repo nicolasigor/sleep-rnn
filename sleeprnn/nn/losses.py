@@ -693,6 +693,60 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
     return loss, loss_summ
 
 
+def cross_entropy_loss_with_logits_reg_fn(
+        logits, labels, class_weights,
+        regularization_type, regularization_weight
+):
+    print('Using Cross Entropy Loss with Logits Regularization')
+    print("Using regularization type %s" % regularization_type)
+    print("Using regularization weight %s" % regularization_weight)
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+
+        # Regularization
+        print("logits", logits)
+        if regularization_type == constants.LOGITS_REG_NORM:
+            norm = tf.reduce_sum(logits ** 2, axis=-1)
+            reg_term = norm / 4.0
+        elif regularization_type == constants.LOGITS_REG_NORM_SQRT:
+            norm = tf.reduce_sum(logits ** 2, axis=-1)
+            reg_term = tf.math.sqrt(norm)
+        elif regularization_type == constants.LOGITS_REG_ATTRACTOR:
+            p1 = np.array([-1.0, 1.0])
+            p2 = np.array([1.0, -1.0])
+            norm_1 = tf.reduce_sum((logits - p1) ** 2, axis=-1)
+            norm_2 = tf.reduce_sum((logits - p2) ** 2, axis=-1)
+            attractor = tf.math.sqrt(norm_1 * norm_2)
+            reg_term = attractor / 4.0
+        elif regularization_type == constants.LOGITS_REG_ATTRACTOR_SQRT:
+            p1 = np.array([-1.0, 1.0])
+            p2 = np.array([1.0, -1.0])
+            norm_1 = tf.reduce_sum((logits - p1) ** 2, axis=-1)
+            norm_2 = tf.reduce_sum((logits - p2) ** 2, axis=-1)
+            attractor = tf.math.sqrt(norm_1 * norm_2)
+            reg_term = tf.math.sqrt(attractor)
+        else:
+            raise ValueError("regularization type %s not supported" % regularization_type)
+        print("reg_term", reg_term)
+        reg_term = tf.reduce_mean(reg_term)
+        print("reg_term", reg_term)
+
+        tf.summary.scalar('logits_reg', reg_term)
+        tf.summary.scalar('unregularized_loss', loss)
+
+        loss = loss + regularization_weight * reg_term
+
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+
+    return loss, loss_summ
+
+
 def hinge_loss_fn(logits, labels, class_weights):
     """Returns the hinge loss to be minimized.
 
