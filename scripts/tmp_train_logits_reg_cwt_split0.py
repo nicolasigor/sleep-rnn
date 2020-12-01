@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'logits_reg'
+    experiment_name = 'logits_reg_cwt'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -53,8 +53,8 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_list = [constants.V11]
-    reg_weight_exp_list = [0, -1, -2, -3]
+    model_list = [constants.V19]
+    reg_weight_exp_list = [-1, -2, -3]
     reg_type_list = [
         constants.LOGITS_REG_ATTRACTOR,
         constants.LOGITS_REG_ATTRACTOR_SQRT,
