@@ -406,6 +406,19 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201130_logits_reg_n2_train_mass_ss', 'v11_1e-3_logits_reg_attractor'): [0.38, 0.50, 0.50, 0.42],
     os.path.join('20201130_logits_reg_n2_train_mass_ss', 'v11_1e-2_logits_reg_norm_sqrt'): [0.46, 0.52, 0.52, 0.42],
     os.path.join('20201130_logits_reg_n2_train_mass_ss', 'v11_1e-3_logits_reg_norm_sqrt'): [0.42, 0.48, 0.50, 0.48],
+    
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-3_logits_reg_attractor'): [0.46, 0.52, 0.50, 0.50],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-3_logits_reg_attractor_sqrt'): [0.50, 0.52, 0.54, 0.48],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-2_logits_reg_norm_sqrt'): [0.52, 0.52, 0.60, 0.50],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-3_logits_reg_norm'): [0.48, 0.52, 0.64, 0.46],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-2_logits_reg_attractor_sqrt'): [0.54, 0.58, 0.52, 0.52],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-3_logits_reg_norm_sqrt'): [0.44, 0.52, 0.54, 0.48],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-2_logits_reg_norm'): [0.46, 0.50, 0.52, 0.48],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-2_logits_reg_attractor'): [0.48, 0.56, 0.56, 0.48],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-1_logits_reg_attractor'): [0.44, 0.60, 0.54, 0.44],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-1_logits_reg_norm_sqrt'): [0.50, 0.52, 0.54, 0.50],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-1_logits_reg_norm'): [0.50, 0.48, 0.52, 0.42],
+    os.path.join('20201201_logits_reg_cwt_n2_train_mass_ss', 'v19_1e-1_logits_reg_attractor_sqrt'): [0.44, 0.54, 0.42, 0.32],
 
 }
 
