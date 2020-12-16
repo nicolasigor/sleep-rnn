@@ -1153,6 +1153,90 @@ def conv2d_prebn_block(
 #     return outputs
 
 
+def conv1d_prebn_block_with_projection(
+        inputs,
+        filters,
+        training,
+        kernel_size=3,
+        project_first=False,
+        dropout=None,
+        drop_rate=0,
+        batchnorm=None,
+        downsampling=constants.MAXPOOL,
+        reuse=False,
+        kernel_init=None,
+        name=None
+):
+    checks.check_valid_value(
+        downsampling, 'downsampling',
+        [constants.AVGPOOL, constants.MAXPOOL, constants.STRIDEDCONV, None])
+
+    if downsampling == constants.STRIDEDCONV:
+        strides = 2
+        pooling = None
+    else:
+        strides = 1
+        pooling = downsampling
+
+    with tf.variable_scope(name):
+
+        # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+        inputs = tf.expand_dims(inputs, axis=2)
+        use_bias = batchnorm is None
+
+        input_channels = inputs.get_shape().as_list()[-1]
+        # Only project if input dim > than filters
+        if project_first and (input_channels > filters):
+            # Linear projection to n filters
+            inputs = tf.layers.conv2d(
+                inputs=inputs, filters=filters, kernel_size=(1, 1),
+                padding=constants.PAD_SAME,
+                strides=(1, 1), name='conv1', reuse=reuse,
+                kernel_initializer=kernel_init,
+                use_bias=False)
+
+        # First convolution
+        outputs = tf.layers.conv2d(
+            inputs=inputs, filters=filters, kernel_size=(kernel_size, 1),
+            padding=constants.PAD_SAME,
+            strides=(strides, 1), name='conv%d_1' % kernel_size, reuse=reuse,
+            kernel_initializer=kernel_init,
+            use_bias=use_bias)
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_1', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+
+        # Optional dropout between convolutions
+        if dropout:
+            outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+            outputs = dropout_layer(
+                outputs, 'drop', drop_rate=drop_rate, dropout=dropout,
+                training=training)
+            outputs = tf.expand_dims(outputs, axis=2)
+
+        # Second convolution
+        outputs = tf.layers.conv2d(
+            inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
+            padding=constants.PAD_SAME,
+            strides=1, name='conv%d_2' % kernel_size, reuse=reuse,
+            kernel_initializer=kernel_init,
+            use_bias=use_bias)
+        if batchnorm:
+            outputs = batchnorm_layer(
+                outputs, 'bn_2', batchnorm=batchnorm,
+                reuse=reuse, training=training, scale=False)
+        outputs = tf.nn.relu(outputs)
+
+        # Pooling
+        outputs = pooling1d(outputs, pooling)
+
+        # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+        outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+    return outputs
+
+
 def conv1d_prebn_block_with_zscore(
         inputs,
         filters,

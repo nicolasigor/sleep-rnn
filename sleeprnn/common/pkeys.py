@@ -213,6 +213,13 @@ A7_RNN_DROP_RATE = "a7_rnn_drop_rate"
 A7_RNN_FC_UNITS = "a7_rnn_fc_units"
 BP_INPUT_LOWCUT = "bp_input_lowcut"
 BP_INPUT_HIGHCUT = "bp_input_highcut"
+# Multi-kernel 1d conv params
+TIME_CONV_MK_PROJECT_FIRST = "time_conv_mk_project_first"
+TIME_CONV_MK_FILTERS_1 = 'time_conv_mk_filters_1'  # [(k1, f1), (k2, f2), ...]
+TIME_CONV_MK_FILTERS_2 = 'time_conv_mk_filters_2'
+TIME_CONV_MK_FILTERS_3 = 'time_conv_mk_filters_3'
+TIME_CONV_MK_DROP_RATE = 'time_conv_mk_drop_rate'
+TIME_CONV_MK_SKIPS = 'time_conv_mk_skips'
 
 """ Loss params
 
@@ -460,5 +467,11 @@ default_params = {
     BP_INPUT_LOWCUT: None,
     BP_INPUT_HIGHCUT: None,
     LOGITS_REG_TYPE: None,
-    LOGITS_REG_WEIGHT: None
+    LOGITS_REG_WEIGHT: None,
+    TIME_CONV_MK_PROJECT_FIRST: None,
+    TIME_CONV_MK_FILTERS_1: None,
+    TIME_CONV_MK_FILTERS_2: None,
+    TIME_CONV_MK_FILTERS_3: None,
+    TIME_CONV_MK_DROP_RATE: None,
+    TIME_CONV_MK_SKIPS: None,
 }

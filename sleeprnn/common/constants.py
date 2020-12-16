@@ -233,3 +233,4 @@ V11_LN = "v11_ln"  # zscore at last conv
 V11_LN2 = "v11_ln2"  # zscore at logits
 V19_LN2 = "v19_ln2"  # zscore at logits
 V11_LN3 = "v11_ln3"  # zscore at both last conv and logits
+V11_MK = "v11_mk"  # V11 but with multiple kernel sizes at each conv
