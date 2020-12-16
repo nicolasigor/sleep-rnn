@@ -152,7 +152,6 @@ class WaveletBLSTM(BaseModel):
                x_train.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
-        start_time = time.time()
 
         # split set into two parts
         x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(
@@ -189,7 +188,10 @@ class WaveletBLSTM(BaseModel):
             [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
 
         # Training loop
+        start_time = time.time()
         nstats = self.params[pkeys.ITERS_STATS]
+        last_elapsed = 0
+        last_it = 0
         for it in range(1, niters+1):
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
@@ -204,14 +206,17 @@ class WaveletBLSTM(BaseModel):
                 val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val)
                 self.val_writer.add_summary(val_summ, it)
                 elapsed = time.time() - start_time
-                loss_print = ('loss train %1.6f val %1.6f'
+                time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
+                last_it = it
+                last_elapsed = elapsed
+                loss_print = ('loss train %1.4f val %1.4f'
                               % (train_loss,
                                  val_loss))
-                f1_print = ('f1 train %1.6f val %1.6f'
+                f1_print = ('f1 train %1.4f val %1.4f'
                             % (train_metrics[KEY_F1_SCORE],
                                val_metrics[KEY_F1_SCORE]))
-                print('It %6.0d/%d - %s - %s - E.T. %1.4f s'
-                      % (it, niters, loss_print, f1_print, elapsed))
+                print('It %6.0d/%d - %s - %s - E.T. %1.2fs (%1.2fs/100it)'
+                      % (it, niters, loss_print, f1_print, elapsed, time_rate_per_100))
 
                 if lr_update_criterion == constants.LOSS_CRITERION:
                     improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
