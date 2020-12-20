@@ -72,7 +72,7 @@ if __name__ == '__main__':
     id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'mkconv'
+    experiment_name = 'mkconv2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -94,25 +94,22 @@ if __name__ == '__main__':
     init_filters_list = [64]
     first_block_behavior_list = [
         'multi',
-        # 'single'
+        'single'
     ]
     multi_strategy_list = [
-        # 'exp2',
+        'exp2',
         'exp1',
-        # 'linear',
-        # 'none'
+        'linear',
+        'none'
     ]
     project_first_list = [
-        False,
-        True
+        False
     ]
     drop_conv_rate_list = [
-        0.0,
-        0.1
+        0.0
     ]
     conv_skip_list = [
-        True,
-        False
+        True
     ]
     params_list = list(itertools.product(
         model_list,
