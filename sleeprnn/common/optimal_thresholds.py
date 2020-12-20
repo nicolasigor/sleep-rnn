@@ -428,6 +428,14 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201215_mkconv_n2_train_mass_ss', 'v11_mk_skip1_dr0.1_p1_f64_multi-exp1_first-multi'): [0.42, 0.44, 0.40, 0.38],
     os.path.join('20201215_mkconv_n2_train_mass_ss', 'v11_mk_skip0_dr0.1_p1_f64_multi-exp1_first-multi'): [0.36, 0.48, 0.38, 0.32],
     os.path.join('20201215_mkconv_n2_train_mass_ss', 'v11_mk_skip1_dr0.1_p0_f64_multi-exp1_first-multi'): [0.32, 0.46, 0.38, 0.36],
+    
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-linear_first-multi'): [0.42, 0.54, 0.56, 0.48],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-linear_first-single'): [0.44, 0.46, 0.48, 0.44],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-none_first-single'): [0.38, 0.52, 0.44, 0.46],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp1_first-single'): [0.46, 0.52, 0.50, 0.44],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp1_first-multi'): [0.46, 0.50, 0.42, 0.44],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp2_first-multi'): [0.36, 0.52, 0.46, 0.42],
+    os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp2_first-single'): [0.46, 0.42, 0.46, 0.36],
 
 }
 
