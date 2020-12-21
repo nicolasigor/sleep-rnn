@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import datetime
 import os
 import sys
 
@@ -57,11 +58,11 @@ if __name__ == '__main__':
     # print(marks_without_doubt)
 
     accepted_df = pd.read_csv('mark_files/%s_garrido_accepted_20190805.csv' % subject_name)
-    # print(accepted_df)
+    print(accepted_df)
 
     rejected_df = pd.read_csv(
         'mark_files/%s_garrido_rejected_20190805.csv' % subject_name)
-    # print(rejected_df)
+    print(rejected_df)
 
     # Transform marks from df to the standard [start end] format
 
@@ -124,6 +125,7 @@ if __name__ == '__main__':
     if np.any(overlap_check):
         print(np.where(overlap_check != 0)[0])
         print(accepted_marks[np.where(overlap_check != 0)[0], :])
+        print(accepted_marks[np.where(overlap_check != 0)[0], :] / fs)
         raise ValueError('Manually accepted marks are overlapped.')
 
     # Now everything is in the right format
@@ -184,7 +186,7 @@ if __name__ == '__main__':
     overlap_check = overlap_check.sum(axis=1) - 1
     if np.any(overlap_check):
         raise ValueError('Final marks are overlapped.')
-
-    np.savetxt(
-        'mark_files/20190805_Revision_SS_%s.txt' % subject_name,
-        table, fmt='%i')
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    fname = 'mark_files/%s_Revision_SS_%s.txt' % (this_date, subject_name)
+    np.savetxt(fname, table, fmt='%i')
+    print("Revision saved at %s" % fname)
