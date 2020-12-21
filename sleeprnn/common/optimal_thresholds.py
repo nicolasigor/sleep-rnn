@@ -436,6 +436,13 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp1_first-multi'): [0.46, 0.50, 0.42, 0.44],
     os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp2_first-multi'): [0.36, 0.52, 0.46, 0.42],
     os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp2_first-single'): [0.46, 0.42, 0.46, 0.36],
+    
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k3_f64_first-single'): [0.40, 0.52, 0.52, 0.44],
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k3_f64_first-multi'): [0.48, 0.56, 0.52, 0.48],
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k5_f64_first-single'): [0.38, 0.52, 0.50, 0.46],
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k5_f64_first-multi'): [0.38, 0.46, 0.50, 0.42],
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_first-multi'): [0.38, 0.40, 0.52, 0.38],
+    os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_first-single'): [0.46, 0.42, 0.50, 0.38],
 
 }
 
