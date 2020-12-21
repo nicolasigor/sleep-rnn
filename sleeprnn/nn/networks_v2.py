@@ -1190,14 +1190,6 @@ def wavelet_blstm_net_v11_mk(
 ):
     print('Using model V11-MK (Time-Domain with multi-kernel convolutions)')
     with tf.variable_scope(name):
-        border_crop = int(
-            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
-        start_crop = border_crop
-        if border_crop <= 0:
-            end_crop = None
-        else:
-            end_crop = -border_crop
-        inputs = inputs[:, start_crop:end_crop]
         # Transform [batch, time_len] -> [batch, time_len, 1]
         inputs = tf.expand_dims(inputs, axis=2)
 
@@ -1291,6 +1283,14 @@ def wavelet_blstm_net_v11_mk(
             # Just the last output
             outputs = outputs_3
 
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
         # Multilayer BLSTM (2 layers)
         outputs = layers.multilayer_lstm_block(
             outputs,
@@ -1341,14 +1341,6 @@ def wavelet_blstm_net_v11_mkd(
 ):
     print('Using model V11-MKD (Time-Domain with multi-dilated convolutions)')
     with tf.variable_scope(name):
-        border_crop = int(
-            params[pkeys.BORDER_DURATION] * params[pkeys.FS])
-        start_crop = border_crop
-        if border_crop <= 0:
-            end_crop = None
-        else:
-            end_crop = -border_crop
-        inputs = inputs[:, start_crop:end_crop]
         # Transform [batch, time_len] -> [batch, time_len, 1]
         inputs = tf.expand_dims(inputs, axis=2)
 
@@ -1441,6 +1433,14 @@ def wavelet_blstm_net_v11_mkd(
             print("Passing last output to LSTM")
             # Just the last output
             outputs = outputs_3
+
+        border_crop = int(params[pkeys.BORDER_DURATION] * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        outputs = outputs[:, start_crop:end_crop]
 
         # Multilayer BLSTM (2 layers)
         outputs = layers.multilayer_lstm_block(

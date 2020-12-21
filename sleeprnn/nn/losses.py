@@ -82,6 +82,8 @@ def get_border_weights(labels, amplitude, half_width):
 def get_anti_border_weights(labels, amplitude, half_width):
     print('Anti border weights with A=%1.2f and half_s=%1.2f' % (
         amplitude, half_width))
+    if amplitude == 0:
+        return 1.0
     with tf.variable_scope('loss__anti_border_weights'):
         # Edge detector definition
         kernel_edge = [-0.5, 0, 0.5]
