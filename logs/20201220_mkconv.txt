@@ -41,3 +41,18 @@ os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_mul
 os.path.join('20201220_mkconv2_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-exp2_first-single'): [0.46, 0.42, 0.46, 0.36],
 
 
+
+GRID 3 (initial filter)
+
+Val AF1 report for 20201220_mkconv3_n2_train_mass_ss
+AF1 67.31/2.55 [0.5] 67.81/2.72 [0.44, 0.54, 0.52, 0.44], F3 80.19/1.87, P3 79.6/ 9.6, R3 82.8/ 9.7 for v11_mk_skip1_dr0.0_p0_f64_multi-linear_first-multi
+AF1 66.88/1.69 [0.5] 67.73/2.38 [0.42, 0.54, 0.50, 0.42], F3 80.22/1.62, P3 80.6/ 9.5, R3 82.0/10.4 for v11_mk_skip1_dr0.0_p0_f32_multi-linear_first-multi
+AF1 66.66/2.00 [0.5] 67.56/2.39 [0.42, 0.56, 0.54, 0.44], F3 79.75/1.58, P3 80.7/10.1, R3 81.3/11.0 for v11_mk_skip1_dr0.0_p0_f128_multi-linear_first-multi
+
+os.path.join('20201220_mkconv3_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f64_multi-linear_first-multi'): [0.44, 0.54, 0.52, 0.44],
+os.path.join('20201220_mkconv3_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f32_multi-linear_first-multi'): [0.42, 0.54, 0.50, 0.42],
+os.path.join('20201220_mkconv3_n2_train_mass_ss', 'v11_mk_skip1_dr0.0_p0_f128_multi-linear_first-multi'): [0.42, 0.56, 0.54, 0.44],
+
+
+
+
