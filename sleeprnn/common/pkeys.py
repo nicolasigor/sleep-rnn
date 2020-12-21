@@ -220,6 +220,9 @@ TIME_CONV_MK_FILTERS_2 = 'time_conv_mk_filters_2'
 TIME_CONV_MK_FILTERS_3 = 'time_conv_mk_filters_3'
 TIME_CONV_MK_DROP_RATE = 'time_conv_mk_drop_rate'
 TIME_CONV_MK_SKIPS = 'time_conv_mk_skips'
+TIME_CONV_MKD_FILTERS_1 = 'time_conv_mkd_filters_1'  # [(k1, f1, d1), (k2, f2, d2), ...]
+TIME_CONV_MKD_FILTERS_2 = 'time_conv_mkd_filters_2'
+TIME_CONV_MKD_FILTERS_3 = 'time_conv_mkd_filters_3'
 
 """ Loss params
 
@@ -474,4 +477,7 @@ default_params = {
     TIME_CONV_MK_FILTERS_3: None,
     TIME_CONV_MK_DROP_RATE: None,
     TIME_CONV_MK_SKIPS: None,
+    TIME_CONV_MKD_FILTERS_1: None,
+    TIME_CONV_MKD_FILTERS_2: None,
+    TIME_CONV_MKD_FILTERS_3: None,
 }
