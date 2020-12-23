@@ -101,7 +101,13 @@ os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip1_sof
 os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_skip0_soft_focal'): [0.36, 0.38, 0.40, 0.34],
 
 
+MKD2 -- border crop AFTER lstm 
+Val AF1 report for 20201223_afterLSTMcrop_n2_train_mass_ss
+AF1 67.21/2.07 [0.5] 68.19/2.63 [0.38, 0.54, 0.52, 0.42], F3 80.61/1.92, P3 79.5/ 9.3, R3 83.6/ 9.3 for v11_mkd2_multi_none
+AF1 67.50/2.23 [0.5] 68.19/2.44 [0.48, 0.56, 0.52, 0.44], F3 80.57/1.62, P3 80.8/ 8.7, R3 82.1/ 9.2 for v11_mkd2_multi_dilated
 
+os.path.join('20201223_afterLSTMcrop_n2_train_mass_ss', 'v11_mkd2_multi_none'): [0.38, 0.54, 0.52, 0.42],
+os.path.join('20201223_afterLSTMcrop_n2_train_mass_ss', 'v11_mkd2_multi_dilated'): [0.48, 0.56, 0.52, 0.44],
 
 
 
