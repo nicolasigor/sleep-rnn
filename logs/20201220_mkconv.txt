@@ -74,7 +74,8 @@ os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_f
 
 
 
-FINAL CONTEST	
+FINAL CONTEST
+In v11-mk and v11-mkd now the border is cropped AFTER the convolutions to improve receptive field at borders.
 
 Val AF1 report for 20201221_final_contest_mkconv_n2_train_mass_ss
 AF1 67.44/2.67 [0.5] 68.11/3.17 [0.40, 0.52, 0.52, 0.44], F3 80.50/2.63, P3 78.9/ 9.7, R3 84.0/ 8.7 for v11_mkd_skip1_xentropy
