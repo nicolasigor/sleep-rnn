@@ -235,3 +235,4 @@ V19_LN2 = "v19_ln2"  # zscore at logits
 V11_LN3 = "v11_ln3"  # zscore at both last conv and logits
 V11_MK = "v11_mk"  # V11 but with multiple kernel sizes at each conv
 V11_MKD = "v11_mkd"  # V11 but with multiple dilations at each conv
+V11_MKD2 = "v11_mkd2"  # V11 but with multiple dilations at each conv, border crop after lstm
