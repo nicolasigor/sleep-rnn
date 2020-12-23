@@ -74,5 +74,39 @@ os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_f
 
 
 
+FINAL CONTEST	
+
+Val AF1 report for 20201221_final_contest_mkconv_n2_train_mass_ss
+AF1 67.44/2.67 [0.5] 68.11/3.17 [0.40, 0.52, 0.52, 0.44], F3 80.50/2.63, P3 78.9/ 9.7, R3 84.0/ 8.7 for v11_mkd_skip1_xentropy
+AF1 67.13/2.41 [0.5] 67.98/2.64 [0.42, 0.50, 0.56, 0.42], F3 80.48/1.94, P3 80.1/ 8.8, R3 82.5/ 8.8 for v11_mkd_skip0_xentropy
+AF1 67.38/1.81 [0.5] 67.96/2.04 [0.48, 0.56, 0.54, 0.44], F3 80.32/1.27, P3 81.3/ 8.8, R3 81.2/ 9.7 for v11_mk_skip0_xentropy
+AF1 66.63/1.84 [0.5] 67.83/2.48 [0.40, 0.52, 0.56, 0.38], F3 80.21/1.71, P3 80.9/ 8.7, R3 81.3/ 9.5 for v11_skip0_xentropy
+AF1 60.35/4.63 [0.5] 67.53/2.43 [0.36, 0.40, 0.40, 0.34], F3 80.11/1.64, P3 79.0/ 9.5, R3 83.2/ 9.6 for v11_mkd_skip1_soft_focal
+AF1 67.38/2.35 [0.5] 67.38/2.34 [0.54, 0.52, 0.50, 0.48], F3 79.80/1.36, P3 79.7/10.2, R3 82.4/11.0 for v11_mk_skip1_xentropy
+AF1 58.75/5.25 [0.5] 67.29/2.77 [0.34, 0.38, 0.36, 0.36], F3 80.22/2.02, P3 78.5/ 9.8, R3 84.1/ 9.3 for v11_mk_skip0_soft_focal
+AF1 59.00/4.55 [0.5] 67.25/2.56 [0.34, 0.38, 0.36, 0.34], F3 79.97/2.04, P3 78.5/ 9.8, R3 83.6/ 9.3 for v11_mkd_skip0_soft_focal
+AF1 58.84/5.01 [0.5] 67.12/2.73 [0.32, 0.38, 0.34, 0.38], F3 79.85/1.92, P3 78.6/ 9.8, R3 83.4/10.1 for v11_mk_skip1_soft_focal
+AF1 58.76/5.88 [0.5] 67.05/2.36 [0.36, 0.38, 0.40, 0.34], F3 79.67/1.64, P3 79.6/10.4, R3 82.4/11.1 for v11_skip0_soft_focal
+
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_xentropy'): [0.40, 0.52, 0.52, 0.44],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip0_xentropy'): [0.42, 0.50, 0.56, 0.42],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip0_xentropy'): [0.48, 0.56, 0.54, 0.44],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_skip0_xentropy'): [0.40, 0.52, 0.56, 0.38],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_soft_focal'): [0.36, 0.40, 0.40, 0.34],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip1_xentropy'): [0.54, 0.52, 0.50, 0.48],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip0_soft_focal'): [0.34, 0.38, 0.36, 0.36],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip0_soft_focal'): [0.34, 0.38, 0.36, 0.34],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip1_soft_focal'): [0.32, 0.38, 0.34, 0.38],
+os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_skip0_soft_focal'): [0.36, 0.38, 0.40, 0.34],
+
+
+
+
+
+
+
+
+
+
 
 

@@ -443,6 +443,18 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k5_f64_first-multi'): [0.38, 0.46, 0.50, 0.42],
     os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_first-multi'): [0.38, 0.40, 0.52, 0.38],
     os.path.join('20201220_dilated_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_k7_f64_first-single'): [0.46, 0.42, 0.50, 0.38],
+    
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_xentropy'): [0.40, 0.52, 0.52, 0.44],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip0_xentropy'): [0.42, 0.50, 0.56, 0.42],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip0_xentropy'): [0.48, 0.56, 0.54, 0.44],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_skip0_xentropy'): [0.40, 0.52, 0.56, 0.38],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip1_soft_focal'): [0.36, 0.40, 0.40, 0.34],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip1_xentropy'): [0.54, 0.52, 0.50, 0.48],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip0_soft_focal'): [0.34, 0.38, 0.36, 0.36],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mkd_skip0_soft_focal'): [0.34, 0.38, 0.36, 0.34],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_mk_skip1_soft_focal'): [0.32, 0.38, 0.34, 0.38],
+    os.path.join('20201221_final_contest_mkconv_n2_train_mass_ss', 'v11_skip0_soft_focal'): [0.36, 0.38, 0.40, 0.34],
+    
 
 }
 
