@@ -223,6 +223,13 @@ TIME_CONV_MK_SKIPS = 'time_conv_mk_skips'
 TIME_CONV_MKD_FILTERS_1 = 'time_conv_mkd_filters_1'  # [(k1, f1, d1), (k2, f2, d2), ...]
 TIME_CONV_MKD_FILTERS_2 = 'time_conv_mkd_filters_2'
 TIME_CONV_MKD_FILTERS_3 = 'time_conv_mkd_filters_3'
+# Stat network parameters
+STAT_NET_KERNEL_SIZE = 'stat_net_kernel_size'
+STAT_NET_DEPTH = 'stat_net_depth'
+STAT_NET_TYPE_POOL = 'stat_net_type_pool'
+STAT_NET_DROP_RATE = 'stat_net_drop_rate'
+STAT_NET_OUTPUT_DIM = 'stat_net_output_dim'
+STAT_NET_AFTER_CONCAT_FC_UNITS = 'stat_net_after_concat_fc_units'
 
 """ Loss params
 
