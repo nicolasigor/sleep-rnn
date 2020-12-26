@@ -1661,6 +1661,7 @@ def stat_net(
         type_pool = params[pkeys.STAT_NET_TYPE_POOL]
         drop_rate = params[pkeys.STAT_NET_DROP_RATE]
         output_dim = params[pkeys.STAT_NET_OUTPUT_DIM]
+        max_filters = params[pkeys.STAT_NET_MAX_FILTERS]
 
         batchnorm = params[pkeys.TYPE_BATCHNORM]
 
@@ -1671,6 +1672,7 @@ def stat_net(
         for i in range(1, n_layers+1):
             with tf.variable_scope('conv%d_%d' % (kernel_size, i)):
                 filters = 2 ** (2 + i)
+                filters = min(filters, max_filters)
                 outputs = tf.layers.conv2d(
                     inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
                     padding=constants.PAD_VALID, name='conv%d' % kernel_size,

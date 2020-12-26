@@ -121,6 +121,7 @@ if __name__ == '__main__':
     params[pkeys.STAT_NET_TYPE_POOL] = constants.MAXPOOL
     params[pkeys.STAT_NET_KERNEL_SIZE] = 3
     params[pkeys.STAT_NET_DROP_RATE] = 0.5
+    params[pkeys.STAT_NET_MAX_FILTERS] = 512
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
