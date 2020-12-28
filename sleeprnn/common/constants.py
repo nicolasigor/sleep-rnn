@@ -237,3 +237,4 @@ V11_MK = "v11_mk"  # V11 but with multiple kernel sizes at each conv
 V11_MKD = "v11_mkd"  # V11 but with multiple dilations at each conv
 V11_MKD2 = "v11_mkd2"  # V11 but with multiple dilations at each conv, border crop after lstm
 V11_MKD2_STAT = "v11_mkd2_stat"  # V11_MKD2 but with stat net
+V11_MKD2_STATMOD = "v11_mkd2_statmod"  # V11_MKD2 but with stat net modulation

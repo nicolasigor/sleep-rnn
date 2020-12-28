@@ -231,6 +231,11 @@ STAT_NET_DROP_RATE = 'stat_net_drop_rate'
 STAT_NET_OUTPUT_DIM = 'stat_net_output_dim'
 STAT_NET_AFTER_CONCAT_FC_UNITS = 'stat_net_after_concat_fc_units'
 STAT_NET_MAX_FILTERS = 'stat_net_max_filters'
+STAT_MOD_NET_MODULATE_LOGITS = 'stat_mod_net_modulate_logits'
+STAT_MOD_NET_USE_SCALE = 'stat_mod_net_use_scale'
+STAT_MOD_NET_USE_BIAS = 'stat_mod_net_use_bias'
+STAT_NET_LSTM_UNITS = 'stat_net_lstm_units'
+STAT_MOD_NET_TYPE_BACKBONE = 'stat_mode_net_type_backbone'
 
 """ Loss params
 
@@ -495,4 +500,9 @@ default_params = {
     STAT_NET_OUTPUT_DIM: None,
     STAT_NET_AFTER_CONCAT_FC_UNITS: None,
     STAT_NET_MAX_FILTERS: None,
+    STAT_MOD_NET_MODULATE_LOGITS: None,
+    STAT_MOD_NET_USE_SCALE: None,
+    STAT_MOD_NET_USE_BIAS: None,
+    STAT_NET_LSTM_UNITS: None,
+    STAT_MOD_NET_TYPE_BACKBONE: None,
 }
