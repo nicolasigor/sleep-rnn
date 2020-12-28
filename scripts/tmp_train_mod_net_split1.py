@@ -110,19 +110,15 @@ if __name__ == '__main__':
         False,
         True
     ]
-    stat_type_backbone_units_list = [
-        ('lstm', 128),
-        ('lstm', 64),
-        ('conv', 0),
-    ]
-    border_duration_list = [
-        40,
-        20
+    stat_type_backbone_border_list = [
+        ('lstm', 20),
+        ('conv', 40),
+        ('conv', 20),
     ]
     params_list = list(itertools.product(
         model_list,
         stat_drop_rate_list, stat_use_scale_and_bias_list, stat_modulate_logits_list,
-        stat_type_backbone_units_list, border_duration_list))
+        stat_type_backbone_border_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -142,6 +138,7 @@ if __name__ == '__main__':
     params[pkeys.STAT_NET_MAX_FILTERS] = 512
     params[pkeys.STAT_NET_OUTPUT_DIM] = 128
     params[pkeys.STAT_NET_DEPTH] = 10
+    params[pkeys.STAT_NET_LSTM_UNITS] = 64
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -168,12 +165,12 @@ if __name__ == '__main__':
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
                 for model_version, stat_drop_rate, stat_use_scale_and_bias, stat_modulate_logits, \
-                    stat_type_backbone_units, border_duration in params_list:
+                    stat_type_backbone_border in params_list:
 
                     stat_use_scale = stat_use_scale_and_bias[0]
                     stat_use_bias = stat_use_scale_and_bias[1]
-                    stat_type_backbone = stat_type_backbone_units[0]
-                    stat_lstm_units = stat_type_backbone_units[1]
+                    stat_type_backbone = stat_type_backbone_border[0]
+                    border_duration = stat_type_backbone_border[1]
 
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.STAT_NET_DROP_RATE] = stat_drop_rate
@@ -182,11 +179,10 @@ if __name__ == '__main__':
                     params[pkeys.STAT_MOD_NET_MODULATE_LOGITS] = stat_modulate_logits
                     params[pkeys.STAT_MOD_NET_TYPE_BACKBONE] = stat_type_backbone
                     params[pkeys.BORDER_DURATION] = border_duration
-                    params[pkeys.STAT_NET_LSTM_UNITS] = stat_lstm_units
 
-                    folder_name = '%s_dr%1.1f_scale%dbias%d_modLogits%d_%s_%ds_cell%d' % (
+                    folder_name = '%s_dr%1.1f_scale%dbias%d_modLogits%d_%s_%ds' % (
                         model_version, stat_drop_rate, stat_use_scale, stat_use_bias, stat_modulate_logits,
-                        stat_type_backbone, border_duration, stat_lstm_units)
+                        stat_type_backbone, border_duration)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
