@@ -457,6 +457,24 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     
     os.path.join('20201223_afterLSTMcrop_n2_train_mass_ss', 'v11_mkd2_multi_none'): [0.38, 0.54, 0.52, 0.42],
     os.path.join('20201223_afterLSTMcrop_n2_train_mass_ss', 'v11_mkd2_multi_dilated'): [0.48, 0.56, 0.52, 0.44],
+    
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc0_depth9'): [0.42, 0.58, 0.52, 0.38],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc0_depth10'): [0.48, 0.52, 0.46, 0.44],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc0_depth11'): [0.52, 0.56, 0.52, 0.38],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth11'): [0.46, 0.50, 0.48, 0.42],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc0_depth10'): [0.46, 0.58, 0.44, 0.44],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc0_depth11'): [0.44, 0.46, 0.50, 0.48],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc0_depth9'): [0.42, 0.50, 0.56, 0.40],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc1_depth8'): [0.42, 0.50, 0.50, 0.48],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc1_depth9'): [0.44, 0.48, 0.48, 0.46],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc0_depth8'): [0.40, 0.54, 0.50, 0.46],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc1_depth11'): [0.46, 0.50, 0.48, 0.44],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth10'): [0.44, 0.48, 0.48, 0.42],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim256_afc1_depth10'): [0.46, 0.50, 0.50, 0.40],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc0_depth8'): [0.46, 0.52, 0.52, 0.46],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth9'): [0.42, 0.48, 0.50, 0.42],
+    os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth8'): [0.44, 0.50, 0.48, 0.46],
+
 
 }
 
