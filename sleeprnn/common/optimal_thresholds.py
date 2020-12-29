@@ -475,6 +475,12 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth9'): [0.42, 0.48, 0.50, 0.42],
     os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth8'): [0.44, 0.50, 0.48, 0.46],
 
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_lstm_20s'): [0.44, 0.54, 0.50, 0.46],
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_lstm_20s'): [0.40, 0.44, 0.48, 0.46],
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_20s'): [0.42, 0.54, 0.50, 0.42],
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_40s'): [0.52, 0.52, 0.46, 0.36],
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_40s'): [0.48, 0.44, 0.46, 0.38],
+    os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_20s'): [0.40, 0.52, 0.52, 0.48],
 
 }
 

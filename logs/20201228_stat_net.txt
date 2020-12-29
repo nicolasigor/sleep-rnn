@@ -38,4 +38,25 @@ os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_
 os.path.join('20201226_stat_net_n2_train_mass_ss', 'v11_mkd2_stat_multi_dilated_dim128_afc1_depth8'): [0.44, 0.50, 0.48, 0.46],
 
 
+MOD-NET
+modulation
+Fixed parameters: kernel_size 3, maxpool, drop_rate 0.2, out_dim 128, depth 10, max_filters 512, segment_backbone v11-mkd2(64,d=1,d=8,d=8,6s->5s->0s), fc_units 128,
+stat_lstm_units 64, use_scale True, use_bias True.
+Escala es 1 + net().
+
+Val AF1 report for 20201228_mod_net_n2_train_mass_ss
+AF1 67.31/1.89 [0.5] 67.84/2.21 [0.44, 0.54, 0.50, 0.46], F3 80.20/1.31, P3 80.4/ 9.4, R3 82.1/ 9.9 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_lstm_20s
+AF1 67.44/1.74 [0.5] 67.84/2.32 [0.40, 0.44, 0.48, 0.46], F3 80.32/1.56, P3 80.0/ 9.3, R3 82.6/ 9.7 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_lstm_20s
+AF1 66.96/2.53 [0.5] 67.67/2.99 [0.42, 0.54, 0.50, 0.42], F3 79.84/2.33, P3 78.7/10.2, R3 83.2/ 8.9 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_20s
+AF1 66.90/2.31 [0.5] 67.52/2.52 [0.52, 0.52, 0.46, 0.36], F3 79.72/1.98, P3 79.2/ 9.9, R3 82.6/10.2 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_40s
+AF1 66.76/1.89 [0.5] 67.10/2.20 [0.48, 0.44, 0.46, 0.38], F3 79.31/2.01, P3 79.6/10.0, R3 81.5/11.0 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_40s
+AF1 66.48/2.39 [0.5] 67.04/2.52 [0.40, 0.52, 0.52, 0.48], F3 79.43/1.87, P3 79.1/11.2, R3 82.5/10.4 for v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_20s
+
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_lstm_20s'): [0.44, 0.54, 0.50, 0.46],
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_lstm_20s'): [0.40, 0.44, 0.48, 0.46],
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_20s'): [0.42, 0.54, 0.50, 0.42],
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_40s'): [0.52, 0.52, 0.46, 0.36],
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_40s'): [0.48, 0.44, 0.46, 0.38],
+os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_20s'): [0.40, 0.52, 0.52, 0.48],
+
 
