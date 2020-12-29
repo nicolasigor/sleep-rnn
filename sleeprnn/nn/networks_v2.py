@@ -1721,10 +1721,12 @@ def modulation_net(
         training,
         use_scale=True,
         use_bias=True,
-        name='stat_net_mod'
+        name='stat_net_mod',
+        scale_add_value=0.0,
+        bias_add_value=0.0
 ):
-    learnable_scale = 1.0
-    learnable_bias = 0.0
+    learnable_scale = scale_add_value
+    learnable_bias = bias_add_value
     if use_scale or use_bias:
         print('Using modulation networks')
         with tf.variable_scope(name):
