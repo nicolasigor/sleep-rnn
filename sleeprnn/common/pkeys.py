@@ -236,6 +236,10 @@ STAT_MOD_NET_USE_SCALE = 'stat_mod_net_use_scale'
 STAT_MOD_NET_USE_BIAS = 'stat_mod_net_use_bias'
 STAT_NET_LSTM_UNITS = 'stat_net_lstm_units'
 STAT_MOD_NET_TYPE_BACKBONE = 'stat_mode_net_type_backbone'
+STAT_DOT_NET_EXTRA_FC_UNITS = 'stat_dot_net_extra_fc_units'
+STAT_DOT_NET_BIASED_KERNEL = 'stat_dot_net_biased_kernel'
+STAT_DOT_NET_BIASED_BIAS = 'stat_dot_net_biased_bias'
+STAT_DOT_NET_USE_BIAS = 'stat_dot_net_use_bias'
 
 """ Loss params
 
@@ -505,4 +509,8 @@ default_params = {
     STAT_MOD_NET_USE_BIAS: None,
     STAT_NET_LSTM_UNITS: None,
     STAT_MOD_NET_TYPE_BACKBONE: None,
+    STAT_DOT_NET_EXTRA_FC_UNITS: None,
+    STAT_DOT_NET_BIASED_KERNEL: None,
+    STAT_DOT_NET_BIASED_BIAS: None,
+    STAT_DOT_NET_USE_BIAS: None,
 }
