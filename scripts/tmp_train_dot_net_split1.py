@@ -93,7 +93,7 @@ if __name__ == '__main__':
     verbose = True
 
     # Complement experiment folder name with date
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20201229'  # datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
@@ -119,7 +119,6 @@ if __name__ == '__main__':
         False
     ]
     stat_dot_biased_bias_list = [
-        True,
         False
     ]
     params_list = list(itertools.product(
@@ -172,6 +171,9 @@ if __name__ == '__main__':
 
                 for model_version, stat_drop_rate, stat_type_backbone_border, stat_dot_extra_layer, \
                     stat_dot_product_dim, stat_conv_depth, stat_dot_biased_kernel, stat_dot_biased_bias in params_list:
+
+                    if stat_dot_biased_kernel and (stat_dot_product_dim == 64):
+                        continue
 
                     stat_type_backbone = stat_type_backbone_border[0]
                     border_duration = stat_type_backbone_border[1]
