@@ -481,6 +481,20 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_40s'): [0.52, 0.52, 0.46, 0.36],
     os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_40s'): [0.48, 0.44, 0.46, 0.38],
     os.path.join('20201228_mod_net_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_20s'): [0.40, 0.52, 0.52, 0.48],
+    
+    os.path.join('20201229_mod_net_grid2_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits0_conv_40s'): [0.44, 0.50, 0.58, 0.46],
+    os.path.join('20201229_mod_net_grid2_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias1_modLogits1_conv_40s'): [0.42, 0.52, 0.48, 0.46],
+    os.path.join('20201229_mod_net_grid2_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias0_modLogits0_conv_40s'): [0.46, 0.56, 0.46, 0.38],
+    os.path.join('20201229_mod_net_grid2_n2_train_mass_ss', 'v11_mkd2_statmod_dr0.2_scale1bias0_modLogits1_conv_40s'): [0.40, 0.52, 0.46, 0.44],
+    
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim64_bKern0_bBias1'): [None, 0.52, 0.50],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern1_bBias0'): [None, 0.52, 0.54],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim64_bKern1_bBias0'): [None, 0.50, 0.52],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim64_bKern0_bBias0'): [None, 0.48, 0.50],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim64_bKern1_bBias1'): [None, 0.46, 0.46],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern0_bBias0'): [None, 0.48, 0.44],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern0_bBias1'): [None, 0.46, 0.46],
+    os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern1_bBias1'): [None, 0.54, 0.44],
 
 }
 
