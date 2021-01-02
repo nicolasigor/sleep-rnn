@@ -2587,7 +2587,7 @@ def naive_multihead_attention_layer(queries, keys, values, n_heads, name=None):
 
 
 def multihead_attention_layer(queries, keys, values, n_heads, name=None):
-    # TODO: implement multi-head concatenating heads along the batch size
+    # TODO: implement multi-head concatenating heads along the batch size (more efficient)
     pass
 
 

@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2, 3]
 
     # ----- Experiment settings
-    experiment_name = 'stat_net_weighted'
+    experiment_name = 'stat_net_weighted_2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -69,19 +69,26 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_and_spec_list = [
-        (constants.V11_MKD2_STATDOT, 128),  # product dim
-        (constants.V11_MKD2_STATDOT, 64),  # product dim
+        # (constants.V11_MKD2_STATDOT, 128),  # product dim
         (constants.V11_MKD2_STATMOD, False),  # modulate logits
-        (constants.V11_MKD2_STATMOD, True)  # modulate logits
     ]
     border_duration_list = [
-        40,
+        # 40,
         20
     ]
-    backbone_depth_list = [8]
-    backbone_kernel_size_list = [3]
+    backbone_depth_list = [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+    ]
+    backbone_kernel_size_list = [
+        3,
+    ]
     type_collapse_list = [
-        'sigmoid',
+        # 'sigmoid',
         'softmax'
     ]
     params_list = list(itertools.product(

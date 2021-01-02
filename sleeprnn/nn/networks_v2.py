@@ -2199,3 +2199,190 @@ def wavelet_blstm_net_v36(
             tf.summary.histogram('probabilities', probabilities)
         cwt_prebn = None
         return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v11_att(
+        inputs,
+        params,
+        training,
+        border_conv=1,
+        border_lstm=5,
+        name='v11_att'
+):
+    print("Using V11-MKD2 but with attention after BLSTM")
+    with tf.variable_scope(name):
+        kernel_init = tf.initializers.he_normal()
+
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+        # Only keep border_conv + border_lstm
+        border_duration_to_keep = border_conv + border_lstm
+        border_duration_to_crop = params[pkeys.BORDER_DURATION] - border_duration_to_keep
+        border_crop = int(border_duration_to_crop * params[pkeys.FS])
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        inputs = inputs[:, start_crop:end_crop]
+        # BN at input
+        outputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
+
+        # Convolutional stage (standard feed-forward)
+        drop_rate_conv = params[pkeys.TIME_CONV_MK_DROP_RATE]
+        drop_rate_conv = 0 if (drop_rate_conv is None) else drop_rate_conv
+        drop_conv = params[pkeys.TYPE_DROPOUT] if (drop_rate_conv > 0) else None
+        print("Conv dropout type %s and rate %s" % (drop_conv, drop_rate_conv))
+        print("Projection first flag: %s" % params[pkeys.TIME_CONV_MK_PROJECT_FIRST])
+        print("First convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_1]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs, n_filters, training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=kernel_init,
+                name='convblock_1d_k%d_d%d_1' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_1 = tf.concat(tmp_out_list, axis=-1)
+        print("Second convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_2]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs_1, n_filters, training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=kernel_init,
+                name='convblock_1d_k%d_d%d_2' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_2 = tf.concat(tmp_out_list, axis=-1)
+        print("Third convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_3]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs_2, n_filters, training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=kernel_init,
+                name='convblock_1d_k%d_d%d_3' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_3 = tf.concat(tmp_out_list, axis=-1)
+
+        if params[pkeys.TIME_CONV_MK_SKIPS]:
+            print("Passing feature pyramid to LSTM")
+            # outputs_1 needs 2 additional pooling
+            outputs_1 = tf.expand_dims(outputs_1, axis=2)
+            outputs_1 = tf.layers.average_pooling2d(inputs=outputs_1, pool_size=(4, 1), strides=(4, 1))
+            outputs_1 = tf.squeeze(outputs_1, axis=2, name="squeeze")
+            # outputs_2 needs 1 additional pooling
+            outputs_2 = tf.expand_dims(outputs_2, axis=2)
+            outputs_2 = tf.layers.average_pooling2d(inputs=outputs_2, pool_size=(2, 1), strides=(2, 1))
+            outputs_2 = tf.squeeze(outputs_2, axis=2, name="squeeze")
+            # Concat each block for multi-scale features
+            outputs = tf.concat([outputs_1, outputs_2, outputs_3], axis=-1)
+        else:
+            print("Passing last output to LSTM")
+            # Just the last output
+            outputs = outputs_3
+
+        # Only keep border_lstm
+        border_duration_to_crop = border_duration_to_keep - border_lstm
+        border_crop = int(border_duration_to_crop * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs, params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        # Now crop the rest
+        border_crop = int(border_lstm * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        if params[pkeys.ATT_USE_ATTENTION_AFTER_BLSTM]:
+            # --------------------------
+            # Attention layer
+            # input shape: [batch, time_len, n_feats]
+            # --------------------------
+            original_length = params[pkeys.PAGE_DURATION] * params[pkeys.FS]
+            seq_len = int(original_length / params[pkeys.TOTAL_DOWNSAMPLING_FACTOR])
+            att_dim = params[pkeys.ATT_DIM]
+            att_dr = params[pkeys.ATT_DROP_RATE]
+
+            with tf.variable_scope('attention'):
+                # Prepare input
+                pos_enc = layers.get_positional_encoding(seq_len, att_dim, params[pkeys.ATT_PE_FACTOR], name='pos_enc')
+                pos_enc = tf.expand_dims(pos_enc, axis=0)  # Add batch axis
+                outputs = layers.sequence_fc_layer(
+                    outputs, att_dim, kernel_init=kernel_init, training=training, name='fc_embed')
+                outputs = outputs + pos_enc
+                outputs = layers.dropout_layer(
+                    outputs, 'drop_embed', drop_rate=att_dr, dropout=params[pkeys.TYPE_DROPOUT], training=training)
+                # Prepare queries, keys, and values
+                queries = layers.sequence_fc_layer(
+                    outputs, att_dim, training, kernel_init=kernel_init, use_bias=False, name='queries')
+                keys = layers.sequence_fc_layer(
+                    outputs, att_dim, training, kernel_init=kernel_init, use_bias=False, name='keys')
+                values = layers.sequence_fc_layer(
+                    outputs, att_dim, training, kernel_init=kernel_init, use_bias=False, name='values')
+                # Compute attention
+                outputs = layers.naive_multihead_attention_layer(
+                    queries, keys, values, params[pkeys.ATT_N_HEADS], name='multi_head_att')
+                # Output is the concatenation of the heads
+
+            if params[pkeys.ATT_USE_EXTRA_FC]:
+                outputs = layers.sequence_fc_layer(
+                    outputs, 2 * params[pkeys.ATT_DIM], training,
+                    kernel_init=kernel_init,
+                    dropout=params[pkeys.TYPE_DROPOUT],
+                    drop_rate=att_dr,
+                    activation=tf.nn.relu,
+                    name='fc_extra')
+        else:
+            att_dr = params[pkeys.DROP_RATE_HIDDEN]
+
+        outputs = layers.sequence_fc_layer(
+            outputs, params[pkeys.FC_UNITS], training,
+            kernel_init=kernel_init,
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=att_dr,
+            activation=tf.nn.relu,
+            name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs, training,
+            kernel_init=kernel_init,
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+    return logits, probabilities, cwt_prebn

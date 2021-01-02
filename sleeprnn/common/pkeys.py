@@ -250,6 +250,9 @@ STAT_DOT_NET_USE_BIAS = 'stat_dot_net_use_bias'
 DECOMP_BP_USE_DILATION = 'decomp_bp_use_dilation'
 DECOMP_BP_INITIAL_FILTERS = 'decomp_bp_initial_filters'
 DECOMP_BP_EXTRA_CONV_FILTERS = 'decomp_bp_extra_conv_filters'
+# Attention at blstm
+ATT_USE_EXTRA_FC = 'att_use_extra_fc'
+ATT_USE_ATTENTION_AFTER_BLSTM = 'att_use_attention_after_blstm'
 
 
 """ Loss params
@@ -527,4 +530,6 @@ default_params = {
     STAT_DOT_NET_BIASED_BIAS: None,
     STAT_DOT_NET_USE_BIAS: None,
     DECOMP_BP_USE_DILATION: None,
+    ATT_USE_EXTRA_FC: None,
+    ATT_USE_ATTENTION_AFTER_BLSTM: None,
 }
