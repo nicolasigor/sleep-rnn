@@ -99,6 +99,48 @@ os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10
 
 
 
+WEIGHTED AVERAGE IN STAT NET
+
+
+Val AF1 report for 20210101_stat_net_weighted_n2_train_mass_ss
+AF1 67.38/2.17 [0.5] 68.03/2.20 [0.44, 0.54, 0.54, 0.42], F3 80.41/1.65, P3 79.5/ 9.3, R3 83.3/ 9.4 for v11_mkd2_statmod_20s_k3N8_softmax_spec0
+AF1 66.81/1.88 [0.5] 67.83/2.41 [0.42, 0.56, 0.52, 0.42], F3 80.09/1.55, P3 79.5/ 9.6, R3 82.9/ 9.8 for v11_mkd2_statmod_20s_k3N8_softmax_spec1
+AF1 66.71/2.68 [0.5] 67.43/2.94 [0.42, 0.56, 0.50, 0.44], F3 79.78/2.25, P3 79.4/10.6, R3 82.7/10.1 for v11_mkd2_statmod_40s_k3N8_softmax_spec1
+AF1 66.55/2.02 [0.5] 67.30/2.62 [0.42, 0.56, 0.44, 0.44], F3 79.66/1.83, P3 79.2/ 9.8, R3 82.4/10.2 for v11_mkd2_statdot_20s_k3N8_softmax_spec128
+AF1 66.54/1.84 [0.5] 67.29/2.60 [0.40, 0.50, 0.48, 0.40], F3 79.69/1.57, P3 79.9/10.1, R3 81.8/10.1 for v11_mkd2_statdot_20s_k3N8_softmax_spec64
+AF1 66.66/1.87 [0.5] 67.23/2.55 [0.42, 0.50, 0.48, 0.44], F3 79.63/1.71, P3 79.5/10.3, R3 82.2/10.7 for v11_mkd2_statdot_20s_k3N8_sigmoid_spec128
+AF1 66.35/2.03 [0.5] 67.19/2.59 [0.40, 0.54, 0.52, 0.40], F3 79.32/2.16, P3 79.3/11.2, R3 82.2/10.6 for v11_mkd2_statmod_20s_k3N8_sigmoid_spec0
+AF1 66.38/1.42 [0.5] 67.10/2.31 [0.44, 0.50, 0.44, 0.38], F3 79.38/1.76, P3 79.3/10.7, R3 82.1/11.1 for v11_mkd2_statmod_20s_k3N8_sigmoid_spec1
+AF1 65.85/1.71 [0.5] 67.03/2.63 [0.40, 0.52, 0.44, 0.40], F3 79.40/1.90, P3 79.7/11.5, R3 82.0/10.8 for v11_mkd2_statdot_40s_k3N8_softmax_spec128
+AF1 66.12/2.82 [0.5] 67.00/3.09 [0.40, 0.52, 0.48, 0.46], F3 79.43/2.33, P3 79.3/11.8, R3 82.5/10.4 for v11_mkd2_statdot_40s_k3N8_sigmoid_spec128
+AF1 66.22/2.64 [0.5] 66.94/2.85 [0.46, 0.54, 0.46, 0.42], F3 79.31/1.89, P3 79.3/11.0, R3 82.1/10.6 for v11_mkd2_statmod_40s_k3N8_sigmoid_spec1
+AF1 66.34/1.87 [0.5] 66.89/2.44 [0.44, 0.48, 0.48, 0.44], F3 79.07/1.57, P3 79.9/10.7, R3 81.0/11.2 for v11_mkd2_statdot_40s_k3N8_softmax_spec64
+AF1 66.13/2.37 [0.5] 66.84/3.18 [0.42, 0.46, 0.46, 0.40], F3 79.25/2.45, P3 77.6/11.8, R3 83.9/10.4 for v11_mkd2_statdot_20s_k3N8_sigmoid_spec64
+AF1 65.86/1.47 [0.5] 66.67/1.94 [0.42, 0.58, 0.46, 0.44], F3 78.68/1.62, P3 79.9/12.1, R3 81.0/12.6 for v11_mkd2_statmod_40s_k3N8_softmax_spec0
+AF1 65.57/1.50 [0.5] 66.55/2.33 [0.42, 0.54, 0.48, 0.40], F3 78.59/1.62, P3 79.7/12.0, R3 80.9/12.1 for v11_mkd2_statmod_40s_k3N8_sigmoid_spec0
+AF1 65.84/2.19 [0.5] 66.32/2.78 [0.42, 0.48, 0.46, 0.46], F3 78.49/2.01, P3 79.3/12.2, R3 81.2/12.3 for v11_mkd2_statdot_40s_k3N8_sigmoid_spec64
+
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_softmax_spec0'): [0.44, 0.54, 0.54, 0.42],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_softmax_spec1'): [0.42, 0.56, 0.52, 0.42],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_softmax_spec1'): [0.42, 0.56, 0.50, 0.44],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_softmax_spec128'): [0.42, 0.56, 0.44, 0.44],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_softmax_spec64'): [0.40, 0.50, 0.48, 0.40],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_sigmoid_spec128'): [0.42, 0.50, 0.48, 0.44],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_sigmoid_spec0'): [0.40, 0.54, 0.52, 0.40],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_sigmoid_spec1'): [0.44, 0.50, 0.44, 0.38],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_softmax_spec128'): [0.40, 0.52, 0.44, 0.40],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_sigmoid_spec128'): [0.40, 0.52, 0.48, 0.46],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_sigmoid_spec1'): [0.46, 0.54, 0.46, 0.42],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_softmax_spec64'): [0.44, 0.48, 0.48, 0.44],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_sigmoid_spec64'): [0.42, 0.46, 0.46, 0.40],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_softmax_spec0'): [0.42, 0.58, 0.46, 0.44],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_sigmoid_spec0'): [0.42, 0.54, 0.48, 0.40],
+os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_sigmoid_spec64'): [0.42, 0.48, 0.46, 0.46],
+
+
+
+
+
 
 
 

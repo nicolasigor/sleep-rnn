@@ -495,6 +495,23 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern0_bBias0'): [None, 0.48, 0.44],
     os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern0_bBias1'): [None, 0.46, 0.46],
     os.path.join('20201229_dot_net_n2_train_mass_ss', 'v11_mkd2_statdot_dr0.2_conv10-40s_extra1_dotdim32_bKern1_bBias1'): [None, 0.54, 0.44],
+    
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_softmax_spec0'): [0.44, 0.54, 0.54, 0.42],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_softmax_spec1'): [0.42, 0.56, 0.52, 0.42],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_softmax_spec1'): [0.42, 0.56, 0.50, 0.44],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_softmax_spec128'): [0.42, 0.56, 0.44, 0.44],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_softmax_spec64'): [0.40, 0.50, 0.48, 0.40],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_sigmoid_spec128'): [0.42, 0.50, 0.48, 0.44],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_sigmoid_spec0'): [0.40, 0.54, 0.52, 0.40],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_20s_k3N8_sigmoid_spec1'): [0.44, 0.50, 0.44, 0.38],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_softmax_spec128'): [0.40, 0.52, 0.44, 0.40],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_sigmoid_spec128'): [0.40, 0.52, 0.48, 0.46],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_sigmoid_spec1'): [0.46, 0.54, 0.46, 0.42],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_softmax_spec64'): [0.44, 0.48, 0.48, 0.44],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_20s_k3N8_sigmoid_spec64'): [0.42, 0.46, 0.46, 0.40],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_softmax_spec0'): [0.42, 0.58, 0.46, 0.44],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statmod_40s_k3N8_sigmoid_spec0'): [0.42, 0.54, 0.48, 0.40],
+    os.path.join('20210101_stat_net_weighted_n2_train_mass_ss', 'v11_mkd2_statdot_40s_k3N8_sigmoid_spec64'): [0.42, 0.48, 0.46, 0.46],
 
 }
 
