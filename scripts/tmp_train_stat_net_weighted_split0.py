@@ -45,41 +45,12 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
     return mk_filters
 
 
-def generate_mk_specs(multi_strategy_name, block_filters):
-    if multi_strategy_name == 'linear':
-        mk_filters = [
-            (3, block_filters // 2),
-            (5, block_filters // 4),
-            (7, block_filters // 8),
-            (9, block_filters // 8),
-        ]
-    elif multi_strategy_name == 'exp1':
-        mk_filters = [
-            (3, block_filters // 2),
-            (5, block_filters // 4),
-            (9, block_filters // 8),
-            (17, block_filters // 8),
-        ]
-    elif multi_strategy_name == 'exp2':
-        mk_filters = [
-            (3, block_filters // 2),
-            (7, block_filters // 4),
-            (15, block_filters // 8),
-            (31, block_filters // 8),
-        ]
-    elif multi_strategy_name == 'none':
-        mk_filters = [(3, block_filters)]
-    else:
-        raise ValueError('strategy "%s" invalid' % multi_strategy_name)
-    return mk_filters
-
-
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'stat_net'
+    experiment_name = 'stat_net_weighted'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -97,31 +68,52 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_list = [constants.V11_MKD2_STAT]
-    multi_strategy_list = [
-        'dilated',  # r = 1.02s
-        # 'none'  # r = 0.18s
+    model_and_spec_list = [
+        (constants.V11_MKD2_STATDOT, 128),  # product dim
+        (constants.V11_MKD2_STATDOT, 64),  # product dim
+        (constants.V11_MKD2_STATMOD, False),  # modulate logits
+        (constants.V11_MKD2_STATMOD, True)  # modulate logits
     ]
-    last_layers_dim_list = [256, 128]
-    after_concat_fc_units_list = [True, False]
-    stat_net_depth_list = [11, 10, 9, 8]
+    border_duration_list = [
+        40,
+        20
+    ]
+    backbone_depth_list = [8]
+    backbone_kernel_size_list = [3]
+    type_collapse_list = [
+        'sigmoid',
+        'softmax'
+    ]
     params_list = list(itertools.product(
-        model_list, multi_strategy_list,
-        last_layers_dim_list, after_concat_fc_units_list, stat_net_depth_list
-    ))
+        model_and_spec_list, border_duration_list,
+        backbone_depth_list, backbone_kernel_size_list,
+        type_collapse_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
+
+    # Segment net parameters
     params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
     params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
-    params[pkeys.BORDER_DURATION] = 40
     params[pkeys.TIME_CONV_MK_SKIPS] = False
+    params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
+    params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
+    params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
+    params[pkeys.FC_UNITS] = 128
 
-    # stat net parameters
-    params[pkeys.STAT_NET_TYPE_POOL] = constants.MAXPOOL
-    params[pkeys.STAT_NET_KERNEL_SIZE] = 3
-    params[pkeys.STAT_NET_DROP_RATE] = 0.5
-    params[pkeys.STAT_NET_MAX_FILTERS] = 512
+    # Stat net parameters
+    params[pkeys.STAT_NET_CONV_TYPE_POOL] = constants.MAXPOOL
+    params[pkeys.STAT_NET_CONV_INITIAL_FILTERS] = 8
+    params[pkeys.STAT_NET_CONV_MAX_FILTERS] = 512
+    params[pkeys.STAT_NET_TYPE_BACKBONE] = 'conv'
+    params[pkeys.STAT_NET_CONTEXT_DROP_RATE] = 0.2
+    params[pkeys.STAT_NET_CONTEXT_DIM] = 128
+    params[pkeys.STAT_MOD_NET_BIASED_SCALE] = True
+    params[pkeys.STAT_MOD_NET_BIASED_BIAS] = True
+    params[pkeys.STAT_MOD_NET_USE_BIAS] = True
+    params[pkeys.STAT_DOT_NET_BIASED_KERNEL] = True
+    params[pkeys.STAT_DOT_NET_BIASED_BIAS] = True
+    params[pkeys.STAT_DOT_NET_USE_BIAS] = True
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -147,19 +139,26 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, multi_strategy, last_layers_dim, after_concat_fc_units, stat_net_depth in params_list:
+                for model_and_spec, border_duration, backbone_depth, backbone_kernel_size, type_collapse in params_list:
 
-                    params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
-                    params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs(multi_strategy, 3, 128)
-                    params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs(multi_strategy, 3, 256)
+                    model_version = model_and_spec[0]
+                    model_config = model_and_spec[1]
+
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.FC_UNITS] = last_layers_dim
-                    params[pkeys.STAT_NET_OUTPUT_DIM] = last_layers_dim
-                    params[pkeys.STAT_NET_AFTER_CONCAT_FC_UNITS] = last_layers_dim if after_concat_fc_units else 0
-                    params[pkeys.STAT_NET_DEPTH] = stat_net_depth
+                    if model_version == constants.V11_MKD2_STATMOD:
+                        params[pkeys.STAT_MOD_NET_MODULATE_LOGITS] = model_config
+                    elif model_version == constants.V11_MKD2_STATDOT:
+                        params[pkeys.STAT_DOT_NET_PRODUCT_DIM] = model_config
+                    else:
+                        raise ValueError("unexpected model version %s" % model_version)
 
-                    folder_name = '%s_multi_%s_dim%d_afc%d_depth%d' % (
-                        model_version, multi_strategy,last_layers_dim, after_concat_fc_units, stat_net_depth)
+                    params[pkeys.BORDER_DURATION] = border_duration
+                    params[pkeys.STAT_NET_CONV_DEPTH] = backbone_depth
+                    params[pkeys.STAT_NET_CONV_KERNEL_SIZE] = backbone_kernel_size
+                    params[pkeys.STAT_NET_TYPE_COLLAPSE] = type_collapse
+
+                    folder_name = '%s_%ds_k%dN%d_%s_spec%d' % (
+                        model_version, border_duration, backbone_kernel_size, backbone_depth, type_collapse, model_config)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

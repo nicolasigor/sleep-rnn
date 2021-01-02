@@ -224,19 +224,25 @@ TIME_CONV_MKD_FILTERS_1 = 'time_conv_mkd_filters_1'  # [(k1, f1, d1), (k2, f2, d
 TIME_CONV_MKD_FILTERS_2 = 'time_conv_mkd_filters_2'
 TIME_CONV_MKD_FILTERS_3 = 'time_conv_mkd_filters_3'
 # Stat network parameters
-STAT_NET_KERNEL_SIZE = 'stat_net_kernel_size'
-STAT_NET_DEPTH = 'stat_net_depth'
-STAT_NET_TYPE_POOL = 'stat_net_type_pool'
-STAT_NET_DROP_RATE = 'stat_net_drop_rate'
-STAT_NET_OUTPUT_DIM = 'stat_net_output_dim'
-STAT_NET_AFTER_CONCAT_FC_UNITS = 'stat_net_after_concat_fc_units'
-STAT_NET_MAX_FILTERS = 'stat_net_max_filters'
-STAT_MOD_NET_MODULATE_LOGITS = 'stat_mod_net_modulate_logits'
-STAT_MOD_NET_USE_SCALE = 'stat_mod_net_use_scale'
-STAT_MOD_NET_USE_BIAS = 'stat_mod_net_use_bias'
+# -- Backbone parameters
+STAT_NET_CONV_KERNEL_SIZE = 'stat_net_conv_kernel_size'
+STAT_NET_CONV_DEPTH = 'stat_net_conv_depth'
+STAT_NET_CONV_TYPE_POOL = 'stat_net_conv_type_pool'
+STAT_NET_CONV_INITIAL_FILTERS = 'stat_net_conv_initial_filters'
+STAT_NET_CONV_MAX_FILTERS = 'stat_net_conv_max_filters'
 STAT_NET_LSTM_UNITS = 'stat_net_lstm_units'
-STAT_MOD_NET_TYPE_BACKBONE = 'stat_mode_net_type_backbone'
-STAT_DOT_NET_EXTRA_FC_UNITS = 'stat_dot_net_extra_fc_units'
+# -- General config
+STAT_NET_TYPE_BACKBONE = 'stat_net_type_backbone'
+STAT_NET_TYPE_COLLAPSE = 'stat_net_type_collapse'
+STAT_NET_CONTEXT_DROP_RATE = 'stat_net_context_drop_rate'
+STAT_NET_CONTEXT_DIM = 'stat_net_context_dim'
+# -- Mod Net specific
+STAT_MOD_NET_MODULATE_LOGITS = 'stat_mod_net_modulate_logits'
+STAT_MOD_NET_BIASED_SCALE = 'stat_mod_net_biased_scale'
+STAT_MOD_NET_BIASED_BIAS = 'stat_mod_net_biased_bias'
+STAT_MOD_NET_USE_BIAS = 'stat_mod_net_use_bias'
+# -- Dot Net specific
+STAT_DOT_NET_PRODUCT_DIM = 'stat_dot_net_product_dim'
 STAT_DOT_NET_BIASED_KERNEL = 'stat_dot_net_biased_kernel'
 STAT_DOT_NET_BIASED_BIAS = 'stat_dot_net_biased_bias'
 STAT_DOT_NET_USE_BIAS = 'stat_dot_net_use_bias'
@@ -497,19 +503,21 @@ default_params = {
     TIME_CONV_MKD_FILTERS_1: None,
     TIME_CONV_MKD_FILTERS_2: None,
     TIME_CONV_MKD_FILTERS_3: None,
-    STAT_NET_KERNEL_SIZE: None,
-    STAT_NET_DEPTH: None,
-    STAT_NET_TYPE_POOL: None,
-    STAT_NET_DROP_RATE: None,
-    STAT_NET_OUTPUT_DIM: None,
-    STAT_NET_AFTER_CONCAT_FC_UNITS: None,
-    STAT_NET_MAX_FILTERS: None,
-    STAT_MOD_NET_MODULATE_LOGITS: None,
-    STAT_MOD_NET_USE_SCALE: None,
-    STAT_MOD_NET_USE_BIAS: None,
+    STAT_NET_CONV_KERNEL_SIZE: None,
+    STAT_NET_CONV_DEPTH: None,
+    STAT_NET_CONV_TYPE_POOL: None,
+    STAT_NET_CONV_INITIAL_FILTERS: None,
+    STAT_NET_CONV_MAX_FILTERS: None,
     STAT_NET_LSTM_UNITS: None,
-    STAT_MOD_NET_TYPE_BACKBONE: None,
-    STAT_DOT_NET_EXTRA_FC_UNITS: None,
+    STAT_NET_TYPE_BACKBONE: None,
+    STAT_NET_TYPE_COLLAPSE: None,
+    STAT_NET_CONTEXT_DROP_RATE: None,
+    STAT_NET_CONTEXT_DIM: None,
+    STAT_MOD_NET_MODULATE_LOGITS: None,
+    STAT_MOD_NET_BIASED_SCALE: None,
+    STAT_MOD_NET_BIASED_BIAS: None,
+    STAT_MOD_NET_USE_BIAS: None,
+    STAT_DOT_NET_PRODUCT_DIM: None,
     STAT_DOT_NET_BIASED_KERNEL: None,
     STAT_DOT_NET_BIASED_BIAS: None,
     STAT_DOT_NET_USE_BIAS: None,

@@ -1647,21 +1647,18 @@ def wavelet_blstm_net_v11_mkd2(
         return logits, probabilities, cwt_prebn
 
 
-def stat_net(
+def stat_net_conv(
         inputs_normalized,
         params,
         training,
         name='stat_net_conv'
 ):
-    print('Using DOSED-like statistics network')
     with tf.variable_scope(name):
-
-        n_layers = params[pkeys.STAT_NET_DEPTH]
-        kernel_size = params[pkeys.STAT_NET_KERNEL_SIZE]
-        type_pool = params[pkeys.STAT_NET_TYPE_POOL]
-        drop_rate = params[pkeys.STAT_NET_DROP_RATE]
-        output_dim = params[pkeys.STAT_NET_OUTPUT_DIM]
-        max_filters = params[pkeys.STAT_NET_MAX_FILTERS]
+        n_layers = params[pkeys.STAT_NET_CONV_DEPTH]
+        kernel_size = params[pkeys.STAT_NET_CONV_KERNEL_SIZE]
+        type_pool = params[pkeys.STAT_NET_CONV_TYPE_POOL]
+        init_filters = params[pkeys.STAT_NET_CONV_INITIAL_FILTERS]
+        max_filters = params[pkeys.STAT_NET_CONV_MAX_FILTERS]
 
         batchnorm = params[pkeys.TYPE_BATCHNORM]
 
@@ -1669,9 +1666,9 @@ def stat_net(
         outputs = tf.expand_dims(inputs_normalized, axis=2)
         use_bias = batchnorm is None
 
-        for i in range(1, n_layers+1):
+        for i in range(1, n_layers + 1):
             with tf.variable_scope('conv%d_%d' % (kernel_size, i)):
-                filters = 2 ** (2 + i)
+                filters = init_filters * (2 ** (i - 1))
                 filters = min(filters, max_filters)
                 outputs = tf.layers.conv2d(
                     inputs=outputs, filters=filters, kernel_size=(kernel_size, 1),
@@ -1685,9 +1682,6 @@ def stat_net(
 
         # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
         outputs = tf.squeeze(outputs, axis=2, name="squeeze")
-        outputs = tf.keras.layers.GlobalAvgPool1D()(outputs)
-        outputs = tf.layers.dropout(outputs, training=training, rate=drop_rate)
-        outputs = tf.keras.layers.Dense(output_dim, kernel_initializer=tf.initializers.he_normal())(outputs)
     return outputs
 
 
@@ -1697,112 +1691,142 @@ def stat_net_lstm(
         training,
         name='stat_net_lstm'
 ):
-    print('Using BLSTM statistics network')
     with tf.variable_scope(name):
-        output_dim = params[pkeys.STAT_NET_OUTPUT_DIM]
-        drop_rate = params[pkeys.STAT_NET_DROP_RATE]
-
         outputs = layers.lstm_layer(
             inputs_normalized,
             num_units=params[pkeys.STAT_NET_LSTM_UNITS],
             num_dirs=constants.BIDIRECTIONAL,
             training=training,
             name='blstm')
-        outputs = tf.keras.layers.GlobalAvgPool1D()(outputs)
-        outputs = tf.layers.dropout(outputs, training=training, rate=drop_rate)
-        outputs = tf.keras.layers.Dense(output_dim, kernel_initializer=tf.initializers.he_normal())(outputs)
     return outputs
 
 
-def modulation_net(
+def stat_net(
         inputs_normalized,
-        output_size,
         params,
         training,
-        use_scale=True,
-        use_bias=True,
-        name='stat_net_mod',
-        scale_add_value=0.0,
-        bias_add_value=0.0
+        output_activation=tf.nn.relu,
+        name='stat_net'
 ):
-    learnable_scale = scale_add_value
-    learnable_bias = bias_add_value
-    if use_scale or use_bias:
-        print('Using modulation networks')
-        with tf.variable_scope(name):
-            backbone = params[pkeys.STAT_MOD_NET_TYPE_BACKBONE]
-            if backbone == 'conv':
-                outputs = stat_net(inputs_normalized, params, training)
-            elif backbone == 'lstm':
-                outputs = stat_net_lstm(inputs_normalized, params, training)
-            else:
-                raise ValueError('%s not a valid backbone type' % backbone)
-            # [batch, n_feats] -> [batch, 1, n_feats]
-            outputs = tf.expand_dims(outputs, axis=1)
-            outputs = tf.nn.relu(outputs)
-            # Scale and bias
-            if use_scale:
-                learnable_scale += layers.sequence_fc_layer(
-                    outputs,
-                    output_size,
-                    kernel_init=tf.initializers.he_normal(),
-                    training=training,
-                    use_bias=False,
-                    name='learn_scale')
-            if use_bias:
-                learnable_bias += layers.sequence_fc_layer(
-                    outputs,
-                    output_size,
-                    kernel_init=tf.initializers.he_normal(),
-                    training=training,
-                    use_bias=False,
-                    name='learn_bias')
-    else:
-        print("Not using modulation")
-    return learnable_scale, learnable_bias
-
-
-def prototype_net(
-        inputs_normalized,
-        output_size,
-        params,
-        training,
-        use_bias=True,
-        add_bias_to_kernel=True,
-        add_bias_to_bias=True,
-        name='stat_net_prototype'
-):
-    print('Using input-dependent logit parameters')
     with tf.variable_scope(name):
-        backbone = params[pkeys.STAT_MOD_NET_TYPE_BACKBONE]
+        # Select backbone
+        backbone = params[pkeys.STAT_NET_TYPE_BACKBONE]
         if backbone == 'conv':
-            outputs = stat_net(inputs_normalized, params, training)
+            outputs = stat_net_conv(inputs_normalized, params, training)
         elif backbone == 'lstm':
             outputs = stat_net_lstm(inputs_normalized, params, training)
         else:
             raise ValueError('%s not a valid backbone type' % backbone)
+
+        # Select collapse function
+        type_collapse = params[pkeys.STAT_NET_TYPE_COLLAPSE]
+        if type_collapse == 'average':
+            outputs = tf.keras.layers.GlobalAvgPool1D(name='average')(outputs)
+        elif type_collapse in ['softmax', 'sigmoid']:
+            # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+            outputs = tf.expand_dims(outputs, axis=2)
+            # Predict scores for each time step
+            # This is a score tensor of shape [batch_size, time_len, 1, 1]
+            scores = tf.layers.conv2d(
+                inputs=outputs, filters=1, kernel_size=(1, 1),
+                padding=constants.PAD_VALID, name='scores',
+                kernel_initializer=tf.initializers.he_normal())
+            # Normalize scores to sum 1
+            with tf.variable_scope("scores_normalization"):
+                if type_collapse == 'sigmoid':
+                    sigmoid_scores = tf.math.sigmoid(scores)
+                    normalization_factor = tf.reduce_sum(sigmoid_scores, axis=1, keepdims=True) + 1e-8
+                    normalized_scores = sigmoid_scores / normalization_factor
+                else:
+                    normalized_scores = tf.nn.softmax(scores, axis=1)
+            # Compute weighted global average
+            outputs = tf.reduce_sum(normalized_scores * outputs, axis=[1, 2])
+        else:
+            raise ValueError("%s not a valid type_collapse" % type_collapse)
+        # output now should be [batch_size, n_units]
+
+        # Do the rest
+        drop_rate = params[pkeys.STAT_NET_CONTEXT_DROP_RATE]
+        context_dim = params[pkeys.STAT_NET_CONTEXT_DIM]
+        outputs = tf.layers.dropout(outputs, training=training, rate=drop_rate)
+        outputs = tf.keras.layers.Dense(
+            context_dim,
+            kernel_initializer=tf.initializers.he_normal(),
+            activation=output_activation)(outputs)
+        # output is [batch_size, n_units]
+    return outputs
+
+
+def stat_mod_net(
+        inputs_normalized,
+        output_size,
+        params,
+        training,
+        scale_base_value=0.0,
+        bias_base_value=0.0,
+        name='stat_mod_net'
+):
+    print('Using Mod Net')
+    modulation_scale = scale_base_value
+    modulation_bias = bias_base_value
+    with tf.variable_scope(name):
+        # output is [batch_size, n_units]
+        outputs = stat_net(inputs_normalized, params, training)
         # [batch, n_feats] -> [batch, 1, n_feats]
         outputs = tf.expand_dims(outputs, axis=1)
-        outputs = tf.nn.relu(outputs)
-
-        learnable_kernel = layers.sequence_fc_layer(
+        # Scale and bias
+        modulation_scale += layers.sequence_fc_layer(
             outputs,
             output_size,
             kernel_init=tf.initializers.he_normal(),
             training=training,
-            use_bias=add_bias_to_kernel,
-            name='learn_kernel')
-        if use_bias:
-            learnable_bias = layers.sequence_fc_layer(
+            use_bias=params[pkeys.STAT_MOD_NET_BIASED_SCALE],
+            name='mod_scale')
+        if params[pkeys.STAT_MOD_NET_USE_BIAS]:
+            modulation_bias += layers.sequence_fc_layer(
+                outputs,
+                output_size,
+                kernel_init=tf.initializers.he_normal(),
+                training=training,
+                use_bias=params[pkeys.STAT_MOD_NET_BIASED_BIAS],
+                name='mod_bias')
+        # output has shape [batch, time_len, dim]
+    return modulation_scale, modulation_bias
+
+
+def stat_dot_net(
+        inputs_normalized,
+        output_size,
+        params,
+        training,
+        name='stat_dot_net'
+):
+    print('Using Dot Net')
+    with tf.variable_scope(name):
+        # output is [batch_size, n_units]
+        outputs = stat_net(inputs_normalized, params, training)
+        # [batch, n_feats] -> [batch, 1, n_feats]
+        outputs = tf.expand_dims(outputs, axis=1)
+        # kernel and bias
+        dot_kernel = layers.sequence_fc_layer(
+            outputs,
+            output_size,
+            kernel_init=tf.initializers.he_normal(),
+            training=training,
+            use_bias=params[pkeys.STAT_DOT_NET_BIASED_KERNEL],
+            name='dot_kernel')
+        if params[pkeys.STAT_DOT_NET_USE_BIAS]:
+            dot_bias = layers.sequence_fc_layer(
                 outputs,
                 1,
                 kernel_init=tf.initializers.he_normal(),
                 training=training,
-                use_bias=add_bias_to_bias,
-                name='learn_bias')
+                use_bias=params[pkeys.STAT_DOT_NET_BIASED_BIAS],
+                name='dot_bias')
         else:
-            learnable_bias = 0.0
-    return learnable_kernel, learnable_bias
+            dot_bias = 0.0
+        # output has shape [batch, time_len, dim]
+    return dot_kernel, dot_bias
 
 
 def segment_net(
@@ -1814,7 +1838,7 @@ def segment_net(
         border_lstm=5,
         name='segment_net'
 ):
-    print("Using V11-MKD2 segment network")
+    print("Using V11-MKD2 as segment network")
     with tf.variable_scope(name):
         # 1D convolutions expect shape [batch, time_len, n_feats]
         outputs = inputs_normalized
@@ -1947,86 +1971,6 @@ def segment_net(
     return outputs
 
 
-def wavelet_blstm_net_v11_mkd2_stat(
-        inputs,
-        params,
-        training,
-        name='model_v11_mkd2_stat'
-):
-    print('Using model V11-MKD-2-STAT'
-          '(Time-Domain with multi-dilated convolutions, border crop AFTER lstm, stat net)')
-    with tf.variable_scope(name):
-        # Transform [batch, time_len] -> [batch, time_len, 1]
-        inputs = tf.expand_dims(inputs, axis=2)
-        # BN at input
-        inputs = layers.batchnorm_layer(
-            inputs, 'bn_input',
-            batchnorm=params[pkeys.TYPE_BATCHNORM],
-            training=training)
-        # stat network
-        outputs_context = stat_net(inputs, params, training)
-        # [batch, n_feats] -> [batch, 1, n_feats]
-        outputs_context = tf.expand_dims(outputs_context, axis=1)
-        outputs_context = tf.nn.relu(outputs_context)
-        # segment network
-        outputs_segment = segment_net(inputs, params, training)
-
-        if params[pkeys.STAT_NET_AFTER_CONCAT_FC_UNITS] > 0:
-            # Additional FC layer to increase model flexibility
-            outputs_segment = layers.sequence_fc_layer(
-                outputs_segment,
-                params[pkeys.STAT_NET_AFTER_CONCAT_FC_UNITS],
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
-                training=training,
-                name='fc_segment')
-            outputs_context = layers.sequence_fc_layer(
-                outputs_context,
-                params[pkeys.STAT_NET_AFTER_CONCAT_FC_UNITS],
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
-                training=training,
-                use_bias=False,
-                name='fc_context')
-            outputs = tf.nn.relu(outputs_segment + outputs_context)
-            # Final FC classification layer
-            logits = layers.sequence_output_2class_layer(
-                outputs,
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_OUTPUT],
-                training=training,
-                init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
-                name='logits')
-        else:
-            # Final FC classification layer
-            logits_segment = layers.sequence_output_2class_layer(
-                outputs_segment,
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_OUTPUT],
-                training=training,
-                init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
-                name='logits_segment')
-            logits_context = layers.sequence_fc_layer(
-                outputs_context, 2,
-                kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_OUTPUT],
-                training=training,
-                use_bias=False,
-                name='logits_context')
-            logits = logits_segment + logits_context
-
-        with tf.variable_scope('probabilities'):
-            probabilities = tf.nn.softmax(logits)
-            tf.summary.histogram('probabilities', probabilities)
-        cwt_prebn = None
-        return logits, probabilities, cwt_prebn
-
-
 def wavelet_blstm_net_v11_mkd2_statmod(
         inputs,
         params,
@@ -2051,18 +1995,13 @@ def wavelet_blstm_net_v11_mkd2_statmod(
                 drop_rate=params[pkeys.DROP_RATE_OUTPUT],
                 training=training,
                 init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
-                name='logits_segment')
-            # Modulate
-            learnable_scale, learnable_bias = modulation_net(
-                inputs, 2, params, training,
-                use_scale=params[pkeys.STAT_MOD_NET_USE_SCALE], use_bias=params[pkeys.STAT_MOD_NET_USE_BIAS])
-            logits = learnable_scale * logits + learnable_bias
+                name='logits')
+            mod_scale, mod_bias = stat_mod_net(inputs, 2, params, training)
+            logits = mod_scale * logits + mod_bias
         else:
-            print("Modulating last hidden layer")
-            learnable_scale, learnable_bias = modulation_net(
-                inputs, params[pkeys.FC_UNITS], params, training,
-                use_scale=params[pkeys.STAT_MOD_NET_USE_SCALE], use_bias=params[pkeys.STAT_MOD_NET_USE_BIAS])
-            outputs = learnable_scale * outputs + learnable_bias
+            print("Modulating last hidden layer before ReLU")
+            mod_scale, mod_bias = stat_mod_net(inputs, params[pkeys.FC_UNITS], params, training)
+            outputs = mod_scale * outputs + mod_bias
             outputs = tf.nn.relu(outputs)
             logits = layers.sequence_output_2class_layer(
                 outputs,
@@ -2071,7 +2010,8 @@ def wavelet_blstm_net_v11_mkd2_statmod(
                 drop_rate=params[pkeys.DROP_RATE_OUTPUT],
                 training=training,
                 init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
-                name='logits_segment')
+                name='logits')
+
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
             tf.summary.histogram('probabilities', probabilities)
@@ -2092,33 +2032,23 @@ def wavelet_blstm_net_v11_mkd2_statdot(
         inputs = tf.expand_dims(inputs, axis=2)
         # BN at input
         inputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
-        outputs = segment_net(inputs, params, training, output_activation=None)
-
-        # Optional extra layer of segment net for more flexibility
-        extra_layer_units = params[pkeys.STAT_DOT_NET_EXTRA_FC_UNITS]
-        if extra_layer_units > 0:
-            outputs = tf.nn.relu(outputs)
+        outputs = segment_net(inputs, params, training, output_activation=tf.nn.relu)
+        segment_dim = outputs.get_shape().as_list()[-1]
+        product_dim = params[pkeys.STAT_DOT_NET_PRODUCT_DIM]
+        if product_dim != segment_dim:
+            print("Applying linear projection to match %d output to %d product" % (segment_dim, product_dim))
             outputs = layers.sequence_fc_layer(
                 outputs,
-                extra_layer_units,
+                product_dim,
                 kernel_init=tf.initializers.he_normal(),
-                dropout=params[pkeys.TYPE_DROPOUT],
-                drop_rate=params[pkeys.DROP_RATE_OUTPUT],
                 training=training,
                 use_bias=False,
                 name='linear_projection')
-
-        dot_product_dim = outputs.get_shape().as_list()[-1]
-        learn_kernel, learn_bias = prototype_net(
-            inputs, dot_product_dim, params, training,
-            use_bias=params[pkeys.STAT_DOT_NET_USE_BIAS],
-            add_bias_to_kernel=params[pkeys.STAT_DOT_NET_BIASED_KERNEL],
-            add_bias_to_bias=params[pkeys.STAT_DOT_NET_BIASED_BIAS])
-
-        print("Learn input-dependent logit transformation")
-        scaled_product = learn_kernel * outputs / np.sqrt(dot_product_dim)
-        outputs_positive = tf.reduce_sum(scaled_product, axis=-1, keepdims=True) + learn_bias
-        outputs_negative = tf.zeros_like(outputs_positive)
+        dot_kernel, dot_bias = stat_dot_net(inputs, product_dim, params, training)
+        # output and kernel is [batch, time_len, product_dim]
+        outputs_positive = tf.reduce_sum(dot_kernel * outputs, axis=-1, keepdims=True) + dot_bias
+        # output is [batch, time_len, 1]
+        outputs_negative = tf.zeros_like(outputs_positive)  # Dummy logit for compatibility
         logits = tf.concat([outputs_negative, outputs_positive], axis=-1, name="logits")
 
         with tf.variable_scope('probabilities'):
