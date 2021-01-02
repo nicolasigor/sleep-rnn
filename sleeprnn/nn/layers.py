@@ -10,6 +10,7 @@ import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
 from .spectrum import compute_cwt, compute_cwt_rectangular, compute_wavelets, apply_wavelets_rectangular, compute_wavelets_noisy
+from .expert_feats import lowpass_tf_batch
 from sleeprnn.common import constants
 from sleeprnn.common import checks
 
@@ -2773,3 +2774,24 @@ def spatial_dropout_2d(inputs, drop_rate, training, name):
             noise_shape=noise_shape)
     return outputs
 
+
+def signal_decomposition_bandpass(inputs, fs, name):
+    outputs_00_32 = inputs
+    with tf.variable_scope(name):
+        # Extract 0-4 Hz component
+        outputs_00_04 = lowpass_tf_batch(outputs_00_32, fs, 4)
+        # Extract 4-8 Hz component
+        outputs_04_32 = outputs_00_32 - outputs_00_04
+        outputs_04_08 = lowpass_tf_batch(outputs_04_32, fs, 8)
+        # Extract 8-16 Hz component
+        outputs_08_32 = outputs_04_32 - outputs_04_08
+        outputs_08_16 = lowpass_tf_batch(outputs_08_32, fs, 16)
+        # Extract 16-32 Hz component
+        outputs_16_32 = outputs_08_32 - outputs_08_16
+        bands = {
+            '0-4Hz': outputs_00_04,
+            '4-8Hz': outputs_04_08,
+            '8-16Hz': outputs_08_16,
+            '16-32Hz': outputs_16_32
+        }
+    return bands

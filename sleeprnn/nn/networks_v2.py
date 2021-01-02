@@ -2056,3 +2056,146 @@ def wavelet_blstm_net_v11_mkd2_statdot(
             tf.summary.histogram('probabilities', probabilities)
         cwt_prebn = None
     return logits, probabilities, cwt_prebn
+
+
+def wavelet_blstm_net_v36(
+        inputs,
+        params,
+        training,
+        border_conv=1,
+        border_lstm=5,
+        name='model_v36'
+):
+    print("Using V36 (bandpass with independent branches)")
+    with tf.variable_scope(name):
+        # Band-pass signals
+        # Function expects [batch, time_len]
+        bands = layers.signal_decomposition_bandpass(inputs, params[pkeys.FS], 'bands')
+
+        # Independent branches
+        key_list = ['16-32Hz', '8-16Hz', '4-8Hz', '0-4Hz']
+        use_dilation = params[pkeys.DECOMP_BP_USE_DILATION]
+        tmp_band_outputs = []
+        for i, key in enumerate(key_list):
+            dilation = 2 ** i if use_dilation else 1
+            print("Branch for %s band using dilation %d" % (key, dilation))
+            band_inputs = bands[key]
+            # Transform [batch, time_len] -> [batch, time_len, 1]
+            band_inputs = tf.expand_dims(band_inputs, axis=2)
+            # Only keep border_conv + border_lstm
+            border_duration_to_keep = border_conv + border_lstm
+            border_duration_to_crop = params[pkeys.BORDER_DURATION] - border_duration_to_keep
+            border_crop = int(border_duration_to_crop * params[pkeys.FS])
+            start_crop = border_crop
+            end_crop = None if (border_crop <= 0) else -border_crop
+            band_inputs = band_inputs[:, start_crop:end_crop]
+            # BN at input
+            band_outputs = layers.batchnorm_layer(
+                band_inputs, '%s_bn_input' % key, batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
+            # Convolutional stage (standard feed-forward)
+            # 1D convolutions expect shape [batch, time_len, n_feats]
+            band_outputs = layers.conv1d_prebn_block_with_dilation(
+                band_outputs,
+                params[pkeys.DECOMP_BP_INITIAL_FILTERS],
+                training,
+                kernel_size=3,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                kernel_init=tf.initializers.he_normal(),
+                name='%s_convblock_1d_d%d_1' % (key, dilation))
+            band_outputs = layers.conv1d_prebn_block_with_dilation(
+                band_outputs,
+                params[pkeys.DECOMP_BP_INITIAL_FILTERS] * 2,
+                training,
+                kernel_size=3,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                kernel_init=tf.initializers.he_normal(),
+                name='%s_convblock_1d_d%d_2' % (key, dilation))
+            band_outputs = layers.conv1d_prebn_block_with_dilation(
+                band_outputs,
+                params[pkeys.DECOMP_BP_INITIAL_FILTERS] * 4,
+                training,
+                kernel_size=3,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                kernel_init=tf.initializers.he_normal(),
+                name='%s_convblock_1d_d%d_3' % (key, dilation))
+            tmp_band_outputs.append(band_outputs)
+        outputs = tf.concat(tmp_band_outputs, axis=-1)
+
+        if params[pkeys.DECOMP_BP_EXTRA_CONV_FILTERS] > 0:
+            with tf.variable_scope("extra_conv"):
+                batchnorm = params[pkeys.TYPE_BATCHNORM]
+                kernel_size = 1
+                # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+                outputs = tf.expand_dims(outputs, axis=2)
+                use_bias = batchnorm is None
+                outputs = tf.layers.conv2d(
+                    inputs=outputs, filters=params[pkeys.DECOMP_BP_EXTRA_CONV_FILTERS], kernel_size=(kernel_size, 1),
+                    padding=constants.PAD_SAME, dilation_rate=1,
+                    strides=1, name='conv%d' % kernel_size, reuse=False,
+                    kernel_initializer=tf.initializers.he_normal(),
+                    use_bias=use_bias)
+                if batchnorm:
+                    outputs = layers.batchnorm_layer(
+                        outputs, 'bn', batchnorm=batchnorm,
+                        reuse=False, training=training, scale=False)
+                outputs = tf.nn.relu(outputs)
+                # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+                outputs = tf.squeeze(outputs, axis=2, name="squeeze")
+
+        # Only keep border_lstm
+        border_duration_to_crop = border_duration_to_keep - border_lstm
+        border_crop = int(border_duration_to_crop * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        # Now crop the rest
+        border_crop = int(border_lstm * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        outputs = layers.sequence_fc_layer(
+            outputs,
+            params[pkeys.FC_UNITS],
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            activation=tf.nn.relu,
+            name='fc')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+        return logits, probabilities, cwt_prebn

@@ -246,6 +246,11 @@ STAT_DOT_NET_PRODUCT_DIM = 'stat_dot_net_product_dim'
 STAT_DOT_NET_BIASED_KERNEL = 'stat_dot_net_biased_kernel'
 STAT_DOT_NET_BIASED_BIAS = 'stat_dot_net_biased_bias'
 STAT_DOT_NET_USE_BIAS = 'stat_dot_net_use_bias'
+# Bandpass signal decomposition
+DECOMP_BP_USE_DILATION = 'decomp_bp_use_dilation'
+DECOMP_BP_INITIAL_FILTERS = 'decomp_bp_initial_filters'
+DECOMP_BP_EXTRA_CONV_FILTERS = 'decomp_bp_extra_conv_filters'
+
 
 """ Loss params
 
@@ -521,4 +526,5 @@ default_params = {
     STAT_DOT_NET_BIASED_KERNEL: None,
     STAT_DOT_NET_BIASED_BIAS: None,
     STAT_DOT_NET_USE_BIAS: None,
+    DECOMP_BP_USE_DILATION: None,
 }
