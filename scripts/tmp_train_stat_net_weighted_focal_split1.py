@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'stat_net_weighted_2'
+    experiment_name = 'stat_net_weighted_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -68,36 +68,30 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_and_spec_list = [
-        # (constants.V11_MKD2_STATDOT, 128),  # product dim
-        (constants.V11_MKD2_STATMOD, False),  # modulate logits
-    ]
-    border_duration_list = [
-        # 40,
-        20
-    ]
-    backbone_depth_list = [
-        10,
-        9,
-        8,
-        7,
-        6,
-        5,
-    ]
-    backbone_kernel_size_list = [
-        3,
+    model_version_list = [
+        constants.V11_MKD2_STATMOD,
+        constants.V11_MKD2_STATDOT,
     ]
     type_collapse_list = [
-        # 'sigmoid',
-        'softmax'
+        'softmax',
+        'average',
     ]
-    params_list = list(itertools.product(
-        model_and_spec_list, border_duration_list,
-        backbone_depth_list, backbone_kernel_size_list,
-        type_collapse_list))
+    positive_class_weight_list = [
+        1.00,
+        0.50,
+        0.25
+    ]
+
+    params_list = list(itertools.product(model_version_list, type_collapse_list, positive_class_weight_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
+    params[pkeys.BORDER_DURATION] = 20
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
+    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.ANTIBORDER_AMPLITUDE] = 0.0
+    params[pkeys.SOFT_FOCAL_EPSILON] = 0.5
 
     # Segment net parameters
     params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
@@ -113,14 +107,20 @@ if __name__ == '__main__':
     params[pkeys.STAT_NET_CONV_INITIAL_FILTERS] = 8
     params[pkeys.STAT_NET_CONV_MAX_FILTERS] = 512
     params[pkeys.STAT_NET_TYPE_BACKBONE] = 'conv'
+    params[pkeys.STAT_NET_CONV_DEPTH] = 8
+    params[pkeys.STAT_NET_CONV_KERNEL_SIZE] = 3
     params[pkeys.STAT_NET_CONTEXT_DROP_RATE] = 0.2
     params[pkeys.STAT_NET_CONTEXT_DIM] = 128
+
     params[pkeys.STAT_MOD_NET_BIASED_SCALE] = True
     params[pkeys.STAT_MOD_NET_BIASED_BIAS] = True
     params[pkeys.STAT_MOD_NET_USE_BIAS] = True
+    params[pkeys.STAT_MOD_NET_MODULATE_LOGITS] = False
+
     params[pkeys.STAT_DOT_NET_BIASED_KERNEL] = True
     params[pkeys.STAT_DOT_NET_BIASED_BIAS] = True
     params[pkeys.STAT_DOT_NET_USE_BIAS] = True
+    params[pkeys.STAT_DOT_NET_PRODUCT_DIM] = 128
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -146,26 +146,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_and_spec, border_duration, backbone_depth, backbone_kernel_size, type_collapse in params_list:
-
-                    model_version = model_and_spec[0]
-                    model_config = model_and_spec[1]
+                for model_version, type_collapse, positive_class_weight in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    if model_version == constants.V11_MKD2_STATMOD:
-                        params[pkeys.STAT_MOD_NET_MODULATE_LOGITS] = model_config
-                    elif model_version == constants.V11_MKD2_STATDOT:
-                        params[pkeys.STAT_DOT_NET_PRODUCT_DIM] = model_config
-                    else:
-                        raise ValueError("unexpected model version %s" % model_version)
-
-                    params[pkeys.BORDER_DURATION] = border_duration
-                    params[pkeys.STAT_NET_CONV_DEPTH] = backbone_depth
-                    params[pkeys.STAT_NET_CONV_KERNEL_SIZE] = backbone_kernel_size
                     params[pkeys.STAT_NET_TYPE_COLLAPSE] = type_collapse
+                    params[pkeys.CLASS_WEIGHTS] = [1.0, positive_class_weight]
 
-                    folder_name = '%s_%ds_k%dN%d_%s_spec%d' % (
-                        model_version, border_duration, backbone_kernel_size, backbone_depth, type_collapse, model_config)
+                    folder_name = '%s_%s_wc%1.2f' % (model_version, type_collapse, positive_class_weight)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

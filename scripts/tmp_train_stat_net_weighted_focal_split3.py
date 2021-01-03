@@ -30,12 +30,27 @@ from sleeprnn.common import pkeys
 RESULTS_PATH = os.path.join(project_root, 'results')
 
 
+def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
+    if multi_strategy_name == 'dilated':
+        mk_filters = [
+            (kernel_size, block_filters // 2, 1),
+            (kernel_size, block_filters // 4, 2),
+            (kernel_size, block_filters // 8, 4),
+            (kernel_size, block_filters // 8, 8),
+        ]
+    elif multi_strategy_name == 'none':
+        mk_filters = [(kernel_size, block_filters, 1)]
+    else:
+        raise ValueError('strategy "%s" invalid' % multi_strategy_name)
+    return mk_filters
+
+
 if __name__ == '__main__':
 
-    id_try_list = [2, 3]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'decomp_bp'
+    experiment_name = 'stat_net_weighted_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -53,26 +68,59 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_version_list = [constants.V36]
-    use_dilation_list = [
-        True,
-        False
+    model_version_list = [
+        constants.V11_MKD2_STATMOD,
+        constants.V11_MKD2_STATDOT,
     ]
-    band_init_filters_list = [
-        32,
-        16
+    type_collapse_list = [
+        'softmax',
+        'average',
     ]
-    extra_conv_filters_list = [
-        0,
-        256
+    positive_class_weight_list = [
+        1.00,
+        0.50,
+        0.25
     ]
-    params_list = list(itertools.product(
-        model_version_list, use_dilation_list, band_init_filters_list, extra_conv_filters_list
-    ))
+
+    params_list = list(itertools.product(model_version_list, type_collapse_list, positive_class_weight_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
-    params[pkeys.BORDER_DURATION] = 6
+    params[pkeys.BORDER_DURATION] = 20
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
+    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.ANTIBORDER_AMPLITUDE] = 0.0
+    params[pkeys.SOFT_FOCAL_EPSILON] = 0.5
+
+    # Segment net parameters
+    params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
+    params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
+    params[pkeys.TIME_CONV_MK_SKIPS] = False
+    params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
+    params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
+    params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
+    params[pkeys.FC_UNITS] = 128
+
+    # Stat net parameters
+    params[pkeys.STAT_NET_CONV_TYPE_POOL] = constants.MAXPOOL
+    params[pkeys.STAT_NET_CONV_INITIAL_FILTERS] = 8
+    params[pkeys.STAT_NET_CONV_MAX_FILTERS] = 512
+    params[pkeys.STAT_NET_TYPE_BACKBONE] = 'conv'
+    params[pkeys.STAT_NET_CONV_DEPTH] = 8
+    params[pkeys.STAT_NET_CONV_KERNEL_SIZE] = 3
+    params[pkeys.STAT_NET_CONTEXT_DROP_RATE] = 0.2
+    params[pkeys.STAT_NET_CONTEXT_DIM] = 128
+
+    params[pkeys.STAT_MOD_NET_BIASED_SCALE] = True
+    params[pkeys.STAT_MOD_NET_BIASED_BIAS] = True
+    params[pkeys.STAT_MOD_NET_USE_BIAS] = True
+    params[pkeys.STAT_MOD_NET_MODULATE_LOGITS] = False
+
+    params[pkeys.STAT_DOT_NET_BIASED_KERNEL] = True
+    params[pkeys.STAT_DOT_NET_BIASED_BIAS] = True
+    params[pkeys.STAT_DOT_NET_USE_BIAS] = True
+    params[pkeys.STAT_DOT_NET_PRODUCT_DIM] = 128
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -98,15 +146,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_dilation, band_init_filters, extra_conv_filters in params_list:
+                for model_version, type_collapse, positive_class_weight in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.DECOMP_BP_USE_DILATION] = use_dilation
-                    params[pkeys.DECOMP_BP_EXTRA_CONV_FILTERS] = extra_conv_filters
-                    params[pkeys.DECOMP_BP_INITIAL_FILTERS] = band_init_filters
+                    params[pkeys.STAT_NET_TYPE_COLLAPSE] = type_collapse
+                    params[pkeys.CLASS_WEIGHTS] = [1.0, positive_class_weight]
 
-                    folder_name = '%s_init%d_d%d_extra%d' % (
-                        model_version, band_init_filters, use_dilation, extra_conv_filters)
+                    folder_name = '%s_%s_wc%1.2f' % (model_version, type_collapse, positive_class_weight)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (

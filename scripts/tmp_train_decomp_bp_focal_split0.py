@@ -35,7 +35,7 @@ if __name__ == '__main__':
     id_try_list = [0, 1]
 
     # ----- Experiment settings
-    experiment_name = 'decomp_bp'
+    experiment_name = 'decomp_bp_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -58,21 +58,26 @@ if __name__ == '__main__':
         True,
         False
     ]
-    band_init_filters_list = [
-        32,
-        16
-    ]
-    extra_conv_filters_list = [
-        0,
-        256
+    positive_class_weight_list = [
+        1.00,
+        0.50,
+        0.25
     ]
     params_list = list(itertools.product(
-        model_version_list, use_dilation_list, band_init_filters_list, extra_conv_filters_list
+        model_version_list, use_dilation_list, positive_class_weight_list
     ))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.BORDER_DURATION] = 6
+    params[pkeys.DECOMP_BP_EXTRA_CONV_FILTERS] = 0
+    params[pkeys.DECOMP_BP_INITIAL_FILTERS] = 16
+    # Focal
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
+    params[pkeys.ANTIBORDER_AMPLITUDE] = 0.0
+    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.SOFT_FOCAL_EPSILON] = 0.5
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -98,15 +103,13 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_dilation, band_init_filters, extra_conv_filters in params_list:
+                for model_version, use_dilation, positive_class_weight in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
                     params[pkeys.DECOMP_BP_USE_DILATION] = use_dilation
-                    params[pkeys.DECOMP_BP_EXTRA_CONV_FILTERS] = extra_conv_filters
-                    params[pkeys.DECOMP_BP_INITIAL_FILTERS] = band_init_filters
+                    params[pkeys.CLASS_WEIGHTS] = [1.0, positive_class_weight]
 
-                    folder_name = '%s_init%d_d%d_extra%d' % (
-                        model_version, band_init_filters, use_dilation, extra_conv_filters)
+                    folder_name = '%s_d%d_wc%1.2f' % (model_version, use_dilation, positive_class_weight)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
