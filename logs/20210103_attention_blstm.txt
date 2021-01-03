@@ -1,0 +1,13 @@
+Val AF1 report for 20210102_att_after_blstm_n2_train_mass_ss
+AF1 67.41/2.35 [0.5] 67.60/2.20 [0.50, 0.50, 0.54, 0.48], F3 79.85/1.20, P3 80.4/ 9.7, R3 81.6/10.3 for v11_att_useAtt0_dim512_extra1
+AF1 67.06/2.79 [0.5] 67.53/2.76 [0.46, 0.56, 0.52, 0.50], F3 80.11/2.10, P3 79.0/10.5, R3 83.6/10.2 for v11_att_useAtt1_dim512_extra1
+AF1 67.20/2.64 [0.5] 67.48/2.53 [0.48, 0.52, 0.52, 0.50], F3 80.12/1.67, P3 79.5/10.1, R3 83.0/10.1 for v11_att_useAtt1_dim512_extra0
+AF1 67.01/2.84 [0.5] 67.45/2.76 [0.46, 0.54, 0.52, 0.50], F3 80.14/1.82, P3 79.0/10.0, R3 83.5/ 9.5 for v11_att_useAtt1_dim256_extra0
+AF1 67.03/3.06 [0.5] 67.40/2.98 [0.48, 0.56, 0.50, 0.50], F3 80.07/2.16, P3 78.1/10.3, R3 84.4/ 9.3 for v11_att_useAtt1_dim256_extra1
+
+os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt0_dim512_extra1'): [0.50, 0.50, 0.54, 0.48],
+os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim512_extra1'): [0.46, 0.56, 0.52, 0.50],
+os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim512_extra0'): [0.48, 0.52, 0.52, 0.50],
+os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim256_extra0'): [0.46, 0.54, 0.52, 0.50],
+os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim256_extra1'): [0.48, 0.56, 0.50, 0.50],
+
