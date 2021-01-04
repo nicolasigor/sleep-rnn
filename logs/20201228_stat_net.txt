@@ -159,6 +159,37 @@ os.path.join('20210102_stat_net_weighted_2_n2_train_mass_ss', 'v11_mkd2_statmod_
 
 
 
+AHORA CON FOCAL LOSS Y AMBAS REDES Y AMBOS COLLAPSE
+
+Val AF1 report for 20210103_stat_net_weighted_focal_n2_train_mass_ss
+AF1 60.33/3.62 [0.5] 67.48/2.75 [0.24, 0.28, 0.26, 0.24], F3 79.91/2.19, P3 79.0/10.8, R3 83.3/ 9.5 for v11_mkd2_statmod_softmax_wc0.25
+AF1 65.77/2.31 [0.5] 67.28/2.45 [0.46, 0.54, 0.52, 0.40], F3 79.85/2.12, P3 78.4/10.4, R3 84.0/10.5 for v11_mkd2_statmod_average_wc1.00
+AF1 63.87/1.73 [0.5] 67.12/2.76 [0.34, 0.40, 0.36, 0.34], F3 79.36/2.27, P3 78.1/11.3, R3 83.6/10.8 for v11_mkd2_statmod_softmax_wc0.50
+AF1 60.57/3.67 [0.5] 67.06/2.45 [0.26, 0.30, 0.32, 0.28], F3 79.31/2.35, P3 78.8/10.9, R3 82.6/10.9 for v11_mkd2_statmod_average_wc0.25
+AF1 66.67/2.44 [0.5] 67.04/2.83 [0.46, 0.48, 0.50, 0.46], F3 79.44/2.55, P3 77.8/11.2, R3 83.8/10.0 for v11_mkd2_statmod_softmax_wc1.00
+AF1 66.37/1.66 [0.5] 66.96/2.51 [0.46, 0.48, 0.44, 0.44], F3 79.58/2.18, P3 78.4/10.3, R3 83.1/ 9.5 for v11_mkd2_statdot_softmax_wc1.00
+AF1 63.07/2.26 [0.5] 66.95/2.42 [0.38, 0.38, 0.42, 0.34], F3 79.49/1.83, P3 78.9/10.0, R3 82.4/ 9.9 for v11_mkd2_statdot_softmax_wc0.50
+AF1 64.21/1.38 [0.5] 66.93/2.37 [0.38, 0.40, 0.42, 0.36], F3 79.20/2.01, P3 79.0/11.3, R3 82.2/10.6 for v11_mkd2_statmod_average_wc0.50
+AF1 59.05/3.37 [0.5] 66.65/2.28 [0.28, 0.28, 0.32, 0.26], F3 79.31/1.88, P3 78.9/10.5, R3 82.4/10.8 for v11_mkd2_statdot_softmax_wc0.25
+AF1 61.97/2.55 [0.5] 66.45/2.25 [0.34, 0.40, 0.38, 0.32], F3 78.90/2.25, P3 78.2/10.7, R3 82.3/11.0 for v11_mkd2_statdot_average_wc0.50
+AF1 56.16/4.83 [0.5] 66.20/2.49 [0.26, 0.32, 0.30, 0.24], F3 78.53/1.97, P3 78.7/11.8, R3 81.7/12.2 for v11_mkd2_statdot_average_wc0.25
+AF1 64.35/1.53 [0.5] 65.30/2.34 [0.46, 0.50, 0.46, 0.44], F3 78.15/2.26, P3 77.3/12.0, R3 82.4/11.7 for v11_mkd2_statdot_average_wc1.00
+
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_softmax_wc0.25'): [0.24, 0.28, 0.26, 0.24],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_average_wc1.00'): [0.46, 0.54, 0.52, 0.40],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_softmax_wc0.50'): [0.34, 0.40, 0.36, 0.34],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_average_wc0.25'): [0.26, 0.30, 0.32, 0.28],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_softmax_wc1.00'): [0.46, 0.48, 0.50, 0.46],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_softmax_wc1.00'): [0.46, 0.48, 0.44, 0.44],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_softmax_wc0.50'): [0.38, 0.38, 0.42, 0.34],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statmod_average_wc0.50'): [0.38, 0.40, 0.42, 0.36],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_softmax_wc0.25'): [0.28, 0.28, 0.32, 0.26],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc0.50'): [0.34, 0.40, 0.38, 0.32],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc0.25'): [0.26, 0.32, 0.30, 0.24],
+os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc1.00'): [0.46, 0.50, 0.46, 0.44],
+
+
+
 
 
 

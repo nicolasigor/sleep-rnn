@@ -17,3 +17,22 @@ os.path.join('20210102_decomp_bp_n2_train_mass_ss', 'v36_init32_d1_extra0'): [0.
 os.path.join('20210102_decomp_bp_n2_train_mass_ss', 'v36_init16_d1_extra256'): [0.50, 0.56, 0.56, 0.46],
 os.path.join('20210102_decomp_bp_n2_train_mass_ss', 'v36_init32_d1_extra256'): [0.56, 0.58, 0.66, 0.54],
 
+
+CON SOFT FOCAL
+
+Val AF1 report for 20210103_decomp_bp_focal_n2_train_mass_ss
+AF1 66.10/2.23 [0.5] 66.59/2.40 [0.48, 0.52, 0.50, 0.48], F3 79.65/2.05, P3 79.1/ 9.5, R3 82.1/ 9.2 for v36_d0_wc1.00
+AF1 63.00/2.58 [0.5] 66.31/2.15 [0.36, 0.42, 0.40, 0.38], F3 79.20/1.78, P3 79.3/10.2, R3 81.5/10.6 for v36_d0_wc0.50
+AF1 63.64/1.91 [0.5] 66.29/2.67 [0.38, 0.40, 0.40, 0.40], F3 79.41/2.04, P3 78.8/ 9.5, R3 82.0/ 9.5 for v36_d1_wc0.50
+AF1 65.33/1.54 [0.5] 66.21/2.39 [0.46, 0.50, 0.48, 0.46], F3 79.29/1.98, P3 78.9/ 9.6, R3 81.7/ 9.7 for v36_d1_wc1.00
+AF1 58.49/2.47 [0.5] 66.19/2.64 [0.30, 0.26, 0.32, 0.28], F3 79.29/2.01, P3 79.1/ 9.7, R3 81.6/ 9.7 for v36_d0_wc0.25
+AF1 58.86/4.09 [0.5] 66.16/2.46 [0.28, 0.32, 0.34, 0.30], F3 79.16/2.01, P3 78.6/ 9.8, R3 81.9/ 9.7 for v36_d1_wc0.25
+
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d0_wc1.00'): [0.48, 0.52, 0.50, 0.48],
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d0_wc0.50'): [0.36, 0.42, 0.40, 0.38],
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d1_wc0.50'): [0.38, 0.40, 0.40, 0.40],
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d1_wc1.00'): [0.46, 0.50, 0.48, 0.46],
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d0_wc0.25'): [0.30, 0.26, 0.32, 0.28],
+os.path.join('20210103_decomp_bp_focal_n2_train_mass_ss', 'v36_d1_wc0.25'): [0.28, 0.32, 0.34, 0.30],
+
+
