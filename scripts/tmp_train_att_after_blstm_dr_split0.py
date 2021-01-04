@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'att_after_blstm'
+    experiment_name = 'att_after_blstm_dr'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -73,24 +73,29 @@ if __name__ == '__main__':
     ]
     use_attention_list = [
         True,
-        False
+        # False
     ]
     attention_dim_list = [
         512,
-        256
+        # 256
     ]
     attention_use_extra_fc_list = [
         True,
-        False
+        # False
+    ]
+    attention_drop_rate_list = [
+        0.5,
+        0.3
     ]
 
     params_list = list(itertools.product(
-        model_version_list, use_attention_list, attention_dim_list, attention_use_extra_fc_list))
+        model_version_list, use_attention_list, attention_dim_list, attention_use_extra_fc_list,
+        attention_drop_rate_list
+    ))
 
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.BORDER_DURATION] = 6
-    params[pkeys.ATT_DROP_RATE] = 0.1
     params[pkeys.ATT_N_HEADS] = 4
     params[pkeys.ATT_PE_FACTOR] = 10000
 
@@ -128,7 +133,7 @@ if __name__ == '__main__':
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
                 without_attention_visited = False
-                for model_version, use_attention, attention_dim, attention_use_extra_fc in params_list:
+                for model_version, use_attention, attention_dim, attention_use_extra_fc, attention_drop_rate in params_list:
 
                     if without_attention_visited:
                         continue
@@ -138,9 +143,10 @@ if __name__ == '__main__':
                     params[pkeys.ATT_USE_ATTENTION_AFTER_BLSTM] = use_attention
                     params[pkeys.ATT_DIM] = attention_dim
                     params[pkeys.ATT_USE_EXTRA_FC] = attention_use_extra_fc
+                    params[pkeys.ATT_DROP_RATE] = attention_drop_rate
 
-                    folder_name = '%s_useAtt%d_dim%d_extra%d' % (
-                        model_version, use_attention, attention_dim, attention_use_extra_fc)
+                    folder_name = '%s_useAtt%d_dim%d_extra%d_dr%1.1f' % (
+                        model_version, use_attention, attention_dim, attention_use_extra_fc, attention_drop_rate)
 
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (
