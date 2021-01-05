@@ -1,3 +1,5 @@
+DROP_RATE FIJO EN 0.1
+
 Val AF1 report for 20210102_att_after_blstm_n2_train_mass_ss
 AF1 67.41/2.35 [0.5] 67.60/2.20 [0.50, 0.50, 0.54, 0.48], F3 79.85/1.20, P3 80.4/ 9.7, R3 81.6/10.3 for v11_att_useAtt0_dim512_extra1
 AF1 67.06/2.79 [0.5] 67.53/2.76 [0.46, 0.56, 0.52, 0.50], F3 80.11/2.10, P3 79.0/10.5, R3 83.6/10.2 for v11_att_useAtt1_dim512_extra1
@@ -10,4 +12,14 @@ os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim51
 os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim512_extra0'): [0.48, 0.52, 0.52, 0.50],
 os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim256_extra0'): [0.46, 0.54, 0.52, 0.50],
 os.path.join('20210102_att_after_blstm_n2_train_mass_ss', 'v11_att_useAtt1_dim256_extra1'): [0.48, 0.56, 0.50, 0.50],
+
+
+SE PRUEBAN AHORA DROP RATES 0.3 Y 0.5
+
+Val AF1 report for 20210104_att_after_blstm_dr_n2_train_mass_ss
+AF1 66.59/1.90 [0.5] 67.62/2.28 [0.42, 0.54, 0.52, 0.46], F3 80.36/1.58, P3 80.3/ 9.4, R3 82.5/10.2 for v11_att_useAtt1_dim512_extra1_dr0.3
+AF1 67.32/2.38 [0.5] 67.39/2.45 [0.50, 0.50, 0.50, 0.48], F3 79.93/1.83, P3 78.9/10.1, R3 83.2/ 9.8 for v11_att_useAtt1_dim512_extra1_dr0.5
+
+os.path.join('20210104_att_after_blstm_dr_n2_train_mass_ss', 'v11_att_useAtt1_dim512_extra1_dr0.3'): [0.42, 0.54, 0.52, 0.46],
+os.path.join('20210104_att_after_blstm_dr_n2_train_mass_ss', 'v11_att_useAtt1_dim512_extra1_dr0.5'): [0.50, 0.50, 0.50, 0.48],
 
