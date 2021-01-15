@@ -205,9 +205,16 @@ def generate_false_spindle_single_contamination(
     contamination_amplitude_relative_range,  # IMPORTANT
     contamination_amplitude_relative_variation_width,
     mask,
+    min_distance_between_frequencies=1.5,  # Hz
     frequency_lp_filter_duration=0.5,  # [s]
     amplitude_lp_filter_duration=0.5,  # [s]
 ):
+
+    if contamination_frequency_range[0] > spindle_frequency_range[0] - min_distance_between_frequencies:
+        raise ValueError(
+            "Contamination interval %s Hz incompatible with spindle interval %s Hz and min distance %s Hz" % (
+                contamination_frequency_range, spindle_frequency_range, min_distance_between_frequencies))
+
     # Prepare window
     window_min_size = int(fs * duration_range[0])
     window_max_size = int(fs * duration_range[1])
@@ -227,10 +234,13 @@ def generate_false_spindle_single_contamination(
         frequency_lp_filter_duration,
         amplitude_lp_filter_duration)
 
+    contamination_upper_freq = tf.math.minimum(
+        float(contamination_frequency_range[1]),
+        sigma_central_freq - min_distance_between_frequencies)
     base_contamination_wave, _, _ = generate_base_oscillation(
         signal_size, fs,
         contamination_frequency_range[0],
-        contamination_frequency_range[1],
+        contamination_upper_freq,
         contamination_frequency_variation_width,
         contamination_amplitude_relative_range[0] * sigma_central_amp,
         contamination_amplitude_relative_range[1] * sigma_central_amp,
