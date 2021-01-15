@@ -36,6 +36,9 @@ AUG_RANDOM_WAVES_PARAMS = "aug_random_waves_params"
 AUG_RANDOM_ANTI_WAVES_PROBA = "aug_random_anti_waves_proba"
 AUG_RANDOM_ANTI_WAVES_PARAMS = "aug_random_anti_waves_params"
 
+AUG_FALSE_SPINDLES_SINGLE_CONT_PROBA = "aug_false_spindles_single_cont_proba"
+AUG_FALSE_SPINDLES_SINGLE_CONT_PARAMS = "aug_false_spindles_single_cont_params"
+
 """ Model params
 time_resolution_factor: (int) The original sampling frequency for the labels
     is downsampled using this factor.
@@ -362,6 +365,8 @@ default_params = {
     AUG_RANDOM_WAVES_PARAMS: None,
     AUG_RANDOM_ANTI_WAVES_PROBA: 0.0,
     AUG_RANDOM_ANTI_WAVES_PARAMS: None,
+    AUG_FALSE_SPINDLES_SINGLE_CONT_PROBA: 0.0,
+    AUG_FALSE_SPINDLES_SINGLE_CONT_PARAMS: None,
     MODEL_VERSION: constants.V21,
     BORDER_DURATION: 5,
     TYPE_BATCHNORM: constants.BN,

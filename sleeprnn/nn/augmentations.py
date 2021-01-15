@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from pprint import pprint
+
 import tensorflow as tf
 
 from tensorflow.python.ops import array_ops
@@ -99,6 +101,42 @@ def random_anti_waves(
             random_anti_wave += wave_augment.generate_anti_wave_tf(
                 feat + random_anti_wave, feat_size, fs, **my_params)
         new_feat = random_anti_wave + feat
+    return new_feat
+
+
+def false_spindles_single_contamination_wrapper(
+        feat,
+        label,
+        probability,
+        fs,
+        params_dict
+):
+    """Addition of false spindles randomly generated with contamination in given frequency band"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    with tf.variable_scope('false_spindles_single_cont'):
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: false_spindles_single_contamination(feat, label, fs, params_dict),
+            lambda: feat
+        )
+    return new_feat
+
+
+def false_spindles_single_contamination(
+        feat,
+        label,
+        fs,
+        params_dict
+):
+    with tf.variable_scope('false_spindles_single_cont_generator'):
+        feat_size = feat.get_shape().as_list()[0]
+        my_params = params_dict.copy()
+        mask_keep_background = wave_augment.generate_soft_mask_from_labels_tf(label, fs, use_background=True)
+        my_params["mask"] = mask_keep_background
+        false_spindle = wave_augment.generate_false_spindle_single_contamination(feat, feat_size, fs, **my_params)
+        new_feat = false_spindle + feat
     return new_feat
 
 

@@ -343,8 +343,12 @@ class WaveletBLSTM(BaseModel):
 
         random_waves_proba = self.params[pkeys.AUG_RANDOM_WAVES_PROBA]
         random_waves_params = self.params[pkeys.AUG_RANDOM_WAVES_PARAMS]
+
         random_anti_waves_proba = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA]
         random_anti_waves_params = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS]
+
+        false_spindles_single_cont_proba = self.params[pkeys.AUG_FALSE_SPINDLES_SINGLE_CONT_PROBA]
+        false_spindles_single_cont_params = self.params[pkeys.AUG_FALSE_SPINDLES_SINGLE_CONT_PARAMS]
 
         print('rescale proba %s, std %s' % (rescale_proba, rescale_std))
         print('rescale unif proba %s, intens %s' % (rescale_unif_proba, rescale_unif_intens))
@@ -353,6 +357,8 @@ class WaveletBLSTM(BaseModel):
         print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
         print('random waves proba %s, params %s' % (random_waves_proba, random_waves_params))
         print('random anti waves proba %s, params %s' % (random_anti_waves_proba, random_anti_waves_params))
+        print("false spindles single cont proba %s, params %s" % (
+            false_spindles_single_cont_proba, false_spindles_single_cont_params))
 
         if rescale_proba > 0:
             print('Applying gaussian rescaling augmentation')
@@ -390,6 +396,11 @@ class WaveletBLSTM(BaseModel):
             print("Applying random waves augmentation")
             feat = augmentations.random_waves_wrapper(
                 feat, label, random_waves_proba, self.params[pkeys.FS], random_waves_params)
+
+        if false_spindles_single_cont_proba > 0:
+            print("Applying false spindle single cont. augmentation")
+            feat = augmentations.false_spindles_single_contamination_wrapper(
+                feat, label, random_waves_proba, self.params[pkeys.FS], false_spindles_single_cont_params)
 
         return feat, label
 

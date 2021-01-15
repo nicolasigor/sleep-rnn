@@ -159,3 +159,85 @@ def generate_anti_wave_tf(
     if mask is not None:
         generated_wave = generated_wave * mask
     return generated_wave
+
+
+def generate_base_oscillation(
+    signal_size,  # Number of samples
+    fs,  # [Hz]
+    min_frequency,  # [Hz]
+    max_frequency,  # [Hz]
+    frequency_variation_width,  # [Hz]
+    min_amplitude,  # signal units
+    max_amplitude,  # signal units
+    amplitude_relative_variation_width,  # relative
+    frequency_lp_filter_duration=0.5,  # [s]
+    amplitude_lp_filter_duration=0.5,  # [s]
+):
+    frequency_lp_filter_size = int(fs * frequency_lp_filter_duration)
+    amplitude_lp_filter_size = int(fs * amplitude_lp_filter_duration)
+    # Oscillation
+    central_freq = tf.random.uniform([], minval=min_frequency, maxval=max_frequency)
+    lower_freq = central_freq - 0.5 * frequency_variation_width
+    upper_freq = central_freq + 0.5 * frequency_variation_width
+    wave_freq = random_smooth_function_tf(signal_size, lower_freq, upper_freq, frequency_lp_filter_size)
+    wave_phase = 2 * np.pi * tf.math.cumsum(wave_freq) / fs
+    oscillation = tf.math.cos(wave_phase)
+    # Amplitude
+    central_amplitude = tf.random.uniform([], minval=min_amplitude, maxval=max_amplitude)
+    amplitude_high = central_amplitude * (1 + 0.5 * amplitude_relative_variation_width)
+    amplitude_low = central_amplitude * (1 - 0.5 * amplitude_relative_variation_width)
+    amplitude = random_smooth_function_tf(signal_size, amplitude_low, amplitude_high, amplitude_lp_filter_size)
+    return amplitude * oscillation, central_amplitude, central_freq
+
+
+def generate_false_spindle_single_contamination(
+    signal,
+    signal_size,  # Number of samples
+    fs,  # [Hz]
+    duration_range,  # [s]
+    bandstop_cutoff,  # [Hz]
+    spindle_frequency_range, # [Hz]
+    spindle_frequency_variation_width,  # [Hz]
+    spindle_amplitude_absolute_range,  # signal units
+    spindle_amplitude_relative_variation_width,
+    contamination_frequency_range,  # [Hz]  IMPORTANT
+    contamination_frequency_variation_width,  # [Hz]
+    contamination_amplitude_relative_range,  # IMPORTANT
+    contamination_amplitude_relative_variation_width,
+    mask,
+    frequency_lp_filter_duration=0.5,  # [s]
+    amplitude_lp_filter_duration=0.5,  # [s]
+):
+    # Prepare window
+    window_min_size = int(fs * duration_range[0])
+    window_max_size = int(fs * duration_range[1])
+    window = random_window_tf(signal_size, window_min_size, window_max_size)
+    window = mask * window if (mask is not None) else window
+
+    part_to_remove = bandpass_tf(signal, fs, bandstop_cutoff[0], bandstop_cutoff[1])
+
+    base_sigma_wave, sigma_central_amp, sigma_central_freq = generate_base_oscillation(
+        signal_size, fs,
+        spindle_frequency_range[0],
+        spindle_frequency_range[1],
+        spindle_frequency_variation_width,
+        spindle_amplitude_absolute_range[0],
+        spindle_amplitude_absolute_range[1],
+        spindle_amplitude_relative_variation_width,
+        frequency_lp_filter_duration,
+        amplitude_lp_filter_duration)
+
+    base_contamination_wave, _, _ = generate_base_oscillation(
+        signal_size, fs,
+        contamination_frequency_range[0],
+        contamination_frequency_range[1],
+        contamination_frequency_variation_width,
+        contamination_amplitude_relative_range[0] * sigma_central_amp,
+        contamination_amplitude_relative_range[1] * sigma_central_amp,
+        contamination_amplitude_relative_variation_width,
+        frequency_lp_filter_duration,
+        amplitude_lp_filter_duration)
+
+    # Total wave
+    generated_wave = window * (-part_to_remove + base_sigma_wave + base_contamination_wave)
+    return generated_wave
