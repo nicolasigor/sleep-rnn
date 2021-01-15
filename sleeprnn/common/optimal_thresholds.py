@@ -554,7 +554,19 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc0.50'): [0.34, 0.40, 0.38, 0.32],
     os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc0.25'): [0.26, 0.32, 0.30, 0.24],
     os.path.join('20210103_stat_net_weighted_focal_n2_train_mass_ss', 'v11_mkd2_statdot_average_wc1.00'): [0.46, 0.50, 0.46, 0.44],
-
+    
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-6.0_min0.90'): [None, 0.52, 0.48],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.50'): [None, 0.54, 0.56],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-6.0_min0.70'): [None, 0.52, 0.50],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-6.0_min0.50'): [None, 0.50, 0.54],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-9.0_min0.50'): [None, 0.50, 0.52],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-9.0_min0.70'): [None, 0.46, 0.54],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont6.0-7.5_min0.70'): [None, 0.50, 0.50],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont6.0-7.5_min0.50'): [None, 0.48, 0.50],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont6.0-7.5_min0.90'): [None, 0.50, 0.52],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.70'): [None, 0.56, 0.56],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-9.0_min0.90'): [None, 0.52, 0.48],
+    os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.90'): [None, 0.54, 0.50],
 
 }
 
