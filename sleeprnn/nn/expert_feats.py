@@ -185,3 +185,100 @@ def a7_layer_tf(
             return a7_parameters, a7_parameters_raw
         else:
             return a7_parameters
+
+
+def a7_layer_v2_tf(
+        signals,
+        fs,
+        window_duration,
+        sigma_frequencies=(11, 16),
+        rel_power_broad_lowcut=4.5,
+        covariance_broad_lowcut=None,
+        abs_power_transformation='log',
+        rel_power_transformation='log',
+        covariance_transformation='log',
+        correlation_transformation=None,
+        rel_power_use_zscore=True,
+        covariance_use_zscore=True,
+        correlation_use_zscore=False,
+        zscore_dispersion_mode=constants.DISPERSION_STD_ROBUST
+):
+    transformations_dict = {
+        'abs_power': abs_power_transformation,
+        'rel_power': rel_power_transformation,
+        'covariance': covariance_transformation,
+        'correlation': correlation_transformation}
+    zscore_dict = {
+        'abs_power': False,
+        'rel_power': rel_power_use_zscore,
+        'covariance': covariance_use_zscore,
+        'correlation': correlation_use_zscore}
+    feats_dict = {}
+    with tf.variable_scope("a7_dense_feats"):
+        lp_filter_size = int(fs * window_duration)
+        print("Moving window: Using %1.2f s (%d samples)" % (window_duration, lp_filter_size))
+        print("Z-score: Using '%s'" % zscore_dispersion_mode)
+        print("Broad band low cutoff for relative power:", rel_power_broad_lowcut)
+        print("Broad band low cutoff for covariance/correlation:", covariance_broad_lowcut)
+
+        signal_sigma = bandpass_tf_batch(signals, fs, sigma_frequencies[0], sigma_frequencies[1])
+        signal_rel_power_broad = bandpass_tf_batch(signals, fs, rel_power_broad_lowcut, None)
+        signal_covariance_broad = bandpass_tf_batch(signals, fs, covariance_broad_lowcut, None)
+
+        # Raw parameters
+        # --------------
+        # Absolute sigma power
+        sigma_power = moving_average_tf(signal_sigma ** 2, lp_filter_size)
+        feats_dict['abs_power'] = sigma_power
+        # Relative sigma power
+        broad_power = moving_average_tf(signal_rel_power_broad ** 2, lp_filter_size)
+        relative_power = sigma_power / (broad_power + 1e-8)
+        feats_dict['rel_power'] = relative_power
+        # Sigma-Broad covariance
+        # cov(x, y) = E(x * y) - E(x) * E(y)
+        sigma_mean = moving_average_tf(signal_sigma, lp_filter_size)
+        broad_mean = moving_average_tf(signal_covariance_broad, lp_filter_size)
+        sigma_broad_mean_product = moving_average_tf(signal_sigma * signal_covariance_broad, lp_filter_size)
+        covariance = sigma_broad_mean_product - sigma_mean * broad_mean
+        feats_dict['covariance'] = covariance
+        # Sigma-Broad correlation factor
+        # var(x) = E(x ** 2) - E(x) ** 2
+        sigma_squared = sigma_power
+        broad_squared = moving_average_tf(signal_covariance_broad ** 2, lp_filter_size)
+        sigma_variance = sigma_squared - sigma_mean ** 2
+        broad_variance = broad_squared - broad_mean ** 2
+        correlation = covariance / tf.math.sqrt(sigma_variance * broad_variance + 1e-8)
+        feats_dict['correlation'] = correlation
+
+        # Transformations
+        for feat_name in feats_dict.keys():
+            feat_signal = feats_dict[feat_name]
+            # Apply transformation
+            if transformations_dict[feat_name] is None:
+                print("Not applying transformation to feature '%s'" % feat_name)
+            elif transformations_dict[feat_name] == 'log':
+                print("Applying logarithm to feature '%s'" % feat_name)
+                feat_signal = tf.nn.relu(feat_signal) if feat_name in ['covariance', 'correlation'] else feat_signal
+                feat_signal = log10_tf(feat_signal + 1e-4)
+            elif transformations_dict[feat_name] == 'sqrt':
+                print("Applying sqrt to feature '%s'" % feat_name)
+                feat_signal = tf.nn.relu(feat_signal) if feat_name in ['covariance', 'correlation'] else feat_signal
+                feat_signal = tf.math.sqrt(feat_signal)
+            else:
+                raise ValueError("Transformation %s not supported" % transformations_dict[feat_name])
+            feats_dict[feat_name] = feat_signal
+
+        # Z-score
+        for feat_name in feats_dict.keys():
+            feat_signal = feats_dict[feat_name]
+            if zscore_dict[feat_name]:
+                print("Applying z-score to feature '%s'" % feat_name)
+                feat_signal = zscore_tf(feat_signal, zscore_dispersion_mode)
+            else:
+                print("Not applying z-score to feature '%s'" % feat_name)
+            feats_dict[feat_name] = feat_signal
+
+        features_stacked = tf.stack([
+            feats_dict["abs_power"], feats_dict["rel_power"], feats_dict["covariance"], feats_dict["correlation"]
+        ], axis=2)
+        return features_stacked
