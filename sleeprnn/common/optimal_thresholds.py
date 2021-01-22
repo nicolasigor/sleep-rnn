@@ -567,6 +567,17 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.70'): [None, 0.56, 0.56],
     os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-9.0_min0.90'): [None, 0.52, 0.48],
     os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.90'): [None, 0.54, 0.50],
+    
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.70_p0.5'): [None, 0.58, 0.50],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.80_p0.5'): [None, 0.50, 0.54],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.50_p1.0'): [None, 0.50, 0.54],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.80_p1.0'): [None, 0.46, 0.52],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.60_p1.0'): [None, 0.52, 0.44],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.90_p1.0'): [None, 0.50, 0.56],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.60_p0.5'): [None, 0.44, 0.46],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.70_p1.0'): [None, 0.58, 0.46],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.90_p0.5'): [None, 0.48, 0.54],
+    os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.50_p0.5'): [None, 0.52, 0.50],
 
 }
 

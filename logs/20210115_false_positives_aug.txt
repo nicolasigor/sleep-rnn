@@ -28,3 +28,30 @@ os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9
 os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont5.0-9.0_min0.90'): [None, 0.52, 0.48],
 os.path.join('20210114_false_spindles_mvp_n2_train_mass_ss', 'v11_mkd2_cont7.5-9.0_min0.90'): [None, 0.54, 0.50],
 
+
+False positive single contamination -> alpha contamination with safety distance 1.5Hz.
+Only seeds 1 and 2.
+
+Val AF1 report for 20210115_false_spindles_alpha_mvp_n2_train_mass_ss
+AF1 65.73/0.95 [0.5] 66.18/1.39 [0.58, 0.50], F3 79.08/0.15, P3 74.9/ 7.1, R3 85.3/ 8.2 for v11_mkd2_cont9.0-12.0_min0.70_p0.5
+AF1 65.66/1.38 [0.5] 66.01/1.03 [0.50, 0.54], F3 79.01/0.23, P3 73.5/ 7.4, R3 86.8/ 6.8 for v11_mkd2_cont9.0-12.0_min0.80_p0.5
+AF1 65.67/1.27 [0.5] 65.88/1.06 [0.50, 0.54], F3 78.81/0.35, P3 72.2/ 7.4, R3 88.1/ 5.8 for v11_mkd2_cont9.0-12.0_min0.50_p1.0
+AF1 65.83/1.34 [0.5] 65.84/1.06 [0.46, 0.52], F3 78.89/0.18, P3 72.7/ 7.5, R3 87.7/ 6.5 for v11_mkd2_cont9.0-12.0_min0.80_p1.0
+AF1 66.10/0.79 [0.5] 65.80/1.27 [0.52, 0.44], F3 79.04/0.00, P3 73.9/ 7.9, R3 86.6/ 7.3 for v11_mkd2_cont9.0-12.0_min0.60_p1.0
+AF1 65.30/1.51 [0.5] 65.76/1.05 [0.50, 0.56], F3 78.77/0.16, P3 73.1/ 7.0, R3 86.8/ 7.1 for v11_mkd2_cont9.0-12.0_min0.90_p1.0
+AF1 65.82/1.05 [0.5] 65.75/1.26 [0.44, 0.46], F3 78.98/0.03, P3 73.0/ 7.4, R3 87.5/ 6.8 for v11_mkd2_cont9.0-12.0_min0.60_p0.5
+AF1 65.27/0.71 [0.5] 65.72/1.76 [0.58, 0.46], F3 78.69/0.09, P3 72.5/ 7.3, R3 87.4/ 6.3 for v11_mkd2_cont9.0-12.0_min0.70_p1.0
+AF1 65.11/1.17 [0.5] 65.33/0.83 [0.48, 0.54], F3 77.90/0.75, P3 71.3/ 7.1, R3 87.2/ 7.1 for v11_mkd2_cont9.0-12.0_min0.90_p0.5
+AF1 65.18/1.35 [0.5] 65.28/1.45 [0.52, 0.50], F3 78.16/0.05, P3 71.2/ 7.0, R3 88.0/ 6.8 for v11_mkd2_cont9.0-12.0_min0.50_p0.5
+
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.70_p0.5'): [None, 0.58, 0.50],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.80_p0.5'): [None, 0.50, 0.54],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.50_p1.0'): [None, 0.50, 0.54],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.80_p1.0'): [None, 0.46, 0.52],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.60_p1.0'): [None, 0.52, 0.44],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.90_p1.0'): [None, 0.50, 0.56],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.60_p0.5'): [None, 0.44, 0.46],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.70_p1.0'): [None, 0.58, 0.46],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.90_p0.5'): [None, 0.48, 0.54],
+os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.50_p0.5'): [None, 0.52, 0.50],
+
