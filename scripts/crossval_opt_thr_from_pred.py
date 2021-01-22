@@ -27,31 +27,33 @@ if __name__ == '__main__':
     # Set checkpoint from where to restore, relative to results dir
 
     ckpt_folder = ''
+    id_try_list = [0, 1, 2, 4]
+    dataset_name = constants.MASS_SS_NAME
+    which_expert = 1
+
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
-
     task_mode = constants.N2_RECORD
-    dataset_name = constants.MASS_SS_NAME
-    id_try_list = [0, 1, 2, 3]
-
-    which_expert = 1
     verbose = False
     grid_folder_list = None
     # -----
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.2
+    start_thr = 0.1
     end_thr = 0.8
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
+    print("Evaluation of optimal thresholds from predictions")
+    print('Seeds: %s' % id_try_list)
+    print("Thresholds: %1.2f:%1.2f:%1.2f" % (start_thr, res_thr, end_thr))
 
-    # Load data
     dataset = load_dataset(
         dataset_name,
-        params=dataset_params, load_checkpoint=load_dataset_from_ckpt)
+        params=dataset_params, load_checkpoint=load_dataset_from_ckpt, verbose=verbose)
     all_train_ids = dataset.train_ids
+    print("Loaded: dataset %s at %s Hz" % (dataset.dataset_name, dataset.fs))
 
     full_ckpt_folder = '%s_%s_train_%s' % (ckpt_folder, task_mode, dataset_name)
     if grid_folder_list is None:
@@ -61,29 +63,29 @@ if __name__ == '__main__':
             full_ckpt_folder
         ))
         grid_folder_list.sort()
+    print('Grid settings to be evaluated from %s:' % full_ckpt_folder)
+    pprint(grid_folder_list)
 
-        print('Grid settings found inside %s:' % full_ckpt_folder)
-        pprint(grid_folder_list)
-    print('')
-
-    set_list = [constants.TRAIN_SUBSET, constants.VAL_SUBSET]
     # Load predictions
+    set_list = [constants.TRAIN_SUBSET, constants.VAL_SUBSET]
     predictions_dict = {}
+    id_try_list_for_preds = [k for k in id_try_list if k is not None]
     for folder_name in grid_folder_list:
         this_ckpt_folder = os.path.join(full_ckpt_folder, folder_name)
         predictions_dict[folder_name] = read_prediction_with_seeds(
-            this_ckpt_folder, dataset_name, task_mode, id_try_list,
-            set_list=set_list,
-            parent_dataset=dataset)
-    print('Done\n')
+            this_ckpt_folder, dataset_name, task_mode, id_try_list_for_preds,
+            set_list=set_list, parent_dataset=dataset, verbose=verbose)
+    print('Loaded: predictions.\n')
 
     # ---------------- Compute performance
     # af1 is computed on alltrain set to optimize threshold.
     per_seed_thr = {}
     for folder_name in grid_folder_list:
-        print('Evaluating grid setting: %s ' % folder_name, flush=True)
+        print('Evaluating "%s"' % folder_name, flush=True)
         per_seed_thr[folder_name] = {}
         for k in id_try_list:
+            if k is None:
+                continue
             print('Seed %d' % k)
             # Split to form validation set
             train_ids, val_ids = utils.split_ids_list_v2(
@@ -121,13 +123,15 @@ if __name__ == '__main__':
         seeds_best_f1_at_iou = []
         seeds_half_performance = []
         seeds_best_performance = []
-        seeds_best_thr = []
+        seeds_best_thr = {}
         seeds_val_precision = []
         seeds_val_recall = []
 
         for k in id_try_list:
+            if k is None:
+                continue
             this_best_thr = per_seed_thr[folder_name][k]
-            seeds_best_thr.append(this_best_thr)
+            seeds_best_thr[k] = this_best_thr
 
             # Now load validation set and compute performance
             _, val_ids = utils.split_ids_list_v2(
@@ -188,7 +192,7 @@ if __name__ == '__main__':
         std_f1_at_iou = np.stack(seeds_best_f1_at_iou, axis=0).std(axis=0)
 
         seeds_best_thr_string = ', '.join([
-            '%1.2f' % single_thr for single_thr in seeds_best_thr])
+            'None' if k is None else '%1.2f' % seeds_best_thr[k] for k in id_try_list])
         str_to_show = (
                 'AF1 %1.2f/%1.2f [0.5] '
                 '%1.2f/%1.2f [%s], '
@@ -205,7 +209,7 @@ if __name__ == '__main__':
                    ('%1.1f' % (100 * std_val_recall)).rjust(4),
                    folder_name
                    ))
-        str_to_register = "os.path.join('%s', '%s'): [%s]," % (
+        str_to_register = "    os.path.join('%s', '%s'): [%s]," % (
             full_ckpt_folder, folder_name, seeds_best_thr_string)
 
         metric_to_sort_list.append(mean_best_performance)
