@@ -240,3 +240,4 @@ V11_MKD2_STATMOD = "v11_mkd2_statmod"  # V11_MKD2 but with stat net modulation
 V11_MKD2_STATDOT = "v11_mkd2_statdot"  # V11_MKD2 but with stat net dot product for class scores
 V36 = 'v36'  # Based on RED-Time but with bandpass filtering and independent conv branches
 V11_ATT = 'v11_att'  # RED-Time with attention at output layer
+V11_MKD2_EXPERTMOD = "v11_mkd2_expertmod"  # V11_MKD2 but with expert modulation

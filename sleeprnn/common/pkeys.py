@@ -256,7 +256,28 @@ DECOMP_BP_EXTRA_CONV_FILTERS = 'decomp_bp_extra_conv_filters'
 # Attention at blstm
 ATT_USE_EXTRA_FC = 'att_use_extra_fc'
 ATT_USE_ATTENTION_AFTER_BLSTM = 'att_use_attention_after_blstm'
-
+# Expert branch parameters
+EXPERT_BRANCH_WINDOW_DURATION = 'expert_branch_window_duration'
+EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT = 'expert_branch_rel_power_lowcut'
+EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT = 'expert_branch_covariance_broad_lowcut'
+EXPERT_BRANCH_ABS_POWER_TRANSFORMATION = 'expert_branch_abs_power_transformation'
+EXPERT_BRANCH_REL_POWER_TRANSFORMATION = 'expert_branch_rel_power_transformation'
+EXPERT_BRANCH_COVARIANCE_TRANSFORMATION = 'expert_branch_covariance_transformation'
+EXPERT_BRANCH_CORRELATION_TRANSFORMATION = 'expert_branch_correlation_transformation'
+EXPERT_BRANCH_REL_POWER_USE_ZSCORE = 'expert_branch_rel_power_use_zscore'
+EXPERT_BRANCH_COVARIANCE_USE_ZSCORE = 'expert_branch_covariance_use_zscore'
+EXPERT_BRANCH_CORRELATION_USE_ZSCORE = 'expert_branch_correlation_use_zscore'
+EXPERT_BRANCH_ZSCORE_DISPERSION_MODE = 'expert_branch_zscore_dispersion_mode'
+EXPERT_BRANCH_COLLAPSE_TIME_MODE = 'expert_branch_collapse_time_mode'
+EXPERT_BRANCH_USE_ABS_POWER = 'expert_branch_use_abs_power'
+EXPERT_BRANCH_USE_REL_POWER = 'expert_branch_use_rel_power'
+EXPERT_BRANCH_USE_COVARIANCE = 'expert_branch_use_covariance'
+EXPERT_BRANCH_USE_CORRELATION = 'expert_branch_use_correlation'
+EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS = 'expert_branch_modulation_hidden_filters'
+EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE = 'expert_branch_modulation_hidden_kernel_size'
+EXPERT_BRANCH_MODULATION_USE_SCALE = 'expert_branch_modulation_use_scale'
+EXPERT_BRANCH_MODULATION_USE_BIAS = 'expert_branch_modulation_use_bias'
+EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE = 'expert_branch_modulation_apply_sigmoid_scale'
 
 """ Loss params
 
@@ -537,4 +558,25 @@ default_params = {
     DECOMP_BP_USE_DILATION: None,
     ATT_USE_EXTRA_FC: None,
     ATT_USE_ATTENTION_AFTER_BLSTM: None,
+    EXPERT_BRANCH_WINDOW_DURATION: None,
+    EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT: None,
+    EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT: None,
+    EXPERT_BRANCH_ABS_POWER_TRANSFORMATION: None,
+    EXPERT_BRANCH_REL_POWER_TRANSFORMATION: None,
+    EXPERT_BRANCH_COVARIANCE_TRANSFORMATION: None,
+    EXPERT_BRANCH_CORRELATION_TRANSFORMATION: None,
+    EXPERT_BRANCH_REL_POWER_USE_ZSCORE: None,
+    EXPERT_BRANCH_COVARIANCE_USE_ZSCORE: None,
+    EXPERT_BRANCH_CORRELATION_USE_ZSCORE: None,
+    EXPERT_BRANCH_ZSCORE_DISPERSION_MODE: None,
+    EXPERT_BRANCH_COLLAPSE_TIME_MODE: None,
+    EXPERT_BRANCH_USE_ABS_POWER: None,
+    EXPERT_BRANCH_USE_REL_POWER: None,
+    EXPERT_BRANCH_USE_COVARIANCE: None,
+    EXPERT_BRANCH_USE_CORRELATION: None,
+    EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS: None,
+    EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE: None,
+    EXPERT_BRANCH_MODULATION_USE_SCALE: None,
+    EXPERT_BRANCH_MODULATION_USE_BIAS: None,
+    EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE: None,
 }

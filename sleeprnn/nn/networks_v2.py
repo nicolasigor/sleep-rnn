@@ -13,6 +13,7 @@ import tensorflow as tf
 from .expert_feats import a7_layer_tf, bandpass_tf_batch
 from . import layers
 from . import spectrum
+from . import expert_feats
 
 from sleeprnn.common import constants
 from sleeprnn.common import checks
@@ -2386,3 +2387,171 @@ def wavelet_blstm_net_v11_att(
             tf.summary.histogram('probabilities', probabilities)
         cwt_prebn = None
     return logits, probabilities, cwt_prebn
+
+
+def expert_branch_features(
+        inputs_normalized,
+        params,
+        training,
+        border_feats=1,
+        name='expert_branch_features'
+):
+    with tf.variable_scope(name):
+        # Only keep border_feats
+        border_duration_to_crop = params[pkeys.BORDER_DURATION] - border_feats
+        border_crop = int(border_duration_to_crop * params[pkeys.FS])
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        inputs_normalized = inputs_normalized[:, start_crop:end_crop]
+
+        # Input should be [batch_size, time_len]
+        time_len = tf.shape(inputs_normalized)[1]
+        inputs_normalized = tf.reshape(inputs_normalized, [-1, time_len])
+
+        # Expert features
+        outputs = expert_feats.a7_layer_v2_tf(
+            inputs_normalized,
+            params[pkeys.FS],
+            params[pkeys.EXPERT_BRANCH_WINDOW_DURATION],
+            sigma_frequencies=(11, 16),
+            rel_power_broad_lowcut=params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT],
+            covariance_broad_lowcut=params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT],
+            abs_power_transformation=params[pkeys.EXPERT_BRANCH_ABS_POWER_TRANSFORMATION],
+            rel_power_transformation=params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION],
+            covariance_transformation=params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION],
+            correlation_transformation=params[pkeys.EXPERT_BRANCH_CORRELATION_TRANSFORMATION],
+            rel_power_use_zscore=params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE],
+            covariance_use_zscore=params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE],
+            correlation_use_zscore=params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE],
+            zscore_dispersion_mode=params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE])
+        outputs_to_use = []
+        if params[pkeys.EXPERT_BRANCH_USE_ABS_POWER]:
+            outputs_to_use.append(outputs[..., 0])
+        if params[pkeys.EXPERT_BRANCH_USE_REL_POWER]:
+            outputs_to_use.append(outputs[..., 1])
+        if params[pkeys.EXPERT_BRANCH_USE_COVARIANCE]:
+            outputs_to_use.append(outputs[..., 2])
+        if params[pkeys.EXPERT_BRANCH_USE_CORRELATION]:
+            outputs_to_use.append(outputs[..., 3])
+        outputs = tf.stack(outputs_to_use, axis=2)
+        # output is [batch_size, time_len, n_feats_used]
+
+        # Now crop the rest of the border
+        border_crop = int(border_feats * params[pkeys.FS])
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Normalize features before time averaging
+        outputs = tf.layers.batch_normalization(inputs=outputs, training=training)
+
+        # Prepare time axis
+        if params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] is None:
+            outputs = tf.keras.layers.AveragePooling1D(pool_size=8)(outputs)
+        elif params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] == 'average':
+            outputs = tf.keras.layers.GlobalAvgPool1D(name='average')(outputs)
+            outputs = outputs[:, tf.newaxis, :]
+        elif params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] == 'softmax':
+            # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+            outputs = tf.expand_dims(outputs, axis=2)
+            # Predict scores for each time step
+            # This is a score tensor of shape [batch_size, time_len, 1, 1]
+            scores = tf.layers.conv2d(
+                inputs=outputs, filters=1, kernel_size=(1, 1), padding=constants.PAD_VALID, name='scores',
+                kernel_initializer=tf.initializers.he_normal())
+            # Normalize scores to sum 1
+            normalized_scores = tf.nn.softmax(scores, axis=1)
+            # Compute weighted global average
+            outputs = tf.reduce_sum(normalized_scores * outputs, axis=[1, 2])
+            outputs = outputs[:, tf.newaxis, :]
+        else:
+            raise ValueError("%s not a valid time collapse" % params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE])
+        # outputs is [batch_size, ?, n_feats], with ? either time/8 or 1.
+    return outputs
+
+
+def expert_branch_modulation(
+        inputs_normalized,
+        output_size,
+        params,
+        training,
+        name='expert_branch_modulation'
+):
+    print('Using expert branch modulation')
+    with tf.variable_scope(name):
+        # output is [batch_size, ?, n_feats]
+        outputs = expert_branch_features(inputs_normalized, params, training)
+
+        # hidden layer - optional
+        if params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS] is not None:
+            # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
+            outputs = tf.expand_dims(outputs, axis=2)
+            outputs = tf.layers.conv2d(
+                inputs=outputs,
+                filters=params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS],
+                kernel_size=(params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE], 1),
+                activation=tf.nn.relu, padding=constants.PAD_SAME,
+                kernel_initializer=tf.initializers.he_normal(), use_bias=True,
+                name="hidden_conv%d" % params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE])
+            # [batch_size, time_len, 1, n_units] -> [batch_size, time_len, n_units]
+            outputs = tf.squeeze(outputs, axis=2)
+
+        # Scale and bias
+        if params[pkeys.EXPERT_BRANCH_MODULATION_USE_SCALE]:
+            modulation_scale = layers.sequence_fc_layer(
+                outputs,
+                output_size,
+                kernel_init=tf.initializers.he_normal(),
+                training=training,
+                name='mod_scale')
+            if params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE]:
+                modulation_scale = tf.math.sigmoid(modulation_scale)
+        else:
+            modulation_scale = 1.0
+
+        if params[pkeys.EXPERT_BRANCH_MODULATION_USE_BIAS]:
+            modulation_bias = layers.sequence_fc_layer(
+                outputs,
+                output_size,
+                kernel_init=tf.initializers.he_normal(),
+                training=training,
+                name='mod_bias')
+        else:
+            modulation_bias = 0.0
+        # output has shape [batch, time_len, dim] or scalar
+    return modulation_scale, modulation_bias
+
+
+def wavelet_blstm_net_v11_mkd2_expertmod(
+        inputs,
+        params,
+        training,
+        name='model_v11_mkd2_expertmod'
+):
+    print('Using model V11-MKD-2-EXPERT-MOD'
+          '(Time-Domain with multi-dilated convolutions, border crop AFTER lstm, expert modulation)')
+    with tf.variable_scope(name):
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+        # BN at input
+        inputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
+        outputs = segment_net(inputs, params, training)
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')  # [batch, time_len, 2]
+
+        print("Modulating logits with expert features")
+        mod_scale, mod_bias = expert_branch_modulation(inputs, 2, params, training)  # [batch, ?, 1]
+        logits = mod_scale * logits + mod_bias
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        cwt_prebn = None
+    return logits, probabilities, cwt_prebn
+
