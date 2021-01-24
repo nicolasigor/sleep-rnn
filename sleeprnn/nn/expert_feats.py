@@ -53,6 +53,28 @@ def bandpass_tf_batch(signals, fs, lowcut, highcut, filter_duration_ref=6, wave_
     return new_signals
 
 
+def get_static_lowpass_kernel(filter_size):
+    lp_filter = np.hanning(filter_size).astype(np.float32)
+    lp_filter /= lp_filter.sum()
+    return lp_filter
+
+
+def get_learnable_lowpass_kernel(initial_filter_size, size_factor=3.0):
+    with tf.variable_scope("learnable_kernel"):
+        theta = tf.Variable(initial_value=0.0, trainable=True, name='window_factor', dtype=tf.float32)
+        one_side = int(size_factor * initial_filter_size / 2)
+        kernel_size = 2 * one_side + 1
+        k_array = np.arange(kernel_size, dtype=np.float32) - one_side
+        sigma = initial_filter_size / 6
+        lp_filter = tf.math.exp(- tf.math.exp(theta) * k_array ** 2 / (2 * sigma ** 2))
+        lp_filter = lp_filter / tf.reduce_sum(lp_filter)
+
+        # Summary to track theta
+        tf.summary.scalar('window_factor', theta)
+
+    return lp_filter
+
+
 def moving_average_tf(signals, lp_filter_size):
     lp_filter = np.hanning(lp_filter_size).astype(np.float32)
     lp_filter /= lp_filter.sum()
@@ -215,8 +237,8 @@ def a7_layer_v2_tf(
         'correlation': correlation_use_zscore}
     feats_dict = {}
     with tf.variable_scope("a7_dense_feats"):
-        lp_filter_size = int(fs * window_duration)
-        print("Moving window: Using %1.2f s (%d samples)" % (window_duration, lp_filter_size))
+        initial_lp_filter_size = int(fs * window_duration)
+        print("Moving window: Using %1.2f s initial duration (%d samples)" % (window_duration, initial_lp_filter_size))
         print("Z-score: Using '%s'" % zscore_dispersion_mode)
         print("Broad band low cutoff for relative power:", rel_power_broad_lowcut)
         print("Broad band low cutoff for covariance/correlation:", covariance_broad_lowcut)
@@ -225,26 +247,29 @@ def a7_layer_v2_tf(
         signal_rel_power_broad = bandpass_tf_batch(signals, fs, rel_power_broad_lowcut, None)
         signal_covariance_broad = bandpass_tf_batch(signals, fs, covariance_broad_lowcut, None)
 
+        # Learnable kernel
+        lp_filter_kernel = get_learnable_lowpass_kernel(initial_lp_filter_size)
+
         # Raw parameters
         # --------------
         # Absolute sigma power
-        sigma_power = moving_average_tf(signal_sigma ** 2, lp_filter_size)
+        sigma_power = apply_fir_filter_tf_batch(signal_sigma ** 2, lp_filter_kernel)
         feats_dict['abs_power'] = sigma_power
         # Relative sigma power
-        broad_power = moving_average_tf(signal_rel_power_broad ** 2, lp_filter_size)
+        broad_power = apply_fir_filter_tf_batch(signal_rel_power_broad ** 2, lp_filter_kernel)
         relative_power = sigma_power / (broad_power + 1e-8)
         feats_dict['rel_power'] = relative_power
         # Sigma-Broad covariance
         # cov(x, y) = E(x * y) - E(x) * E(y)
-        sigma_mean = moving_average_tf(signal_sigma, lp_filter_size)
-        broad_mean = moving_average_tf(signal_covariance_broad, lp_filter_size)
-        sigma_broad_mean_product = moving_average_tf(signal_sigma * signal_covariance_broad, lp_filter_size)
+        sigma_mean = apply_fir_filter_tf_batch(signal_sigma, lp_filter_kernel)
+        broad_mean = apply_fir_filter_tf_batch(signal_covariance_broad, lp_filter_kernel)
+        sigma_broad_mean_product = apply_fir_filter_tf_batch(signal_sigma * signal_covariance_broad, lp_filter_kernel)
         covariance = sigma_broad_mean_product - sigma_mean * broad_mean
         feats_dict['covariance'] = covariance
         # Sigma-Broad correlation factor
         # var(x) = E(x ** 2) - E(x) ** 2
         sigma_squared = sigma_power
-        broad_squared = moving_average_tf(signal_covariance_broad ** 2, lp_filter_size)
+        broad_squared = apply_fir_filter_tf_batch(signal_covariance_broad ** 2, lp_filter_kernel)
         sigma_variance = sigma_squared - sigma_mean ** 2
         broad_variance = broad_squared - broad_mean ** 2
         correlation = covariance / tf.math.sqrt(sigma_variance * broad_variance + 1e-8)

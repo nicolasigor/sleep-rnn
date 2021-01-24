@@ -2405,7 +2405,7 @@ def expert_branch_features(
         inputs_normalized = inputs_normalized[:, start_crop:end_crop]
 
         # Input should be [batch_size, time_len]
-        time_len = tf.shape(inputs_normalized)[1]
+        time_len = inputs_normalized.get_shape().as_list()[1]
         inputs_normalized = tf.reshape(inputs_normalized, [-1, time_len])
 
         # Expert features
@@ -2426,12 +2426,16 @@ def expert_branch_features(
             zscore_dispersion_mode=params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE])
         outputs_to_use = []
         if params[pkeys.EXPERT_BRANCH_USE_ABS_POWER]:
+            print("Using abs power")
             outputs_to_use.append(outputs[..., 0])
         if params[pkeys.EXPERT_BRANCH_USE_REL_POWER]:
+            print("Using rel power")
             outputs_to_use.append(outputs[..., 1])
         if params[pkeys.EXPERT_BRANCH_USE_COVARIANCE]:
+            print("Using covariance")
             outputs_to_use.append(outputs[..., 2])
         if params[pkeys.EXPERT_BRANCH_USE_CORRELATION]:
+            print("Using correlation")
             outputs_to_use.append(outputs[..., 3])
         outputs = tf.stack(outputs_to_use, axis=2)
         # output is [batch_size, time_len, n_feats_used]
