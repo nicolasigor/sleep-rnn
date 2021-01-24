@@ -578,6 +578,25 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.70_p1.0'): [None, 0.58, 0.46],
     os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.90_p0.5'): [None, 0.48, 0.54],
     os.path.join('20210115_false_spindles_alpha_mvp_n2_train_mass_ss', 'v11_mkd2_cont9.0-12.0_min0.50_p0.5'): [None, 0.52, 0.50],
+    
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_f32k11_s1b1'): [None, 0.56, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_f00k1_s1b1'): [None, 0.46, 0.50],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-sqrt_f00k1_s1b1'): [None, 0.52, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-log_f00k1_s1b1'): [None, 0.46, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_f00k1_s1b1'): [None, 0.44, 0.50],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-log_f32k1_s1b1'): [None, 0.46, 0.50],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-log_f00k1_s1b1'): [None, 0.54, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-sqrt_f32k11_s1b1'): [None, 0.46, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_f32k1_s1b1'): [None, 0.50, 0.46],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-log_f32k11_s1b1'): [None, 0.52, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-log_f32k1_s1b1'): [None, 0.42, 0.44],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-sqrt_f32k1_s1b1'): [None, 0.56, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-log_f32k11_s1b1'): [None, 0.52, 0.42],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-sqrt_f32k11_s1b1'): [None, 0.44, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_f32k1_s1b1'): [None, 0.56, 0.44],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-sqrt_f32k1_s1b1'): [None, 0.52, 0.46],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_f32k11_s1b1'): [None, 0.50, 0.48],
+    os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-sqrt_f00k1_s1b1'): [None, 0.52, 0.50],
 
 }
 
