@@ -2451,11 +2451,14 @@ def expert_branch_features(
 
         # Prepare time axis
         if params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] is None:
+            print("Time-collapse: None (avgpool of 8)")
             outputs = tf.keras.layers.AveragePooling1D(pool_size=8)(outputs)
         elif params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] == 'average':
+            print("Time-collapse: global avg pool")
             outputs = tf.keras.layers.GlobalAvgPool1D(name='average')(outputs)
             outputs = outputs[:, tf.newaxis, :]
         elif params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] == 'softmax':
+            print("Time-collapse: global softmax pooling")
             # [batch_size, time_len, n_feats] -> [batch_size, time_len, 1, feats]
             outputs = tf.expand_dims(outputs, axis=2)
             # Predict scores for each time step
@@ -2519,6 +2522,7 @@ def expert_branch_modulation(
                 output_size,
                 kernel_init=tf.initializers.he_normal(),
                 training=training,
+                use_bias=False,
                 name='mod_bias')
         else:
             modulation_bias = 0.0
@@ -2540,19 +2544,21 @@ def wavelet_blstm_net_v11_mkd2_expertmod(
         # BN at input
         inputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
         outputs = segment_net(inputs, params, training)
-        logits = layers.sequence_output_2class_layer(
+        logits = layers.sequence_fc_layer(
             outputs,
+            2,
             kernel_init=tf.initializers.he_normal(),
             dropout=params[pkeys.TYPE_DROPOUT],
             drop_rate=params[pkeys.DROP_RATE_OUTPUT],
             training=training,
-            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            use_bias=False,
             name='logits')  # [batch, time_len, 2]
-
         print("Modulating logits with expert features")
-        mod_scale, mod_bias = expert_branch_modulation(inputs, 2, params, training)  # [batch, ?, 1]
-        logits = mod_scale * logits + mod_bias
-
+        mod_scale, mod_bias = expert_branch_modulation(inputs, 2, params, training)  # [batch, ?, 2]
+        logits = mod_scale * logits + mod_bias  # [batch, time_len, 2]
+        with tf.variable_scope("add_bias_static"):
+            static_bias = tf.Variable(initial_value=[0.0, 0.0], trainable=True, name='static_bias', dtype=tf.float32)
+            logits = logits + static_bias
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
             tf.summary.histogram('probabilities', probabilities)
