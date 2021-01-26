@@ -597,6 +597,19 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_absPow-sqrt_f32k1_s1b1'): [None, 0.52, 0.46],
     os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_f32k11_s1b1'): [None, 0.50, 0.48],
     os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-sqrt_f00k1_s1b1'): [None, 0.52, 0.50],
+    
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timeaverage_s1b1'): [None, 0.54, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timesoftmax_s1b1'): [None, 0.50, 0.50],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timeNone_s1b1'): [None, 0.44, 0.46],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timeNone_s1b1'): [None, 0.48, 0.44],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timesoftmax_s1b1'): [None, 0.52, 0.52],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timeNone_s1b1'): [None, 0.46, 0.44],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timeaverage_s1b1'): [None, 0.42, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timeNone_s1b1'): [None, 0.48, 0.42],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timeaverage_s1b1'): [None, 0.40, 0.46],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timesoftmax_s1b1'): [None, 0.48, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timeaverage_s1b1'): [None, 0.42, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timesoftmax_s1b1'): [None, 0.48, 0.58],
 
 }
 

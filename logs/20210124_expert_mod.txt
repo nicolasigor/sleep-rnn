@@ -42,3 +42,33 @@ AF1 64.40/0.22 [0.5] 64.52/0.33 [None, 0.52, 0.50], F3 78.32/0.75, P3 70.9/ 7.7,
     os.path.join('20210123_expert_mod_singles_n2_train_mass_ss', 'v11_mkd2_expertmod_covSig-sqrt_f00k1_s1b1'): [None, 0.52, 0.50],
 
 
+
+GRID 2: now bias placement was improved to avoid redundant parameters, and window at 0.4s. Fixed to linear transform (hidden=None).
+
+Val AF1 report for 20210124_expert_mod_singles2_n2_train_mass_ss
+AF1 65.70/0.77 [0.5] 66.06/1.29 [None, 0.54, 0.48], F3 79.27/0.17, P3 74.0/ 6.5, R3 86.6/ 6.6 for v11_mkd2_expertmod_relPow-log_z1_timeaverage_s1b1
+AF1 66.04/0.95 [0.5] 66.04/0.95 [None, 0.50, 0.50], F3 79.03/0.44, P3 73.1/ 6.8, R3 87.2/ 6.3 for v11_mkd2_expertmod_relPow-log_z1_timesoftmax_s1b1
+AF1 65.91/1.16 [0.5] 65.84/1.31 [None, 0.44, 0.46], F3 79.22/0.24, P3 73.0/ 7.2, R3 87.9/ 6.4 for v11_mkd2_expertmod_corSig-None_z1_timeNone_s1b1
+AF1 66.05/0.89 [0.5] 65.71/1.24 [None, 0.48, 0.44], F3 79.19/0.01, P3 72.2/ 6.3, R3 88.8/ 5.8 for v11_mkd2_expertmod_corSig-None_z0_timeNone_s1b1
+AF1 65.40/1.53 [0.5] 65.68/1.49 [None, 0.52, 0.52], F3 78.86/0.15, P3 73.2/ 7.7, R3 87.1/ 7.4 for v11_mkd2_expertmod_corSig-None_z1_timesoftmax_s1b1
+AF1 66.22/0.90 [0.5] 65.64/0.90 [None, 0.46, 0.44], F3 78.95/0.15, P3 73.0/ 6.7, R3 87.2/ 6.5 for v11_mkd2_expertmod_relPow-log_z1_timeNone_s1b1
+AF1 65.86/1.02 [0.5] 65.53/0.96 [None, 0.42, 0.48], F3 78.68/0.21, P3 72.9/ 6.8, R3 86.8/ 7.3 for v11_mkd2_expertmod_corSig-None_z0_timeaverage_s1b1
+AF1 65.62/1.05 [0.5] 65.51/1.37 [None, 0.48, 0.42], F3 79.00/0.10, P3 72.5/ 7.1, R3 88.1/ 6.1 for v11_mkd2_expertmod_relPow-log_z0_timeNone_s1b1
+AF1 65.93/0.99 [0.5] 65.50/0.86 [None, 0.40, 0.46], F3 78.63/0.26, P3 72.4/ 6.7, R3 87.3/ 7.1 for v11_mkd2_expertmod_relPow-log_z0_timeaverage_s1b1
+AF1 65.46/0.97 [0.5] 65.35/1.08 [None, 0.48, 0.48], F3 78.57/0.46, P3 71.5/ 6.6, R3 88.4/ 6.5 for v11_mkd2_expertmod_relPow-log_z0_timesoftmax_s1b1
+AF1 65.85/1.17 [0.5] 65.23/0.90 [None, 0.42, 0.48], F3 78.45/0.29, P3 71.8/ 6.6, R3 87.8/ 6.1 for v11_mkd2_expertmod_corSig-None_z1_timeaverage_s1b1
+AF1 64.44/2.05 [0.5] 65.13/1.36 [None, 0.48, 0.58], F3 78.16/0.00, P3 72.5/ 7.3, R3 86.2/ 7.1 for v11_mkd2_expertmod_corSig-None_z0_timesoftmax_s1b1
+
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timeaverage_s1b1'): [None, 0.54, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timesoftmax_s1b1'): [None, 0.50, 0.50],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timeNone_s1b1'): [None, 0.44, 0.46],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timeNone_s1b1'): [None, 0.48, 0.44],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timesoftmax_s1b1'): [None, 0.52, 0.52],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z1_timeNone_s1b1'): [None, 0.46, 0.44],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timeaverage_s1b1'): [None, 0.42, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timeNone_s1b1'): [None, 0.48, 0.42],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timeaverage_s1b1'): [None, 0.40, 0.46],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timesoftmax_s1b1'): [None, 0.48, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timeaverage_s1b1'): [None, 0.42, 0.48],
+    os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timesoftmax_s1b1'): [None, 0.48, 0.58],
+
