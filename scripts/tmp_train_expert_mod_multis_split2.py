@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'expert_mod_singles3'
+    experiment_name = 'expert_mod_multis'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -71,22 +71,30 @@ if __name__ == '__main__':
     model_version_list = [
         constants.V11_MKD2_EXPERTMOD
     ]
-    feat_to_use_and_transform_list = [
-        ('relPow', 'log'),
-        ('corSig', None)
+    use_abs_power_list = [
+        True,
+        # False
     ]
-    use_scale_bias_list = [
-        (True, True),
-        (True, False),
-        (False, True),
-    ]
-    apply_sigmoid_scale_list = [
+    use_rel_power_list = [
         True,
         False
     ]
-
+    use_covariance_list = [
+        True,
+        False
+    ]
+    use_correlation_list = [
+        True,
+        False
+    ]
+    use_scale_bias_list = [
+        (True, True),
+        (False, True),
+    ]
     params_list = list(itertools.product(
-        model_version_list, feat_to_use_and_transform_list, use_scale_bias_list, apply_sigmoid_scale_list
+        model_version_list,
+        use_abs_power_list, use_rel_power_list, use_covariance_list, use_correlation_list,
+        use_scale_bias_list
     ))
 
     # Base parameters
@@ -113,6 +121,11 @@ if __name__ == '__main__':
     params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE] = False
     params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] = None
+    params[pkeys.EXPERT_BRANCH_CORRELATION_TRANSFORMATION] = None
+    params[pkeys.EXPERT_BRANCH_ABS_POWER_TRANSFORMATION] = 'log'
+    params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION] = 'log'
+    params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION] = 'log'
+    params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE] = False
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -138,32 +151,22 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, feat_to_use_and_transform, use_scale_bias, apply_sigmoid_scale in params_list:
+                for model_version, use_abs_power, use_rel_power, use_covariance, use_correlation, use_scale_bias in params_list:
 
-                    feat_to_use = feat_to_use_and_transform[0]
-                    transformation = feat_to_use_and_transform[1]
+                    if not np.any([use_abs_power, use_rel_power, use_covariance, use_correlation]):
+                        continue
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.EXPERT_BRANCH_USE_ABS_POWER] = feat_to_use == 'absPow'
-                    params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = feat_to_use == 'relPow'
-                    params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = feat_to_use == 'covSig'
-                    params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = feat_to_use == 'corSig'
-
+                    params[pkeys.EXPERT_BRANCH_USE_ABS_POWER] = use_abs_power
+                    params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = use_rel_power
+                    params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = use_covariance
+                    params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = use_correlation
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_SCALE] = use_scale_bias[0]
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_BIAS] = use_scale_bias[1]
 
-                    # All features receive the same transform because only one is used at a time for now
-                    params[pkeys.EXPERT_BRANCH_CORRELATION_TRANSFORMATION] = transformation
-                    params[pkeys.EXPERT_BRANCH_ABS_POWER_TRANSFORMATION] = transformation
-                    params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION] = transformation
-                    params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION] = transformation
-
-                    params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE] = apply_sigmoid_scale
-
-                    folder_name = '%s_%s-%s_s%db%d_sigmoid%d' % (
-                        model_version, feat_to_use, transformation,
-                        use_scale_bias[0], use_scale_bias[1],
-                        apply_sigmoid_scale
+                    folder_name = '%s_feats%d%d%d%d_s%db%d' % (
+                        model_version, use_abs_power, use_rel_power, use_covariance, use_correlation,
+                        use_scale_bias[0], use_scale_bias[1]
                     )
 
                     base_dir = os.path.join(
