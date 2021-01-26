@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [3]
 
     # ----- Experiment settings
-    experiment_name = 'expert_mod_singles2'
+    experiment_name = 'expert_mod_singles3'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -75,21 +75,18 @@ if __name__ == '__main__':
         ('relPow', 'log'),
         ('corSig', None)
     ]
-    use_zscore_list = [
+    use_scale_bias_list = [
+        (True, True),
+        (True, False),
+        (False, True),
+    ]
+    apply_sigmoid_scale_list = [
         True,
         False
     ]
-    collapse_time_list = [
-        'softmax',
-        'average',
-        None
-    ]
-    use_scale_bias_list = [
-        (True, True),
-    ]
 
     params_list = list(itertools.product(
-        model_version_list, feat_to_use_and_transform_list, use_zscore_list, collapse_time_list, use_scale_bias_list
+        model_version_list, feat_to_use_and_transform_list, use_scale_bias_list, apply_sigmoid_scale_list
     ))
 
     # Base parameters
@@ -112,8 +109,10 @@ if __name__ == '__main__':
     params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD
     params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS] = None
     params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE] = None
-
-    params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE] = False
+    params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE] = True
+    params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = True
+    params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE] = False
+    params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] = None
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -139,7 +138,7 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, feat_to_use_and_transform, use_zscore, collapse_time, use_scale_bias in params_list:
+                for model_version, feat_to_use_and_transform, use_scale_bias, apply_sigmoid_scale in params_list:
 
                     feat_to_use = feat_to_use_and_transform[0]
                     transformation = feat_to_use_and_transform[1]
@@ -150,8 +149,6 @@ if __name__ == '__main__':
                     params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = feat_to_use == 'covSig'
                     params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = feat_to_use == 'corSig'
 
-                    params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] = collapse_time
-
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_SCALE] = use_scale_bias[0]
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_BIAS] = use_scale_bias[1]
 
@@ -161,16 +158,12 @@ if __name__ == '__main__':
                     params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION] = transformation
                     params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION] = transformation
 
-                    # All features receive the same "use_zscore" flag because only one feature os used at a time for
-                    params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE] = use_zscore
-                    params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = use_zscore
-                    params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE] = use_zscore
+                    params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE] = apply_sigmoid_scale
 
-                    folder_name = '%s_%s-%s_z%d_time%s_s%db%d' % (
+                    folder_name = '%s_%s-%s_s%db%d_sigmoid%d' % (
                         model_version, feat_to_use, transformation,
-                        use_zscore,
-                        collapse_time,
-                        use_scale_bias[0], use_scale_bias[1]
+                        use_scale_bias[0], use_scale_bias[1],
+                        apply_sigmoid_scale
                     )
 
                     base_dir = os.path.join(
