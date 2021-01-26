@@ -610,6 +610,19 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_z0_timesoftmax_s1b1'): [None, 0.48, 0.48],
     os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z1_timeaverage_s1b1'): [None, 0.42, 0.48],
     os.path.join('20210124_expert_mod_singles2_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_z0_timesoftmax_s1b1'): [None, 0.48, 0.58],
+    
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s1b0_sigmoid0'): [None, 0.48, 0.50],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s1b0_sigmoid1'): [None, 0.48, 0.56],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s1b0_sigmoid1'): [None, 0.56, 0.52],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s0b1_sigmoid0'): [None, 0.52, 0.54],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s1b1_sigmoid0'): [None, 0.46, 0.44],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s0b1_sigmoid0'): [None, 0.54, 0.52],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s1b1_sigmoid0'): [None, 0.48, 0.42],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s1b1_sigmoid1'): [None, 0.48, 0.50],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s1b1_sigmoid1'): [None, 0.48, 0.40],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_corSig-None_s0b1_sigmoid1'): [None, 0.58, 0.62],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s1b0_sigmoid0'): [None, 0.44, 0.38],
+    os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s0b1_sigmoid1'): [None, 0.46, 0.54],
 
 }
 
