@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Set checkpoint from where to restore, relative to results dir
 
     ckpt_folder = ''
-    id_try_list = [0, 1, 2, 4]
+    id_try_list = [0, 1, 2, 3]
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
 
