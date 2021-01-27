@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [1]
 
     # ----- Experiment settings
-    experiment_name = 'expert_mod_multis'
+    experiment_name = 'expert_mod_multis2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -71,31 +71,16 @@ if __name__ == '__main__':
     model_version_list = [
         constants.V11_MKD2_EXPERTMOD
     ]
-    use_abs_power_list = [
-        # True,
-        False
-    ]
-    use_rel_power_list = [
-        True,
-        False
-    ]
-    use_covariance_list = [
-        True,
-        False
-    ]
-    use_correlation_list = [
-        True,
-        False
+    use_feats_list = [
+        (True, True, True, True),
+        (True, True, False, True),
+        (True, False, True, True)
     ]
     use_scale_bias_list = [
         (True, True),
         (False, True),
     ]
-    params_list = list(itertools.product(
-        model_version_list,
-        use_abs_power_list, use_rel_power_list, use_covariance_list, use_correlation_list,
-        use_scale_bias_list
-    ))
+    params_list = list(itertools.product(model_version_list, use_feats_list, use_scale_bias_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -151,21 +136,18 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_abs_power, use_rel_power, use_covariance, use_correlation, use_scale_bias in params_list:
-
-                    if not np.any([use_abs_power, use_rel_power, use_covariance, use_correlation]):
-                        continue
+                for model_version, use_feats, use_scale_bias in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
-                    params[pkeys.EXPERT_BRANCH_USE_ABS_POWER] = use_abs_power
-                    params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = use_rel_power
-                    params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = use_covariance
-                    params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = use_correlation
+                    params[pkeys.EXPERT_BRANCH_USE_ABS_POWER] = use_feats[0]
+                    params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = use_feats[1]
+                    params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = use_feats[2]
+                    params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = use_feats[3]
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_SCALE] = use_scale_bias[0]
                     params[pkeys.EXPERT_BRANCH_MODULATION_USE_BIAS] = use_scale_bias[1]
 
                     folder_name = '%s_feats%d%d%d%d_s%db%d' % (
-                        model_version, use_abs_power, use_rel_power, use_covariance, use_correlation,
+                        model_version, use_feats[0], use_feats[1], use_feats[2], use_feats[3],
                         use_scale_bias[0], use_scale_bias[1]
                     )
 
