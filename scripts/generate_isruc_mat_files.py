@@ -22,7 +22,7 @@ STATE_PATH = os.path.join(ISRUC_DATA_PATH, "label/state")
 save_dir = "../resources/datasets/isruc_subset_mat_files"
 
 # Read subject IDs
-invalid_subjects = ["1-025"]  # Por ahora se ignorará el '1-025'
+invalid_subjects = ["1-006", "1-025"]  # Por ahora se ignorará el '1-025' (amplitud rara) y "1-006" (muy poco N2)
 subject_ids = [s[:5] for s in os.listdir(REC_PATH) if ".rec" in s]
 subject_ids = [s for s in subject_ids if s not in invalid_subjects]
 subject_ids.sort()
