@@ -104,6 +104,70 @@ AF1 66.69/2.23 [0.5] 66.98/2.47 [0.46, 0.46, 0.54, 0.48], F3 79.72/1.63, P3 80.1
     os.path.join('20210125_expert_mod_singles3_n2_train_mass_ss', 'v11_mkd2_expertmod_relPow-log_s0b1_sigmoid1'): [0.46, 0.46, 0.54, 0.48],
 
 
+GRID MULTIS: seleccionar subsets de los features, Only seeds 1 y 2.
+
+Val AF1 report for 20210126_expert_mod_multis_n2_train_mass_ss
+AF1 65.46/1.95 [0.5] 65.86/1.49 [None, 0.46, 0.56], F3 78.97/0.18, P3 73.2/ 7.9, R3 87.3/ 6.4 for v11_mkd2_expertmod_feats1001_s0b1
+AF1 65.30/1.78 [0.5] 65.82/1.77 [None, 0.54, 0.56], F3 78.97/0.01, P3 73.6/ 7.6, R3 86.7/ 7.0 for v11_mkd2_expertmod_feats0111_s0b1
+AF1 65.64/1.13 [0.5] 65.54/1.03 [None, 0.46, 0.50], F3 78.81/0.22, P3 72.4/ 6.5, R3 87.7/ 7.0 for v11_mkd2_expertmod_feats1101_s0b1
+AF1 65.74/0.87 [0.5] 65.53/0.65 [None, 0.44, 0.44], F3 78.95/0.38, P3 73.3/ 6.9, R3 86.8/ 6.4 for v11_mkd2_expertmod_feats0100_s1b1
+AF1 65.94/1.24 [0.5] 65.52/1.53 [None, 0.48, 0.42], F3 78.77/0.02, P3 72.8/ 7.4, R3 87.2/ 6.5 for v11_mkd2_expertmod_feats1000_s1b1
+AF1 65.84/1.05 [0.5] 65.52/1.00 [None, 0.46, 0.48], F3 78.88/0.39, P3 72.8/ 6.8, R3 87.4/ 6.9 for v11_mkd2_expertmod_feats0001_s1b1
+AF1 66.14/1.31 [0.5] 65.49/1.20 [None, 0.42, 0.42], F3 78.93/0.50, P3 73.1/ 7.2, R3 87.2/ 7.2 for v11_mkd2_expertmod_feats1001_s1b1
+AF1 64.99/1.22 [0.5] 65.48/1.34 [None, 0.60, 0.54], F3 78.96/0.04, P3 73.8/ 7.2, R3 86.3/ 6.5 for v11_mkd2_expertmod_feats0110_s0b1
+AF1 65.75/1.10 [0.5] 65.48/1.37 [None, 0.50, 0.46], F3 78.38/0.36, P3 73.3/ 6.8, R3 85.9/ 8.6 for v11_mkd2_expertmod_feats1110_s1b1
+AF1 64.59/1.56 [0.5] 65.44/1.39 [None, 0.54, 0.56], F3 78.71/0.01, P3 71.7/ 5.6, R3 88.3/ 6.2 for v11_mkd2_expertmod_feats1010_s0b1
+AF1 65.20/0.73 [0.5] 65.37/1.54 [None, 0.56, 0.44], F3 78.85/0.13, P3 72.4/ 5.7, R3 87.5/ 5.7 for v11_mkd2_expertmod_feats1111_s1b1
+AF1 65.58/1.46 [0.5] 65.34/1.70 [None, 0.50, 0.42], F3 78.93/0.71, P3 73.2/ 6.9, R3 86.9/ 6.5 for v11_mkd2_expertmod_feats1010_s1b1
+AF1 65.25/1.41 [0.5] 65.31/0.75 [None, 0.42, 0.54], F3 78.86/0.35, P3 73.0/ 6.5, R3 87.1/ 6.9 for v11_mkd2_expertmod_feats0010_s1b1
+AF1 65.43/0.94 [0.5] 65.31/1.29 [None, 0.54, 0.46], F3 78.52/0.15, P3 73.8/ 7.3, R3 85.6/ 8.7 for v11_mkd2_expertmod_feats0100_s0b1
+AF1 64.80/0.27 [0.5] 65.30/0.73 [None, 0.56, 0.52], F3 78.45/0.39, P3 72.4/ 6.9, R3 87.0/ 7.3 for v11_mkd2_expertmod_feats0001_s0b1
+AF1 65.25/1.61 [0.5] 65.26/1.43 [None, 0.48, 0.52], F3 78.53/0.43, P3 73.7/ 7.2, R3 85.6/ 7.9 for v11_mkd2_expertmod_feats1100_s1b1
+AF1 64.72/0.41 [0.5] 65.26/0.73 [None, 0.60, 0.52], F3 78.74/0.29, P3 72.9/ 6.8, R3 86.9/ 6.7 for v11_mkd2_expertmod_feats0011_s0b1
+AF1 64.31/1.12 [0.5] 65.19/1.16 [None, 0.54, 0.56], F3 78.41/0.32, P3 72.3/ 6.8, R3 87.1/ 6.8 for v11_mkd2_expertmod_feats1011_s0b1
+AF1 64.80/1.44 [0.5] 65.17/1.07 [None, 0.54, 0.54], F3 78.67/0.02, P3 72.4/ 7.2, R3 87.4/ 6.5 for v11_mkd2_expertmod_feats1100_s0b1
+AF1 65.07/0.77 [0.5] 65.11/0.80 [None, 0.54, 0.50], F3 78.54/0.18, P3 72.2/ 6.9, R3 87.5/ 6.8 for v11_mkd2_expertmod_feats1110_s0b1
+AF1 65.15/1.44 [0.5] 65.08/1.49 [None, 0.46, 0.46], F3 78.59/0.13, P3 73.3/ 7.8, R3 86.4/ 7.7 for v11_mkd2_expertmod_feats0101_s0b1
+AF1 64.48/1.63 [0.5] 65.07/0.78 [None, 0.46, 0.62], F3 78.26/0.52, P3 72.7/ 7.2, R3 86.2/ 7.3 for v11_mkd2_expertmod_feats1000_s0b1
+AF1 64.24/1.23 [0.5] 64.97/0.87 [None, 0.52, 0.58], F3 78.38/0.31, P3 73.1/ 7.6, R3 86.4/ 8.5 for v11_mkd2_expertmod_feats1111_s0b1
+AF1 64.83/1.29 [0.5] 64.76/1.36 [None, 0.50, 0.48], F3 78.05/0.60, P3 71.6/ 6.8, R3 87.2/ 7.0 for v11_mkd2_expertmod_feats0101_s1b1
+AF1 65.11/1.41 [0.5] 64.64/1.06 [None, 0.42, 0.48], F3 78.10/0.35, P3 72.0/ 6.1, R3 86.5/ 7.0 for v11_mkd2_expertmod_feats1011_s1b1
+AF1 64.48/0.62 [0.5] 64.61/0.48 [None, 0.52, 0.50], F3 77.45/2.30, P3 71.2/ 7.3, R3 86.4/ 8.0 for v11_mkd2_expertmod_feats0110_s1b1
+AF1 64.95/0.90 [0.5] 64.56/1.04 [None, 0.48, 0.44], F3 77.61/0.94, P3 71.5/ 6.3, R3 86.1/ 7.1 for v11_mkd2_expertmod_feats1101_s1b1
+AF1 65.08/0.72 [0.5] 64.55/1.26 [None, 0.50, 0.40], F3 78.04/0.27, P3 71.6/ 6.7, R3 87.1/ 6.8 for v11_mkd2_expertmod_feats0011_s1b1
+AF1 64.68/1.61 [0.5] 64.49/1.80 [None, 0.50, 0.46], F3 77.90/0.04, P3 70.3/ 6.6, R3 88.6/ 5.9 for v11_mkd2_expertmod_feats0111_s1b1
+AF1 63.93/0.26 [0.5] 64.16/0.03 [None, 0.54, 0.50], F3 78.22/0.35, P3 71.9/ 6.7, R3 87.0/ 6.1 for v11_mkd2_expertmod_feats0010_s0b1
+
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1001_s0b1'): [None, 0.46, 0.56],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0111_s0b1'): [None, 0.54, 0.56],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s0b1'): [None, 0.46, 0.50],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0100_s1b1'): [None, 0.44, 0.44],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1000_s1b1'): [None, 0.48, 0.42],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0001_s1b1'): [None, 0.46, 0.48],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1001_s1b1'): [None, 0.42, 0.42],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0110_s0b1'): [None, 0.60, 0.54],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1110_s1b1'): [None, 0.50, 0.46],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1010_s0b1'): [None, 0.54, 0.56],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s1b1'): [None, 0.56, 0.44],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1010_s1b1'): [None, 0.50, 0.42],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0010_s1b1'): [None, 0.42, 0.54],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0100_s0b1'): [None, 0.54, 0.46],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0001_s0b1'): [None, 0.56, 0.52],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1100_s1b1'): [None, 0.48, 0.52],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0011_s0b1'): [None, 0.60, 0.52],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s0b1'): [None, 0.54, 0.56],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1100_s0b1'): [None, 0.54, 0.54],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1110_s0b1'): [None, 0.54, 0.50],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0101_s0b1'): [None, 0.46, 0.46],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1000_s0b1'): [None, 0.46, 0.62],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s0b1'): [None, 0.52, 0.58],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0101_s1b1'): [None, 0.50, 0.48],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s1b1'): [None, 0.42, 0.48],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0110_s1b1'): [None, 0.52, 0.50],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s1b1'): [None, 0.48, 0.44],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0011_s1b1'): [None, 0.50, 0.40],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0111_s1b1'): [None, 0.50, 0.46],
+    os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0010_s0b1'): [None, 0.54, 0.50],
 
 
 
