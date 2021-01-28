@@ -506,7 +506,8 @@ class WaveletBLSTM(BaseModel):
                 constants.V11_MKD2_STATDOT,
                 constants.V36,
                 constants.V11_ATT,
-                constants.V11_MKD2_EXPERTMOD
+                constants.V11_MKD2_EXPERTMOD,
+                constants.V11_MKD2_EXPERTREG,
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -700,14 +701,16 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks_v2.wavelet_blstm_net_v11_att
         elif model_version == constants.V11_MKD2_EXPERTMOD:
             model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_expertmod
+        elif model_version == constants.V11_MKD2_EXPERTREG:
+            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_expertreg
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:
             model_fn = networks.dummy_net
 
-        logits, probabilities, cwt_prebn = model_fn(
+        logits, probabilities, other_outputs_dict = model_fn(
             self.feats, self.params, self.training_ph)
-        return logits, probabilities, cwt_prebn
+        return logits, probabilities, other_outputs_dict
 
     def _loss_fn(self):
         type_loss = self.params[pkeys.TYPE_LOSS]
@@ -734,7 +737,8 @@ class WaveletBLSTM(BaseModel):
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4,
                 constants.HINGE_LOSS,
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5,
-                constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG
+                constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG,
+                constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION,
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -856,6 +860,11 @@ class WaveletBLSTM(BaseModel):
         elif type_loss == constants.HINGE_LOSS:
             loss, loss_summ = losses.hinge_loss_fn(
                 self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
+        elif type_loss == constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION:
+            loss, loss_summ = losses.cross_entropy_loss_with_self_supervision_fn(
+                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
+                self.other_outputs_dict["regression_loss"],
+                self.params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)

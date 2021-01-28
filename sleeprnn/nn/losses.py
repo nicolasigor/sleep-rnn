@@ -695,6 +695,44 @@ def cross_entropy_loss_fn(logits, labels, class_weights):
     return loss, loss_summ
 
 
+def cross_entropy_loss_with_self_supervision_fn(
+        logits, labels, class_weights,
+        self_supervised_loss,
+        self_supervised_coefficient
+):
+    """Returns the cross-entropy loss to be minimized.
+
+    Args:
+        logits: (3d tensor) logits tensor of shape [batch, timelen, 2]
+        labels: (2d tensor) binary tensor of shape [batch, timelen]
+        class_weights: ({None, BALANCED, array_like}) Determines the class
+            weights to be applied when computing the loss. If None, no weights
+            are applied. If BALANCED, the weights balance the class
+            frequencies. If is an array of shape [2,], class_weights[i]
+            is the weight applied to class i. If BALANCED_DROP, then
+            outputs related to the negative class are randomly dropped
+            so that their number approx equals that of the positive class.
+    """
+    print('Using Cross Entropy Loss with Self-supervision')
+    with tf.variable_scope(constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION):
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        # Weighted loss
+        weights = get_weights(logits, labels, class_weights)
+        main_loss = tf.reduce_sum(weights * loss) / tf.reduce_sum(weights)
+
+        print("Using self supervision with coefficient", self_supervised_coefficient)
+        loss = main_loss + self_supervised_coefficient * self_supervised_loss
+
+        # Summaries
+        tf.summary.scalar('xentropy_loss', main_loss)
+        tf.summary.scalar('self_supervised_loss', self_supervised_loss)
+
+        loss_summ = tf.summary.scalar('loss', loss)
+    return loss, loss_summ
+
+
 def cross_entropy_loss_with_logits_reg_fn(
         logits, labels, class_weights,
         regularization_type, regularization_weight

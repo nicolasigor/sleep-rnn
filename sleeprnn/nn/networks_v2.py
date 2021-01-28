@@ -1837,6 +1837,7 @@ def segment_net(
         output_activation=tf.nn.relu,
         border_conv=1,
         border_lstm=5,
+        return_blstm_output=False,
         name='segment_net'
 ):
     print("Using V11-MKD2 as segment network")
@@ -1959,6 +1960,9 @@ def segment_net(
         start_crop = border_crop
         end_crop = None if (border_crop <= 0) else -border_crop
         outputs = outputs[:, start_crop:end_crop]
+
+        if return_blstm_output:
+            return outputs
 
         outputs = layers.sequence_fc_layer(
             outputs,
@@ -2394,6 +2398,8 @@ def expert_branch_features(
         params,
         training,
         border_feats=1,
+        batchnorm_use_scale=True,
+        batchnorm_use_bias=True,
         name='expert_branch_features'
 ):
     with tf.variable_scope(name):
@@ -2447,7 +2453,8 @@ def expert_branch_features(
         outputs = outputs[:, start_crop:end_crop]
 
         # Normalize features before time averaging
-        outputs = tf.layers.batch_normalization(inputs=outputs, training=training)
+        outputs = tf.layers.batch_normalization(
+            inputs=outputs, training=training, center=batchnorm_use_bias, scale=batchnorm_use_scale)
 
         # Prepare time axis
         if params[pkeys.EXPERT_BRANCH_COLLAPSE_TIME_MODE] is None:
@@ -2565,3 +2572,89 @@ def wavelet_blstm_net_v11_mkd2_expertmod(
         cwt_prebn = None
     return logits, probabilities, cwt_prebn
 
+
+def expert_regression_branch(
+        inputs_normalized,
+        hidden_layer,
+        params,
+        training,
+        name='expert_branch_regression'
+):
+    print('Using expert branch regression (self supervision)')
+    with tf.variable_scope(name):
+        targets = expert_branch_features(
+            inputs_normalized, params, training, batchnorm_use_bias=False, batchnorm_use_scale=False)
+        n_targets = targets.get_shape().as_list()[-1]
+        # Regression
+        outputs = hidden_layer
+        n_hidden = params[pkeys.EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS]
+        if n_hidden:
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                n_hidden,
+                kernel_init=tf.initializers.he_normal(),
+                training=training,
+                activation=tf.nn.relu,
+                name='fc_hidden')
+        outputs = layers.sequence_fc_layer(
+            outputs,
+            n_targets,
+            kernel_init=tf.initializers.he_normal(),
+            training=training,
+            name='prediction')
+        mse_loss = tf.reduce_mean((outputs - targets) ** 2)
+    return mse_loss
+
+
+def wavelet_blstm_net_v11_mkd2_expertreg(
+        inputs,
+        params,
+        training,
+        name='model_v11_mkd2_expertreg'
+):
+    print('Using model V11-MKD-2-EXPERT-REG'
+          '(Time-Domain with multi-dilated convolutions, border crop AFTER lstm, expert regression)')
+    with tf.variable_scope(name):
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+        inputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
+
+        outputs_blstm = segment_net(inputs, params, training, return_blstm_output=True)
+
+        # FC hidden
+        outputs = layers.sequence_fc_layer(
+            outputs_blstm,
+            params[pkeys.FC_UNITS],
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            activation=tf.nn.relu,
+            name='fc')
+
+        # Regression loss
+        if params[pkeys.EXPERT_BRANCH_REGRESSION_FROM_BLSTM]:
+            hidden_layer_for_regression = outputs_blstm
+        else:
+            hidden_layer_for_regression = outputs
+        regression_loss = expert_regression_branch(inputs, hidden_layer_for_regression, params, training)
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+
+        other_outputs_dict = {
+            "regression_loss": regression_loss
+        }
+
+    return logits, probabilities, other_outputs_dict

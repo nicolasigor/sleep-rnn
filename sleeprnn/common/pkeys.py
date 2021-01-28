@@ -278,6 +278,9 @@ EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE = 'expert_branch_modulation_hidden_k
 EXPERT_BRANCH_MODULATION_USE_SCALE = 'expert_branch_modulation_use_scale'
 EXPERT_BRANCH_MODULATION_USE_BIAS = 'expert_branch_modulation_use_bias'
 EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE = 'expert_branch_modulation_apply_sigmoid_scale'
+EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS = 'expert_branch_regression_hidden_units'
+EXPERT_BRANCH_REGRESSION_FROM_BLSTM = "expert_branch_regression_from_blstm"
+EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT = "expert_branch_regression_loss_coefficient"
 
 """ Loss params
 
@@ -579,4 +582,7 @@ default_params = {
     EXPERT_BRANCH_MODULATION_USE_SCALE: None,
     EXPERT_BRANCH_MODULATION_USE_BIAS: None,
     EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE: None,
+    EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS: None,
+    EXPERT_BRANCH_REGRESSION_FROM_BLSTM: None,
+    EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT: None,
 }

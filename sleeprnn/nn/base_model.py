@@ -146,7 +146,7 @@ class BaseModel(object):
             self.feats, self.labels = self.iterator.get_next()
 
         # Model prediction
-        self.logits, self.probabilities, self.cwt_prebn = self._model_fn()
+        self.logits, self.probabilities, self.other_outputs_dict = self._model_fn()
 
         # Add training operations
         self.loss, self.loss_sum = self._loss_fn()
@@ -366,57 +366,6 @@ class BaseModel(object):
                 print('Done', flush=True)
         return probabilities_list
 
-    def compute_cwt(self, x):
-        cwt_list = []
-        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
-        niters = int(niters)
-        for i in range(niters):
-            start_index = i * self.params[pkeys.BATCH_SIZE]
-            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
-            batch = x[start_index:end_index]
-            cwt = self.sess.run(
-                self.cwt_prebn,
-                feed_dict={
-                    self.feats: batch,
-                    self.training_ph: False
-                })
-            cwt_list.append(cwt)
-        cwt_list = np.concatenate(cwt_list, axis=0)
-        return cwt_list
-
-    def _personalize_bn(self, x):
-        cwt_list = []
-        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
-        niters = int(niters)
-        for i in range(niters):
-            start_index = i * self.params[pkeys.BATCH_SIZE]
-            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
-            batch = x[start_index:end_index]
-            cwt = self.sess.run(
-                self.cwt_prebn,
-                feed_dict={
-                    self.feats: batch,
-                    self.training_ph: False
-                })
-            cwt_list.append(cwt)
-        cwt_list = np.concatenate(cwt_list, axis=0)
-        # print(cwt_list.shape)
-        n_channels = cwt_list.shape[-1]
-        # print(n_channels)
-        for k in range(n_channels):
-            # Compute statistics
-            new_mean = cwt_list[..., k].mean(axis=(0, 1))
-            new_variance = cwt_list[..., k].var(axis=(0, 1))
-            # print(new_mean.shape, new_variance.shape)
-            # Select right variables
-            my_vars = [var for var in self.ind_variables if 'bn_%d' % k in var.name]
-            old_mean = [var for var in my_vars if 'mean' in var.name][0]
-            old_variance = [var for var in my_vars if 'variance' in var.name][0]
-            # print(old_mean, old_variance)
-            # Update variables
-            self.sess.run(tf.assign(old_mean, new_mean))
-            self.sess.run(tf.assign(old_variance, new_variance))
-
     def evaluate(self, x, y):
         """Evaluates the model, averaging evaluation metrics over batches."""
         self._init_iterator_eval(x, y)
@@ -504,8 +453,8 @@ class BaseModel(object):
         """This method has to be implemented"""
         logits = None
         probabilities = None
-        cwt_prebn = None
-        return logits, probabilities, cwt_prebn
+        other_outputs_dict = None
+        return logits, probabilities, other_outputs_dict
 
     def _loss_fn(self):
         """This method has to be implemented"""

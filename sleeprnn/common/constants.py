@@ -94,6 +94,7 @@ WEIGHTED_CROSS_ENTROPY_LOSS_V4 = 'weighted_cross_entropy_loss_v4'
 HINGE_LOSS = 'hinge_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS_V5 = 'weighted_cross_entropy_loss_v5'
 CROSS_ENTROPY_LOSS_WITH_LOGITS_REG = 'cross_entropy_loss_with_logits_reg'
+CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION = "cross_entropy_loss_with_self_supervision"
 
 # Types of logits reg
 LOGITS_REG_NORM = "logits_reg_norm"
@@ -241,3 +242,4 @@ V11_MKD2_STATDOT = "v11_mkd2_statdot"  # V11_MKD2 but with stat net dot product 
 V36 = 'v36'  # Based on RED-Time but with bandpass filtering and independent conv branches
 V11_ATT = 'v11_att'  # RED-Time with attention at output layer
 V11_MKD2_EXPERTMOD = "v11_mkd2_expertmod"  # V11_MKD2 but with expert modulation
+V11_MKD2_EXPERTREG = "v11_mkd2_expertreg"  # V11_MKD2 but with expert regression

@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [3]
+    id_try_list = [0]
 
     # ----- Experiment settings
-    experiment_name = 'expert_mod_multis2'
+    experiment_name = 'expert_reg_mvp'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -69,18 +69,31 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.V11_MKD2_EXPERTMOD
+        constants.V11_MKD2_EXPERTREG
     ]
     use_feats_list = [
         (True, True, True, True),
-        (True, True, False, True),
-        (True, False, True, True)
+        # (True, False, False, False),
+        # (False, True, False, False),
+        # (False, False, True, False),
+        # (False, False, False, True)
     ]
-    use_scale_bias_list = [
-        (True, True),
-        (False, True),
+    use_in_blstm_list = [
+        True,
+        # False
     ]
-    params_list = list(itertools.product(model_version_list, use_feats_list, use_scale_bias_list))
+    use_hidden_list = [
+        128,
+        # None
+    ]
+    coefficient_power_list = [
+        # 1,
+        0,
+        # -1,
+        # -2,
+    ]
+    params_list = list(itertools.product(
+        model_version_list, use_feats_list, use_in_blstm_list, use_hidden_list, coefficient_power_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -100,8 +113,6 @@ if __name__ == '__main__':
     params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 3
     params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = 3
     params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD
-    params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_FILTERS] = None
-    params[pkeys.EXPERT_BRANCH_MODULATION_HIDDEN_KERNEL_SIZE] = None
     params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE] = False
@@ -110,7 +121,8 @@ if __name__ == '__main__':
     params[pkeys.EXPERT_BRANCH_ABS_POWER_TRANSFORMATION] = 'log'
     params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION] = 'log'
     params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION] = 'log'
-    params[pkeys.EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE] = False
+
+    params[pkeys.TYPE_LOSS] = constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -136,19 +148,21 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_feats, use_scale_bias in params_list:
+                for model_version, use_feats, use_in_blstm, use_hidden, coefficient_power in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
+
                     params[pkeys.EXPERT_BRANCH_USE_ABS_POWER] = use_feats[0]
                     params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = use_feats[1]
                     params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = use_feats[2]
                     params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = use_feats[3]
-                    params[pkeys.EXPERT_BRANCH_MODULATION_USE_SCALE] = use_scale_bias[0]
-                    params[pkeys.EXPERT_BRANCH_MODULATION_USE_BIAS] = use_scale_bias[1]
+                    params[pkeys.EXPERT_BRANCH_REGRESSION_FROM_BLSTM] = use_in_blstm
+                    params[pkeys.EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS] = use_hidden
+                    params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT] = 10 ** coefficient_power
 
-                    folder_name = '%s_feats%d%d%d%d_s%db%d' % (
+                    folder_name = '%s_feats%d%d%d%d_inrnn%d_hid%s_coef%d' % (
                         model_version, use_feats[0], use_feats[1], use_feats[2], use_feats[3],
-                        use_scale_bias[0], use_scale_bias[1]
+                        use_in_blstm, use_hidden, coefficient_power
                     )
 
                     base_dir = os.path.join(
