@@ -171,7 +171,24 @@ AF1 63.93/0.26 [0.5] 64.16/0.03 [None, 0.54, 0.50], F3 78.22/0.35, P3 71.9/ 6.7,
 
 
 
+GRID MULTIS: 4 seeds.
 
+Val AF1 report for 20210127_expert_mod_multis2_n2_train_mass_ss
+AF1 66.87/1.77 [0.5] 67.95/2.08 [0.32, 0.50, 0.52, 0.46], F3 80.44/1.37, P3 81.1/ 8.3, R3 81.6/10.0 for v11_mkd2_expertmod_feats1011_s0b1
+AF1 67.38/2.07 [0.5] 67.81/2.49 [0.52, 0.48, 0.48, 0.38], F3 80.59/1.32, P3 80.1/ 8.8, R3 83.0/ 9.6 for v11_mkd2_expertmod_feats1111_s0b1
+AF1 66.84/1.21 [0.5] 66.87/1.74 [0.48, 0.46, 0.42, 0.44], F3 79.67/1.10, P3 80.1/ 9.2, R3 81.3/10.4 for v11_mkd2_expertmod_feats1101_s1b1
+AF1 66.82/2.18 [0.5] 66.81/2.10 [0.52, 0.42, 0.54, 0.50], F3 79.38/1.33, P3 80.2/ 9.6, R3 80.9/11.1 for v11_mkd2_expertmod_feats1101_s0b1
+AF1 65.47/2.63 [0.5] 66.39/2.20 [0.34, 0.50, 0.50, 0.46], F3 79.24/1.26, P3 79.9/ 9.5, R3 80.9/11.2 for v11_mkd2_expertmod_feats1011_s1b1
+AF1 65.52/1.80 [0.5] 65.93/2.20 [0.48, 0.52, 0.48, 0.40], F3 78.90/1.49, P3 79.0/ 9.8, R3 81.1/11.1 for v11_mkd2_expertmod_feats1111_s1b1
+
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s0b1'): [0.32, 0.50, 0.52, 0.46],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s0b1'): [0.52, 0.48, 0.48, 0.38],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s1b1'): [0.48, 0.46, 0.42, 0.44],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s0b1'): [0.52, 0.42, 0.54, 0.50],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s1b1'): [0.34, 0.50, 0.50, 0.46],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s1b1'): [0.48, 0.52, 0.48, 0.40],
+    
+    
 
 
 

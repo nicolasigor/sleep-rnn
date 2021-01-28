@@ -654,6 +654,13 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0011_s1b1'): [None, 0.50, 0.40],
     os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0111_s1b1'): [None, 0.50, 0.46],
     os.path.join('20210126_expert_mod_multis_n2_train_mass_ss', 'v11_mkd2_expertmod_feats0010_s0b1'): [None, 0.54, 0.50],
+    
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s0b1'): [0.32, 0.50, 0.52, 0.46],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s0b1'): [0.52, 0.48, 0.48, 0.38],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s1b1'): [0.48, 0.46, 0.42, 0.44],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1101_s0b1'): [0.52, 0.42, 0.54, 0.50],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1011_s1b1'): [0.34, 0.50, 0.50, 0.46],
+    os.path.join('20210127_expert_mod_multis2_n2_train_mass_ss', 'v11_mkd2_expertmod_feats1111_s1b1'): [0.48, 0.52, 0.48, 0.40],
 
 }
 
