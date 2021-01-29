@@ -54,14 +54,16 @@ def bandpass_tf_batch(signals, fs, lowcut, highcut, filter_duration_ref=6, wave_
 
 
 def get_static_lowpass_kernel(filter_size):
+    print("Using static lowpass kernel")
     lp_filter = np.hanning(filter_size).astype(np.float32)
     lp_filter /= lp_filter.sum()
     return lp_filter
 
 
-def get_learnable_lowpass_kernel(initial_filter_size, size_factor=3.0):
+def get_learnable_lowpass_kernel(initial_filter_size, size_factor=3.0, trainable=True):
     with tf.variable_scope("learnable_kernel"):
-        theta = tf.Variable(initial_value=0.0, trainable=True, name='window_factor', dtype=tf.float32)
+        print("Window duration: theta trainable = %s" % trainable)
+        theta = tf.Variable(initial_value=0.0, trainable=trainable, name='window_factor', dtype=tf.float32)
         one_side = int(size_factor * initial_filter_size / 2)
         kernel_size = 2 * one_side + 1
         k_array = np.arange(kernel_size, dtype=np.float32) - one_side
@@ -223,7 +225,8 @@ def a7_layer_v2_tf(
         rel_power_use_zscore=True,
         covariance_use_zscore=True,
         correlation_use_zscore=False,
-        zscore_dispersion_mode=constants.DISPERSION_STD_ROBUST
+        zscore_dispersion_mode=constants.DISPERSION_STD_ROBUST,
+        trainable_window_duration=True,
 ):
     transformations_dict = {
         'abs_power': abs_power_transformation,
@@ -248,7 +251,10 @@ def a7_layer_v2_tf(
         signal_covariance_broad = bandpass_tf_batch(signals, fs, covariance_broad_lowcut, None)
 
         # Learnable kernel
-        lp_filter_kernel = get_learnable_lowpass_kernel(initial_lp_filter_size)
+        if trainable_window_duration:
+            lp_filter_kernel = get_learnable_lowpass_kernel(initial_lp_filter_size)
+        else:
+            lp_filter_kernel = get_static_lowpass_kernel(initial_lp_filter_size)
 
         # Raw parameters
         # --------------

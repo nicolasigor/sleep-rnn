@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [0]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'expert_reg_mvp'
+    experiment_name = 'expert_reg_initial'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -84,13 +84,13 @@ if __name__ == '__main__':
     ]
     use_hidden_list = [
         128,
-        # None
+        None
     ]
     coefficient_power_list = [
-        # 1,
+        1,
         0,
-        # -1,
-        # -2,
+        -1,
+        -2,
     ]
     params_list = list(itertools.product(
         model_version_list, use_feats_list, use_in_blstm_list, use_hidden_list, coefficient_power_list))
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     params[pkeys.FC_UNITS] = 128
 
     # Expert branch parameters
-    params[pkeys.EXPERT_BRANCH_WINDOW_DURATION] = 0.4  # Initial duration, it can be trained
+    params[pkeys.EXPERT_BRANCH_WINDOW_DURATION] = 0.4  # For expert reg it is fixed.
     params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 3
     params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = 3
     params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD

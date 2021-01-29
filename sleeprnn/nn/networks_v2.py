@@ -2400,6 +2400,7 @@ def expert_branch_features(
         border_feats=1,
         batchnorm_use_scale=True,
         batchnorm_use_bias=True,
+        trainable_window_duration=True,
         name='expert_branch_features'
 ):
     with tf.variable_scope(name):
@@ -2429,7 +2430,8 @@ def expert_branch_features(
             rel_power_use_zscore=params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE],
             covariance_use_zscore=params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE],
             correlation_use_zscore=params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE],
-            zscore_dispersion_mode=params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE])
+            zscore_dispersion_mode=params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE],
+            trainable_window_duration=trainable_window_duration)
         outputs_to_use = []
         if params[pkeys.EXPERT_BRANCH_USE_ABS_POWER]:
             print("Using abs power")
@@ -2583,7 +2585,8 @@ def expert_regression_branch(
     print('Using expert branch regression (self supervision)')
     with tf.variable_scope(name):
         targets = expert_branch_features(
-            inputs_normalized, params, training, batchnorm_use_bias=False, batchnorm_use_scale=False)
+            inputs_normalized, params, training, batchnorm_use_bias=False, batchnorm_use_scale=False,
+            trainable_window_duration=False)
         n_targets = targets.get_shape().as_list()[-1]
         # Regression
         outputs = hidden_layer
