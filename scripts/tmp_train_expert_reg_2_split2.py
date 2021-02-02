@@ -50,7 +50,7 @@ if __name__ == '__main__':
     id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'expert_reg_initial'
+    experiment_name = 'expert_reg_2'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -78,22 +78,22 @@ if __name__ == '__main__':
         # (False, False, True, False),
         # (False, False, False, True)
     ]
-    use_in_blstm_list = [
-        True,
-        # False
-    ]
-    use_hidden_list = [
-        128,
-        None
-    ]
+    base_power = 10
     coefficient_power_list = [
-        1,
-        0,
         -1,
         -2,
+        # -3,
+        # -4
+    ]
+    window_duration_list = [
+        0.3,
+        0.5,
+        1.0,
+        2.0,
+        4.0
     ]
     params_list = list(itertools.product(
-        model_version_list, use_feats_list, use_in_blstm_list, use_hidden_list, coefficient_power_list))
+        model_version_list, use_feats_list, coefficient_power_list, window_duration_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -109,9 +109,8 @@ if __name__ == '__main__':
     params[pkeys.FC_UNITS] = 128
 
     # Expert branch parameters
-    params[pkeys.EXPERT_BRANCH_WINDOW_DURATION] = 0.4  # For expert reg it is fixed.
-    params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 3
-    params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = 3
+    params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 4.5  # Same as in paper
+    params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = None  # Same as in paper
     params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD
     params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = True
@@ -121,6 +120,9 @@ if __name__ == '__main__':
     params[pkeys.EXPERT_BRANCH_ABS_POWER_TRANSFORMATION] = 'log'
     params[pkeys.EXPERT_BRANCH_REL_POWER_TRANSFORMATION] = 'log'
     params[pkeys.EXPERT_BRANCH_COVARIANCE_TRANSFORMATION] = 'log'
+
+    params[pkeys.EXPERT_BRANCH_REGRESSION_FROM_BLSTM] = True
+    params[pkeys.EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS] = 128
 
     params[pkeys.TYPE_LOSS] = constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION
 
@@ -148,7 +150,7 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version, use_feats, use_in_blstm, use_hidden, coefficient_power in params_list:
+                for model_version, use_feats, coefficient_power, window_duration in params_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
 
@@ -156,13 +158,12 @@ if __name__ == '__main__':
                     params[pkeys.EXPERT_BRANCH_USE_REL_POWER] = use_feats[1]
                     params[pkeys.EXPERT_BRANCH_USE_COVARIANCE] = use_feats[2]
                     params[pkeys.EXPERT_BRANCH_USE_CORRELATION] = use_feats[3]
-                    params[pkeys.EXPERT_BRANCH_REGRESSION_FROM_BLSTM] = use_in_blstm
-                    params[pkeys.EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS] = use_hidden
-                    params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT] = 10 ** coefficient_power
+                    params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT] = base_power ** coefficient_power
+                    params[pkeys.EXPERT_BRANCH_WINDOW_DURATION] = window_duration  # For expert reg it is fixed.
 
-                    folder_name = '%s_feats%d%d%d%d_inrnn%d_hid%s_coef%d' % (
+                    folder_name = '%s_feats%d%d%d%d_pow(%d,%d)_w%1.1fs' % (
                         model_version, use_feats[0], use_feats[1], use_feats[2], use_feats[3],
-                        use_in_blstm, use_hidden, coefficient_power
+                        base_power, coefficient_power, window_duration
                     )
 
                     base_dir = os.path.join(
