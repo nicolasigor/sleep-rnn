@@ -109,9 +109,9 @@ if __name__ == '__main__':
     params[pkeys.FC_UNITS] = 128
 
     # Expert branch parameters
-    params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 4.5  # Same as in paper
-    params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = None  # Same as in paper
-    params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD
+    params[pkeys.EXPERT_BRANCH_REL_POWER_BROAD_LOWCUT] = 4  # In paper is 4.5Hz
+    params[pkeys.EXPERT_BRANCH_COVARIANCE_BROAD_LOWCUT] = 4  # In paper is None
+    params[pkeys.EXPERT_BRANCH_ZSCORE_DISPERSION_MODE] = constants.DISPERSION_STD_ROBUST
     params[pkeys.EXPERT_BRANCH_REL_POWER_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_COVARIANCE_USE_ZSCORE] = True
     params[pkeys.EXPERT_BRANCH_CORRELATION_USE_ZSCORE] = False
