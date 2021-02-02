@@ -1,0 +1,38 @@
+Grid INITIAL Expert Reg: Regression on expert features.
+Window static and fixed to 0.4s (hanning), lambda = 10 ** coef.
+
+Val AF1 report for 20210128_expert_reg_initial_n2_train_mass_ss
+AF1 65.81/0.76 [0.5] 66.34/1.44 [None, 0.58, 0.48], F3 79.09/0.06, P3 74.2/ 6.7, R3 86.0/ 7.0 for v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef-2
+AF1 65.60/1.51 [0.5] 65.69/1.14 [None, 0.48, 0.54], F3 78.54/0.20, P3 72.5/ 6.5, R3 86.9/ 6.0 for v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef-2
+AF1 65.19/0.86 [0.5] 65.58/0.81 [None, 0.52, 0.52], F3 78.32/0.87, P3 72.6/ 5.7, R3 86.2/ 7.5 for v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef-1
+AF1 65.10/1.33 [0.5] 65.45/1.06 [None, 0.48, 0.54], F3 78.58/0.28, P3 72.8/ 6.5, R3 86.6/ 7.2 for v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef-2
+AF1 65.43/1.07 [0.5] 65.43/1.07 [None, 0.50, 0.50], F3 78.38/0.50, P3 72.0/ 6.7, R3 87.4/ 7.2 for v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef0
+AF1 65.49/0.66 [0.5] 65.35/1.39 [None, 0.52, 0.44], F3 78.75/0.24, P3 70.9/ 6.2, R3 89.6/ 5.4 for v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef0
+AF1 64.72/0.92 [0.5] 65.34/1.22 [None, 0.58, 0.52], F3 78.12/0.32, P3 71.9/ 6.7, R3 87.0/ 7.6 for v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef-1
+AF1 65.47/1.35 [0.5] 65.27/1.62 [None, 0.44, 0.46], F3 78.52/0.45, P3 71.4/ 7.3, R3 88.7/ 6.4 for v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef-2
+AF1 64.85/0.85 [0.5] 64.85/0.85 [None, 0.50, 0.50], F3 77.88/0.52, P3 71.7/ 6.3, R3 86.8/ 8.3 for v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef-1
+AF1 64.64/0.98 [0.5] 64.52/1.30 [None, 0.46, 0.46], F3 78.13/0.12, P3 70.5/ 6.3, R3 88.7/ 6.0 for v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef0
+AF1 65.42/0.74 [0.5] 64.49/1.62 [None, 0.42, 0.36], F3 78.03/0.07, P3 70.9/ 6.6, R3 88.1/ 7.0 for v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef0
+AF1 64.99/0.90 [0.5] 64.22/1.14 [None, 0.36, 0.44], F3 78.27/0.12, P3 72.1/ 6.2, R3 86.9/ 7.4 for v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef1
+AF1 64.89/1.24 [0.5] 64.21/1.65 [None, 0.44, 0.40], F3 77.39/0.05, P3 70.0/ 6.7, R3 88.0/ 7.6 for v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef-1
+AF1 64.61/0.96 [0.5] 63.71/1.46 [None, 0.34, 0.38], F3 78.12/0.50, P3 71.3/ 6.5, R3 87.8/ 6.9 for v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef1
+AF1 62.00/1.36 [0.5] 61.83/1.39 [None, 0.42, 0.48], F3 76.81/0.04, P3 69.5/ 7.3, R3 87.5/ 6.9 for v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef1
+AF1 61.65/0.64 [0.5] 61.20/0.93 [None, 0.48, 0.44], F3 75.92/0.56, P3 67.9/ 7.5, R3 87.7/ 7.2 for v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef1
+
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef-2'): [None, 0.58, 0.48],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef-2'): [None, 0.48, 0.54],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef-1'): [None, 0.52, 0.52],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef-2'): [None, 0.48, 0.54],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef0'): [None, 0.50, 0.50],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef0'): [None, 0.52, 0.44],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef-1'): [None, 0.58, 0.52],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef-2'): [None, 0.44, 0.46],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef-1'): [None, 0.50, 0.50],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef0'): [None, 0.46, 0.46],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef0'): [None, 0.42, 0.36],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hidNone_coef1'): [None, 0.36, 0.44],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef-1'): [None, 0.44, 0.40],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn1_hid128_coef1'): [None, 0.34, 0.38],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hidNone_coef1'): [None, 0.42, 0.48],
+    os.path.join('20210128_expert_reg_initial_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_inrnn0_hid128_coef1'): [None, 0.48, 0.44],
+
