@@ -47,10 +47,10 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [2]
 
     # ----- Experiment settings
-    experiment_name = 'expert_reg_2'
+    experiment_name = 'expert_reg_3'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -72,25 +72,20 @@ if __name__ == '__main__':
         constants.V11_MKD2_EXPERTREG
     ]
     use_feats_list = [
-        (True, True, True, True),
-        # (True, False, False, False),
-        # (False, True, False, False),
-        # (False, False, True, False),
-        # (False, False, False, True)
+        # (True, True, True, True),
+        (True, False, False, False),
+        (False, True, False, False),
+        (False, False, True, False),
+        (False, False, False, True)
     ]
     base_power = 10
     coefficient_power_list = [
-        # -1,
-        # -2,
-        -3,
-        -4
+        -2,
+        # -3
     ]
     window_duration_list = [
-        0.3,
-        0.5,
         1.0,
-        2.0,
-        4.0
+        2.0
     ]
     params_list = list(itertools.product(
         model_version_list, use_feats_list, coefficient_power_list, window_duration_list))
