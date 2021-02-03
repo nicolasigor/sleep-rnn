@@ -8,6 +8,7 @@ from sleeprnn.common import checks, constants
 from sleeprnn.data.inta_ss import IntaSS
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
+from sleeprnn.data.isruc_ss import IsrucSS
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), '../..')
 RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
@@ -151,7 +152,8 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
         [
             constants.MASS_KC_NAME,
             constants.MASS_SS_NAME,
-            constants.INTA_SS_NAME
+            constants.INTA_SS_NAME,
+            constants.ISRUC_SS_NAME
         ])
     if dataset_name == constants.MASS_SS_NAME:
         dataset = MassSS(
@@ -159,6 +161,9 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
     elif dataset_name == constants.MASS_KC_NAME:
         dataset = MassKC(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose)
+    elif dataset_name == constants.ISRUC_SS_NAME:
+        dataset = IsrucSS(
+            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     else:
         dataset = IntaSS(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
