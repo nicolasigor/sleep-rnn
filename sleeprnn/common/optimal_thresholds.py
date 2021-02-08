@@ -700,6 +700,22 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210202_expert_reg_2_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_pow(10,-1)_w0.3s'): [None, 0.50, 0.54],
     os.path.join('20210202_expert_reg_2_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1111_pow(10,-1)_w0.5s'): [None, 0.52, 0.48],
 
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(10,-2)_w1.0s'): [None, 0.54, 0.56],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(10,-2)_w2.0s'): [None, 0.52, 0.48],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0010_pow(10,-3)_w1.0s'): [None, 0.54, 0.50],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0010_pow(10,-2)_w2.0s'): [None, 0.54, 0.54],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(10,-3)_w1.0s'): [None, 0.50, 0.52],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(10,-3)_w2.0s'): [None, 0.48, 0.54],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0010_pow(10,-3)_w2.0s'): [None, 0.54, 0.54],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(10,-2)_w1.0s'): [None, 0.54, 0.52],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(10,-3)_w1.0s'): [None, 0.54, 0.44],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0001_pow(10,-3)_w2.0s'): [None, 0.48, 0.50],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0001_pow(10,-3)_w1.0s'): [None, 0.48, 0.46],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(10,-2)_w2.0s'): [None, 0.50, 0.50],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0010_pow(10,-2)_w1.0s'): [None, 0.54, 0.56],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(10,-3)_w2.0s'): [None, 0.46, 0.50],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0001_pow(10,-2)_w2.0s'): [None, 0.50, 0.46],
+    os.path.join('20210203_expert_reg_3_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0001_pow(10,-2)_w1.0s'): [None, 0.50, 0.42],
 
 }
 
