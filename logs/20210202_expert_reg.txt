@@ -123,5 +123,40 @@ AF1 65.79/0.89 [0.5] 65.37/1.32 [None, 0.50, 0.42], F3 78.40/0.18, P3 71.8/ 7.0,
 
 
 
+GRID 4: multis/singles only with first two features (power and power ratio)
+
+Val AF1 report for 20210208_expert_reg_4_n2_train_mass_ss
+AF1 68.08/2.16 [0.5] 68.37/2.50 [0.46, 0.48, 0.50, 0.46], F3 80.74/1.94, P3 80.8/ 9.1, R3 82.5/ 9.1 for v11_mkd2_expertreg_feats1100_pow(2,-7)_w1.0s
+AF1 67.42/2.45 [0.5] 68.16/2.40 [0.42, 0.50, 0.56, 0.52], F3 80.36/1.90, P3 80.1/ 9.4, R3 82.6/ 9.6 for v11_mkd2_expertreg_feats0100_pow(2,-7)_w1.0s
+AF1 67.83/2.24 [0.5] 68.13/2.45 [0.48, 0.54, 0.48, 0.48], F3 80.41/1.63, P3 80.2/ 9.6, R3 82.7/ 9.5 for v11_mkd2_expertreg_feats1000_pow(2,-9)_w1.0s
+AF1 67.62/1.82 [0.5] 68.09/2.05 [0.44, 0.50, 0.54, 0.44], F3 80.51/1.33, P3 79.8/ 8.4, R3 82.9/ 9.0 for v11_mkd2_expertreg_feats1000_pow(2,-8)_w1.0s
+AF1 67.84/2.35 [0.5] 67.97/2.35 [0.50, 0.48, 0.54, 0.48], F3 80.42/1.40, P3 80.9/ 9.5, R3 82.0/ 9.7 for v11_mkd2_expertreg_feats0100_pow(2,-8)_w1.0s
+AF1 67.72/2.06 [0.5] 67.96/2.02 [0.46, 0.48, 0.52, 0.50], F3 80.43/1.13, P3 80.4/ 8.7, R3 82.2/ 9.9 for v11_mkd2_expertreg_feats1000_pow(2,-6)_w1.0s
+AF1 67.56/1.97 [0.5] 67.94/2.41 [0.44, 0.48, 0.48, 0.48], F3 80.41/1.83, P3 80.5/ 9.3, R3 82.2/ 9.6 for v11_mkd2_expertreg_feats1100_pow(2,-9)_w1.0s
+AF1 67.42/1.79 [0.5] 67.92/2.45 [0.36, 0.48, 0.46, 0.46], F3 80.37/1.92, P3 80.5/ 9.7, R3 82.3/ 9.6 for v11_mkd2_expertreg_feats1100_pow(2,-5)_w1.0s
+AF1 67.45/2.28 [0.5] 67.88/2.55 [0.46, 0.48, 0.50, 0.48], F3 80.33/1.80, P3 80.3/ 9.9, R3 82.5/ 9.4 for v11_mkd2_expertreg_feats0100_pow(2,-6)_w1.0s
+AF1 67.71/1.65 [0.5] 67.88/2.17 [0.48, 0.48, 0.44, 0.46], F3 80.23/1.37, P3 81.1/ 9.6, R3 81.5/10.2 for v11_mkd2_expertreg_feats1000_pow(2,-5)_w1.0s
+AF1 67.38/2.12 [0.5] 67.81/2.39 [0.42, 0.50, 0.50, 0.50], F3 80.18/1.60, P3 79.9/ 9.5, R3 82.5/10.0 for v11_mkd2_expertreg_feats1100_pow(2,-6)_w1.0s
+AF1 67.59/2.13 [0.5] 67.80/2.36 [0.46, 0.46, 0.50, 0.48], F3 80.16/1.45, P3 79.6/ 9.4, R3 82.8/ 9.8 for v11_mkd2_expertreg_feats0100_pow(2,-9)_w1.0s
+AF1 67.05/2.51 [0.5] 67.79/2.21 [0.44, 0.44, 0.60, 0.50], F3 80.19/1.60, P3 80.6/10.0, R3 82.0/10.2 for v11_mkd2_expertreg_feats0100_pow(2,-5)_w1.0s
+AF1 67.32/1.89 [0.5] 67.72/2.09 [0.46, 0.46, 0.52, 0.46], F3 80.10/1.48, P3 80.1/ 9.1, R3 82.0/ 9.8 for v11_mkd2_expertreg_feats1100_pow(2,-8)_w1.0s
+AF1 67.03/2.25 [0.5] 67.65/2.40 [0.44, 0.54, 0.54, 0.46], F3 80.01/1.56, P3 79.8/ 9.6, R3 82.3/ 9.9 for v11_mkd2_expertreg_feats1000_pow(2,-7)_w1.0s
+
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1100_pow(2,-7)_w1.0s'): [0.46, 0.48, 0.50, 0.46],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(2,-7)_w1.0s'): [0.42, 0.50, 0.56, 0.52],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(2,-9)_w1.0s'): [0.48, 0.54, 0.48, 0.48],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(2,-8)_w1.0s'): [0.44, 0.50, 0.54, 0.44],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(2,-8)_w1.0s'): [0.50, 0.48, 0.54, 0.48],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(2,-6)_w1.0s'): [0.46, 0.48, 0.52, 0.50],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1100_pow(2,-9)_w1.0s'): [0.44, 0.48, 0.48, 0.48],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1100_pow(2,-5)_w1.0s'): [0.36, 0.48, 0.46, 0.46],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(2,-6)_w1.0s'): [0.46, 0.48, 0.50, 0.48],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(2,-5)_w1.0s'): [0.48, 0.48, 0.44, 0.46],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1100_pow(2,-6)_w1.0s'): [0.42, 0.50, 0.50, 0.50],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(2,-9)_w1.0s'): [0.46, 0.46, 0.50, 0.48],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats0100_pow(2,-5)_w1.0s'): [0.44, 0.44, 0.60, 0.50],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1100_pow(2,-8)_w1.0s'): [0.46, 0.46, 0.52, 0.46],
+    os.path.join('20210208_expert_reg_4_n2_train_mass_ss', 'v11_mkd2_expertreg_feats1000_pow(2,-7)_w1.0s'): [0.44, 0.54, 0.54, 0.46],
+
 
 
