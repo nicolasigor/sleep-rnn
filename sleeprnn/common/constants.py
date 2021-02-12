@@ -7,7 +7,7 @@ MASS_KC_NAME = 'mass_kc'
 MASS_SS_INV_NAME = 'mass_ss_inv'
 MASS_KC_INV_NAME = 'mass_kc_inv'
 ISRUC_SS_NAME = 'isruc_ss'
-CAP_SS_NAME = 'cap_ss_name'
+CAP_SS_NAME = 'cap_ss'
 
 # Database split
 TRAIN_SUBSET = 'train'
