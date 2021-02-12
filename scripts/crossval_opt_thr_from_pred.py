@@ -26,9 +26,9 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = ''
+    ckpt_folder = '20210211_cap_init_check'
     id_try_list = [0, 1, 2, 3]
-    dataset_name = constants.MASS_SS_NAME
+    dataset_name = constants.CAP_SS_NAME
     which_expert = 1
 
     dataset_params = {pkeys.FS: 200}
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # Performance settings
     res_thr = 0.02
-    start_thr = 0.1
+    start_thr = 0.2
     end_thr = 0.8
 
     # -----------------------------------------------------------

@@ -46,13 +46,14 @@ def closest_index(single_value, array):
     return np.argmin((single_value - array) ** 2)
 
 
-def get_splits_dict(dataset, seed_id_list):
+def get_splits_dict(dataset, seed_id_list, use_test_set=True):
     ids_dict = {}
     for k in seed_id_list:
         train_ids, val_ids = utils.split_ids_list_v2(
             dataset.train_ids, split_id=k)
         ids_dict[k] = {
             constants.TRAIN_SUBSET: train_ids,
-            constants.VAL_SUBSET: val_ids,
-            constants.TEST_SUBSET: dataset.test_ids}
+            constants.VAL_SUBSET: val_ids}
+        if use_test_set:
+            ids_dict[k][constants.TEST_SUBSET] = dataset.test_ids
     return ids_dict

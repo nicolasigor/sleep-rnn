@@ -1,0 +1,5 @@
+Val AF1 report for 20210211_cap_init_check_n2_train_cap_ss
+AF1 77.44/4.03 [0.5] 78.53/3.74 [0.44, 0.36, 0.42, 0.36], F3 87.59/3.86, P3 87.8/ 6.8, R3 88.1/ 8.2 for v11_mkd2
+
+    os.path.join('20210211_cap_init_check_n2_train_cap_ss', 'v11_mkd2'): [0.44, 0.36, 0.42, 0.36],
+    
