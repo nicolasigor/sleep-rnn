@@ -71,9 +71,7 @@ if __name__ == '__main__':
     model_version_list = [
         constants.V11_MKD2
     ]
-    params_list = list(itertools.product(
-        model_version_list
-    ))
+    # params_list = list(itertools.product(model_version_list))
 
     # Base parameters
     params = pkeys.default_params.copy()
@@ -108,7 +106,7 @@ if __name__ == '__main__':
                 data_val = FeederDataset(
                     dataset, val_ids, task_mode, which_expert=which_expert)
 
-                for model_version in params_list:
+                for model_version in model_version_list:
 
                     params[pkeys.MODEL_VERSION] = model_version
 
