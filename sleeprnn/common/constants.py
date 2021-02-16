@@ -8,6 +8,8 @@ MASS_SS_INV_NAME = 'mass_ss_inv'
 MASS_KC_INV_NAME = 'mass_kc_inv'
 ISRUC_SS_NAME = 'isruc_ss'
 CAP_SS_NAME = 'cap_ss'
+CAP_AGE_SS_NAME = 'cap_age_ss'
+CAP_ALL_SS_NAME = 'cap_all_ss'
 
 # Database split
 TRAIN_SUBSET = 'train'

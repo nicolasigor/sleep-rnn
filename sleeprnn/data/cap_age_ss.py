@@ -29,26 +29,43 @@ KEY_FILE_MARKS = 'file_marks'
 
 # normal subjects, 23-42 year old
 IDS_VALID = [
-    '1-001',
-    '1-002',
-    '1-003',
     '1-004',
-    '1-005',
     '1-006',
     '1-007',
-    '1-008',
     '1-009',
     '1-010',
     '1-011',
     '1-012',
     '1-013',
-    '1-014',
-    '1-015',
-    '1-016',
+    '2-002',
+    '4-001',
+    '4-003',
+    '4-005',
+    '5-003',
+    '5-004',
+    '5-005',
+    '5-007',
+    '5-009',
+    '5-010',
+    '5-011',
+    '5-015',
+    '5-016',
+    '5-017',
+    '5-018',
+    '5-019',
+    '5-020',
+    '5-021',
+    '5-023',
+    '5-028',
+    '5-030',
+    '5-034',
+    '5-036',
+    '5-038',
+    '5-039'
 ]
 
 
-class CapSS(Dataset):
+class CapAgeSS(Dataset):
     """This is a class to manipulate the CAP data EEG dataset.
 
     The sleep spindle marks are detections made by the A7 algorithm:
@@ -96,10 +113,10 @@ class CapSS(Dataset):
             print('Train size: %d.' % len(self.train_ids))
             print('Train subjects: \n', self.train_ids)
 
-        super(CapSS, self).__init__(
+        super(CapAgeSS, self).__init__(
             dataset_dir=PATH_CAP_RELATIVE,
             load_checkpoint=load_checkpoint,
-            dataset_name=constants.CAP_SS_NAME,
+            dataset_name=constants.CAP_AGE_SS_NAME,
             all_ids=self.train_ids,
             event_name=constants.SPINDLE,
             params=params,

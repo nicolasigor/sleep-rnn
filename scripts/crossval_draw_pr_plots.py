@@ -22,7 +22,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    ckpt_folder = '20210211_cap_init_check'
+    ckpt_folder = '20210212_cap_long_training'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None

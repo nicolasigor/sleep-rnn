@@ -47,16 +47,18 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [1]
+    id_try_list = [4, 5, 6]
+
+    train_fraction = 0.86
 
     # ----- Experiment settings
-    experiment_name = 'cap_long_training'
+    experiment_name = 'cap41'
     task_mode_list = [
         constants.N2_RECORD
     ]
 
     dataset_name_list = [
-        constants.CAP_SS_NAME
+        constants.CAP_ALL_SS_NAME
     ]
     which_expert = 1
 
@@ -86,10 +88,9 @@ if __name__ == '__main__':
     params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
     params[pkeys.FC_UNITS] = 128
 
-    # Let it train for a long time without changing the learning rate
     params[pkeys.LEARNING_RATE] = 1e-4
-    params[pkeys.MAX_ITERS] = 30000
-    params[pkeys.ITERS_LR_UPDATE] = 40000
+    params[pkeys.MAX_ITERS] = 90000
+    params[pkeys.ITERS_LR_UPDATE] = 3000
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -102,7 +103,7 @@ if __name__ == '__main__':
                 print('\nUsing validation split %d' % id_try)
                 # Generate split
                 train_ids, val_ids = utils.split_ids_list_v2(
-                    all_train_ids, split_id=id_try)
+                    all_train_ids, split_id=id_try, train_fraction=train_fraction)
 
                 print('Training set IDs:', train_ids)
                 data_train = FeederDataset(

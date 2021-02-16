@@ -10,6 +10,8 @@ from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.isruc_ss import IsrucSS
 from sleeprnn.data.cap_ss import CapSS
+from sleeprnn.data.cap_age_ss import CapAgeSS
+from sleeprnn.data.cap_all_ss import CapAllSS
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), '../..')
 RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
@@ -155,7 +157,9 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
             constants.MASS_SS_NAME,
             constants.INTA_SS_NAME,
             constants.ISRUC_SS_NAME,
-            constants.CAP_SS_NAME
+            constants.CAP_SS_NAME,
+            constants.CAP_AGE_SS_NAME,
+            constants.CAP_ALL_SS_NAME
         ])
     if dataset_name == constants.MASS_SS_NAME:
         dataset = MassSS(
@@ -167,8 +171,11 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
         dataset = IsrucSS(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     elif dataset_name == constants.CAP_SS_NAME:
-        dataset = CapSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+        dataset = CapSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+    elif dataset_name == constants.CAP_AGE_SS_NAME:
+        dataset = CapAgeSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+    elif dataset_name == constants.CAP_ALL_SS_NAME:
+        dataset = CapAllSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     else:
         dataset = IntaSS(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)

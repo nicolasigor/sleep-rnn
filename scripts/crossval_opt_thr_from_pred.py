@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20210211_cap_init_check'
+    ckpt_folder = '20210212_cap_long_training'
     id_try_list = [0, 1, 2, 3]
     dataset_name = constants.CAP_SS_NAME
     which_expert = 1
