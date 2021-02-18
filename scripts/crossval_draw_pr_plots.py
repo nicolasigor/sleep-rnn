@@ -163,7 +163,7 @@ if __name__ == '__main__':
                         marker='o', markersize=markersize_model, label=label, linestyle='None')
                     if show_subject_id:
                         if isinstance(single_id, str):
-                            single_id_to_show = int(single_id[0] + single_id[2:])
+                            single_id_to_show = int(single_id[0] + single_id[3:])
                             subject_id_fontsize = 3
                         else:
                             single_id_to_show = single_id
