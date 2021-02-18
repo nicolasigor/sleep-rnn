@@ -47,12 +47,12 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
 
-    id_try_list = [4, 5, 6]
+    id_try_list = [2, 3]
 
     train_fraction = 0.86
 
     # ----- Experiment settings
-    experiment_name = 'cap41'
+    experiment_name = 'cap_focal'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -88,9 +88,18 @@ if __name__ == '__main__':
     params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
     params[pkeys.FC_UNITS] = 128
 
+    # Training strategy
     params[pkeys.LEARNING_RATE] = 1e-4
     params[pkeys.MAX_ITERS] = 90000
     params[pkeys.ITERS_LR_UPDATE] = 3000
+
+    # Soft focal loss
+    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
+    params[pkeys.ANTIBORDER_AMPLITUDE] = 0
+    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
+    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
+    params[pkeys.SOFT_FOCAL_EPSILON] = 0.25
+    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
