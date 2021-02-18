@@ -163,12 +163,15 @@ if __name__ == '__main__':
                         marker='o', markersize=markersize_model, label=label, linestyle='None')
                     if show_subject_id:
                         if isinstance(single_id, str):
-                            single_id_to_show = int(single_id[2:])
+                            single_id_to_show = int(single_id[0] + single_id[2:])
+                            subject_id_fontsize = 3
                         else:
                             single_id_to_show = single_id
+                            subject_id_fontsize = 4
                         ax.annotate(
                             single_id_to_show, (this_rec, this_pre),
-                            horizontalalignment="center", verticalalignment="center", fontsize=4, color="w")
+                            horizontalalignment="center", verticalalignment="center",
+                            fontsize=subject_id_fontsize, color="w")
         tmp_all_precision = np.array(tmp_all_precision)
         tmp_all_recall = np.array(tmp_all_recall)
         tmp_all_f1_score = 2 * tmp_all_precision * tmp_all_recall / (tmp_all_precision + tmp_all_recall)
