@@ -52,7 +52,7 @@ if __name__ == '__main__':
     train_fraction = 0.86
 
     # ----- Experiment settings
-    experiment_name = 'cap_focal'
+    experiment_name = 'wave_augment'
     task_mode_list = [
         constants.N2_RECORD
     ]
@@ -78,7 +78,6 @@ if __name__ == '__main__':
     # Base parameters
     params = pkeys.default_params.copy()
     params[pkeys.BORDER_DURATION] = 6
-
     # Segment net parameters
     params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
     params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
@@ -87,19 +86,13 @@ if __name__ == '__main__':
     params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
     params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
     params[pkeys.FC_UNITS] = 128
-
     # Training strategy
     params[pkeys.LEARNING_RATE] = 1e-4
     params[pkeys.MAX_ITERS] = 90000
     params[pkeys.ITERS_LR_UPDATE] = 3000
-
-    # Soft focal loss
-    params[pkeys.TYPE_LOSS] = constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5
-    params[pkeys.ANTIBORDER_AMPLITUDE] = 0
-    params[pkeys.ANTIBORDER_HALF_WIDTH] = 6
-    params[pkeys.SOFT_FOCAL_GAMMA] = 3.0
-    params[pkeys.SOFT_FOCAL_EPSILON] = 0.25
-    params[pkeys.CLASS_WEIGHTS] = [1.0, 0.25]
+    # Wave Augment
+    params[pkeys.AUG_RANDOM_WAVES_PROBA] = 1
+    params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA] = 1
 
     for task_mode in task_mode_list:
         for dataset_name in dataset_name_list:
@@ -123,6 +116,55 @@ if __name__ == '__main__':
 
                 for model_version in model_version_list:
 
+                    # Generate parameters for random wave augment
+                    max_amplitude_list = [30, 20, 20, 20]  # uV, needs normalization
+                    min_frequency_list = [1, 2, 5, 8]  # Hz
+                    max_frequency_list = [2, 3, 7, 10]  # Hz
+                    frequency_deviation_list = [0.5, 1, 2, 1]  # Hz
+                    min_duration_list = [3, 2, 1, 1]  # s
+                    max_duration_list = [5, 5, 5, 5]  # s
+                    mask_list = [
+                        constants.MASK_NONE,
+                        constants.MASK_NONE,
+                        constants.MASK_KEEP_BACKGROUND,
+                        constants.MASK_KEEP_BACKGROUND,
+                    ]
+                    random_waves_params = [
+                        dict(
+                            max_amplitude=max_amplitude_list[i] / dataset.global_std,
+                            min_frequency=min_frequency_list[i],
+                            max_frequency=max_frequency_list[i],
+                            frequency_deviation=frequency_deviation_list[i],
+                            min_duration=min_duration_list[i],
+                            max_duration=max_duration_list[i],
+                            mask=mask_list[i])
+                        for i in range(len(max_amplitude_list))
+                    ]
+
+                    # Generate parameters for random anti wave augment
+                    max_attenuation_list = [0.5, 0.5, 1, 1, 1]  # [0, 1]
+                    lowcut_list = [None, 2, 4, 7, 11]  # Hz
+                    highcut_list = [2, 4, 7, 10, 16]  # Hz
+                    min_duration_list = [3, 2, 1, 1, 1]  # s
+                    max_duration_list = [5, 5, 5, 5, 5]  # s
+                    mask_list = [
+                        constants.MASK_NONE,
+                        constants.MASK_NONE,
+                        constants.MASK_KEEP_EVENTS,
+                        constants.MASK_KEEP_EVENTS,
+                        constants.MASK_KEEP_BACKGROUND]
+                    random_anti_waves_params = [
+                        dict(
+                            max_attenuation=max_attenuation_list[i],
+                            lowcut=lowcut_list[i],
+                            highcut=highcut_list[i],
+                            min_duration=min_duration_list[i],
+                            max_duration=max_duration_list[i],
+                            mask=mask_list[i])
+                        for i in range(len(max_attenuation_list))
+                    ]
+                    params[pkeys.AUG_RANDOM_WAVES_PARAMS] = random_waves_params
+                    params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS] = random_anti_waves_params
                     params[pkeys.MODEL_VERSION] = model_version
 
                     folder_name = '%s' % (
