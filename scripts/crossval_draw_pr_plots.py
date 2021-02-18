@@ -36,6 +36,7 @@ if __name__ == '__main__':
     verbose = False
 
     # Plot settings
+    legend_fontsize = 7  # 9
     save_figs = True
     show_subject_id = True
     show_grid = True
@@ -102,7 +103,11 @@ if __name__ == '__main__':
             0: viz.PALETTE[constants.RED],
             1: viz.PALETTE[constants.BLUE],
             2: viz.PALETTE[constants.GREEN],
-            3: viz.PALETTE[constants.DARK]}
+            3: viz.PALETTE[constants.DARK],
+            4: viz.PALETTE[constants.CYAN],
+            5: viz.PALETTE[constants.PURPLE],
+            6: viz.PALETTE[constants.GREY],
+        }
     }
     markersize_model = 6
     axis_markers = np.arange(0, 1.1, 0.1)
@@ -205,7 +210,7 @@ if __name__ == '__main__':
         ax.set_ylabel('Precision (IoU>%1.1f)' % iou_to_show, fontsize=9)
         ax.set_xlabel('Recall (IoU>%1.1f)' % iou_to_show, fontsize=9)
         ax.set_aspect('equal')
-        ax.legend(loc='lower left', fontsize=9)
+        ax.legend(loc='lower left', fontsize=legend_fontsize)
         plt.tight_layout()
         if save_figs:
             fname = os.path.join(save_dir, "pr_seeds_%s.png" % grid_folder)
