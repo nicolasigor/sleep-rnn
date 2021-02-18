@@ -212,6 +212,8 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20210212_cap_long_training_n2_train_cap_ss', 'v11_mkd2'): [0.58, 0.48, 0.44, 0.58],
 
+    os.path.join('20210216_cap41_n2_train_cap_all_ss', 'v11_mkd2'): [0.38, 0.46, 0.42, 0.42, 0.38, 0.40, 0.44],
+
 }
 
 
