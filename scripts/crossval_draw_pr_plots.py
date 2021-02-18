@@ -22,12 +22,13 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    ckpt_folder = '20210212_cap_long_training'
+    ckpt_folder = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
 
-    dataset_name = constants.CAP_SS_NAME
+    dataset_name = constants.CAP_ALL_SS_NAME
+    train_fraction = 0.86
     fs = 200
     which_expert = 1
     task_mode = constants.N2_RECORD
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     # Load data and predictions
     dataset = reader.load_dataset(dataset_name, params={pkeys.FS: fs}, verbose=verbose)
     ids_dict = {constants.ALL_TRAIN_SUBSET: dataset.train_ids}
-    ids_dict.update(misc.get_splits_dict(dataset, seeds_to_show, use_test_set=False))
+    ids_dict.update(misc.get_splits_dict(dataset, seeds_to_show, use_test_set=False, train_fraction=train_fraction))
     predictions_dict = {}
     for grid_folder in grid_folder_list:
         full_grid_path = os.path.join(full_ckpt_folder, grid_folder)
