@@ -94,6 +94,122 @@ class WaveletBLSTM(BaseModel):
                 y_val = y_val[:, ::time_stride]
         return x_train, y_train, x_val, y_val
 
+    def fit_without_validation(
+            self,
+            data_train: FeederDataset,
+            fine_tune=False,
+            extra_data_train=None,
+            verbose=False):
+        """Fits the model to the training data."""
+        border_size = int(
+            self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
+        forced_mark_separation_size = int(
+            self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
+
+        x_train, y_train = data_train.get_data_for_training(
+            border_size=border_size,
+            forced_mark_separation_size=forced_mark_separation_size,
+            verbose=verbose)
+
+        # Transform to numpy arrays
+        x_train = np.concatenate(x_train, axis=0)
+        y_train = np.concatenate(y_train, axis=0)
+
+        # Add extra training data
+        if extra_data_train is not None:
+            x_extra, y_extra = extra_data_train
+            print('CHECK: Sum extra y:', y_extra.sum())
+            print('Current train data x, y:', x_train.shape, y_train.shape)
+            x_train = np.concatenate([x_train, x_extra], axis=0)
+            y_train = np.concatenate([y_train, y_extra], axis=0)
+            print('Extra data to be added x, y:', x_extra.shape, y_extra.shape)
+            print('New train data', x_train.shape, y_train.shape)
+
+        # Shuffle training set
+        x_train, y_train = utils.shuffle_data(x_train, y_train, seed=0)
+
+        print('Training set shape', x_train.shape, y_train.shape)
+        print('Validation set does not exist')
+
+        x_train, y_train, _, _ = self.check_train_inputs(x_train, y_train, x_train.copy(), y_train.copy())
+
+        print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
+        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
+
+        # split set into two parts
+        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(x_train, y_train)
+
+        iter_per_epoch = min(x_train_1.shape[0], x_train_2.shape[0]) // (self.params[pkeys.BATCH_SIZE] / 2)
+
+        niters_init = self.params[pkeys.PRETRAIN_ITERS_INIT]
+        niters_anneal = self.params[pkeys.PRETRAIN_ITERS_ANNEAL]
+        n_lr_updates = self.params[pkeys.PRETRAIN_MAX_LR_UPDATES]
+        total_iters = niters_init + n_lr_updates * niters_anneal
+
+        print('\nBeginning training at logdir "%s"' % self.logdir)
+        print('Batch size %d, Iters per epoch %d, '
+              'Training examples %d, Init iters %d, Annealing iters %d, Total iters %d' %
+              (self.params[pkeys.BATCH_SIZE],
+               iter_per_epoch,
+               x_train.shape[0], niters_init, niters_anneal, total_iters))
+
+        if fine_tune:
+            init_lr = self.params[pkeys.LEARNING_RATE]
+            factor_fine_tune = self.params[pkeys.FACTOR_INIT_LR_FINE_TUNE]
+            init_lr_fine_tune = init_lr * factor_fine_tune
+            self.sess.run(self.reset_optimizer)
+            self.sess.run(tf.assign(self.learning_rate, init_lr_fine_tune))
+            print('Fine tuning with lr %s' % init_lr_fine_tune)
+        else:
+            self._initialize_variables()
+
+        self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
+
+        # Training loop
+        start_time = time.time()
+        nstats = self.params[pkeys.ITERS_STATS]
+        last_elapsed = 0
+        last_it = 0
+        iter_last_lr_update = niters_init - niters_anneal
+
+        for it in range(1, total_iters+1):
+            self._single_train_iteration()
+            if it % nstats == 0 or it == 1 or it == total_iters:
+                # Report stuff. Training report is batch report
+                train_loss, train_metrics, train_summ = self.sess.run(
+                    [self.loss, self.batch_metrics_dict, self.merged],
+                    feed_dict={self.training_ph: False, self.handle_ph: self.handle_train})
+                self.train_writer.add_summary(train_summ, it)
+                elapsed = time.time() - start_time
+                time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
+                last_it = it
+                last_elapsed = elapsed
+                loss_print = ('loss train %1.4f' % train_loss)
+                f1_print = ('f1 train %1.4f' % train_metrics[KEY_F1_SCORE])
+                print('It %6.0d/%d - %s - %s - E.T. %1.2fs (%1.2fs/100it)'
+                      % (it, total_iters, loss_print, f1_print, elapsed, time_rate_per_100))
+            # The last lr update is far enough
+            lr_criterion = (it - iter_last_lr_update) >= niters_anneal
+            if lr_criterion:
+                new_lr = self._update_learning_rate(self.params[pkeys.LR_UPDATE_FACTOR])
+                print('    Learning rate update (%d). New value: %s' % (self.lr_updates, new_lr))
+                iter_last_lr_update = it
+        # Final stats
+        iter_saved_model = total_iters
+        elapsed = time.time() - start_time
+        print('\n\nTotal training time: %1.4f s' % elapsed)
+        print('Ending at iteration %d' % iter_saved_model)
+        save_path = self.saver.save(self.sess, self.ckptdir)
+        print('Model saved at %s' % save_path)
+        last_model = {
+            KEY_ITER: iter_saved_model,
+            KEY_LOSS: 0,
+            KEY_F1_SCORE: 0
+        }
+        # Save last model quick info
+        with open(os.path.join(self.logdir, 'last_model.json'), 'w') as outfile:
+            json.dump(last_model, outfile)
+
     def fit(
             self,
             data_train: FeederDataset,

@@ -348,6 +348,9 @@ FACTOR_INIT_LR_FINE_TUNE = 'factor_init_lr_fine_tune'
 LR_UPDATE_RESET_OPTIMIZER = 'lr_update_reset_optimizer'
 KEEP_BEST_VALIDATION = 'keep_best_validation'
 FORCED_SEPARATION_DURATION = 'forced_separation_duration'
+PRETRAIN_ITERS_INIT = 'pretrain_iters_init'
+PRETRAIN_ITERS_ANNEAL = 'pretrain_iters_anneal'
+PRETRAIN_MAX_LR_UPDATES = 'pretrain_max_lr_updates'
 
 
 """ Postprocessing params 
@@ -585,4 +588,7 @@ default_params = {
     EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS: None,
     EXPERT_BRANCH_REGRESSION_FROM_BLSTM: None,
     EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT: None,
+    PRETRAIN_ITERS_INIT: None,
+    PRETRAIN_ITERS_ANNEAL:  None,
+    PRETRAIN_MAX_LR_UPDATES: 4,
 }
