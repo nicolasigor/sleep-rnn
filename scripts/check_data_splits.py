@@ -70,9 +70,9 @@ def split_train(x_train, y_train, page_size, border_size):
 
 if __name__ == '__main__':
 
-    id_try_list = [i for i in range(7)]
-    train_fraction = 0.86
-    dataset_name = constants.CAP_ALL_SS_NAME
+    id_try_list = [i for i in range(4)]
+    train_fraction = 0.75
+    dataset_name = constants.MASS_SS_NAME
 
     batch_size = 32
     task_mode = constants.N2_RECORD

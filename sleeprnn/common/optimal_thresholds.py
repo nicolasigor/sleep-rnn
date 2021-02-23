@@ -217,6 +217,31 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210218_cap_focal_n2_train_cap_all_ss', 'v11_mkd2'): [0.32, 0.36, 0.34, 0.30, 0.32, 0.32, 0.32],
     
     os.path.join('20210219_wave_augment_n2_train_cap_all_ss', 'v11_mkd2'): [0.38, 0.52, 0.40, 0.40, 0.40, 0.40, 0.46],
+    
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.5_loss-xentropy_from-xentropy'): [0.42, 0.52, 0.50, 0.36],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.1_loss-xentropy_from-xentropy'): [0.40, 0.46, 0.50, 0.40],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.5_loss-focal_from-xentropy'): [0.44, 0.46, 0.48, 0.42],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.5_loss-xentropy_from-focal'): [0.36, 0.46, 0.46, 0.38],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.1_loss-xentropy_from-focal'): [0.40, 0.44, 0.52, 0.40],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.5_loss-xentropy_from-focal'): [0.42, 0.46, 0.48, 0.36],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.5_loss-xentropy_from-xentropy'): [0.48, 0.42, 0.48, 0.36],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.5_loss-focal_from-xentropy'): [0.42, 0.48, 0.48, 0.46],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.1_loss-focal_from-xentropy'): [0.44, 0.46, 0.48, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.1_loss-focal_from-focal'): [0.42, 0.48, 0.48, 0.42],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.5_loss-xentropy_from-focal'): [0.40, 0.50, 0.50, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.5_loss-xentropy_from-xentropy'): [0.44, 0.50, 0.46, 0.38],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.1_loss-xentropy_from-xentropy'): [0.38, 0.48, 0.46, 0.36],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.5_loss-focal_from-focal'): [0.42, 0.46, 0.48, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init1.0_decay0.5_loss-focal_from-focal'): [0.44, 0.48, 0.52, 0.42],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.5_loss-focal_from-xentropy'): [0.46, 0.46, 0.50, 0.42],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.1_loss-focal_from-focal'): [0.42, 0.50, 0.46, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.5_loss-focal_from-focal'): [0.44, 0.50, 0.46, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.1_loss-focal_from-xentropy'): [0.42, 0.48, 0.48, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.5_decay0.1_loss-xentropy_from-focal'): [0.38, 0.46, 0.44, 0.40],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-xentropy_from-focal'): [0.40, 0.44, 0.48, 0.40],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-xentropy_from-xentropy'): [0.38, 0.44, 0.44, 0.40],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-focal_from-focal'): [0.46, 0.44, 0.48, 0.44],
+    os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-focal_from-xentropy'): [0.42, 0.46, 0.46, 0.42],
 
 }
 

@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # Fine-tuning settings
     params[pkeys.LEARNING_RATE] = 1e-4
     params[pkeys.MAX_ITERS] = 30000
-    params[pkeys.ITERS_LR_UPDATE] = 750
+    params[pkeys.ITERS_LR_UPDATE] = 850
     params[pkeys.MAX_LR_UPDATES] = 3
 
     # Soft focal loss setting
