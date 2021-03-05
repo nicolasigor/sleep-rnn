@@ -20,6 +20,7 @@ from sleeprnn.common import constants
 
 def absolute_to_relative_time(abs_time_str, start_time_str):
     start_t = datetime.strptime(start_time_str, '%H:%M:%S')
+    abs_time_str = abs_time_str.replace(".", ":")
     end_t = datetime.strptime(abs_time_str, '%H:%M:%S')
     delta = end_t - start_t
     return delta.seconds
@@ -37,8 +38,8 @@ def get_skiprows_cap_states(states_file_path):
 
 
 CAP_DATA_PATH = "../resources/datasets/unlabeled_cap"
-REC_PATH = os.path.join(CAP_DATA_PATH, "register")
-STATE_PATH = os.path.join(CAP_DATA_PATH, "label/state")
+REC_PATH = os.path.join(CAP_DATA_PATH, "register_all")
+STATE_PATH = os.path.join(CAP_DATA_PATH, "label_all/state")
 save_dir = "../resources/datasets/cap_mat_files"
 
 # Read subject IDs
