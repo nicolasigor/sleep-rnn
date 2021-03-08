@@ -135,7 +135,10 @@ for subject_id in subject_ids:
     total_pages = int(np.ceil(signal_length / page_size))
     stages = ['?'] * total_pages
     for real_loc, real_stage in zip(stages_loc_list, stages_name_list):
-        stages[real_loc] = real_stage
+        try:
+            stages[real_loc] = real_stage
+        except IndexError:
+            print("Subject %s requesting index %d when total pages is %d" % (subject_id, real_loc, total_pages))
     data_dict[subject_id]['hypnogram'] = np.asarray(stages)
 
 # Save
