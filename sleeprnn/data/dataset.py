@@ -102,15 +102,34 @@ class Dataset(object):
             self.custom_scaling_dict = custom_scaling_dict
 
     def compute_global_std(self, subject_ids):
-        x_list = self.get_subset_signals(
-            subject_id_list=subject_ids, normalize_clip=False)
-        tmp_list = []
-        for x in x_list:
+        # Memory-efficient method:
+        # Var(x) = E(x ** 2) - (E(x) ** 2)
+        total_samples = 0
+        sum_x = 0.0
+        sum_x2 = 0.0
+        for subject_id in subject_ids:
+            x = self.get_subject_signal(subject_id, normalize_clip=False)
             outlier_thr = np.percentile(np.abs(x), 99)
-            tmp_signal = x[np.abs(x) <= outlier_thr]
-            tmp_list.append(tmp_signal)
-        all_signals = np.concatenate(tmp_list)
-        global_std = all_signals.std()
+            x = x[np.abs(x) <= outlier_thr]
+            total_samples += x.shape[0]
+            sum_x += np.sum(x)
+            sum_x2 += np.sum(x ** 2)
+        mean_squared_x = sum_x2 / total_samples
+        mean_x = sum_x / total_samples
+        global_variance = mean_squared_x - (mean_x ** 2)
+        global_std = np.sqrt(global_variance)
+
+        # Old method:
+        # x_list = self.get_subset_signals(
+        #     subject_id_list=subject_ids, normalize_clip=False)
+        # tmp_list = []
+        # for x in x_list:
+        #     outlier_thr = np.percentile(np.abs(x), 99)
+        #     tmp_signal = x[np.abs(x) <= outlier_thr]
+        #     tmp_list.append(tmp_signal)
+        # all_signals = np.concatenate(tmp_list)
+        # global_std = all_signals.std()
+
         return global_std
 
     def compute_fft_scaling_factor(self, band=[2, 6]):
