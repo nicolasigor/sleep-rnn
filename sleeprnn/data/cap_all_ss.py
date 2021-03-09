@@ -1,4 +1,4 @@
-"""isruc_ss.py: Defines the CAP class that manipulates the CAP database."""
+"""cap_all_ss.py: Defines the CAP class that manipulates the CAP database."""
 
 from __future__ import absolute_import
 from __future__ import division
