@@ -429,8 +429,11 @@ def fir_freq_response(fir_filter, fs):
     return resp_freq, resp_amp
 
 
-def power_spectrum(signal, fs):
+def power_spectrum(signal, fs, apply_hanning=False):
     """Returns the single-sided power spectrum of the signal using FFT"""
+    if apply_hanning:
+        window_han = np.hanning(signal.size)
+        signal = signal * window_han
     n = signal.size
     y = np.fft.fft(signal)
     y = np.abs(y) / n
