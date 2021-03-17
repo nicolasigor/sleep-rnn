@@ -2,11 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datetime import datetime
 import os
 import time
 
-import mne
 import numpy as np
 import pandas as pd
 
@@ -130,6 +128,31 @@ ALL_IDS = [
     '8-004'
 ]
 IDS_INVALID = ['5-006', '5-027', '5-031', '5-033']
+IDS_INVALID.extend(
+    ['3-002',
+     '3-003',
+     '4-002',
+     '5-001',
+     '6-004',
+     '6-006',
+     '6-007',
+     '7-001',
+     '7-002',
+     '7-003',
+     '7-004',
+     '7-005',
+     '7-007',
+     '7-008',
+     '7-009',
+     '7-010',
+     '7-011',
+     '7-013',
+     '7-014',
+     '7-015',
+     '7-017',
+     '7-020',
+     '8-003',
+     '8-004'])
 
 
 class CapFullSS(Dataset):
@@ -187,9 +210,13 @@ class CapFullSS(Dataset):
             if verbose:
                 print('Global STD set externally:', self.global_std)
         else:
-            self.global_std = self.compute_global_std(self.train_ids)
+            self.global_std = self.compute_global_std(
+                self.train_ids,
+                only_sleep=True,
+                hypnogram_page_size=int(self.original_page_duration * self.fs),
+                sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'])
             if verbose:
-                print('Global STD computed:', self.global_std)
+                print('Global STD computed (only sleep):', self.global_std)
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
@@ -262,6 +289,7 @@ class CapFullSS(Dataset):
     def _read_npz(self, path_eeg_state_file):
         data = np.load(path_eeg_state_file)
         hypnogram = data['hypnogram']
+        hypnogram = self._fix_hypnogram(hypnogram)
         signal = data['signal']
         # Signal is already filtered to 0.1-35 and sampled to 200Hz
         original_fs = data['sampling_rate']
@@ -273,6 +301,12 @@ class CapFullSS(Dataset):
             print('Signal already at required %d Hz' % self.fs)
         signal = signal.astype(np.float32)
         return signal, hypnogram
+
+    def _fix_hypnogram(self, hypno):
+        hypno[hypno == '1S3'] = '?'
+        hypno[hypno == 'MT'] = '?'
+        hypno[hypno == 'REM'] = 'R'
+        return hypno
 
     def _get_n2_pages(self, hypnogram_original):
         signal_total_duration = len(hypnogram_original) * self.original_page_duration

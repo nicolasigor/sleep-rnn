@@ -101,7 +101,7 @@ class Dataset(object):
         else:
             self.custom_scaling_dict = custom_scaling_dict
 
-    def compute_global_std(self, subject_ids):
+    def compute_global_std(self, subject_ids, only_sleep=False, hypnogram_page_size=None, sleep_labels=None):
         # Memory-efficient method:
         # Var(x) = E(x ** 2) - (E(x) ** 2)
         total_samples = 0
@@ -109,6 +109,10 @@ class Dataset(object):
         sum_x2 = 0.0
         for subject_id in subject_ids:
             x = self.get_subject_signal(subject_id, normalize_clip=False)
+            if only_sleep:
+                hypno = self.get_subject_hypnogram(subject_id)
+                pages = np.concatenate([np.where(hypno == lbl)[0] for lbl in sleep_labels])
+                x = utils.extract_pages(x, pages, hypnogram_page_size).flatten()
             outlier_thr = np.percentile(np.abs(x), 99)
             x = x[np.abs(x) <= outlier_thr]
             total_samples += x.shape[0]
