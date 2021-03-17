@@ -249,16 +249,23 @@ class WaveletBLSTM(BaseModel):
             print('New train data', x_train.shape, y_train.shape)
 
         # Shuffle training set
-        x_train, y_train = utils.shuffle_data(
-            x_train, y_train, seed=0)
+        x_train, y_train = utils.shuffle_data(x_train, y_train, seed=0)
 
         print('Training set shape', x_train.shape, y_train.shape)
         print('Validation set shape', x_val.shape, y_val.shape)
 
-        x_train, y_train, x_val, y_val = self.check_train_inputs(
-            x_train, y_train, x_val, y_val)
-        iter_per_epoch = x_train.shape[0] // self.params[pkeys.BATCH_SIZE]
-        niters = self.params[pkeys.MAX_ITERS]
+        x_train, y_train, x_val, y_val = self.check_train_inputs(x_train, y_train, x_val, y_val)
+        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(x_train, y_train)
+
+        batch_size = self.params[pkeys.BATCH_SIZE]
+        iters_resolution = 10
+        n_smallest = min(x_train_1.shape[0], x_train_2.shape[0])
+        iter_per_epoch = int(n_smallest / (batch_size / 2))
+        iter_per_epoch = int((iter_per_epoch // iters_resolution) * iters_resolution)
+
+        niters = self.params[pkeys.MAX_EPOCHS] * iter_per_epoch
+        iters_lr_update = self.params[pkeys.EPOCHS_LR_UPDATE] * iter_per_epoch
+        nstats = iter_per_epoch // self.params[pkeys.STATS_PER_EPOCH]
 
         print('\nBeginning training at logdir "%s"' % self.logdir)
         print('Batch size %d, Iters per epoch %d, '
@@ -268,10 +275,6 @@ class WaveletBLSTM(BaseModel):
                x_train.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
-
-        # split set into two parts
-        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(
-            x_train, y_train)
 
         if fine_tune:
             init_lr = self.params[pkeys.LEARNING_RATE]
@@ -294,9 +297,6 @@ class WaveletBLSTM(BaseModel):
         rel_tol_criterion = self.params[pkeys.REL_TOL_CRITERION]
         iter_last_lr_update = 0
 
-        if self.params[pkeys.MAX_LR_UPDATES] is None:
-            self.params[pkeys.MAX_LR_UPDATES] = 1e15
-
         lr_update_criterion = self.params[pkeys.LR_UPDATE_CRITERION]
         checks.check_valid_value(
             lr_update_criterion,
@@ -305,74 +305,69 @@ class WaveletBLSTM(BaseModel):
 
         # Training loop
         start_time = time.time()
-        nstats = self.params[pkeys.ITERS_STATS]
         last_elapsed = 0
         last_it = 0
         for it in range(1, niters+1):
             self._single_train_iteration()
             if it % nstats == 0 or it == 1 or it == niters:
-                # Report stuff
-                # Training report is batch report
+                metric_msg = 'It %6.0d/%d' % (it, niters)
+                # Train set report (mini-batch)
                 train_loss, train_metrics, train_summ = self.sess.run(
                     [self.loss, self.batch_metrics_dict, self.merged],
-                    feed_dict={self.training_ph: False,
-                               self.handle_ph: self.handle_train})
+                    feed_dict={self.training_ph: False, self.handle_ph: self.handle_train})
                 self.train_writer.add_summary(train_summ, it)
-                # Validation report is entire set
-                val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val)
-                self.val_writer.add_summary(val_summ, it)
-                elapsed = time.time() - start_time
-                time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
-                last_it = it
-                last_elapsed = elapsed
-                loss_print = ('loss train %1.4f val %1.4f'
-                              % (train_loss,
-                                 val_loss))
-                f1_print = ('f1 train %1.4f val %1.4f'
-                            % (train_metrics[KEY_F1_SCORE],
-                               val_metrics[KEY_F1_SCORE]))
-                print('It %6.0d/%d - %s - %s - E.T. %1.2fs (%1.2fs/100it)'
-                      % (it, niters, loss_print, f1_print, elapsed, time_rate_per_100))
+                metric_msg += ' - train loss %1.4f f1 %1.4f' % (train_loss, train_metrics[KEY_F1_SCORE])
+                if it % iter_per_epoch == 0 or it == 1 or it == niters:
+                    # Val set report (whole set)
+                    val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val)
+                    self.val_writer.add_summary(val_summ, it)
+                    metric_msg += ' - val loss %1.4f f1 %1.4f' % (val_loss, val_metrics[KEY_F1_SCORE])
+                    # Time passed
+                    elapsed = time.time() - start_time
+                    time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
+                    last_it = it
+                    last_elapsed = elapsed
+                    metric_msg += ' - E.T. %1.2fs (%1.2fs/100it)' % (elapsed, time_rate_per_100)
+                    print(metric_msg)
 
-                if lr_update_criterion == constants.LOSS_CRITERION:
-                    improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
-                else:
-                    improvement_criterion = val_metrics[KEY_F1_SCORE] > (1.0 + rel_tol_criterion) * model_criterion[KEY_F1_SCORE]
-
-                if improvement_criterion:
-                    # Update last time the improvement criterion was met
-                    model_criterion[KEY_LOSS] = val_loss
-                    model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
-                    model_criterion[KEY_ITER] = it
-
-                    # Save best model
-                    if self.params[pkeys.KEEP_BEST_VALIDATION]:
-                        self.saver.save(self.sess, self.ckptdir)
-
-                # Check LR update criterion
-
-                # The model has not improved enough
-                lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= self.params[pkeys.ITERS_LR_UPDATE]
-                # The last lr update is far enough
-                lr_criterion_2 = (it - iter_last_lr_update) >= self.params[pkeys.ITERS_LR_UPDATE]
-                lr_criterion = lr_criterion_1 and lr_criterion_2
-                if lr_criterion:
-                    if self.lr_updates < self.params[pkeys.MAX_LR_UPDATES]:
-                        # if self.params[pkeys.KEEP_BEST_VALIDATION]:
-                        #     print('Restoring best model before lr update')
-                        #     self.load_checkpoint(self.ckptdir)
-                        new_lr = self._update_learning_rate(
-                            self.params[pkeys.LR_UPDATE_FACTOR])
-                        print('    Learning rate update (%d). New value: %s'
-                              % (self.lr_updates, new_lr))
-                        iter_last_lr_update = it
+                    if lr_update_criterion == constants.LOSS_CRITERION:
+                        improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
                     else:
-                        print('    Maximum number (%d) of learning rate '
-                              'updates reached. Stopping training.'
-                              % self.params[pkeys.MAX_LR_UPDATES])
-                        # Since we stop training, redefine number of iters
-                        niters = it
-                        break
+                        improvement_criterion = val_metrics[KEY_F1_SCORE] > (1.0 + rel_tol_criterion) * model_criterion[KEY_F1_SCORE]
+
+                    if improvement_criterion:
+                        # Update last time the improvement criterion was met
+                        model_criterion[KEY_LOSS] = val_loss
+                        model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
+                        model_criterion[KEY_ITER] = it
+                        # Save best model
+                        if self.params[pkeys.KEEP_BEST_VALIDATION]:
+                            self.saver.save(self.sess, self.ckptdir)
+
+                    # Check LR update criterion
+
+                    # The model has not improved enough
+                    lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= iters_lr_update
+                    # The last lr update is far enough
+                    lr_criterion_2 = (it - iter_last_lr_update) >= iters_lr_update
+                    lr_criterion = lr_criterion_1 and lr_criterion_2
+                    if lr_criterion:
+                        if self.lr_updates < self.params[pkeys.MAX_LR_UPDATES]:
+                            # if self.params[pkeys.KEEP_BEST_VALIDATION]:
+                            #     print('Restoring best model before lr update')
+                            #     self.load_checkpoint(self.ckptdir)
+                            new_lr = self._update_learning_rate(self.params[pkeys.LR_UPDATE_FACTOR])
+                            print('    Learning rate update (%d). New value: %s' % (self.lr_updates, new_lr))
+                            iter_last_lr_update = it
+                        else:
+                            print('    Maximum number (%d) of learning rate '
+                                  'updates reached. Stopping training.'
+                                  % self.params[pkeys.MAX_LR_UPDATES])
+                            # Since we stop training, redefine number of iters
+                            niters = it
+                            break
+                else:
+                    print(metric_msg)
 
         if self.params[pkeys.KEEP_BEST_VALIDATION]:
             iter_saved_model = model_criterion[KEY_ITER]

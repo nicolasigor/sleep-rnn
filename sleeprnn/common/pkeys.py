@@ -351,6 +351,9 @@ FORCED_SEPARATION_DURATION = 'forced_separation_duration'
 PRETRAIN_ITERS_INIT = 'pretrain_iters_init'
 PRETRAIN_ITERS_ANNEAL = 'pretrain_iters_anneal'
 PRETRAIN_MAX_LR_UPDATES = 'pretrain_max_lr_updates'
+MAX_EPOCHS = 'max_epochs'
+STATS_PER_EPOCH = 'stats_per_epoch'
+EPOCHS_LR_UPDATE = 'epochs_lr_update'
 
 
 """ Postprocessing params 
@@ -429,9 +432,9 @@ default_params = {
     MOMENTUM: 0.9,
     USE_NESTEROV_MOMENTUM: False,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,
-    MAX_ITERS: 30000,
-    ITERS_STATS: 50,
-    ITERS_LR_UPDATE: 1000,
+    MAX_ITERS: None,
+    ITERS_STATS: None,
+    ITERS_LR_UPDATE: None,
     REL_TOL_CRITERION: 0.0,
     LR_UPDATE_FACTOR: 0.5,
     LR_UPDATE_CRITERION: constants.LOSS_CRITERION,
@@ -591,4 +594,7 @@ default_params = {
     PRETRAIN_ITERS_INIT: None,
     PRETRAIN_ITERS_ANNEAL:  None,
     PRETRAIN_MAX_LR_UPDATES: 4,
+    MAX_EPOCHS: 150,
+    STATS_PER_EPOCH: 5,
+    EPOCHS_LR_UPDATE: 5,
 }
