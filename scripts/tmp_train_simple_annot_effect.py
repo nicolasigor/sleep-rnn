@@ -30,73 +30,44 @@ from sleeprnn.common import pkeys
 RESULTS_PATH = os.path.join(project_root, 'results')
 
 
-def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
-    if multi_strategy_name == 'dilated':
-        mk_filters = [
-            (kernel_size, block_filters // 2, 1),
-            (kernel_size, block_filters // 4, 2),
-            (kernel_size, block_filters // 8, 4),
-            (kernel_size, block_filters // 8, 8),
-        ]
-    elif multi_strategy_name == 'none':
-        mk_filters = [(kernel_size, block_filters, 1)]
-    else:
-        raise ValueError('strategy "%s" invalid' % multi_strategy_name)
-    return mk_filters
-
-
 if __name__ == '__main__':
     folds = 4
-    which_expert = 1
-    dataset_name = constants.MASS_SS_NAME
-    set_size_list = [11, 8]
+    dataset_name = constants.CAP_FULL_SS_NAME
+    which_expert_list = [1, 2]
 
     id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
 
-    # ----- Experiment settings
-    experiment_name = 'annot_size_effect_%dcv_expert%d' % (folds, which_expert)
-    task_mode = constants.N2_RECORD
-    description_str = 'experiments'
-    verbose = True
+    for which_expert in which_expert_list:
 
-    # Complement experiment folder name with date
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = '%s_%s' % (this_date, experiment_name)
+        # ----- Experiment settings
+        experiment_name = 'annot_effect_%dcv_exp%d' % (folds, which_expert)
+        task_mode = constants.N2_RECORD
+        description_str = 'experiments'
+        verbose = True
 
-    # Grid parameters
-    model_version_list = [
-        constants.V11_MKD2
-    ]
+        # Complement experiment folder name with date
+        this_date = datetime.datetime.now().strftime("%Y%m%d")
+        experiment_name = '%s_%s' % (this_date, experiment_name)
 
-    # Base parameters
-    params = pkeys.default_params.copy()
-    params[pkeys.BORDER_DURATION] = 6
+        # Grid parameters
+        model_version_list = [
+            constants.V11
+        ]
 
-    # Segment net parameters
-    params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
-    params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
-    params[pkeys.TIME_CONV_MK_SKIPS] = False
-    params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
-    params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
-    params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
-    params[pkeys.FC_UNITS] = 128
+        # Base parameters
+        params = pkeys.default_params.copy()
+        params[pkeys.BORDER_DURATION] = 1
+        params[pkeys.MAX_EPOCHS] = 100
+        params[pkeys.EPOCHS_LR_UPDATE] = 4
+        params[pkeys.MAX_LR_UPDATES] = 3
 
-    # Debug
-    params[pkeys.MAX_EPOCHS] = 12
-    params[pkeys.EPOCHS_LR_UPDATE] = 2
+        print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
+        dataset = load_dataset(dataset_name, params=params)
 
-    print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
-    dataset = load_dataset(dataset_name, params=params)
-
-    # Get training set ids
-    all_train_ids = dataset.train_ids
-    # Get a random but reproducible permutation to extract different sizes
-    all_train_ids = np.random.RandomState(seed=0).permutation(all_train_ids)
-
-    for set_size in set_size_list:
-        selected_train_ids = np.sort(all_train_ids[:set_size])
-        print("Selected size %d, selected ids: %s" % (set_size, selected_train_ids))
+        # Get training set ids
+        all_train_ids = dataset.train_ids
+        selected_train_ids = all_train_ids
 
         for id_try in id_try_list:
             print('\nUsing validation split %d' % id_try)
@@ -114,9 +85,7 @@ if __name__ == '__main__':
 
                 params[pkeys.MODEL_VERSION] = model_version
 
-                folder_name = '%s_sample%d' % (
-                    model_version, set_size
-                )
+                folder_name = '%s' % model_version
 
                 base_dir = os.path.join(
                     '%s_%s_train_%s' % (
