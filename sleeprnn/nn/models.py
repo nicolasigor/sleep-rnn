@@ -132,17 +132,17 @@ class WaveletBLSTM(BaseModel):
         print('Validation set does not exist')
 
         x_train, y_train, _, _ = self.check_train_inputs(x_train, y_train, x_train.copy(), y_train.copy())
-
-        print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
-        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
-
-        # split set into two parts
         x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(x_train, y_train)
 
-        iter_per_epoch = min(x_train_1.shape[0], x_train_2.shape[0]) // (self.params[pkeys.BATCH_SIZE] / 2)
+        batch_size = self.params[pkeys.BATCH_SIZE]
+        iters_resolution = 10
+        n_smallest = min(x_train_1.shape[0], x_train_2.shape[0])
+        iter_per_epoch = int(n_smallest / (batch_size / 2))
+        iter_per_epoch = int((iter_per_epoch // iters_resolution) * iters_resolution)
 
-        niters_init = self.params[pkeys.PRETRAIN_ITERS_INIT]
-        niters_anneal = self.params[pkeys.PRETRAIN_ITERS_ANNEAL]
+        nstats = iter_per_epoch // self.params[pkeys.STATS_PER_EPOCH]
+        niters_init = self.params[pkeys.PRETRAIN_EPOCHS_INIT] * iter_per_epoch
+        niters_anneal = self.params[pkeys.PRETRAIN_EPOCHS_ANNEAL] * iter_per_epoch
         n_lr_updates = self.params[pkeys.PRETRAIN_MAX_LR_UPDATES]
         total_iters = niters_init + n_lr_updates * niters_anneal
 
@@ -152,6 +152,8 @@ class WaveletBLSTM(BaseModel):
               (self.params[pkeys.BATCH_SIZE],
                iter_per_epoch,
                x_train.shape[0], niters_init, niters_anneal, total_iters))
+        print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
+        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
 
         if fine_tune:
             init_lr = self.params[pkeys.LEARNING_RATE]
@@ -167,7 +169,6 @@ class WaveletBLSTM(BaseModel):
 
         # Training loop
         start_time = time.time()
-        nstats = self.params[pkeys.ITERS_STATS]
         last_elapsed = 0
         last_it = 0
         iter_last_lr_update = niters_init - niters_anneal

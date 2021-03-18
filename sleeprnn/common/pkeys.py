@@ -354,6 +354,8 @@ PRETRAIN_MAX_LR_UPDATES = 'pretrain_max_lr_updates'
 MAX_EPOCHS = 'max_epochs'
 STATS_PER_EPOCH = 'stats_per_epoch'
 EPOCHS_LR_UPDATE = 'epochs_lr_update'
+PRETRAIN_EPOCHS_INIT = 'pretrain_epochs_init'
+PRETRAIN_EPOCHS_ANNEAL = 'pretrain_epochs_anneal'
 
 
 """ Postprocessing params 
@@ -593,8 +595,10 @@ default_params = {
     EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT: None,
     PRETRAIN_ITERS_INIT: None,
     PRETRAIN_ITERS_ANNEAL:  None,
-    PRETRAIN_MAX_LR_UPDATES: 4,
-    MAX_EPOCHS: 150,
+    PRETRAIN_MAX_LR_UPDATES: 3,
+    MAX_EPOCHS: 100,
     STATS_PER_EPOCH: 5,
     EPOCHS_LR_UPDATE: 5,
+    PRETRAIN_EPOCHS_INIT: None,
+    PRETRAIN_EPOCHS_ANNEAL: None,
 }
