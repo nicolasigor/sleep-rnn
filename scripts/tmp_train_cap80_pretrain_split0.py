@@ -58,13 +58,13 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.V11_MKD2
+        constants.V11
     ]
 
     # Base parameters
     params = pkeys.default_params.copy()
+    params[pkeys.BORDER_DURATION] = 1
     # Segment net parameters
-    params[pkeys.BORDER_DURATION] = 6
     params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
     params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
     params[pkeys.TIME_CONV_MK_SKIPS] = False
