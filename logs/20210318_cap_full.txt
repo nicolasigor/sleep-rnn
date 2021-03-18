@@ -1,0 +1,16 @@
+Expert 1 (A7 with params fitted on MASS-SS-E1-Train)
+
+Val AF1 report for 20210317_annot_effect_4cv_exp1_n2_train_cap_full_ss
+AF1 77.10/0.90 [0.5] 78.46/0.44 [0.32, 0.44, 0.42, 0.36], F3 88.78/0.25, P3 89.5/ 5.3, R3 88.4/ 5.3 for v11
+
+    os.path.join('20210317_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v11'): [0.32, 0.44, 0.42, 0.36],
+
+
+
+Expert 2 (A7 with paper's params)
+
+Val AF1 report for 20210318_annot_effect_4cv_exp2_n2_train_cap_full_ss
+AF1 75.34/1.00 [0.5] 75.89/0.51 [0.42, 0.44, 0.46, 0.34], F3 87.33/0.30, P3 87.4/ 6.0, R3 87.8/ 6.1 for v11
+
+    os.path.join('20210318_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v11'): [0.42, 0.44, 0.46, 0.34],
+

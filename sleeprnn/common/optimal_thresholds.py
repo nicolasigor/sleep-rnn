@@ -242,6 +242,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-xentropy_from-xentropy'): [0.38, 0.44, 0.44, 0.40],
     os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-focal_from-focal'): [0.46, 0.44, 0.48, 0.44],
     os.path.join('20210221_mvp_expert_finetuning_n2_train_mass_ss', 'v11_mkd2_init0.1_decay0.1_loss-focal_from-xentropy'): [0.42, 0.46, 0.46, 0.42],
+    
+    os.path.join('20210317_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v11'): [0.32, 0.44, 0.42, 0.36],
+    os.path.join('20210318_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v11'): [0.42, 0.44, 0.46, 0.34],
 
 }
 
