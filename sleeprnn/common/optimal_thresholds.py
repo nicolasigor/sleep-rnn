@@ -246,6 +246,17 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210317_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v11'): [0.32, 0.44, 0.42, 0.36],
     os.path.join('20210318_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v11'): [0.42, 0.44, 0.46, 0.34],
 
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs40_from-ckpt1'): [0.48, 0.56, 0.42, 0.32],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs20_from-ckpt2'): [0.38, 0.46, 0.58, 0.42],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs40_from-ckpt2'): [0.40, 0.54, 0.56, 0.44],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs10_from-ckpt2'): [0.34, 0.50, 0.50, 0.40],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs20_from-ckpt1'): [0.42, 0.50, 0.32, 0.42],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs10_from-ckpt1'): [0.40, 0.44, 0.44, 0.42],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs5_from-ckpt2'): [0.36, 0.42, 0.42, 0.46],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs5_from-ckpt1'): [0.30, 0.44, 0.48, 0.32],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs1_from-ckpt2'): [0.32, 0.40, 0.42, 0.32],
+    os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs1_from-ckpt1'): [0.20, 0.34, 0.30, 0.26],
+
 }
 
 
