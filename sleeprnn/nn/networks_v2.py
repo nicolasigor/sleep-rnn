@@ -1644,8 +1644,10 @@ def wavelet_blstm_net_v11_mkd2(
         with tf.variable_scope('probabilities'):
             probabilities = tf.nn.softmax(logits)
             tf.summary.histogram('probabilities', probabilities)
-        cwt_prebn = None
-        return logits, probabilities, cwt_prebn
+        other_outputs_dict = {
+            'last_hidden': outputs
+        }
+        return logits, probabilities, other_outputs_dict
 
 
 def stat_net_conv(

@@ -15,7 +15,7 @@ from sleeprnn.common import pkeys
 from sleeprnn.common import constants
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection.predicted_dataset import PredictedDataset
-from sleeprnn.data.utils import pages2seq
+from sleeprnn.data.utils import pages2seq, extract_pages_from_centers
 from . import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -365,6 +365,45 @@ class BaseModel(object):
             if verbose:
                 print('Done', flush=True)
         return probabilities_list
+
+    def predict_tensor_at_samples(self, x, samples, tensor_name='last_hidden'):
+        page_size = self.params[pkeys.PAGE_DURATION] * self.params[pkeys.FS]
+        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        # x is a whole-night signal
+        x = extract_pages_from_centers(x, samples, page_size, border_size)
+        niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
+        niters = int(niters)
+        center_loc = x.shape[1] // 2
+
+        result = []
+        for i in range(niters):
+            start_index = i * self.params[pkeys.BATCH_SIZE]
+            end_index = (i + 1) * self.params[pkeys.BATCH_SIZE]
+            batch = x[start_index:end_index]
+
+            tensors = self.sess.run(
+                self.other_outputs_dict[tensor_name],
+                feed_dict={
+                    self.feats: batch,
+                    self.training_ph: False
+                })
+            tensors_at_center = tensors[:, center_loc]
+            result.append(tensors_at_center)
+        result = np.stack(result, axis=0)
+        return result
+
+    def predict_tensor_at_samples_with_list(self, x_list, samples_list, tensor_name='last_hidden', verbose=False):
+        result_list = []
+        assert len(x_list) == len(samples_list)
+        n = len(x_list)
+        for i in range(n):
+            if verbose:
+                print('Predicting %d / %d ... ' % (i+1, n), end='', flush=True)
+            this_result = self.predict_tensor_at_samples(x_list[i], samples_list[i], tensor_name=tensor_name)
+            result_list.append(this_result)
+            if verbose:
+                print('Done', flush=True)
+        return result_list
 
     def evaluate(self, x, y):
         """Evaluates the model, averaging evaluation metrics over batches."""

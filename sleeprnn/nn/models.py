@@ -1122,3 +1122,4 @@ class WaveletBLSTM(BaseModel):
         # print('Pages with high activity:', x_train_2.shape)
 
         return x_train_1, y_train_1, x_train_2, y_train_2
+

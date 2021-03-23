@@ -444,6 +444,48 @@ def power_spectrum(signal, fs, apply_hanning=False):
     return power, freq
 
 
+def extract_pages_from_centers(sequence, centers, page_size, border_size=0):
+    """Extracts and returns the pages centered at the given set of centers
+    from the sequence, with zero padding if the extracted segment is beyond the limits
+    of the sequence.
+
+    Args:
+        sequence: (1-D Array) sequence from where to extract data.
+        centers: (1-D Array) array of integers indicating the center samples to be extracted.
+        page_size: (int) number of samples in each page.
+        border_size: (Optional, int, defaults to 0) number of samples to be
+            added at each border.
+
+    Returns:
+        segments: (2-D Array) array of shape [n_pages, page_size+2*border_size]
+            that contains the extracted data, where n_pages = len(centers).
+    """
+    sequence = np.asarray(sequence)
+    centers = np.asarray(centers)
+
+    max_sample = np.max(centers) + (page_size // 2) + border_size + 2
+    if max_sample > sequence.size:
+        extended_sequence = np.zeros(max_sample).astype(sequence.dtype)
+        extended_sequence[:sequence.size] = sequence
+    else:
+        extended_sequence = sequence
+
+    segments = []
+    for center in centers:
+        sample_start = center - page_size // 2 - border_size
+        sample_end = sample_start + page_size + 2 * border_size
+        if sample_start < 0:
+            missing_samples = np.abs(sample_start)
+            page_signal = extended_sequence[:sample_end]
+            missing_part = np.zeros(missing_samples).astype(page_signal.dtype)
+            page_signal = np.concatenate([missing_part, page_signal])
+        else:
+            page_signal = extended_sequence[sample_start:sample_end]
+        segments.append(page_signal)
+    segments = np.stack(segments, axis=0)
+    return segments
+
+
 def extract_pages(sequence, pages_indices, page_size, border_size=0):
     """Extracts and returns the given set of pages from the sequence
     with zero padding if border is beyond the end of the sequence.
@@ -451,8 +493,8 @@ def extract_pages(sequence, pages_indices, page_size, border_size=0):
     Args:
         sequence: (1-D Array) sequence from where to extract data.
         pages_indices: (1-D Array) array of indices of pages to be extracted.
-        page_size: (int) number in samples of each page.
-        border_size: (Optional, int,, defaults to 0) number of samples to be
+        page_size: (int) number of samples in each page.
+        border_size: (Optional, int, defaults to 0) number of samples to be
             added at each border.
 
     Returns:
