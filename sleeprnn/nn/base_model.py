@@ -373,7 +373,6 @@ class BaseModel(object):
         x = extract_pages_from_centers(x, samples, page_size, border_size)
         niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
-        center_loc = x.shape[1] // 2
 
         result = []
         for i in range(niters):
@@ -387,6 +386,7 @@ class BaseModel(object):
                     self.feats: batch,
                     self.training_ph: False
                 })
+            center_loc = tensors.shape[1] // 2
             tensors_at_center = tensors[:, center_loc]
             result.append(tensors_at_center)
         result = np.stack(result, axis=0)
