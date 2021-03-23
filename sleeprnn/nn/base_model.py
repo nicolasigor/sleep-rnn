@@ -389,7 +389,7 @@ class BaseModel(object):
             center_loc = tensors.shape[1] // 2
             tensors_at_center = tensors[:, center_loc]
             result.append(tensors_at_center)
-        result = np.stack(result, axis=0)
+        result = np.concatenate(result, axis=0)
         return result
 
     def predict_tensor_at_samples_with_list(self, x_list, samples_list, tensor_name='last_hidden', verbose=False):
