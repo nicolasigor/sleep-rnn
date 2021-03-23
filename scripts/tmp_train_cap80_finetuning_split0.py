@@ -73,14 +73,14 @@ if __name__ == '__main__':
 
     # Grid parameters
     model_version_list = [
-        constants.V11
+        constants.V19
     ]
     n_epochs_list = [
         1, 5, 10, 20, 40
     ]
     pretrained_weights_folder_list = [
-        ('20210318_cap80_pretrain_exp1_n2_train_cap_full_ss/v11', 'ckpt1'),
-        # ('20210318_cap80_pretrain_exp2_n2_train_cap_full_ss/v11', 'ckpt2')
+        ('20210323_cap80_pretrain_exp1_n2_train_cap_full_ss/v19', 'ckpt1'),
+        # ('20210323_cap80_pretrain_exp2_n2_train_cap_full_ss/v19', 'ckpt2')
     ]
     params_list = list(itertools.product(
         model_version_list, n_epochs_list, pretrained_weights_folder_list
