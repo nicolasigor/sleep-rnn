@@ -52,12 +52,12 @@ if __name__ == '__main__':
 
         # Grid parameters
         model_version_list = [
-            constants.V11
+            constants.V19
         ]
 
         # Base parameters
         params = pkeys.default_params.copy()
-        params[pkeys.BORDER_DURATION] = 1
+        params[pkeys.BORDER_DURATION] = 5
         params[pkeys.MAX_EPOCHS] = 100
         params[pkeys.EPOCHS_LR_UPDATE] = 4
         params[pkeys.MAX_LR_UPDATES] = 3
