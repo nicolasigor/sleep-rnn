@@ -33,7 +33,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     folds = 4
     dataset_name = constants.CAP_FULL_SS_NAME
-    which_expert_list = [1, 2]
+    which_expert_list = [1]
 
     id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
