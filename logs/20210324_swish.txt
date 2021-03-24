@@ -1,0 +1,5 @@
+Val AF1 report for 20210324_swish_n2_train_mass_ss
+AF1 65.75/0.89 [0.5] 67.55/2.55 [0.34, 0.46, 0.46, 0.34], F3 80.21/1.76, P3 80.6/ 9.7, R3 81.9/ 9.8 for v11_mkd2_swish
+
+    os.path.join('20210324_swish_n2_train_mass_ss', 'v11_mkd2_swish'): [0.34, 0.46, 0.46, 0.34],
+
