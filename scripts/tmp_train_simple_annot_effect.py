@@ -30,10 +30,25 @@ from sleeprnn.common import pkeys
 RESULTS_PATH = os.path.join(project_root, 'results')
 
 
+def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
+    if multi_strategy_name == 'dilated':
+        mk_filters = [
+            (kernel_size, block_filters // 2, 1),
+            (kernel_size, block_filters // 4, 2),
+            (kernel_size, block_filters // 8, 4),
+            (kernel_size, block_filters // 8, 8),
+        ]
+    elif multi_strategy_name == 'none':
+        mk_filters = [(kernel_size, block_filters, 1)]
+    else:
+        raise ValueError('strategy "%s" invalid' % multi_strategy_name)
+    return mk_filters
+
+
 if __name__ == '__main__':
     folds = 4
     dataset_name = constants.CAP_FULL_SS_NAME
-    which_expert_list = [1]
+    which_expert_list = [1, 2]
 
     id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
@@ -52,12 +67,23 @@ if __name__ == '__main__':
 
         # Grid parameters
         model_version_list = [
-            constants.V19
+            constants.V11_MKD2
         ]
 
         # Base parameters
         params = pkeys.default_params.copy()
-        params[pkeys.BORDER_DURATION] = 5
+        params[pkeys.BORDER_DURATION] = 6
+
+        # Segment net parameters
+        params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
+        params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
+        params[pkeys.TIME_CONV_MK_SKIPS] = False
+        params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
+        params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
+        params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
+        params[pkeys.FC_UNITS] = 128
+
+        # Training settings
         params[pkeys.MAX_EPOCHS] = 100
         params[pkeys.EPOCHS_LR_UPDATE] = 4
         params[pkeys.MAX_LR_UPDATES] = 3
