@@ -40,3 +40,45 @@ AF1 55.44/4.27 [0.5] 60.91/2.74 [0.20, 0.34, 0.30, 0.26], F3 76.95/2.26, P3 74.2
     os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs1_from-ckpt2'): [0.32, 0.40, 0.42, 0.32],
     os.path.join('20210318_cap80_finetuning_n2_train_mass_ss', 'v11_epochs1_from-ckpt1'): [0.20, 0.34, 0.30, 0.26],
 
+
+NOW USING V19 - Expert 1 (A7 with params fitted on MASS-SS-E1-Train)
+
+Val AF1 report for 20210323_annot_effect_4cv_exp1_n2_train_cap_full_ss
+AF1 77.85/0.63 [0.5] 78.68/0.68 [0.46, 0.38, 0.44, 0.40], F3 88.82/0.45, P3 89.2/ 5.4, R3 88.8/ 4.8 for v19
+
+    os.path.join('20210323_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v19'): [0.46, 0.38, 0.44, 0.40],
+
+
+NOW USING V19 - Expert 2 (A7 with paper's params)
+
+Val AF1 report for 20210323_annot_effect_4cv_exp2_n2_train_cap_full_ss
+AF1 75.65/1.02 [0.5] 76.21/0.47 [0.42, 0.48, 0.48, 0.36], F3 87.58/0.31, P3 88.0/ 6.2, R3 87.8/ 6.2 for v19
+
+    os.path.join('20210323_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v19'): [0.42, 0.48, 0.48, 0.36],
+
+
+NOW USING V19 - FINETUNING ON MASS-SS-E1
+
+Val AF1 report for 20210323_cap80_finetuning_n2_train_mass_ss
+AF1 66.33/1.56 [0.5] 67.86/2.60 [0.36, 0.48, 0.56, 0.40], F3 80.86/2.38, P3 78.8/ 8.9, R3 84.7/ 7.8 for v19_epochs20_from-ckpt2
+AF1 66.44/2.67 [0.5] 67.31/2.73 [0.38, 0.54, 0.50, 0.52], F3 80.00/1.93, P3 79.6/10.0, R3 82.6/10.2 for v19_epochs20_from-ckpt1
+AF1 66.40/2.19 [0.5] 67.28/2.86 [0.48, 0.48, 0.56, 0.32], F3 79.69/2.34, P3 78.7/ 9.6, R3 82.6/ 8.7 for v19_epochs40_from-ckpt1
+AF1 66.24/2.25 [0.5] 67.23/2.56 [0.38, 0.52, 0.50, 0.48], F3 80.33/1.90, P3 79.1/ 9.3, R3 83.5/ 9.7 for v19_epochs10_from-ckpt1
+AF1 67.12/3.09 [0.5] 67.17/3.15 [0.52, 0.54, 0.34, 0.48], F3 79.96/2.96, P3 78.9/10.0, R3 82.9/ 8.3 for v19_epochs40_from-ckpt2
+AF1 66.19/1.98 [0.5] 66.93/2.47 [0.38, 0.48, 0.42, 0.48], F3 80.11/1.80, P3 78.9/ 9.5, R3 83.5/10.2 for v19_epochs10_from-ckpt2
+AF1 64.48/2.97 [0.5] 65.92/2.72 [0.34, 0.48, 0.54, 0.48], F3 79.79/2.21, P3 77.6/ 9.3, R3 84.0/ 9.3 for v19_epochs5_from-ckpt2
+AF1 64.13/1.95 [0.5] 65.65/2.52 [0.42, 0.42, 0.54, 0.36], F3 79.19/1.70, P3 78.1/ 9.7, R3 82.6/11.0 for v19_epochs5_from-ckpt1
+AF1 58.66/2.42 [0.5] 61.13/2.92 [0.32, 0.42, 0.44, 0.36], F3 77.58/3.30, P3 70.9/ 9.3, R3 87.1/ 4.6 for v19_epochs1_from-ckpt2
+AF1 54.95/3.21 [0.5] 60.82/2.95 [0.22, 0.30, 0.26, 0.22], F3 77.39/2.71, P3 74.1/ 9.8, R3 83.1/10.0 for v19_epochs1_from-ckpt1
+
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs20_from-ckpt2'): [0.36, 0.48, 0.56, 0.40],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs20_from-ckpt1'): [0.38, 0.54, 0.50, 0.52],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs40_from-ckpt1'): [0.48, 0.48, 0.56, 0.32],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs10_from-ckpt1'): [0.38, 0.52, 0.50, 0.48],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs40_from-ckpt2'): [0.52, 0.54, 0.34, 0.48],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs10_from-ckpt2'): [0.38, 0.48, 0.42, 0.48],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs5_from-ckpt2'): [0.34, 0.48, 0.54, 0.48],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs5_from-ckpt1'): [0.42, 0.42, 0.54, 0.36],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs1_from-ckpt2'): [0.32, 0.42, 0.44, 0.36],
+    os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs1_from-ckpt1'): [0.22, 0.30, 0.26, 0.22],
+
