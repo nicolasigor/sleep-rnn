@@ -1166,6 +1166,8 @@ def conv1d_prebn_block_with_dilation(
         downsampling=constants.MAXPOOL,
         reuse=False,
         kernel_init=None,
+        activation_fn=tf.nn.relu,
+        use_scale_at_bn=False,
         name=None
 ):
     checks.check_valid_value(
@@ -1195,8 +1197,8 @@ def conv1d_prebn_block_with_dilation(
         if batchnorm:
             outputs = batchnorm_layer(
                 outputs, 'bn_1', batchnorm=batchnorm,
-                reuse=reuse, training=training, scale=False)
-        outputs = tf.nn.relu(outputs)
+                reuse=reuse, training=training, scale=use_scale_at_bn)
+        outputs = activation_fn(outputs)
 
         # Optional dropout between convolutions
         if dropout:
@@ -1216,8 +1218,8 @@ def conv1d_prebn_block_with_dilation(
         if batchnorm:
             outputs = batchnorm_layer(
                 outputs, 'bn_2', batchnorm=batchnorm,
-                reuse=reuse, training=training, scale=False)
-        outputs = tf.nn.relu(outputs)
+                reuse=reuse, training=training, scale=use_scale_at_bn)
+        outputs = activation_fn(outputs)
 
         # Pooling
         outputs = pooling1d(outputs, pooling)

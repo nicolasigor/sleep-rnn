@@ -248,3 +248,4 @@ V36 = 'v36'  # Based on RED-Time but with bandpass filtering and independent con
 V11_ATT = 'v11_att'  # RED-Time with attention at output layer
 V11_MKD2_EXPERTMOD = "v11_mkd2_expertmod"  # V11_MKD2 but with expert modulation
 V11_MKD2_EXPERTREG = "v11_mkd2_expertreg"  # V11_MKD2 but with expert regression
+V11_MKD2_SWISH = 'v11_mkd2_swish'  # v11-mkd2 but with swish activation instead of relu

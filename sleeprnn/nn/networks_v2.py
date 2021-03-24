@@ -2663,3 +2663,174 @@ def wavelet_blstm_net_v11_mkd2_expertreg(
         }
 
     return logits, probabilities, other_outputs_dict
+
+
+def wavelet_blstm_net_v11_mkd2_swish(
+        inputs,
+        params,
+        training,
+        name='model_v11_mkd2_swish'
+):
+    print('Using model V11-MKD-2-SWISH (Time-Domain with multi-dilated convolutions, border crop AFTER lstm)')
+    with tf.variable_scope(name):
+        # Transform [batch, time_len] -> [batch, time_len, 1]
+        inputs = tf.expand_dims(inputs, axis=2)
+
+        # BN at input
+        outputs = layers.batchnorm_layer(
+            inputs, 'bn_input',
+            batchnorm=params[pkeys.TYPE_BATCHNORM],
+            training=training)
+
+        # 1D convolutions expect shape [batch, time_len, n_feats]
+
+        # Convolutional stage (standard feed-forward)
+        drop_rate_conv = params[pkeys.TIME_CONV_MK_DROP_RATE]
+        drop_rate_conv = 0 if (drop_rate_conv is None) else drop_rate_conv
+        drop_conv = params[pkeys.TYPE_DROPOUT] if (drop_rate_conv > 0) else None
+
+        print("Conv dropout type %s and rate %s" % (drop_conv, drop_rate_conv))
+        print("Projection first flag: %s" % params[pkeys.TIME_CONV_MK_PROJECT_FIRST])
+
+        print("First convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_1]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs,
+                n_filters,
+                training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=tf.initializers.he_normal(),
+                activation_fn=tf.nn.swish,
+                use_scale_at_bn=True,
+                name='convblock_1d_k%d_d%d_1' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_1 = tf.concat(tmp_out_list, axis=-1)
+
+        print("Second convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_2]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs_1,
+                n_filters,
+                training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=tf.initializers.he_normal(),
+                activation_fn=tf.nn.swish,
+                use_scale_at_bn=True,
+                name='convblock_1d_k%d_d%d_2' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_2 = tf.concat(tmp_out_list, axis=-1)
+
+        print("Third convolutional block")
+        tmp_out_list = []
+        for kernel_size, n_filters, dilation in params[pkeys.TIME_CONV_MKD_FILTERS_3]:
+            print("    k %d, f %d and d %d" % (kernel_size, n_filters, dilation))
+            tmp_out = layers.conv1d_prebn_block_with_dilation(
+                outputs_2,
+                n_filters,
+                training,
+                kernel_size=kernel_size,
+                dilation=dilation,
+                batchnorm=params[pkeys.TYPE_BATCHNORM],
+                downsampling=params[pkeys.CONV_DOWNSAMPLING],
+                dropout=drop_conv,
+                drop_rate=drop_rate_conv,
+                kernel_init=tf.initializers.he_normal(),
+                activation_fn=tf.nn.swish,
+                use_scale_at_bn=True,
+                name='convblock_1d_k%d_d%d_3' % (kernel_size, dilation))
+            tmp_out_list.append(tmp_out)
+        outputs_3 = tf.concat(tmp_out_list, axis=-1)
+
+        if params[pkeys.TIME_CONV_MK_SKIPS]:
+            print("Passing feature pyramid to LSTM")
+            # outputs_1 needs 2 additional pooling
+            outputs_1 = tf.expand_dims(outputs_1, axis=2)
+            outputs_1 = tf.layers.average_pooling2d(inputs=outputs_1, pool_size=(4, 1), strides=(4, 1))
+            outputs_1 = tf.squeeze(outputs_1, axis=2, name="squeeze")
+            # outputs_2 needs 1 additional pooling
+            outputs_2 = tf.expand_dims(outputs_2, axis=2)
+            outputs_2 = tf.layers.average_pooling2d(inputs=outputs_2, pool_size=(2, 1), strides=(2, 1))
+            outputs_2 = tf.squeeze(outputs_2, axis=2, name="squeeze")
+            # Concat each block for multi-scale features
+            outputs = tf.concat([outputs_1, outputs_2, outputs_3], axis=-1)
+        else:
+            print("Passing last output to LSTM")
+            # Just the last output
+            outputs = outputs_3
+
+        border_duration_to_crop_after_conv = 1
+        border_duration_to_crop_after_lstm = params[pkeys.BORDER_DURATION] - border_duration_to_crop_after_conv
+
+        border_crop = int(border_duration_to_crop_after_conv * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Multilayer BLSTM (2 layers)
+        outputs = layers.multilayer_lstm_block(
+            outputs,
+            params[pkeys.INITIAL_LSTM_UNITS],
+            n_layers=2,
+            num_dirs=constants.BIDIRECTIONAL,
+            dropout_first_lstm=params[pkeys.TYPE_DROPOUT],
+            dropout_rest_lstm=params[pkeys.TYPE_DROPOUT],
+            drop_rate_first_lstm=params[pkeys.DROP_RATE_BEFORE_LSTM],
+            drop_rate_rest_lstm=params[pkeys.DROP_RATE_HIDDEN],
+            training=training,
+            name='multi_layer_blstm')
+
+        # Now crop the rest
+        border_crop = int(border_duration_to_crop_after_lstm * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        if border_crop <= 0:
+            end_crop = None
+        else:
+            end_crop = -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        if params[pkeys.FC_UNITS] > 0:
+            # Additional FC layer to increase model flexibility
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.swish,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        other_outputs_dict = {
+            'last_hidden': outputs
+        }
+        return logits, probabilities, other_outputs_dict
