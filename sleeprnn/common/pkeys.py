@@ -281,6 +281,16 @@ EXPERT_BRANCH_MODULATION_APPLY_SIGMOID_SCALE = 'expert_branch_modulation_apply_s
 EXPERT_BRANCH_REGRESSION_HIDDEN_UNITS = 'expert_branch_regression_hidden_units'
 EXPERT_BRANCH_REGRESSION_FROM_BLSTM = "expert_branch_regression_from_blstm"
 EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT = "expert_branch_regression_loss_coefficient"
+BIGGER_STEM_KERNEL_SIZE = 'bigger_stem_kernel_size'
+BIGGER_STEM_FILTERS = 'bigger_stem_filters'
+BIGGER_BLOCKS_KERNEL_SIZE = 'bigger_blocks_kernel_size'
+BIGGER_STAGE_1_SIZE = 'bigger_stage_1_size'
+BIGGER_STAGE_2_SIZE = 'bigger_stage_2_size'
+BIGGER_STAGE_3_SIZE = 'bigger_stage_3_size'
+BIGGER_MAX_DILATION = 'bigger_max_dilation'
+BIGGER_LSTM_1_SIZE = 'bigger_lstm_1_size'
+BIGGER_LSTM_2_SIZE = 'bigger_lstm_2_size'
+
 
 """ Loss params
 

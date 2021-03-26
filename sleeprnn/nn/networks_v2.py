@@ -2834,3 +2834,159 @@ def wavelet_blstm_net_v11_mkd2_swish(
             'last_hidden': outputs
         }
         return logits, probabilities, other_outputs_dict
+
+
+def wavelet_blstm_net_v41(
+        inputs,
+        params,
+        training,
+        name='model_v41'
+):
+    print('Using model V41 (Time-Domain with residual (potentially dilated) stages, border crop AFTER lstm)')
+    with tf.variable_scope(name):
+        inputs = tf.expand_dims(inputs, axis=2)  # [batch, time_len, 1]
+        outputs = layers.batchnorm_layer(inputs, 'bn_input', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training)
+
+        with tf.variable_scope("conv1"):
+            outputs = tf.keras.layers.Conv1D(
+                filters=params[pkeys.BIGGER_STEM_FILTERS],
+                kernel_size=params[pkeys.BIGGER_STEM_KERNEL_SIZE],
+                padding=constants.PAD_SAME,
+                use_bias=False,
+                kernel_initializer=tf.initializers.he_normal(),
+                name='conv%d' % params[pkeys.BIGGER_STEM_KERNEL_SIZE])(outputs)
+            outputs = layers.batchnorm_layer(
+                outputs, 'bn', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
+
+        # Residual blocks
+        stage_sizes = [
+            params[pkeys.BIGGER_STAGE_1_SIZE],
+            params[pkeys.BIGGER_STAGE_2_SIZE],
+            params[pkeys.BIGGER_STAGE_3_SIZE]
+        ]
+        last_stage = 3 if stage_sizes[2] > 0 else 2
+        for stage in range(3):
+            stage_num = stage + 1
+            stage_filters = params[pkeys.BIGGER_STEM_FILTERS] * (2 ** stage_num)
+            stage_kernel_size = params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE]
+            outputs = tf.keras.layers.AvgPool1D(name='pool%d' % stage_num)(outputs)
+            dilation_base = 2 if stage_num == last_stage else 1
+            for i in range(stage_sizes[stage]):
+                block_num = i + 1
+                dilation_rate = dilation_base ** i
+                dilation_rate = min(dilation_rate, params[pkeys.BIGGER_MAX_DILATION])
+                is_first_block = (stage_num == 1) and (block_num == 1)
+
+                with tf.variable_scope("stage%d-%d" % (stage_num, block_num)):
+
+                    shortcut = outputs
+
+                    if not is_first_block:
+                        outputs = layers.batchnorm_layer(
+                            outputs, 'bn-a', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                        outputs = tf.nn.relu(outputs)
+
+                    outputs = tf.keras.layers.Conv1D(
+                        filters=stage_filters,
+                        kernel_size=stage_kernel_size,
+                        padding=constants.PAD_SAME,
+                        dilation_rate=dilation_rate,
+                        use_bias=False,
+                        kernel_initializer=tf.initializers.he_normal(),
+                        name='conv%d-d%d-a' % (stage_kernel_size, dilation_rate))(outputs)
+
+                    outputs = layers.batchnorm_layer(
+                        outputs, 'bn-b', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                    outputs = tf.nn.relu(outputs)
+
+                    outputs = tf.keras.layers.Conv1D(
+                        filters=stage_filters,
+                        kernel_size=stage_kernel_size,
+                        padding=constants.PAD_SAME,
+                        dilation_rate=dilation_rate,
+                        use_bias=False,
+                        kernel_initializer=tf.initializers.he_normal(),
+                        name='conv%d-d%d-b' % (stage_kernel_size, dilation_rate))(outputs)
+
+                    if block_num == 1:
+                        shortcut = tf.keras.layers.Conv1D(
+                            filters=stage_filters,
+                            kernel_size=1,
+                            padding=constants.PAD_SAME,
+                            use_bias=False,
+                            kernel_initializer=tf.initializers.he_normal(),
+                            name='project')(shortcut)
+
+                    outputs = outputs + shortcut
+
+                    if (stage_num == last_stage) and (block_num == stage_sizes[stage]):
+                        # Finish residuals
+                        outputs = layers.batchnorm_layer(
+                            outputs, 'bn-c', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                        outputs = tf.nn.relu(outputs)
+
+        border_duration_to_crop_after_conv = 1
+        border_duration_to_crop_after_lstm = params[pkeys.BORDER_DURATION] - border_duration_to_crop_after_conv
+
+        border_crop = int(border_duration_to_crop_after_conv * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Lstm - First layer
+        if params[pkeys.BIGGER_LSTM_1_SIZE] > 0:
+            outputs = layers.lstm_layer(
+                outputs,
+                num_units=params[pkeys.BIGGER_LSTM_1_SIZE],
+                num_dirs=constants.BIDIRECTIONAL,
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM],
+                training=training,
+                name='lstm_1')
+        # Lstm - Second layer
+        if params[pkeys.BIGGER_LSTM_2_SIZE] > 0:
+            outputs = layers.lstm_layer(
+                outputs,
+                num_units=params[pkeys.BIGGER_LSTM_2_SIZE],
+                num_dirs=constants.BIDIRECTIONAL,
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                name='lstm_2')
+
+        # Now crop the rest
+        border_crop = int(border_duration_to_crop_after_lstm * params[pkeys.FS] // 8)
+        start_crop = border_crop
+        end_crop = None if (border_crop <= 0) else -border_crop
+        outputs = outputs[:, start_crop:end_crop]
+
+        # Additional FC layer to increase model flexibility
+        if params[pkeys.FC_UNITS] > 0:
+            outputs = layers.sequence_fc_layer(
+                outputs,
+                params[pkeys.FC_UNITS],
+                kernel_init=tf.initializers.he_normal(),
+                dropout=params[pkeys.TYPE_DROPOUT],
+                drop_rate=params[pkeys.DROP_RATE_HIDDEN],
+                training=training,
+                activation=tf.nn.swish,
+                name='fc_1')
+
+        # Final FC classification layer
+        logits = layers.sequence_output_2class_layer(
+            outputs,
+            kernel_init=tf.initializers.he_normal(),
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_OUTPUT],
+            training=training,
+            init_positive_proba=params[pkeys.INIT_POSITIVE_PROBA],
+            name='logits')
+
+        with tf.variable_scope('probabilities'):
+            probabilities = tf.nn.softmax(logits)
+            tf.summary.histogram('probabilities', probabilities)
+        other_outputs_dict = {
+            'last_hidden': outputs
+        }
+        return logits, probabilities, other_outputs_dict
