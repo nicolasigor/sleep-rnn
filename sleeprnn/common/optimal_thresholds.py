@@ -272,6 +272,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210323_cap80_finetuning_n2_train_mass_ss', 'v19_epochs1_from-ckpt1'): [0.22, 0.30, 0.26, 0.22],
 
     os.path.join('20210324_swish_n2_train_mass_ss', 'v11_mkd2_swish'): [0.34, 0.46, 0.46, 0.34],
+    
+    os.path.join('20210324_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v11_mkd2'): [0.34, 0.40, 0.38, 0.32],
+    os.path.join('20210325_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v11_mkd2'): [0.44, 0.46, 0.38, 0.34],
 
 }
 
