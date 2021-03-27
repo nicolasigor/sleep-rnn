@@ -70,9 +70,9 @@ if __name__ == '__main__':
             constants.V41
         ]
         middle_stage_size_list = [
-            6,
+            # 6,
             # 3,
-            # 0
+            0
         ]
         last_stage_size_dil_list = [
             (5, True),
