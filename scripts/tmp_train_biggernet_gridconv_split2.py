@@ -62,7 +62,7 @@ if __name__ == '__main__':
         verbose = True
 
         # Complement experiment folder name with date
-        this_date = datetime.datetime.now().strftime("%Y%m%d")
+        this_date = '20210326'  # datetime.datetime.now().strftime("%Y%m%d")
         experiment_name = '%s_%s' % (this_date, experiment_name)
 
         # Grid parameters
@@ -156,6 +156,10 @@ if __name__ == '__main__':
                 # Path to save results of run
                 logdir = os.path.join(RESULTS_PATH, base_dir)
                 print('This run directory: %s' % logdir)
+
+                if os.path.isdir(logdir):
+                    print("Already exists: Skipping %s" % logdir)
+                    continue
 
                 # Create and train model
                 model = WaveletBLSTM(params=params, logdir=logdir)
