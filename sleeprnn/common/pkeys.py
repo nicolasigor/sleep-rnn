@@ -290,7 +290,8 @@ BIGGER_STAGE_3_SIZE = 'bigger_stage_3_size'
 BIGGER_MAX_DILATION = 'bigger_max_dilation'
 BIGGER_LSTM_1_SIZE = 'bigger_lstm_1_size'
 BIGGER_LSTM_2_SIZE = 'bigger_lstm_2_size'
-
+BIGGER_ATT_N_BLOCKS = 'bigger_att_n_blocks'
+BIGGER_ATT_TYPE_NORM = 'bigger_att_type_norm'
 
 """ Loss params
 
@@ -611,4 +612,15 @@ default_params = {
     EPOCHS_LR_UPDATE: 5,
     PRETRAIN_EPOCHS_INIT: None,
     PRETRAIN_EPOCHS_ANNEAL: None,
+    BIGGER_STEM_KERNEL_SIZE: None,
+    BIGGER_STEM_FILTERS: None,
+    BIGGER_BLOCKS_KERNEL_SIZE: None,
+    BIGGER_STAGE_1_SIZE: None,
+    BIGGER_STAGE_2_SIZE: None,
+    BIGGER_STAGE_3_SIZE: None,
+    BIGGER_MAX_DILATION: None,
+    BIGGER_LSTM_1_SIZE: None,
+    BIGGER_LSTM_2_SIZE: None,
+    BIGGER_ATT_N_BLOCKS: None,
+    BIGGER_ATT_TYPE_NORM: None,
 }

@@ -2589,8 +2589,37 @@ def naive_multihead_attention_layer(queries, keys, values, n_heads, name=None):
 
 
 def multihead_attention_layer(queries, keys, values, n_heads, name=None):
-    # TODO: implement multi-head concatenating heads along the batch size (more efficient)
-    pass
+    with tf.variable_scope(name):
+        # inputs shape [batch, seq_len, n_feats]
+        seq_len = queries.get_shape().as_list()[1]
+        d_model = queries.get_shape().as_list()[2]
+        depth = d_model // n_heads
+
+        # Divide into heads: (batch_size, num_heads, seq_len, depth)
+        queries = tf.reshape(queries, (-1, seq_len, n_heads, depth))
+        q = tf.transpose(queries, perm=[0, 2, 1, 3])
+
+        keys = tf.reshape(keys, (-1, seq_len, n_heads, depth))
+        k = tf.transpose(keys, perm=[0, 2, 1, 3])
+
+        values = tf.reshape(values, (-1, seq_len, n_heads, depth))
+        v = tf.transpose(values, perm=[0, 2, 1, 3])
+
+        # Compute scaled attention
+        matmul_qk = tf.matmul(q, k, transpose_b=True)  # (..., seq_len_q, seq_len_k)
+        # scale matmul_qk
+        dk = tf.cast(tf.shape(k)[-1], tf.float32)
+        scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)
+        attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
+        outputs = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
+        # outputs.shape == (batch_size, num_heads, seq_len_q, depth)
+
+        # Concatenate heads
+        scaled_attention = tf.transpose(outputs, perm=[0, 2, 1, 3])
+        # (batch_size, seq_len, num_heads, depth)
+        concat_attention = tf.reshape(scaled_attention, (-1, seq_len, d_model))
+        # (batch_size, seq_len, d_model)
+    return concat_attention, attention_weights
 
 
 def tcn_block(
