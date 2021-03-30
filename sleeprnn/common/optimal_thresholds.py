@@ -275,6 +275,25 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     
     os.path.join('20210324_annot_effect_4cv_exp1_n2_train_cap_full_ss', 'v11_mkd2'): [0.34, 0.40, 0.38, 0.32],
     os.path.join('20210325_annot_effect_4cv_exp2_n2_train_cap_full_ss', 'v11_mkd2'): [0.44, 0.46, 0.38, 0.34],
+    
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-04-00_d8'): [0.28, 0.28, 0.38, 0.34],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-03-00_d8'): [0.30, 0.32, 0.34, 0.36],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-03_d4'): [0.28, 0.34, 0.30, 0.28],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-03_d4'): [0.26, 0.32, 0.32, 0.30],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-09_d1'): [0.32, 0.30, 0.34, 0.32],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-06_d1'): [0.30, 0.40, 0.40, 0.30],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-05-00_d8'): [0.24, 0.42, 0.30, 0.36],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-04_d4'): [0.26, 0.34, 0.36, 0.34],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-05_d4'): [0.32, 0.38, 0.34, 0.26],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-06_d1'): [0.36, 0.38, 0.30, 0.38],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-04_d4'): [0.30, 0.26, 0.30, 0.30],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-03_d1'): [0.36, 0.42, 0.28, 0.26],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-03_d1'): [0.34, 0.44, 0.32, 0.30],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-03-09_d1'): [0.32, 0.34, 0.32, 0.32],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f32_02-06-05_d4'): [0.32, 0.36, 0.28, 0.32],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-06-00_d1'): [0.40, 0.42, 0.38, 0.36],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-09-00_d1'): [0.32, 0.32, 0.38, 0.42],
+    os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-03-00_d1'): [0.32, 0.36, 0.32, 0.36],
 
 }
 
