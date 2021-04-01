@@ -26,9 +26,12 @@ if __name__ == '__main__':
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
+    # You may specify certain seeds within the experiment to plot.
+    # If None, then all available seeds are plotted
+    selected_seeds = None
 
-    dataset_name = constants.CAP_ALL_SS_NAME
-    train_fraction = 0.86
+    dataset_name = constants.MASS_SS_NAME
+    train_fraction = 0.75
     fs = 200
     which_expert = 1
     task_mode = constants.N2_RECORD
@@ -36,8 +39,9 @@ if __name__ == '__main__':
     verbose = False
 
     # Plot settings
-    legend_fontsize = 7  # 9
+    legend_fontsize = 9  # 7
     save_figs = True
+    show_splits_id = True
     show_subject_id = True
     show_grid = True
     show_desired_attractor = True
@@ -45,6 +49,8 @@ if __name__ == '__main__':
     show_quadrants = True
     skip_subjects = []  # [11, 14, 19]
     iou_to_show = 0.2
+    marker_size = 7
+    marker_alpha = 1.0
 
     # ----------------------
 
@@ -69,14 +75,17 @@ if __name__ == '__main__':
         'auto_pr_figs',
         full_ckpt_folder)
     # Find available seeds
-    available_seed_folders = os.listdir(os.path.abspath(os.path.join(
-        RESULTS_PATH,
-        'predictions_%s' % dataset_name,
-        full_ckpt_folder, grid_folder_list[0]
-    )))
-    seeds_to_show = [int(f[4:]) for f in available_seed_folders]
-    seeds_to_show.sort()
-    print("Available seeds: %s" % seeds_to_show)
+    if selected_seeds is None:
+        available_seed_folders = os.listdir(os.path.abspath(os.path.join(
+            RESULTS_PATH,
+            'predictions_%s' % dataset_name,
+            full_ckpt_folder, grid_folder_list[0]
+        )))
+        seeds_to_show = [int(f[4:]) for f in available_seed_folders]
+        seeds_to_show.sort()
+    else:
+        seeds_to_show = selected_seeds
+    print("Seeds to plot: %s" % seeds_to_show)
     print("")
 
     # Load data and predictions
@@ -109,7 +118,6 @@ if __name__ == '__main__':
             6: viz.PALETTE[constants.GREY],
         }
     }
-    markersize_model = 6
     axis_markers = np.arange(0, 1.1, 0.1)
     for grid_folder in grid_folder_list:
         full_grid_path = os.path.join(full_ckpt_folder, grid_folder)
@@ -158,9 +166,13 @@ if __name__ == '__main__':
                     tmp_all_precision.append(this_pre)
                     tmp_all_mean_iou.append(this_iou)
                     label = 'Split %d' % seed_id if i == 0 else None
+                    if show_splits_id:
+                        color = color_dict[set_name][seed_id]
+                    else:
+                        color = viz.PALETTE['blue']
                     ax.plot(
-                        this_rec, this_pre, color=color_dict[set_name][seed_id],
-                        marker='o', markersize=markersize_model, label=label, linestyle='None')
+                        this_rec, this_pre, color=color, alpha=marker_alpha, markeredgewidth=0.0,
+                        marker='o', markersize=marker_size, label=label, linestyle='None')
                     if show_subject_id:
                         if isinstance(single_id, str):
                             single_id_to_show = int(single_id[0] + single_id[3:])
@@ -206,14 +218,15 @@ if __name__ == '__main__':
         if show_mean:
             ax.plot(
                 np.mean(tmp_all_recall), np.mean(tmp_all_precision),
-                marker='o', markersize=markersize_model / 2, linestyle="None",
+                marker='o', markersize=marker_size / 2, linestyle="None",
                 color=viz.GREY_COLORS[6]
             )
         ax.tick_params(labelsize=8.5)
         ax.set_ylabel('Precision (IoU>%1.1f)' % iou_to_show, fontsize=9)
         ax.set_xlabel('Recall (IoU>%1.1f)' % iou_to_show, fontsize=9)
         ax.set_aspect('equal')
-        ax.legend(loc='lower left', fontsize=legend_fontsize)
+        if show_splits_id:
+            ax.legend(loc='lower left', fontsize=legend_fontsize)
         plt.tight_layout()
         if save_figs:
             fname = os.path.join(save_dir, "pr_seeds_%s.png" % grid_folder)

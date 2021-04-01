@@ -27,9 +27,9 @@ if __name__ == '__main__':
     # Set checkpoint from where to restore, relative to results dir
 
     ckpt_folder = ''
-    id_try_list = [i for i in range(7)]
-    train_fraction = 0.86
-    dataset_name = constants.CAP_ALL_SS_NAME
+    id_try_list = [i for i in range(4)]
+    train_fraction = 0.75
+    dataset_name = constants.MASS_SS_NAME
     which_expert = 1
 
     dataset_params = {pkeys.FS: 200}

@@ -48,73 +48,30 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 if __name__ == '__main__':
     folds = 4
     dataset_name = constants.CAP_FULL_SS_NAME
-    which_expert_list = [1]
+    which_expert_list = [1, 2]
 
     id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
 
-    pending_runs = [
-        # 'v41_f64_02-05-00_d8/seed3',
-        # 'v41_f32_02-06-03_d4/seed3',
-        # 'v41_f32_02-06-09_d1/seed3',
-        # 'v41_f32_02-06-06_d1/seed3',
-        # 'v41_f32_02-06-03_d1/seed3',
-        # 'v41_f64_02-09-00_d1/seed3',
-        # 'v41_f64_02-06-00_d1/seed3',
-        # 'v41_f64_02-03-00_d1/seed3',
-        'v41_f64_02-04-00_d8/seed3',
-        'v41_f64_02-03-00_d8/seed3',
-        'v41_f32_02-03-09_d1/seed3',
-        'v41_f32_02-03-06_d1/seed3',
-        'v41_f32_02-03-03_d1/seed3',
-        'v41_f64_02-09-00_d1/seed2',
-        'v41_f64_02-06-00_d1/seed2',
-        'v41_f64_02-03-00_d1/seed2',
-    ]
-
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
     for which_expert in which_expert_list:
 
         # ----- Experiment settings
-        experiment_name = 'biggernet_gridconv_exp%d' % which_expert
+        experiment_name = 'eval_%dcv_exp%d' % (folds, which_expert)
         task_mode = constants.N2_RECORD
         description_str = 'experiments'
         verbose = True
 
         # Complement experiment folder name with date
-        this_date = '20210326'  # datetime.datetime.now().strftime("%Y%m%d")
         experiment_name = '%s_%s' % (this_date, experiment_name)
 
         # Grid parameters
         model_version_list = [
-            constants.V41
+            constants.V11
         ]
-        middle_stage_size_list = [
-            0,
-            6,
-            3
-        ]
-        last_stage_size_dil_list = [
-            (5, True),
-            (4, True),
-            (3, True),
-            (9, False),
-            (6, False),
-            (3, False),
-        ]
-        params_list = list(itertools.product(
-            model_version_list, middle_stage_size_list, last_stage_size_dil_list
-        ))
 
         # Base parameters
         params = pkeys.default_params.copy()
-        params[pkeys.BORDER_DURATION] = 6
-
-        # V41 parameters
-        params[pkeys.BIGGER_STEM_KERNEL_SIZE] = 7
-        params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE] = 3
-        params[pkeys.BIGGER_STAGE_1_SIZE] = 2
-        params[pkeys.BIGGER_LSTM_1_SIZE] = 256
-        params[pkeys.BIGGER_LSTM_2_SIZE] = 0
 
         # Training settings
         params[pkeys.MAX_EPOCHS] = 100
@@ -124,20 +81,11 @@ if __name__ == '__main__':
         print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
         dataset = load_dataset(dataset_name, params=params)
 
-        # Get training set ids
-        all_train_ids = dataset.train_ids
-        selected_train_ids = all_train_ids
-
-        pending_runs = [
-            os.path.join(RESULTS_PATH, '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name), p)
-            for p in pending_runs
-        ]
-
         for id_try in id_try_list:
             print('\nUsing validation split %d' % id_try)
             # Generate split
             train_ids, val_ids = utils.split_ids_list_v2(
-                selected_train_ids, split_id=id_try, train_fraction=train_fraction)
+                dataset.train_ids, split_id=id_try, train_fraction=train_fraction)
             print('Training set IDs:', train_ids)
             data_train = FeederDataset(
                 dataset, train_ids, task_mode, which_expert=which_expert)
@@ -145,43 +93,18 @@ if __name__ == '__main__':
             data_val = FeederDataset(
                 dataset, val_ids, task_mode, which_expert=which_expert)
 
-            for model_version, middle_stage_size, last_stage_size_dil in params_list:
-                last_stage_size = last_stage_size_dil[0]
-                apply_dilation = last_stage_size_dil[1]
-                if middle_stage_size > 0:
-                    # 3 stages
-                    params[pkeys.BIGGER_STEM_FILTERS] = 32
-                    params[pkeys.BIGGER_STAGE_2_SIZE] = middle_stage_size
-                    params[pkeys.BIGGER_STAGE_3_SIZE] = last_stage_size
-                    params[pkeys.BIGGER_MAX_DILATION] = 4 if apply_dilation else 1
-                else:
-                    # 2 stages
-                    params[pkeys.BIGGER_STEM_FILTERS] = 64
-                    params[pkeys.BIGGER_STAGE_2_SIZE] = last_stage_size
-                    params[pkeys.BIGGER_STAGE_3_SIZE] = 0
-                    params[pkeys.BIGGER_MAX_DILATION] = 8 if apply_dilation else 1
+            for model_version in model_version_list:
 
                 params[pkeys.MODEL_VERSION] = model_version
 
-                folder_name = '%s_f%d_%02d-%02d-%02d_d%d' % (
-                    model_version,
-                    params[pkeys.BIGGER_STEM_FILTERS],
-                    params[pkeys.BIGGER_STAGE_1_SIZE],
-                    params[pkeys.BIGGER_STAGE_2_SIZE],
-                    params[pkeys.BIGGER_STAGE_3_SIZE],
-                    params[pkeys.BIGGER_MAX_DILATION]
-                )
+                folder_name = '%s' % model_version
 
                 base_dir = os.path.join(
-                    '%s_%s_train_%s' % (
-                        experiment_name, task_mode, dataset_name),
+                    '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
                     folder_name, 'seed%d' % id_try)
 
                 # Path to save results of run
                 logdir = os.path.join(RESULTS_PATH, base_dir)
-
-                if logdir not in pending_runs:
-                    continue
                 print('This run directory: %s' % logdir)
 
                 # Create and train model

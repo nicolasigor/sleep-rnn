@@ -43,11 +43,11 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 
 if __name__ == '__main__':
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
 
     for which_expert in [1, 2]:
 
         # ----- Experiment settings
-        # which_expert = 1
         experiment_name = 'cap80_pretrain_exp%d' % which_expert
         task_mode = constants.N2_RECORD
         dataset_name = constants.CAP_FULL_SS_NAME
@@ -55,25 +55,16 @@ if __name__ == '__main__':
         verbose = True
 
         # Complement experiment folder name with date
-        this_date = datetime.datetime.now().strftime("%Y%m%d")
         experiment_name = '%s_%s' % (this_date, experiment_name)
 
         # Grid parameters
         model_version_list = [
-            constants.V19
+            constants.V11
         ]
 
         # Base parameters
         params = pkeys.default_params.copy()
-        params[pkeys.BORDER_DURATION] = 5
-        # Segment net parameters
-        params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
-        params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
-        params[pkeys.TIME_CONV_MK_SKIPS] = False
-        params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
-        params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
-        params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
-        params[pkeys.FC_UNITS] = 128
+
         # Training strategy
         params[pkeys.PRETRAIN_EPOCHS_INIT] = 20
         params[pkeys.PRETRAIN_EPOCHS_ANNEAL] = 5
@@ -86,11 +77,8 @@ if __name__ == '__main__':
         data_train = FeederDataset(dataset, all_train_ids, task_mode, which_expert=which_expert)
 
         for model_version in model_version_list:
-
             params[pkeys.MODEL_VERSION] = model_version
-
             folder_name = '%s' % model_version
-
             base_dir = os.path.join(
                 '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
                 folder_name)

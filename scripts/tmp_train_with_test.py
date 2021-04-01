@@ -47,59 +47,48 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
     folds = 4
-    dataset_name = constants.CAP_FULL_SS_NAME
-    which_expert_list = [1, 2]
+    dataset_name = constants.MASS_SS_NAME
+    which_expert_list = [1]
 
     id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
 
+    this_date = datetime.datetime.now().strftime("%Y%m%d")
     for which_expert in which_expert_list:
 
         # ----- Experiment settings
-        experiment_name = 'annot_effect_%dcv_exp%d' % (folds, which_expert)
+        experiment_name = 'eval_%dcv_exp%d' % (folds, which_expert)
         task_mode = constants.N2_RECORD
         description_str = 'experiments'
         verbose = True
 
         # Complement experiment folder name with date
-        this_date = datetime.datetime.now().strftime("%Y%m%d")
         experiment_name = '%s_%s' % (this_date, experiment_name)
 
         # Grid parameters
         model_version_list = [
-            constants.V11_MKD2
+            constants.V11
         ]
 
         # Base parameters
         params = pkeys.default_params.copy()
-        params[pkeys.BORDER_DURATION] = 6
-
-        # Segment net parameters
-        params[pkeys.TIME_CONV_MK_PROJECT_FIRST] = False
-        params[pkeys.TIME_CONV_MK_DROP_RATE] = 0.0
-        params[pkeys.TIME_CONV_MK_SKIPS] = False
-        params[pkeys.TIME_CONV_MKD_FILTERS_1] = generate_mkd_specs('none', 3, 64)
-        params[pkeys.TIME_CONV_MKD_FILTERS_2] = generate_mkd_specs('dilated', 3, 128)
-        params[pkeys.TIME_CONV_MKD_FILTERS_3] = generate_mkd_specs('dilated', 3, 256)
-        params[pkeys.FC_UNITS] = 128
 
         # Training settings
         params[pkeys.MAX_EPOCHS] = 100
-        params[pkeys.EPOCHS_LR_UPDATE] = 4
-        params[pkeys.MAX_LR_UPDATES] = 3
+        params[pkeys.EPOCHS_LR_UPDATE] = 5
+        params[pkeys.MAX_LR_UPDATES] = 4
 
         print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
         dataset = load_dataset(dataset_name, params=params)
 
-        # Get training set ids
-        all_train_ids = dataset.train_ids
-        selected_train_ids = all_train_ids
+        # Test set, used for predictions
+        data_test = FeederDataset(dataset, dataset.test_ids, task_mode, which_expert=which_expert)
 
         for id_try in id_try_list:
             print('\nUsing validation split %d' % id_try)
             # Generate split
             train_ids, val_ids = utils.split_ids_list_v2(
-                selected_train_ids, split_id=id_try, train_fraction=train_fraction)
+                dataset.train_ids, split_id=id_try, train_fraction=train_fraction)
             print('Training set IDs:', train_ids)
             data_train = FeederDataset(
                 dataset, train_ids, task_mode, which_expert=which_expert)
@@ -114,8 +103,7 @@ if __name__ == '__main__':
                 folder_name = '%s' % model_version
 
                 base_dir = os.path.join(
-                    '%s_%s_train_%s' % (
-                        experiment_name, task_mode, dataset_name),
+                    '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name),
                     folder_name, 'seed%d' % id_try)
 
                 # Path to save results of run
@@ -135,12 +123,14 @@ if __name__ == '__main__':
 
                 feeders_dict = {
                     constants.TRAIN_SUBSET: data_train,
+                    constants.TEST_SUBSET: data_test,
                     constants.VAL_SUBSET: data_val
                 }
                 for set_name in feeders_dict.keys():
                     print('Predicting %s' % set_name, flush=True)
                     data_inference = feeders_dict[set_name]
-                    prediction = model.predict_dataset(data_inference, verbose=verbose)
+                    prediction = model.predict_dataset(
+                        data_inference, verbose=verbose)
                     filename = os.path.join(
                         save_dir,
                         'prediction_%s_%s.pkl' % (task_mode, set_name))

@@ -28,6 +28,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     # Config
     ckpt_folder = '20191227_bsf_10runs_e1_n2_train_mass_ss/v19'
+    tensor_name = 'last_hidden'
     seeds = [0, 1, 2, 3]
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -102,11 +103,11 @@ if __name__ == '__main__':
         # Obtain tensors
         print("Generating embeddings for true spindles centers")
         embeddings_true_list = model.predict_tensor_at_samples_with_list(
-            x_list, y_true_list, tensor_name='last_hidden', verbose=True)
+            x_list, y_true_list, tensor_name=tensor_name, verbose=True)
         print("Embeddings with shape", [e.shape for e in embeddings_true_list])
         print("Generating embeddings for predicted spindles centers")
         embeddings_pred_list = model.predict_tensor_at_samples_with_list(
-            x_list, y_pred_list, tensor_name='last_hidden', verbose=True)
+            x_list, y_pred_list, tensor_name=tensor_name, verbose=True)
         print("Embeddings with shape", [e.shape for e in embeddings_pred_list])
 
         # Organize results
@@ -122,11 +123,11 @@ if __name__ == '__main__':
             }
 
         # Save results
-        save_path = os.path.join(RESULTS_PATH, 'embeddings', ckpt_folder, 'seed%d' % seed)
+        save_path = os.path.join(RESULTS_PATH, 'tensors', ckpt_folder, 'seed%d' % seed)
         os.makedirs(save_path, exist_ok=True)
         filename = os.path.join(
             save_path,
-            'embeddings_%s_thr%1.2f_%s.pkl' % (task_mode, used_thr, constants.VAL_SUBSET))
+            '%s_%s_thr%1.2f_%s.pkl' % (tensor_name, task_mode, used_thr, constants.VAL_SUBSET))
         print("Saving results at %s" % filename)
         with open(filename, 'wb') as handle:
             pickle.dump(result_seed_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
