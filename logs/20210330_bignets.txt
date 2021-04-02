@@ -41,3 +41,7 @@ AF1 77.33/0.24 [0.5] 78.84/0.70 [0.32, 0.36, 0.32, 0.36], F3 89.29/0.54, P3 89.9
     os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-03-00_d1'): [0.32, 0.36, 0.32, 0.36],
     
 
+Second grid search,
+convolutions fixed, exploration on contextualization, two options: lstm or self-attention
+
+
