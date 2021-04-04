@@ -44,4 +44,45 @@ AF1 77.33/0.24 [0.5] 78.84/0.70 [0.32, 0.36, 0.32, 0.36], F3 89.29/0.54, P3 89.9
 Second grid search,
 convolutions fixed, exploration on contextualization, two options: lstm or self-attention
 
+Val AF1 report for 20210330_biggernet_lstm_exp1_n2_train_cap_full_ss
+AF1 78.24/0.77 [0.5] 79.77/0.62 [0.30, 0.36, 0.34, 0.32], F3 89.65/0.61, P3 89.9/ 5.4, R3 89.7/ 5.0 for v41_256-256
+AF1 78.50/0.42 [0.5] 79.71/0.42 [0.38, 0.38, 0.36, 0.34], F3 89.55/0.20, P3 90.9/ 5.3, R3 88.6/ 5.2 for v41_256-128
+AF1 77.87/0.53 [0.5] 79.52/0.61 [0.36, 0.34, 0.34, 0.32], F3 89.31/0.44, P3 90.1/ 5.4, R3 88.9/ 5.2 for v41_128-128
+AF1 77.38/1.14 [0.5] 79.37/0.45 [0.30, 0.36, 0.26, 0.26], F3 89.50/0.33, P3 90.6/ 5.2, R3 88.7/ 4.8 for v41_256-000
+AF1 77.41/0.77 [0.5] 79.26/0.57 [0.34, 0.36, 0.26, 0.30], F3 89.27/0.37, P3 90.0/ 5.3, R3 88.9/ 4.8 for v41_128-000
+AF1 77.24/0.78 [0.5] 79.03/0.56 [0.30, 0.32, 0.30, 0.32], F3 89.06/0.49, P3 90.7/ 5.4, R3 87.9/ 5.2 for v41_128-064
+
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-256'): [0.30, 0.36, 0.34, 0.32],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-128'): [0.38, 0.38, 0.36, 0.34],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-128'): [0.36, 0.34, 0.34, 0.32],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-000'): [0.30, 0.36, 0.26, 0.26],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-000'): [0.34, 0.36, 0.26, 0.30],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-064'): [0.30, 0.32, 0.30, 0.32],
+    
+
+Val AF1 report for 20210330_biggernet_att_exp1_n2_train_cap_full_ss
+AF1 78.32/0.73 [0.5] 79.51/0.52 [0.34, 0.42, 0.34, 0.36], F3 89.53/0.13, P3 90.7/ 5.2, R3 88.8/ 5.0 for v42_n2_layernorm
+AF1 77.86/1.86 [0.5] 79.50/0.64 [0.26, 0.40, 0.38, 0.32], F3 89.77/0.47, P3 90.8/ 5.1, R3 89.1/ 5.1 for v42_n4_layernorm
+AF1 78.13/1.14 [0.5] 79.43/0.70 [0.38, 0.42, 0.36, 0.36], F3 89.50/0.60, P3 90.5/ 5.3, R3 88.9/ 5.1 for v42_n2_batchnorm
+AF1 76.19/1.54 [0.5] 78.71/0.73 [0.32, 0.36, 0.30, 0.24], F3 88.96/0.68, P3 89.3/ 5.6, R3 89.0/ 5.1 for v42_n4_batchnorm
+
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n2_layernorm'): [0.34, 0.42, 0.34, 0.36],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n4_layernorm'): [0.26, 0.40, 0.38, 0.32],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n2_batchnorm'): [0.38, 0.42, 0.36, 0.36],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n4_batchnorm'): [0.32, 0.36, 0.30, 0.24],
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
 

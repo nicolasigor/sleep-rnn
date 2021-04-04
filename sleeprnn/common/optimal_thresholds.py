@@ -294,6 +294,20 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-06-00_d1'): [0.40, 0.42, 0.38, 0.36],
     os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-09-00_d1'): [0.32, 0.32, 0.38, 0.42],
     os.path.join('20210326_biggernet_gridconv_exp1_n2_train_cap_full_ss', 'v41_f64_02-03-00_d1'): [0.32, 0.36, 0.32, 0.36],
+    
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-256'): [0.30, 0.36, 0.34, 0.32],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-128'): [0.38, 0.38, 0.36, 0.34],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-128'): [0.36, 0.34, 0.34, 0.32],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_256-000'): [0.30, 0.36, 0.26, 0.26],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-000'): [0.34, 0.36, 0.26, 0.30],
+    os.path.join('20210330_biggernet_lstm_exp1_n2_train_cap_full_ss', 'v41_128-064'): [0.30, 0.32, 0.30, 0.32],
+
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n2_layernorm'): [0.34, 0.42, 0.34, 0.36],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n4_layernorm'): [0.26, 0.40, 0.38, 0.32],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n2_batchnorm'): [0.38, 0.42, 0.36, 0.36],
+    os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n4_batchnorm'): [0.32, 0.36, 0.30, 0.24],
+
+    
 
 }
 
