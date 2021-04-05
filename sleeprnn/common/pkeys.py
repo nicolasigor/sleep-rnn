@@ -292,6 +292,8 @@ BIGGER_LSTM_1_SIZE = 'bigger_lstm_1_size'
 BIGGER_LSTM_2_SIZE = 'bigger_lstm_2_size'
 BIGGER_ATT_N_BLOCKS = 'bigger_att_n_blocks'
 BIGGER_ATT_TYPE_NORM = 'bigger_att_type_norm'
+BIGGER_CONVOLUTION_PART_OPTION = 'bigger_convolution_part_option'
+BIGGER_CONTEXT_PART_OPTION = 'bigger_context_part_option'
 
 """ Loss params
 
@@ -623,4 +625,6 @@ default_params = {
     BIGGER_LSTM_2_SIZE: None,
     BIGGER_ATT_N_BLOCKS: None,
     BIGGER_ATT_TYPE_NORM: None,
+    BIGGER_CONVOLUTION_PART_OPTION: None,
+    BIGGER_CONTEXT_PART_OPTION: None,
 }
