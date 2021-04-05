@@ -19,8 +19,8 @@ PATH_MODA_RAW = '/home/ntapia/Projects/Sleep_Databases/MASS_Database_2020_Full/C
 def get_filepaths(main_path):
     files = os.listdir(main_path)
     files = [f for f in files if '.edf' in f]
-    signal_files = [f for f in files if 'PSG']
-    states_files = [f for f in files if 'Base']
+    signal_files = [f for f in files if 'PSG' in f]
+    states_files = [f for f in files if 'Base' in f]
     signal_files = [os.path.join(main_path, f) for f in signal_files]
     states_files = [os.path.join(main_path, f) for f in states_files]
     signal_files.sort()
@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     signal_files, states_files = get_filepaths(PATH_MODA_RAW)
     assert len(signal_files) == len(states_files)
+    print("%d subjects" % len(signal_files))
 
     n_max = 10
     for signal_f, states_f in zip(signal_files[:n_max], states_files[:n_max]):
