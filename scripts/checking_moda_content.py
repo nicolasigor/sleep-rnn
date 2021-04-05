@@ -37,6 +37,9 @@ if __name__ == "__main__":
     assert len(signal_files) == len(states_files)
     print("%d subjects" % len(signal_files))
 
+    all_channel_names = []
+    all_fs = []
+
     n_max = 10
     for signal_f, states_f in zip(signal_files[:n_max], states_files[:n_max]):
         subject_id_1 = signal_f.split("/")[-1].split(" ")[0]
@@ -57,3 +60,11 @@ if __name__ == "__main__":
                 fs_valid.append(fs_original)
         print("    Channels", channel_names_valid)
         print("    Freqs   ", fs_valid)
+        all_channel_names.append(channel_names_valid)
+        all_fs.append(fs_valid)
+
+    for l in [all_channel_names, all_fs]:
+        l = np.concatenate(l).flatten()
+        values, counts = np.unique(l, return_counts=True)
+        for v, c in zip(values, counts):
+            print("Value %s with count %s" % (v, c))
