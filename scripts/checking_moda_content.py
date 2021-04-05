@@ -42,7 +42,7 @@ if __name__ == "__main__":
         subject_id_2 = states_f.split("/")[-1].split(" ")[0]
         assert subject_id_1 == subject_id_2
         subject_id = subject_id_1
-
+        print("ID %s" % subject_id)
         # Read signal
         with pyedflib.EdfReader(signal_f) as file:
             channel_names = file.getSignalLabels()
@@ -54,4 +54,5 @@ if __name__ == "__main__":
                 chn_check = file.getLabel(extraction_loc)
                 assert chn_check == chn
                 fs_valid.append(fs_original)
-        print("ID %s with channels %s and fs %s" % (subject_id, channel_names_valid, fs_valid))
+        print("    Channels", channel_names_valid)
+        print("    Freqs   ", fs_valid)
