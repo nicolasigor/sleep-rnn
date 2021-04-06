@@ -307,7 +307,7 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n2_batchnorm'): [0.38, 0.42, 0.36, 0.36],
     os.path.join('20210330_biggernet_att_exp1_n2_train_cap_full_ss', 'v42_n4_batchnorm'): [0.32, 0.36, 0.30, 0.24],
 
-    
+    os.path.join('20210405_check_contralateral_exp1_n2_train_mass_ss_alt', 'v11_mkd2'): [0.50, 0.50, 0.50, 0.42],
 
 }
 

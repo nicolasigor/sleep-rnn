@@ -1,0 +1,4 @@
+Val AF1 report for 20210405_check_contralateral_exp1_n2_train_mass_ss_alt
+AF1 66.11/1.85 [0.5] 66.37/2.09 [0.50, 0.50, 0.50, 0.42], F3 79.19/1.35, P3 78.7/ 8.5, R3 81.4/10.2 for v11_mkd2
+
+    os.path.join('20210405_check_contralateral_exp1_n2_train_mass_ss_alt', 'v11_mkd2'): [0.50, 0.50, 0.50, 0.42],
