@@ -6,26 +6,15 @@ import os
 import sys
 from pprint import pprint
 
-
 import numpy as np
+import pandas as pd
 import pyedflib
 
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
 PATH_MODA_RAW = '/home/ntapia/Projects/Sleep_Databases/MASS_Database_2020_Full/C1'
-
-
-def get_filepaths(main_path):
-    files = os.listdir(main_path)
-    files = [f for f in files if '.edf' in f]
-    signal_files = [f for f in files if 'PSG' in f]
-    states_files = [f for f in files if 'Base' in f]
-    signal_files = [os.path.join(main_path, f) for f in signal_files]
-    states_files = [os.path.join(main_path, f) for f in states_files]
-    signal_files.sort()
-    states_files.sort()
-    return signal_files, states_files
+PATH_SUBJECT_CHANNEL_INFO = '../resources/datasets/moda/8_MODA_primChan_180sjt.txt'
 
 
 def get_signal(file, chn_name):
@@ -39,36 +28,44 @@ def get_signal(file, chn_name):
 
 
 if __name__ == "__main__":
-    required_channel = 'C3'
-    reference_channel = 'A2-CLE'  # If available, otherwise C3-LE is used as-is
     save_dir = "../resources/datasets/moda/signals_npz"
     save_dir = os.path.abspath(save_dir)
     os.makedirs(save_dir, exist_ok=True)
     print("Files will be saved at %s" % save_dir)
 
-    # States are not necessary for the MODA dataset
-    signal_files, _ = get_filepaths(PATH_MODA_RAW)
-    n_files = len(signal_files)
-    print("%d subjects" % n_files)
-    for i, signal_f in enumerate(signal_files):
-        subject_id = signal_f.split("/")[-1].split(" ")[0]
+    info = pd.read_csv(PATH_SUBJECT_CHANNEL_INFO, delimiter='\t')
+    subject_ids = info.subject.values
+    subject_ids = [s.split(".")[0] for s in subject_ids]
+    channels_for_moda = info.channel.values
+
+    n_subjects = len(subject_ids)
+    print("%d subjects" % n_subjects)
+    for i in range(n_subjects):
+        subject_id = subject_ids[i]
+        channel_for_moda = channels_for_moda[i]
+        signal_f = os.path.join(PATH_MODA_RAW, '%s PSG.edf' % subject_id)
+        print("Loading %s from %s" % (channel_for_moda, signal_f))
         with pyedflib.EdfReader(signal_f) as file:
             channel_names = file.getSignalLabels()
-            required_candidates = [chn for chn in channel_names if required_channel in chn]
-            reference_candidates = [chn for chn in channel_names if reference_channel in chn]
-            required_signal, required_fs = get_signal(file, required_candidates[0])
-            if len(reference_candidates) > 0:
-                reference_signal, reference_fs = get_signal(file, reference_candidates[0])
+            if channel_for_moda == 'C3-A2':
+                # re-reference
+                required_channel = [chn for chn in channel_names if 'C3' in chn][0]
+                reference_channel = [chn for chn in channel_names if 'A2' in chn][0]
+                required_signal, required_fs = get_signal(file, required_channel)
+                reference_signal, reference_fs = get_signal(file, reference_channel)
                 assert required_fs == reference_fs
                 signal = required_signal - reference_signal
-                channel_extracted = '(%s)-(%s)' % (required_candidates[0], reference_candidates[0])
+                channel_extracted = '(%s)-(%s)' % (required_channel, reference_channel)
             else:
+                # use channel as-is
+                required_channel = [chn for chn in channel_names if 'C3' in chn][0]
+                required_signal, required_fs = get_signal(file, required_channel)
                 signal = required_signal
-                channel_extracted = required_candidates[0]
+                channel_extracted = required_channel
             signal = signal.astype(np.float32)
             fs = int(required_fs)
         print(
-            '(%03d/%03d) Subject %s, sampling %s Hz, channel %s' % (i + 1, n_files, subject_id, fs, channel_extracted),
+            '(%03d/%03d) Subject %s, sampling %s Hz, channel %s' % (i + 1, n_subjects, subject_id, fs, channel_extracted),
             flush=True)
         data_dict = {
             'dataset_id': 'MASS-C1',
