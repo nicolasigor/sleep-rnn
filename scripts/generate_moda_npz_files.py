@@ -40,7 +40,7 @@ def get_signal(file, chn_name):
 
 if __name__ == "__main__":
     required_channel = 'C3'
-    reference_channel = 'A2'  # If available, otherwise C3-LE is used as-is
+    reference_channel = 'A2-CLE'  # If available, otherwise C3-LE is used as-is
     save_dir = "../resources/datasets/moda/signals_npz"
     save_dir = os.path.abspath(save_dir)
     os.makedirs(save_dir, exist_ok=True)
