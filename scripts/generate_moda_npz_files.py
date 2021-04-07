@@ -42,13 +42,15 @@ if __name__ == "__main__":
     required_channel = 'C3'
     reference_channel = 'A2'  # If available, otherwise C3-LE is used as-is
     save_dir = "../resources/datasets/moda/signals_npz"
+    save_dir = os.path.abspath(save_dir)
     os.makedirs(save_dir, exist_ok=True)
     print("Files will be saved at %s" % save_dir)
 
     # States are not necessary for the MODA dataset
     signal_files, _ = get_filepaths(PATH_MODA_RAW)
-    print("%d subjects" % len(signal_files))
-    for signal_f in signal_files:
+    n_files = len(signal_files)
+    print("%d subjects" % n_files)
+    for i, signal_f in enumerate(signal_files):
         subject_id = signal_f.split("/")[-1].split(" ")[0]
         with pyedflib.EdfReader(signal_f) as file:
             channel_names = file.getSignalLabels()
@@ -63,16 +65,17 @@ if __name__ == "__main__":
             else:
                 signal = required_signal
                 channel_extracted = required_candidates[0]
-            fs = required_fs
-        print('Subject %s | Channel %s at %s Hz (std %1.4f)' % (
-            subject_id, channel_extracted, fs, signal.std()),
-              flush=True)
-        # data_dict = {
-        #     'dataset_id': 'MASS-C1',
-        #     'subject_id': subject_id,
-        #     'sampling_rate': fs,
-        #     'channel': channel_extracted,
-        #     'signal': signal
-        # }
-        # fname = os.path.join(save_dir, "moda_%s.npz" % subject_id)
-        # np.savez(fname, **data_dict)
+            signal = signal.astype(np.float32)
+            fs = int(required_fs)
+        print(
+            '(%03d/%03d) Subject %s, sampling %s Hz, channel %s' % (i + 1, n_files, subject_id, fs, channel_extracted),
+            flush=True)
+        data_dict = {
+            'dataset_id': 'MASS-C1',
+            'subject_id': subject_id,
+            'sampling_rate': fs,
+            'channel': channel_extracted,
+            'signal': signal
+        }
+        fname = os.path.join(save_dir, "moda_%s.npz" % subject_id)
+        np.savez(fname, **data_dict)
