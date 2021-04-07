@@ -74,5 +74,5 @@ if __name__ == "__main__":
         #     'channel': channel_extracted,
         #     'signal': signal
         # }
-        # fname = os.path.join(save_dir, "mass_%s.npz" % subject_id)
+        # fname = os.path.join(save_dir, "moda_%s.npz" % subject_id)
         # np.savez(fname, **data_dict)
