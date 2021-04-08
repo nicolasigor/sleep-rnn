@@ -9,6 +9,7 @@ from sleeprnn.data.inta_ss import IntaSS
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.mass_ss_alt import MassSSAlt
+from sleeprnn.data.moda_ss import ModaSS
 from sleeprnn.data.isruc_ss import IsrucSS
 from sleeprnn.data.cap_ss import CapSS
 from sleeprnn.data.cap_age_ss import CapAgeSS
@@ -158,6 +159,7 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
             constants.MASS_KC_NAME,
             constants.MASS_SS_NAME,
             constants.MASS_SS_ALT_NAME,
+            constants.MODA_SS_NAME,
             constants.INTA_SS_NAME,
             constants.ISRUC_SS_NAME,
             constants.CAP_SS_NAME,
@@ -169,14 +171,13 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
         dataset = MassSS(
             load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     elif dataset_name == constants.MASS_SS_ALT_NAME:
-        dataset = MassSSAlt(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+        dataset = MassSSAlt(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+    elif dataset_name == constants.MODA_SS_NAME:
+        dataset = ModaSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     elif dataset_name == constants.MASS_KC_NAME:
-        dataset = MassKC(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose)
+        dataset = MassKC(load_checkpoint=load_checkpoint, params=params, verbose=verbose)
     elif dataset_name == constants.ISRUC_SS_NAME:
-        dataset = IsrucSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+        dataset = IsrucSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     elif dataset_name == constants.CAP_SS_NAME:
         dataset = CapSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     elif dataset_name == constants.CAP_AGE_SS_NAME:
@@ -186,8 +187,7 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
     elif dataset_name == constants.CAP_FULL_SS_NAME:
         dataset = CapFullSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     else:
-        dataset = IntaSS(
-            load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
+        dataset = IntaSS(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)
     return dataset
 
 

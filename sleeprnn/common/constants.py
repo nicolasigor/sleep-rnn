@@ -12,6 +12,7 @@ CAP_SS_NAME = 'cap_ss'
 CAP_AGE_SS_NAME = 'cap_age_ss'
 CAP_ALL_SS_NAME = 'cap_all_ss'
 CAP_FULL_SS_NAME = 'cap_full_ss'
+MODA_SS_NAME = 'moda_ss'
 
 # Database split
 TRAIN_SUBSET = 'train'

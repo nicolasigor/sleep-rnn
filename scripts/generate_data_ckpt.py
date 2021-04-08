@@ -11,6 +11,7 @@ sys.path.append(project_root)
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.mass_ss_alt import MassSSAlt
+from sleeprnn.data.moda_ss import ModaSS
 from sleeprnn.data.inta_ss import IntaSS
 from sleeprnn.data.mass_kc_inv import MassKCInv
 from sleeprnn.data.mass_ss_inv import MassSSInv
@@ -19,7 +20,7 @@ from sleeprnn.common import pkeys
 
 if __name__ == '__main__':
 
-    datasets_class = [MassSSAlt]  # [MassSS, MassKC, MassSSInv, MassKCInv]
+    datasets_class = [ModaSS]  # [MassSS, MassKC, MassSSInv, MassKCInv]
     repair_inta = False
     params = {pkeys.FS: 200}
     mass_global_std = None
