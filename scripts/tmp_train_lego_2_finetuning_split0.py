@@ -32,12 +32,12 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [2]
+    id_try_list = [0]
     train_fraction = 0.75
     global_std = 19.209161  # CapFullSS std is 19.209161
 
     # ----- Experiment settings
-    experiment_name = 'lego_1_finetuning'
+    experiment_name = 'lego_2_finetuning'
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -54,21 +54,6 @@ if __name__ == '__main__':
         constants.V43
     ]
     conv_part_list = [
-        ('multi-d8', {
-            pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'multi_dilated',
-            pkeys.BIGGER_STEM_KERNEL_SIZE: 3,
-            pkeys.BIGGER_STEM_FILTERS: 64,
-            pkeys.BIGGER_MAX_DILATION: 8,
-        }),
-        ('res-multi-d4', {
-            pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual_multi_dilated',
-            pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-            pkeys.BIGGER_STEM_FILTERS: 32,
-            pkeys.BIGGER_MAX_DILATION: 4,
-            pkeys.BIGGER_STAGE_1_SIZE: 1,
-            pkeys.BIGGER_STAGE_2_SIZE: 1,
-            pkeys.BIGGER_STAGE_3_SIZE: 1,
-        }),
         ('res-multi-d8', {
             pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual_multi_dilated',
             pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
@@ -77,62 +62,39 @@ if __name__ == '__main__':
             pkeys.BIGGER_STAGE_1_SIZE: 1,
             pkeys.BIGGER_STAGE_2_SIZE: 1,
             pkeys.BIGGER_STAGE_3_SIZE: 0,
-        }),
-        ('res-d1', {
-            pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-            pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-            pkeys.BIGGER_STEM_FILTERS: 32,
-            pkeys.BIGGER_MAX_DILATION: 1,
-            pkeys.BIGGER_STAGE_1_SIZE: 2,
-            pkeys.BIGGER_STAGE_2_SIZE: 2,
-            pkeys.BIGGER_STAGE_3_SIZE: 4,
-        }),
-        ('res-d4', {
-            pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-            pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-            pkeys.BIGGER_STEM_FILTERS: 32,
-            pkeys.BIGGER_MAX_DILATION: 4,
-            pkeys.BIGGER_STAGE_1_SIZE: 2,
-            pkeys.BIGGER_STAGE_2_SIZE: 2,
-            pkeys.BIGGER_STAGE_3_SIZE: 3,
-        }),
-        ('res-d8', {
-            pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-            pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-            pkeys.BIGGER_STEM_FILTERS: 64,
-            pkeys.BIGGER_MAX_DILATION: 8,
-            pkeys.BIGGER_STAGE_1_SIZE: 2,
-            pkeys.BIGGER_STAGE_2_SIZE: 4,
-            pkeys.BIGGER_STAGE_3_SIZE: 0,
-        }),
+        })
     ]
-
     context_part_list = [
-        ('att', {
+        ('att2', {
+            pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
+            pkeys.BIGGER_ATT_N_BLOCKS: 2,
+            pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+        }),
+        ('att3', {
             pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
             pkeys.BIGGER_ATT_N_BLOCKS: 3,
             pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
         }),
-        # ('lstm', {
-        #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
-        #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-        #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-        #     pkeys.FC_UNITS: 128
-        # }),
-        # ('res_lstm_ln', {
-        #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-        #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-        #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-        #     pkeys.FC_UNITS: 128,
-        #     pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-        # }),
-        # ('res_lstm_bn', {
-        #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-        #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-        #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-        #     pkeys.FC_UNITS: 128,
-        #     pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
-        # }),
+        ('lstm', {
+            pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
+            pkeys.BIGGER_LSTM_1_SIZE: 256,
+            pkeys.BIGGER_LSTM_2_SIZE: 256,
+            pkeys.FC_UNITS: 128
+        }),
+        ('res-lstm-ln', {
+            pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+            pkeys.BIGGER_LSTM_1_SIZE: 256,
+            pkeys.BIGGER_LSTM_2_SIZE: 256,
+            pkeys.FC_UNITS: 128,
+            pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+        }),
+        ('res-lstm-bn', {
+            pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+            pkeys.BIGGER_LSTM_1_SIZE: 256,
+            pkeys.BIGGER_LSTM_2_SIZE: 256,
+            pkeys.FC_UNITS: 128,
+            pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
+        }),
     ]
     pretraining_option_list = [
         'none',
@@ -198,13 +160,13 @@ if __name__ == '__main__':
                 params[pkeys.EPOCHS_LR_UPDATE] = 4
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
-                    '20210404_lego_1_pretrain_exp1_n2_train_cap_full_ss', pretrain_folder_name)
+                    '20210404_lego_2_pretrain_exp1_n2_train_cap_full_ss', pretrain_folder_name)
             elif pretraining_option == 'ckpt2':
                 fine_tune = True
                 params[pkeys.EPOCHS_LR_UPDATE] = 4
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
-                    '20210404_lego_1_pretrain_exp2_n2_train_cap_full_ss', pretrain_folder_name)
+                    '20210404_lego_2_pretrain_exp2_n2_train_cap_full_ss', pretrain_folder_name)
             else:
                 raise ValueError()
 

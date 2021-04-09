@@ -30,10 +30,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
 
-    for which_expert in [2]:
+    for which_expert in [1, 2]:
 
         # ----- Experiment settings
-        experiment_name = 'lego_1_pretrain_exp%d' % which_expert
+        experiment_name = 'lego_2_pretrain_exp%d' % which_expert
         task_mode = constants.N2_RECORD
         dataset_name = constants.CAP_FULL_SS_NAME
         description_str = 'experiments'
@@ -48,21 +48,21 @@ if __name__ == '__main__':
         ]
 
         conv_part_list = [
-            ('multi-d8', {
-                pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'multi_dilated',
-                pkeys.BIGGER_STEM_KERNEL_SIZE: 3,
-                pkeys.BIGGER_STEM_FILTERS: 64,
-                pkeys.BIGGER_MAX_DILATION: 8,
-            }),
-            ('res-multi-d4', {
-                pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual_multi_dilated',
-                pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-                pkeys.BIGGER_STEM_FILTERS: 32,
-                pkeys.BIGGER_MAX_DILATION: 4,
-                pkeys.BIGGER_STAGE_1_SIZE: 1,
-                pkeys.BIGGER_STAGE_2_SIZE: 1,
-                pkeys.BIGGER_STAGE_3_SIZE: 1,
-            }),
+            # ('multi-d8', {
+            #     pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'multi_dilated',
+            #     pkeys.BIGGER_STEM_KERNEL_SIZE: 3,
+            #     pkeys.BIGGER_STEM_FILTERS: 64,
+            #     pkeys.BIGGER_MAX_DILATION: 8,
+            # }),
+            # ('res-multi-d4', {
+            #     pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual_multi_dilated',
+            #     pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
+            #     pkeys.BIGGER_STEM_FILTERS: 32,
+            #     pkeys.BIGGER_MAX_DILATION: 4,
+            #     pkeys.BIGGER_STAGE_1_SIZE: 1,
+            #     pkeys.BIGGER_STAGE_2_SIZE: 1,
+            #     pkeys.BIGGER_STAGE_3_SIZE: 1,
+            # }),
             ('res-multi-d8', {
                 pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual_multi_dilated',
                 pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
@@ -72,61 +72,66 @@ if __name__ == '__main__':
                 pkeys.BIGGER_STAGE_2_SIZE: 1,
                 pkeys.BIGGER_STAGE_3_SIZE: 0,
             }),
-            ('res-d1', {
-                pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-                pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-                pkeys.BIGGER_STEM_FILTERS: 32,
-                pkeys.BIGGER_MAX_DILATION: 1,
-                pkeys.BIGGER_STAGE_1_SIZE: 2,
-                pkeys.BIGGER_STAGE_2_SIZE: 2,
-                pkeys.BIGGER_STAGE_3_SIZE: 4,
-            }),
-            ('res-d4', {
-                pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-                pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-                pkeys.BIGGER_STEM_FILTERS: 32,
-                pkeys.BIGGER_MAX_DILATION: 4,
-                pkeys.BIGGER_STAGE_1_SIZE: 2,
-                pkeys.BIGGER_STAGE_2_SIZE: 2,
-                pkeys.BIGGER_STAGE_3_SIZE: 3,
-            }),
-            ('res-d8', {
-                pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
-                pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
-                pkeys.BIGGER_STEM_FILTERS: 64,
-                pkeys.BIGGER_MAX_DILATION: 8,
-                pkeys.BIGGER_STAGE_1_SIZE: 2,
-                pkeys.BIGGER_STAGE_2_SIZE: 4,
-                pkeys.BIGGER_STAGE_3_SIZE: 0,
-            }),
+            # ('res-d1', {
+            #     pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
+            #     pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
+            #     pkeys.BIGGER_STEM_FILTERS: 32,
+            #     pkeys.BIGGER_MAX_DILATION: 1,
+            #     pkeys.BIGGER_STAGE_1_SIZE: 2,
+            #     pkeys.BIGGER_STAGE_2_SIZE: 2,
+            #     pkeys.BIGGER_STAGE_3_SIZE: 4,
+            # }),
+            # ('res-d4', {
+            #     pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
+            #     pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
+            #     pkeys.BIGGER_STEM_FILTERS: 32,
+            #     pkeys.BIGGER_MAX_DILATION: 4,
+            #     pkeys.BIGGER_STAGE_1_SIZE: 2,
+            #     pkeys.BIGGER_STAGE_2_SIZE: 2,
+            #     pkeys.BIGGER_STAGE_3_SIZE: 3,
+            # }),
+            # ('res-d8', {
+            #     pkeys.BIGGER_CONVOLUTION_PART_OPTION: 'residual',
+            #     pkeys.BIGGER_STEM_KERNEL_SIZE: 7,
+            #     pkeys.BIGGER_STEM_FILTERS: 64,
+            #     pkeys.BIGGER_MAX_DILATION: 8,
+            #     pkeys.BIGGER_STAGE_1_SIZE: 2,
+            #     pkeys.BIGGER_STAGE_2_SIZE: 4,
+            #     pkeys.BIGGER_STAGE_3_SIZE: 0,
+            # }),
         ]
 
         context_part_list = [
-            ('att', {
+            ('att2', {
+                pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
+                pkeys.BIGGER_ATT_N_BLOCKS: 2,
+                pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+            }),
+            ('att3', {
                 pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
                 pkeys.BIGGER_ATT_N_BLOCKS: 3,
                 pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
             }),
-            # ('lstm', {
-            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
-            #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-            #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-            #     pkeys.FC_UNITS: 128
-            # }),
-            # ('res_lstm_ln', {
-            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-            #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-            #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-            #     pkeys.FC_UNITS: 128,
-            #     pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-            # }),
-            # ('res_lstm_bn', {
-            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-            #     pkeys.BIGGER_LSTM_1_SIZE: 256,
-            #     pkeys.BIGGER_LSTM_2_SIZE: 256,
-            #     pkeys.FC_UNITS: 128,
-            #     pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
-            # }),
+            ('lstm', {
+                pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
+                pkeys.BIGGER_LSTM_1_SIZE: 256,
+                pkeys.BIGGER_LSTM_2_SIZE: 256,
+                pkeys.FC_UNITS: 128
+            }),
+            ('res-lstm-ln', {
+                pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+                pkeys.BIGGER_LSTM_1_SIZE: 256,
+                pkeys.BIGGER_LSTM_2_SIZE: 256,
+                pkeys.FC_UNITS: 128,
+                pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+            }),
+            ('res-lstm-bn', {
+                pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+                pkeys.BIGGER_LSTM_1_SIZE: 256,
+                pkeys.BIGGER_LSTM_2_SIZE: 256,
+                pkeys.FC_UNITS: 128,
+                pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
+            }),
         ]
 
         params_list = list(itertools.product(
