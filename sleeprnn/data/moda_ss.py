@@ -53,6 +53,72 @@ class ModaSS(Dataset):
         if verbose:
             print('Global STD:', self.global_std)
 
+    def cv_split(self, n_folds, fold_id, seed=0):
+        """Stratified 5-fold or 10-fold CV splits
+        stratified in the sense of preserving distribution of phases and n_blocks.
+
+        Inputs:
+            n_folds: either 5 or 10
+            fold_id: integer in [0, 1, ..., n_folds - 1] (which fold to retrieve)
+            seed: random seed (determines the permutation of subjects before k-fold CV)
+        """
+        if n_folds not in [5, 10]:
+            raise ValueError("%d folds are not supported, choose 5 or 10" % n_folds)
+        if fold_id >= n_folds:
+            raise ValueError("fold id %s invalid for %d folds" % (fold_id, n_folds))
+        # Retrieve data
+        subject_ids = np.asarray(self.all_ids.copy())
+        phases = np.asarray([self.data[subject_id][KEY_PHASE] for subject_id in subject_ids])
+        n_blocks = np.asarray([self.data[subject_id][KEY_N_BLOCKS] for subject_id in subject_ids])
+        # Groups of subjects
+        subjects_p1_n10 = subject_ids[(phases == 1) & (n_blocks == 10)]
+        subjects_p2_n10 = subject_ids[(phases == 2) & (n_blocks == 10)]
+        subjects_p1_n3 = subject_ids[(phases == 1) & (n_blocks < 10)]
+        subjects_p2_n3 = subject_ids[(phases == 2) & (n_blocks < 10)]
+        # Random shuffle
+        subjects_p1_n10 = np.random.RandomState(seed=seed).permutation(subjects_p1_n10)
+        subjects_p2_n10 = np.random.RandomState(seed=seed).permutation(subjects_p2_n10)
+        subjects_p1_n3 = np.random.RandomState(seed=seed).permutation(subjects_p1_n3)
+        subjects_p2_n3 = np.random.RandomState(seed=seed).permutation(subjects_p2_n3)
+        # Form folds
+        test_folds = []
+        last_p1_n10 = 0
+        last_p2_n10 = 0
+        last_p1_n3 = 0
+        last_p2_n3 = 0
+        for i in range(n_folds):
+            if i % 2 == 0:
+                n_p1_n10 = int(np.floor(subjects_p1_n10.size / n_folds))
+                n_p2_n10 = int(np.ceil(subjects_p2_n10.size / n_folds))
+                n_p1_n3 = int(np.ceil(subjects_p1_n3.size / n_folds))
+                n_p2_n3 = int(np.floor(subjects_p2_n3.size / n_folds))
+            else:
+                n_p1_n10 = int(np.ceil(subjects_p1_n10.size / n_folds))
+                n_p2_n10 = int(np.floor(subjects_p2_n10.size / n_folds))
+                n_p1_n3 = int(np.floor(subjects_p1_n3.size / n_folds))
+                n_p2_n3 = int(np.ceil(subjects_p2_n3.size / n_folds))
+            new_fold = [
+                subjects_p1_n10[last_p1_n10:last_p1_n10+n_p1_n10],
+                subjects_p2_n10[last_p2_n10:last_p2_n10+n_p2_n10],
+                subjects_p1_n3[last_p1_n3:last_p1_n3+n_p1_n3],
+                subjects_p2_n3[last_p2_n3:last_p2_n3+n_p2_n3]
+            ]
+            new_fold = np.concatenate(new_fold)
+            test_folds.append(new_fold)
+            last_p1_n10 += n_p1_n10
+            last_p2_n10 += n_p2_n10
+            last_p1_n3 += n_p1_n3
+            last_p2_n3 += n_p2_n3
+        # Select split
+        test_ids = test_folds[fold_id]
+        val_ids = test_folds[(fold_id + 1) % n_folds]
+        train_ids = [s for s in subject_ids if s not in np.concatenate([val_ids, test_ids])]
+        # Sort
+        train_ids = np.sort(train_ids)
+        val_ids = np.sort(val_ids)
+        test_ids = np.sort(test_ids)
+        return train_ids, val_ids, test_ids
+
     def _get_ids(self):
         fpath = self._get_data_path()
         dataset = np.load(fpath)
