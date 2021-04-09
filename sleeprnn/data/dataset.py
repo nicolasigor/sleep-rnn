@@ -417,6 +417,7 @@ class Dataset(object):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False,
     ):
         """Returns segments of signal and marks from pages for the given id.
@@ -442,12 +443,17 @@ class Dataset(object):
                 WN_RECORD (default), statistics for normalization are
                 computed from pages containing true events. If N2_RECORD,
                 statistics are computed from N2 pages.
+            return_page_mask: (Optional, boolean, defaults to False) If true,
+                a binary mask will be returned indicating whether the samples are within
+                the page subset.
             verbose: (Optional, boolean, defaults to False) Whether to print
                 what is being read.
 
         Returns:
             signal: (2D array) each row is an (augmented) page of the signal
             marks: (2D array) each row is an (augmented) page of the marks
+        Optional return:
+            page_mask: (2D array) each row is an (augmented) page of a binary mask.
         """
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i+1) for i in range(self.n_experts)]
@@ -476,6 +482,13 @@ class Dataset(object):
                 marks, 0, signal.shape[0] - 1, min_separation_samples=forced_mark_separation_size)
         else:
             marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
+
+        # Transform page subset into sequence
+        pages = pages.astype(np.int32)
+        pages_start = pages * self.page_size
+        pages_end = (pages + 1) * self.page_size - 1
+        pages_stamps = np.stack([pages_start, pages_end], axis=1).astype(np.int32)
+        page_mask = utils.stamp2seq(pages_stamps, 0, signal.shape[0] - 1)
 
         # Compute border to be added
         if augmented_page:
@@ -517,11 +530,21 @@ class Dataset(object):
             signal, pages, self.page_size, border_size=total_border)
         marks = utils.extract_pages(
             marks, pages, self.page_size, border_size=total_border)
+        page_mask = utils.extract_pages(
+            page_mask, pages, self.page_size, border_size=total_border)
+
+        # Set dtype
+        signal = signal.astype(np.float32)
+        marks = marks.astype(np.int8)
+        page_mask = page_mask.astype(np.int8)
 
         if verbose:
             print('Getting ID %s, %d %s pages, Expert %d'
                   % (subject_id, pages.size, pages_subset, which_expert))
-        return signal, marks
+        if return_page_mask:
+            return signal, marks, page_mask
+        else:
+            return signal, marks
 
     def get_subset_data(
             self,
@@ -533,14 +556,16 @@ class Dataset(object):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False,
     ):
         """Returns the list of signals and marks from a list of subjects.
         """
         subset_signals = []
         subset_marks = []
+        subset_page_mask = []
         for subject_id in subject_id_list:
-            signal, marks = self.get_subject_data(
+            signal, marks, page_mask = self.get_subject_data(
                 subject_id,
                 augmented_page=augmented_page,
                 border_size=border_size,
@@ -549,11 +574,16 @@ class Dataset(object):
                 pages_subset=pages_subset,
                 normalize_clip=normalize_clip,
                 normalization_mode=normalization_mode,
+                return_page_mask=True,
                 verbose=verbose,
             )
             subset_signals.append(signal)
             subset_marks.append(marks)
-        return subset_signals, subset_marks
+            subset_page_mask.append(page_mask)
+        if return_page_mask:
+            return subset_signals, subset_marks, subset_page_mask
+        else:
+            return subset_signals, subset_marks
 
     def get_data(
             self,
@@ -564,11 +594,12 @@ class Dataset(object):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False
     ):
         """Returns the list of signals and marks from all subjects.
         """
-        subset_signals, subset_marks = self.get_subset_data(
+        subset_signals, subset_marks, subset_page_mask = self.get_subset_data(
             self.all_ids,
             augmented_page=augmented_page,
             border_size=border_size,
@@ -577,9 +608,13 @@ class Dataset(object):
             pages_subset=pages_subset,
             normalize_clip=normalize_clip,
             normalization_mode=normalization_mode,
+            return_page_mask=True,
             verbose=verbose
         )
-        return subset_signals, subset_marks
+        if return_page_mask:
+            return subset_signals, subset_marks, subset_page_mask
+        else:
+            return subset_signals, subset_marks
 
     def get_sub_dataset(self, subject_id_list):
         """Data structure of a subset of subjects"""

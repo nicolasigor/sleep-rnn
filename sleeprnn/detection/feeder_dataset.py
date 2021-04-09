@@ -169,11 +169,12 @@ class FeederDataset(Dataset):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
-        signal, marks = super(FeederDataset, self).get_subject_data(
+        output = super(FeederDataset, self).get_subject_data(
             subject_id=subject_id,
             augmented_page=augmented_page,
             border_size=border_size,
@@ -182,9 +183,10 @@ class FeederDataset(Dataset):
             pages_subset=pages_subset,
             normalize_clip=normalize_clip,
             normalization_mode=normalization_mode,
+            return_page_mask=return_page_mask,
             verbose=verbose
         )
-        return signal, marks
+        return output
 
     def get_subset_data(
             self,
@@ -196,11 +198,12 @@ class FeederDataset(Dataset):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
-        subset_signals, subset_marks = super(FeederDataset, self).get_subset_data(
+        output = super(FeederDataset, self).get_subset_data(
             subject_id_list=subject_id_list,
             augmented_page=augmented_page,
             border_size=border_size,
@@ -209,9 +212,10 @@ class FeederDataset(Dataset):
             pages_subset=pages_subset,
             normalize_clip=normalize_clip,
             normalization_mode=normalization_mode,
+            return_page_mask=return_page_mask,
             verbose=verbose
         )
-        return subset_signals, subset_marks
+        return output
 
     def get_data(
             self,
@@ -222,11 +226,12 @@ class FeederDataset(Dataset):
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=constants.WN_RECORD,
+            return_page_mask=False,
             verbose=False
     ):
         if which_expert is None:
             which_expert = self.which_expert
-        subset_signals, subset_marks = super(FeederDataset, self).get_data(
+        output = super(FeederDataset, self).get_data(
             augmented_page=augmented_page,
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
@@ -236,15 +241,16 @@ class FeederDataset(Dataset):
             normalization_mode=normalization_mode,
             verbose=verbose
         )
-        return subset_signals, subset_marks
+        return output
 
     def get_data_for_training(
             self,
             border_size=0,
             forced_mark_separation_size=0,
+            return_page_mask=False,
             verbose=False
     ):
-        signals, stamps = super().get_data(
+        output = super().get_data(
             augmented_page=True,
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
@@ -252,24 +258,27 @@ class FeederDataset(Dataset):
             pages_subset=self.task_mode,
             normalize_clip=True,
             normalization_mode=self.task_mode,
+            return_page_mask=return_page_mask,
             verbose=verbose)
-        return signals, stamps
+        return output
 
     def get_data_for_prediction(
             self,
             border_size=0,
             predict_with_augmented_page=True,
+            return_page_mask=False,
             verbose=False
     ):
-        signals, stamps = super().get_data(
+        output = super().get_data(
             augmented_page=predict_with_augmented_page,
             border_size=border_size,
             which_expert=self.which_expert,
             pages_subset=constants.WN_RECORD,
             normalize_clip=True,
             normalization_mode=self.task_mode,
+            return_page_mask=return_page_mask,
             verbose=verbose)
-        return signals, stamps
+        return output
 
     def get_data_for_stats(
             self,
