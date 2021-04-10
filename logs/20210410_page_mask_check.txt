@@ -1,0 +1,5 @@
+Val AF1 report for 20210409_page_mask_exp1_n2_train_mass_ss
+AF1 67.09/1.88 [0.5] 67.53/2.22 [0.46, 0.50, 0.50, 0.46], F3 80.03/1.46, P3 81.2/ 9.3, R3 81.0/10.6 for v11_mkd2
+
+    os.path.join('20210409_page_mask_exp1_n2_train_mass_ss', 'v11_mkd2'): [0.46, 0.50, 0.50, 0.46],
+
