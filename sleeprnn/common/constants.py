@@ -102,6 +102,7 @@ HINGE_LOSS = 'hinge_loss'
 WEIGHTED_CROSS_ENTROPY_LOSS_V5 = 'weighted_cross_entropy_loss_v5'
 CROSS_ENTROPY_LOSS_WITH_LOGITS_REG = 'cross_entropy_loss_with_logits_reg'
 CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION = "cross_entropy_loss_with_self_supervision"
+MASKED_SOFT_FOCAL_LOSS = 'masked_soft_focal_loss'
 
 # Types of logits reg
 LOGITS_REG_NORM = "logits_reg_norm"

@@ -287,6 +287,62 @@ def weighted_cross_entropy_loss_soft(
     return loss, loss_summ
 
 
+def masked_soft_focal_loss(
+        logits, labels, masks,
+        class_weights,
+        focal_gamma, focal_eps,
+        return_weights=False
+):
+    print("Using Masked Soft Focal Loss")
+    print("By-segment mean loss")
+    print("Class weights:", class_weights)
+    print('Soft focal G: %s EPS: %s' % (focal_gamma, focal_eps))
+
+    with tf.variable_scope(constants.MASKED_SOFT_FOCAL_LOSS):
+        weight_label = get_weights(logits, labels, class_weights)
+        if focal_eps == 1.0:
+            # soft focal weight is disabled
+            print("Soft focal behaviour reduced to regular cross-entropy (eps = 1)")
+            weight_focal = 1.0
+        else:
+            # soft focal weights
+            probabilities = tf.nn.softmax(logits)
+            labels_onehot = tf.cast(tf.one_hot(labels, 2), dtype=tf.float32)
+            proba_correct_class = tf.reduce_sum(probabilities * labels_onehot, axis=2)  # output shape [batch, time]
+            focal_term = (1.0 - proba_correct_class) ** focal_gamma
+            weight_focal = focal_eps + (1.0 - focal_eps) * focal_term
+
+        weight_mask = tf.cast(masks, tf.float32)  # Shape [batch, time]
+        # Samples with mask = 0 do not contribute to the final loss
+        # This is equivalent to assign a weight of zero to those samples
+
+        # Combine weights
+        weights = weight_label * weight_focal * weight_mask
+
+        # Weighted loss
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels,
+            logits=logits)
+        loss = weights * loss
+        # First, we compute the weighted average for each segment independently
+        loss = tf.reduce_sum(loss, axis=1) / tf.reduce_sum(weights, axis=1)
+        # Now we average the segments
+        loss = tf.reduce_mean(loss)
+        # Summaries
+        loss_summ = tf.summary.scalar('loss', loss)
+
+        if return_weights:
+            weights_dict = {
+                "w_class": weight_label,
+                "w_focal": weight_focal,
+                "w_mask": weight_mask,
+                "w_total": weights
+            }
+            return loss, loss_summ, weights_dict
+        else:
+            return loss, loss_summ
+
+
 def weighted_cross_entropy_loss_v5(
         logits, labels,
         class_weights,

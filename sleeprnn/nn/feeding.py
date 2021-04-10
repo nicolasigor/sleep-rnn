@@ -57,7 +57,7 @@ def get_iterator_splitted(
 
 
 def _combine_batch_fn(tensors_1, tensors_2):
-    """Takes a tuple of (feat, label) from two sources and concatenates them
+    """Takes a tuple of tensors from two sources and concatenates them
     along the batch dimension to form a single tuple."""
     n_tensors = len(tensors_1)
 

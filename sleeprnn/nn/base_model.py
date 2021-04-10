@@ -83,24 +83,37 @@ class BaseModel(object):
         with tf.variable_scope('inputs_ph'):
             self.handle_ph = tf.placeholder(
                 tf.string, shape=[], name='handle_ph')
+
             self.feats_train_1_ph = tf.placeholder(
                 tf.float32, shape=[None] + self.feat_train_shape,
                 name='feats_train_1_ph')
             self.labels_train_1_ph = tf.placeholder(
-                tf.int32, shape=[None] + self.label_train_shape,
+                tf.int8, shape=[None] + self.label_train_shape,
                 name='labels_train_1_ph')
+            self.masks_train_1_ph = tf.placeholder(
+                tf.int8, shape=[None] + self.label_train_shape,
+                name='masks_train_1_ph')
+
             self.feats_train_2_ph = tf.placeholder(
                 tf.float32, shape=[None] + self.feat_train_shape,
                 name='feats_train_2_ph')
             self.labels_train_2_ph = tf.placeholder(
-                tf.int32, shape=[None] + self.label_train_shape,
+                tf.int8, shape=[None] + self.label_train_shape,
                 name='labels_train_2_ph')
+            self.masks_train_2_ph = tf.placeholder(
+                tf.int8, shape=[None] + self.label_train_shape,
+                name='masks_train_2_ph')
+
             self.feats_eval_ph = tf.placeholder(
                 tf.float32, shape=[None] + self.feat_eval_shape,
                 name='feats_eval_ph')
             self.labels_eval_ph = tf.placeholder(
-                tf.int32, shape=[None] + self.label_eval_shape,
+                tf.int8, shape=[None] + self.label_eval_shape,
                 name='labels_eval_ph')
+            self.masks_eval_ph = tf.placeholder(
+                tf.int8, shape=[None] + self.label_eval_shape,
+                name='masks_eval_ph')
+
             self.training_ph = tf.placeholder(tf.bool, name="training_ph")
 
         # Learning rate variable
@@ -121,8 +134,8 @@ class BaseModel(object):
         with tf.variable_scope('feeding'):
             # Training iterator
             self.iterator_train = feeding.get_iterator_splitted(
-                (self.feats_train_1_ph, self.labels_train_1_ph),
-                (self.feats_train_2_ph, self.labels_train_2_ph),
+                (self.feats_train_1_ph, self.labels_train_1_ph, self.masks_train_1_ph),
+                (self.feats_train_2_ph, self.labels_train_2_ph, self.masks_train_2_ph),
                 batch_size=self.params[pkeys.BATCH_SIZE],
                 shuffle_buffer_size=self.params[pkeys.SHUFFLE_BUFFER_SIZE],
                 map_fn=self._train_map_fn,
@@ -131,7 +144,7 @@ class BaseModel(object):
 
             # Evaluation iterator
             self.iterator_eval = feeding.get_iterator(
-                (self.feats_eval_ph, self.labels_eval_ph),
+                (self.feats_eval_ph, self.labels_eval_ph, self.masks_eval_ph),
                 batch_size=self.params[pkeys.BATCH_SIZE],
                 shuffle_buffer_size=0,
                 map_fn=self._eval_map_fn,
@@ -143,7 +156,7 @@ class BaseModel(object):
             self.iterator = feeding.get_global_iterator(
                     self.handle_ph, iterators_list,
                     name='iters')
-            self.feats, self.labels = self.iterator.get_next()
+            self.feats, self.labels, self.masks = self.iterator.get_next()
 
         # Model prediction
         self.logits, self.probabilities, self.other_outputs_dict = self._model_fn()
@@ -151,69 +164,6 @@ class BaseModel(object):
         # Add training operations
         self.loss, self.loss_sum = self._loss_fn()
         self.train_step, self.reset_optimizer, self.grad_norm_summ = self._optimizer_fn()
-
-        # BN after CWT stuff
-        model_version = params[pkeys.MODEL_VERSION]
-        if model_version == constants.V1:
-            model_name = 'model_v1'
-        elif model_version == constants.V4:
-            model_name = 'model_v4'
-        elif model_version == constants.V5:
-            model_name = 'model_v5'
-        elif model_version == constants.V6:
-            model_name = 'model_v6'
-        elif model_version == constants.V7:
-            model_name = 'model_v7'
-        elif model_version == constants.V8:
-            model_name = 'model_v8'
-        elif model_version == constants.V9:
-            model_name = 'model_v9'
-        elif model_version == constants.V7lite:
-            model_name = 'model_v7_lite'
-        elif model_version == constants.V7litebig:
-            model_name = 'model_v7_litebig'
-        elif model_version == constants.V10:
-            model_name = 'model_v10'
-        elif model_version == constants.V11:
-            model_name = 'model_v11'
-        elif model_version == constants.V12:
-            model_name = 'model_v12'
-        elif model_version == constants.V13:
-            model_name = 'model_v13'
-        elif model_version == constants.V14:
-            model_name = 'model_v14'
-        elif model_version == constants.V15:
-            model_name = 'model_v15'
-        elif model_version == constants.V16:
-            model_name = 'model_v16'
-        elif model_version == constants.V17:
-            model_name = 'model_v17'
-        elif model_version == constants.V18:
-            model_name = 'model_v18'
-        elif model_version == constants.V19:
-            model_name = 'model_v19'
-        elif model_version == constants.V20_CONCAT:
-            model_name = 'model_v20_concat'
-        elif model_version == constants.V20_INDEP:
-            model_name = 'model_v20_indep'
-        elif model_version == constants.V21:
-            model_name = 'model_v21'
-        elif model_version == constants.V22:
-            model_name = 'model_v22'
-        elif model_version == constants.V23:
-            model_name = 'model_v23'
-        elif model_version == constants.DEBUG:
-            model_name = 'model_debug'
-        else:
-            model_name = 'dummy'
-
-        # self.personalize = tf.get_collection(
-        #     tf.GraphKeys.UPDATE_OPS,
-        #     scope='%s/spectrum' % model_name)
-
-        self.ind_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='%s/spectrum' % model_name)
-        self.ind_variables = [var for var in self.ind_variables if 'moving' in var.name]
-        # print(self.ind_variables)
 
         # Evaluation metrics
         self.batch_metrics_dict, self.batch_metrics_summ = self._batch_metrics_fn()
@@ -405,9 +355,9 @@ class BaseModel(object):
                 print('Done', flush=True)
         return result_list
 
-    def evaluate(self, x, y):
+    def evaluate(self, x, y, m):
         """Evaluates the model, averaging evaluation metrics over batches."""
-        self._init_iterator_eval(x, y)
+        self._init_iterator_eval(x, y, m)
         niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
         niters = int(niters)
         metrics_list = []
@@ -439,20 +389,32 @@ class BaseModel(object):
         """Loads variables from a checkpoint."""
         self.saver.restore(self.sess, ckptdir)
 
-    def _init_iterator_train(self, x_train_1, y_train_1, x_train_2, y_train_2):
+    def _init_iterator_train(
+            self,
+            x_train_1, y_train_1, m_train_1,
+            x_train_2, y_train_2, m_train_2):
         """Init the train iterator."""
-        self.sess.run(self.iterator_train.initializer,
-                      feed_dict={self.feats_train_1_ph: x_train_1,
-                                 self.labels_train_1_ph: y_train_1,
-                                 self.feats_train_2_ph: x_train_2,
-                                 self.labels_train_2_ph: y_train_2
-                                 })
+        self.sess.run(
+            self.iterator_train.initializer,
+            feed_dict={
+                self.feats_train_1_ph: x_train_1,
+                self.labels_train_1_ph: y_train_1,
+                self.masks_train_1_ph: m_train_1,
+                self.feats_train_2_ph: x_train_2,
+                self.labels_train_2_ph: y_train_2,
+                self.masks_train_2_ph: m_train_2
+            })
 
-    def _init_iterator_eval(self, x_eval, y_eval):
+    def _init_iterator_eval(
+            self, x_eval, y_eval, m_eval):
         """Init the evaluation iterator."""
-        self.sess.run(self.iterator_eval.initializer,
-                      feed_dict={self.feats_eval_ph: x_eval,
-                                 self.labels_eval_ph: y_eval})
+        self.sess.run(
+            self.iterator_eval.initializer,
+            feed_dict={
+                self.feats_eval_ph: x_eval,
+                self.labels_eval_ph: y_eval,
+                self.masks_eval_ph: m_eval
+            })
 
     def _update_learning_rate(self, update_factor, ckptdir=None):
         # Restore checkpoint
@@ -469,9 +431,9 @@ class BaseModel(object):
         return new_lr
 
     def _single_train_iteration(self):
-        self.sess.run(self.train_step,
-                      feed_dict={self.training_ph: True,
-                                 self.handle_ph: self.handle_train})
+        self.sess.run(
+            self.train_step,
+            feed_dict={self.training_ph: True, self.handle_ph: self.handle_train})
 
     def _initialize_variables(self):
         self.sess.run(self.init_op)
@@ -480,13 +442,13 @@ class BaseModel(object):
         """This method has to be implemented."""
         pass
 
-    def _train_map_fn(self, feat, label):
+    def _train_map_fn(self, feat, label, mask):
         """This method has to be implemented."""
-        return feat, label
+        return feat, label, mask
 
-    def _eval_map_fn(self, feat, label):
+    def _eval_map_fn(self, feat, label, mask):
         """This method has to be implemented."""
-        return feat, label
+        return feat, label, mask
 
     def _model_fn(self):
         """This method has to be implemented"""

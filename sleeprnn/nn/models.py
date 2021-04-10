@@ -72,7 +72,7 @@ class WaveletBLSTM(BaseModel):
         page_size = fs * page_duration
         return page_size
 
-    def check_train_inputs(self, x_train, y_train, x_val, y_val):
+    def check_train_inputs(self, x_train, y_train, m_train, x_val, y_val, m_val):
         """Ensures that validation data has the proper shape."""
         time_stride = self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
         border_size = self.get_border_size()
@@ -82,17 +82,25 @@ class WaveletBLSTM(BaseModel):
             # If validation has augmented pages
             x_val = x_val[:, page_size // 2:-page_size // 2]
             y_val = y_val[:, page_size // 2:-page_size // 2]
+            m_val = m_val[:, page_size // 2:-page_size // 2]
         if y_val.shape[1] == crop_size:
             # We need to remove borders and downsampling for val labels.
             y_val = y_val[:, border_size:-border_size]
+            m_val = m_val[:, border_size:-border_size]
             aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
             if aligned_down:
                 print('ALIGNED DOWNSAMPLING at checking inputs for fit')
+                y_val_dtype = y_val.dtype
                 y_val = y_val.reshape((-1, int(page_size/time_stride), time_stride))
-                y_val = np.round(y_val.mean(axis=-1) + 1e-3).astype(np.int32)
+                y_val = np.round(y_val.mean(axis=-1) + 1e-3).astype(y_val_dtype)
+
+                m_val_dtype = m_val.dtype
+                m_val = m_val.reshape((-1, int(page_size / time_stride), time_stride))
+                m_val = np.round(m_val.mean(axis=-1) + 1e-3).astype(m_val_dtype)
             else:
                 y_val = y_val[:, ::time_stride]
-        return x_train, y_train, x_val, y_val
+                m_val = m_val[:, ::time_stride]
+        return x_train, y_train, m_train, x_val, y_val, m_val
 
     def fit_without_validation(
             self,
@@ -101,38 +109,41 @@ class WaveletBLSTM(BaseModel):
             extra_data_train=None,
             verbose=False):
         """Fits the model to the training data."""
-        border_size = int(
-            self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
+        border_size = int(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
         forced_mark_separation_size = int(
             self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
 
-        x_train, y_train = data_train.get_data_for_training(
+        x_train, y_train, m_train = data_train.get_data_for_training(
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
+            return_page_mask=True,
             verbose=verbose)
 
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
         y_train = np.concatenate(y_train, axis=0)
+        m_train = np.concatenate(m_train, axis=0)
 
         # Add extra training data
         if extra_data_train is not None:
-            x_extra, y_extra = extra_data_train
+            x_extra, y_extra, m_extra = extra_data_train
             print('CHECK: Sum extra y:', y_extra.sum())
-            print('Current train data x, y:', x_train.shape, y_train.shape)
+            print('Current train data x, y, m:', x_train.shape, y_train.shape, m_train.shape)
             x_train = np.concatenate([x_train, x_extra], axis=0)
             y_train = np.concatenate([y_train, y_extra], axis=0)
-            print('Extra data to be added x, y:', x_extra.shape, y_extra.shape)
-            print('New train data', x_train.shape, y_train.shape)
+            m_train = np.concatenate([m_train, m_extra], axis=0)
+            print('Extra data to be added x, y, m:', x_extra.shape, y_extra.shape, m_extra.shape)
+            print('New train data', x_train.shape, y_train.shape, m_train.shape)
 
         # Shuffle training set
-        x_train, y_train = utils.shuffle_data(x_train, y_train, seed=0)
+        list_of_outputs = utils.shuffle_data_collection([x_train, y_train, m_train], seed=0)
+        x_train, y_train, m_train = list_of_outputs[0], list_of_outputs[1], list_of_outputs[2]
 
-        print('Training set shape', x_train.shape, y_train.shape)
+        print('Training set shape', x_train.shape, y_train.shape, m_train.shape)
         print('Validation set does not exist')
 
-        x_train, y_train, _, _ = self.check_train_inputs(x_train, y_train, x_train.copy(), y_train.copy())
-        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(x_train, y_train)
+        x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2 = self._split_train(
+            x_train, y_train, m_train)
 
         batch_size = self.params[pkeys.BATCH_SIZE]
         iters_resolution = 10
@@ -165,7 +176,7 @@ class WaveletBLSTM(BaseModel):
         else:
             self._initialize_variables()
 
-        self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
+        self._init_iterator_train(x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2)
 
         # Training loop
         start_time = time.time()
@@ -224,39 +235,47 @@ class WaveletBLSTM(BaseModel):
         forced_mark_separation_size = int(
             self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
 
-        x_train, y_train = data_train.get_data_for_training(
+        x_train, y_train, m_train = data_train.get_data_for_training(
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
+            return_page_mask=True,
             verbose=verbose)
-        x_val, y_val = data_val.get_data_for_training(
+        x_val, y_val, m_val = data_val.get_data_for_training(
             border_size=border_size,
             forced_mark_separation_size=forced_mark_separation_size,
+            return_page_mask=True,
             verbose=verbose)
 
         # Transform to numpy arrays
         x_train = np.concatenate(x_train, axis=0)
         y_train = np.concatenate(y_train, axis=0)
+        m_train = np.concatenate(m_train, axis=0)
         x_val = np.concatenate(x_val, axis=0)
         y_val = np.concatenate(y_val, axis=0)
+        m_val = np.concatenate(m_val, axis=0)
 
         # Add extra training data
         if extra_data_train is not None:
-            x_extra, y_extra = extra_data_train
+            x_extra, y_extra, m_extra = extra_data_train
             print('CHECK: Sum extra y:', y_extra.sum())
-            print('Current train data x, y:', x_train.shape, y_train.shape)
+            print('Current train data x, y, m:', x_train.shape, y_train.shape, m_train.shape)
             x_train = np.concatenate([x_train, x_extra], axis=0)
             y_train = np.concatenate([y_train, y_extra], axis=0)
-            print('Extra data to be added x, y:', x_extra.shape, y_extra.shape)
-            print('New train data', x_train.shape, y_train.shape)
+            m_train = np.concatenate([m_train, m_extra], axis=0)
+            print('Extra data to be added x, y, m:', x_extra.shape, y_extra.shape, m_extra.shape)
+            print('New train data', x_train.shape, y_train.shape, m_train.shape)
 
         # Shuffle training set
-        x_train, y_train = utils.shuffle_data(x_train, y_train, seed=0)
+        list_of_outputs = utils.shuffle_data_collection([x_train, y_train, m_train], seed=0)
+        x_train, y_train, m_train = list_of_outputs[0], list_of_outputs[1], list_of_outputs[2]
 
-        print('Training set shape', x_train.shape, y_train.shape)
-        print('Validation set shape', x_val.shape, y_val.shape)
+        print('Training set shape', x_train.shape, y_train.shape, m_train.shape)
+        print('Validation set shape', x_val.shape, y_val.shape, m_val.shape)
 
-        x_train, y_train, x_val, y_val = self.check_train_inputs(x_train, y_train, x_val, y_val)
-        x_train_1, y_train_1, x_train_2, y_train_2 = self._split_train(x_train, y_train)
+        x_train, y_train, m_train, x_val, y_val, m_val = self.check_train_inputs(
+            x_train, y_train, m_train, x_val, y_val, m_val)
+        x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2 = self._split_train(
+            x_train, y_train, m_train)
 
         batch_size = self.params[pkeys.BATCH_SIZE]
         iters_resolution = 10
@@ -287,7 +306,19 @@ class WaveletBLSTM(BaseModel):
         else:
             self._initialize_variables()
 
-        self._init_iterator_train(x_train_1, y_train_1, x_train_2, y_train_2)
+        # Debug
+        min_valids_in_mask = self.get_page_size()
+        d_check = np.all(m_train_1.sum(axis=-1) >= min_valids_in_mask)
+        if not d_check:
+            raise ValueError("Mask train 1 did not pass sanity check")
+        d_check = np.all(m_train_2.sum(axis=-1) >= min_valids_in_mask)
+        if not d_check:
+            raise ValueError("Mask train 2 did not pass sanity check")
+        d_check = np.all(m_val == 1)
+        if not d_check:
+            raise ValueError("Mask val did not pass sanity check")
+
+        self._init_iterator_train(x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2)
 
         # Improvement criterion
         model_criterion = {
@@ -320,7 +351,7 @@ class WaveletBLSTM(BaseModel):
                 metric_msg += ' - train loss %1.4f f1 %1.4f' % (train_loss, train_metrics[KEY_F1_SCORE])
                 if it % iter_per_epoch == 0 or it == 1 or it == niters:
                     # Val set report (whole set)
-                    val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val)
+                    val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, m_val)
                     self.val_writer.add_summary(val_summ, it)
                     metric_msg += ' - val loss %1.4f f1 %1.4f' % (val_loss, val_metrics[KEY_F1_SCORE])
                     # Time passed
@@ -378,7 +409,7 @@ class WaveletBLSTM(BaseModel):
             print('Keeping model from last iteration')
             iter_saved_model = niters
 
-        val_loss, val_metrics, _ = self.evaluate(x_val, y_val)
+        val_loss, val_metrics, _ = self.evaluate(x_val, y_val, m_val)
         last_model = {
             KEY_ITER: iter_saved_model,
             KEY_LOSS: float(val_loss),
@@ -399,7 +430,12 @@ class WaveletBLSTM(BaseModel):
         with open(os.path.join(self.logdir, 'last_model.json'), 'w') as outfile:
             json.dump(last_model, outfile)
 
-    def _train_map_fn(self, feat, label):
+    def _eval_map_fn(self, feat, label, mask):
+        label = tf.cast(label, tf.int32)
+        mask = tf.cast(mask, tf.int32)
+        return feat, label, mask
+
+    def _train_map_fn(self, feat, label, mask):
         """Random cropping.
 
         This method is used to preprocess features and labels of single
@@ -413,31 +449,41 @@ class WaveletBLSTM(BaseModel):
         crop_size = page_size + 2 * border_size
         # Random crop
         label_cast = tf.cast(label, dtype=tf.float32)
-        stack = tf.stack([feat, label_cast], axis=0)
-        stack_crop = tf.random_crop(stack, [2, crop_size])
+        mask_cast = tf.cast(mask, dtype=tf.float32)
+        stack = tf.stack([feat, label_cast, mask_cast], axis=0)
+        stack_crop = tf.random_crop(stack, [3, crop_size])
         feat = stack_crop[0, :]
         label = tf.cast(stack_crop[1, :], dtype=tf.int32)
+        mask = tf.cast(stack_crop[2, :], dtype=tf.int32)
 
         # Apply data augmentation
-        feat, label = self._augmentation_fn(feat, label)
+        feat, label, mask = self._augmentation_fn(feat, label, mask)
 
         # Throw borders for labels, skipping steps
         # We need to remove borders and downsampling for val labels.
         label = label[border_size:-border_size]
+        mask = mask[border_size:-border_size]
         aligned_down = self.params[pkeys.ALIGNED_DOWNSAMPLING]
         if aligned_down:
             print('ALIGNED DOWNSAMPLING at iterator')
+            # Label downsampling
             label = tf.cast(label, tf.float32)
             label = tf.reshape(label, [-1, time_stride])
             label = tf.reduce_mean(label, axis=-1)
             label = tf.round(label + 1e-3)
             label = tf.cast(label, tf.int32)
+            # Mask downsampling
+            mask = tf.cast(mask, tf.float32)
+            mask = tf.reshape(mask, [-1, time_stride])
+            mask = tf.reduce_mean(mask, axis=-1)
+            mask = tf.round(mask + 1e-3)
+            mask = tf.cast(mask, tf.int32)
         else:
             label = label[::time_stride]
+            mask = mask[::time_stride]
+        return feat, label, mask
 
-        return feat, label
-
-    def _augmentation_fn(self, feat, label):
+    def _augmentation_fn(self, feat, label, mask):
         rescale_proba = self.params[pkeys.AUG_RESCALE_NORMAL_PROBA]
         rescale_std = self.params[pkeys.AUG_RESCALE_NORMAL_STD]
         noise_proba = self.params[pkeys.AUG_GAUSSIAN_NOISE_PROBA]
@@ -514,7 +560,7 @@ class WaveletBLSTM(BaseModel):
             feat = augmentations.false_spindles_single_contamination_wrapper(
                 feat, label, random_waves_proba, self.params[pkeys.FS], false_spindles_single_cont_params)
 
-        return feat, label
+        return feat, label, mask
 
     def _model_fn(self):
         model_version = self.params[pkeys.MODEL_VERSION]
@@ -832,8 +878,7 @@ class WaveletBLSTM(BaseModel):
         else:
             model_fn = networks.dummy_net
 
-        logits, probabilities, other_outputs_dict = model_fn(
-            self.feats, self.params, self.training_ph)
+        logits, probabilities, other_outputs_dict = model_fn(self.feats, self.params, self.training_ph)
         return logits, probabilities, other_outputs_dict
 
     def _loss_fn(self):
@@ -863,6 +908,7 @@ class WaveletBLSTM(BaseModel):
                 constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5,
                 constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG,
                 constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION,
+                constants.MASKED_SOFT_FOCAL_LOSS
             ])
 
         if type_loss == constants.CROSS_ENTROPY_LOSS:
@@ -989,6 +1035,11 @@ class WaveletBLSTM(BaseModel):
                 self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
                 self.other_outputs_dict["regression_loss"],
                 self.params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT])
+        elif type_loss == constants.MASKED_SOFT_FOCAL_LOSS:
+            loss, loss_summ = losses.masked_soft_focal_loss(
+                self.logits, self.labels, self.masks,
+                self.params[pkeys.CLASS_WEIGHTS],
+                self.params[pkeys.SOFT_FOCAL_GAMMA], self.params[pkeys.SOFT_FOCAL_EPSILON])
         else:
             loss, loss_summ = losses.dice_loss_fn(
                 self.probabilities[..., 1], self.labels)
@@ -1027,7 +1078,7 @@ class WaveletBLSTM(BaseModel):
 
     def _batch_metrics_fn(self):
         with tf.variable_scope('batch_metrics'):
-            tp, fp, fn = metrics.confusion_matrix(self.logits, self.labels)
+            tp, fp, fn = metrics.confusion_matrix(self.logits, self.labels, self.masks)
             precision, recall, f1_score = metrics.precision_recall_f1score(
                 tp, fp, fn)
             prec_summ = tf.summary.scalar(KEY_PRECISION, precision)
@@ -1060,7 +1111,7 @@ class WaveletBLSTM(BaseModel):
             eval_metrics_summ = tf.summary.merge(eval_metrics_summ)
         return eval_metrics_dict, eval_metrics_summ
 
-    def _split_train(self, x_train, y_train):
+    def _split_train(self, x_train, y_train, m_train):
         n_train = x_train.shape[0]
         border_size = self.get_border_size()
         page_size = self.get_page_size()
@@ -1083,9 +1134,11 @@ class WaveletBLSTM(BaseModel):
             # Pages without any activity
             x_train_1 = x_train[zero_activity_idx]
             y_train_1 = y_train[zero_activity_idx]
+            m_train_1 = m_train[zero_activity_idx]
             # Pages with activity
             x_train_2 = x_train[exists_activity_idx]
             y_train_2 = y_train[exists_activity_idx]
+            m_train_2 = m_train[exists_activity_idx]
             print('Pages without activity:', x_train_1.shape)
             print('Pages with activity:', x_train_2.shape)
         else:
@@ -1096,42 +1149,13 @@ class WaveletBLSTM(BaseModel):
             # Pages with low activity
             x_train_1 = x_train[low_activity_idx]
             y_train_1 = y_train[low_activity_idx]
+            m_train_1 = m_train[low_activity_idx]
             # Pages with high activity
             x_train_2 = x_train[high_activity_idx]
             y_train_2 = y_train[high_activity_idx]
+            m_train_2 = m_train[high_activity_idx]
             print('Pages with low activity:', x_train_1.shape)
             print('Pages with high activity:', x_train_2.shape)
 
-        # # Split into pages with activity, and pages without any
-        # # zero_activity_idx = np.where(activity == 0)[0]
-        # # exists_activity_idx = np.where(activity > 0)[0]
-        #
-        # # # Sorting in ascending order (low to high)
-        # sorted_idx = np.argsort(activity)
-        # low_activity_idx = sorted_idx[:int(n_train/2)]
-        # high_activity_idx = sorted_idx[int(n_train/2):]
-        #
-        # # Pages without any activity
-        # # x_train_1 = x_train[zero_activity_idx]
-        # # y_train_1 = y_train[zero_activity_idx]
-        #
-        # # Pages with activity
-        # # x_train_2 = x_train[exists_activity_idx]
-        # # y_train_2 = y_train[exists_activity_idx]
-        #
-        # # print('Pages without activity:', x_train_1.shape)
-        # # print('Pages with activity:', x_train_2.shape)
-        #
-        # # Pages with low activity
-        # x_train_1 = x_train[low_activity_idx]
-        # y_train_1 = y_train[low_activity_idx]
-        #
-        # # Pages with high activity
-        # x_train_2 = x_train[high_activity_idx]
-        # y_train_2 = y_train[high_activity_idx]
-        #
-        # print('Pages with low activity:', x_train_1.shape)
-        # print('Pages with high activity:', x_train_2.shape)
-
-        return x_train_1, y_train_1, x_train_2, y_train_2
+        return x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2
 

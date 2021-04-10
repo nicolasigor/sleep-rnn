@@ -624,6 +624,15 @@ def shuffle_data(x, y, seed=None):
     return x, y
 
 
+def shuffle_data_collection(list_of_arrays, seed=None):
+    """Shuffles data assuming that they are numpy arrays."""
+    n_examples = list_of_arrays[0].shape[0]
+    random_idx = np.random.RandomState(seed=seed).permutation(n_examples)
+    for i in range(len(list_of_arrays)):
+        list_of_arrays[i] = list_of_arrays[i][random_idx]
+    return list_of_arrays
+
+
 def shuffle_data_with_ids(x, y, sub_ids, seed=None):
     """Shuffles data assuming that they are numpy arrays."""
     n_examples = x.shape[0]

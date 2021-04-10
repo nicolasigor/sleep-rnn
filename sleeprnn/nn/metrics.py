@@ -9,23 +9,26 @@ import tensorflow as tf
 from sleeprnn.common import constants
 
 
-def confusion_matrix(logits, labels):
+def confusion_matrix(logits, labels, masks=None):
     """Returns TP, FP and FN"""
     with tf.variable_scope('confusion_matrix'):
         predictions_sparse = tf.argmax(logits, axis=-1)
         labels_zero = tf.equal(labels, tf.zeros_like(labels))
         labels_one = tf.equal(labels, tf.ones_like(labels))
-        predictions_zero = tf.equal(
-            predictions_sparse, tf.zeros_like(predictions_sparse))
-        predictions_one = tf.equal(
-            predictions_sparse, tf.ones_like(predictions_sparse))
+        predictions_zero = tf.equal(predictions_sparse, tf.zeros_like(predictions_sparse))
+        predictions_one = tf.equal(predictions_sparse, tf.ones_like(predictions_sparse))
 
-        tp = tf.reduce_sum(
-            tf.cast(tf.logical_and(labels_one, predictions_one), "float"))
-        fp = tf.reduce_sum(
-            tf.cast(tf.logical_and(labels_zero, predictions_one), "float"))
-        fn = tf.reduce_sum(
-            tf.cast(tf.logical_and(labels_one, predictions_zero), "float"))
+        valid_samples = 1.0 if masks is None else tf.cast(masks, tf.float32)
+
+        tp_samples = tf.cast(tf.logical_and(labels_one, predictions_one), tf.float32)
+        tp = tf.reduce_sum(valid_samples * tp_samples)
+
+        fp_samples = tf.cast(tf.logical_and(labels_zero, predictions_one), tf.float32)
+        fp = tf.reduce_sum(valid_samples * fp_samples)
+
+        fn_samples = tf.cast(tf.logical_and(labels_one, predictions_zero), tf.float32)
+        fn = tf.reduce_sum(valid_samples * fn_samples)
+
     return tp, fp, fn
 
 
