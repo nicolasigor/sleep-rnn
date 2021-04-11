@@ -3116,7 +3116,7 @@ def lstm_contextualization(
             dropout=params[pkeys.TYPE_DROPOUT],
             drop_rate=params[pkeys.DROP_RATE_HIDDEN],
             training=training,
-            activation=tf.nn.swish,
+            activation=tf.nn.relu,
             name='fc_1')
     return outputs
 
@@ -3291,7 +3291,7 @@ def residual_lstm_contextualization(
             dropout=params[pkeys.TYPE_DROPOUT],
             drop_rate=params[pkeys.DROP_RATE_HIDDEN],
             training=training,
-            activation=tf.nn.swish,
+            activation=tf.nn.relu,
             name='fc_1')
     return outputs
 
@@ -3353,7 +3353,7 @@ def wavelet_blstm_net_v41(
                 dropout=params[pkeys.TYPE_DROPOUT],
                 drop_rate=params[pkeys.DROP_RATE_HIDDEN],
                 training=training,
-                activation=tf.nn.swish,
+                activation=tf.nn.relu,
                 name='fc_1')
 
         # Final FC classification layer
