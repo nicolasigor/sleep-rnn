@@ -37,7 +37,7 @@ if __name__ == '__main__':
     global_std = 19.209161  # CapFullSS std is 19.209161
 
     # ----- Experiment settings
-    experiment_name = 'lego_2_finetuning'
+    experiment_name = 'lego_2_finetuning_v2'
     task_mode = constants.N2_RECORD
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
@@ -65,16 +65,6 @@ if __name__ == '__main__':
         })
     ]
     context_part_list = [
-        ('att2', {
-            pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
-            pkeys.BIGGER_ATT_N_BLOCKS: 2,
-            pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-        }),
-        ('att3', {
-            pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
-            pkeys.BIGGER_ATT_N_BLOCKS: 3,
-            pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-        }),
         ('lstm', {
             pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
             pkeys.BIGGER_LSTM_1_SIZE: 256,
@@ -87,19 +77,12 @@ if __name__ == '__main__':
             pkeys.BIGGER_LSTM_2_SIZE: 256,
             pkeys.FC_UNITS: 128,
             pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-        }),
-        ('res-lstm-bn', {
-            pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-            pkeys.BIGGER_LSTM_1_SIZE: 256,
-            pkeys.BIGGER_LSTM_2_SIZE: 256,
-            pkeys.FC_UNITS: 128,
-            pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
-        }),
+        })
     ]
     pretraining_option_list = [
-        'none',
-        'ckpt2',
         'ckpt1',
+        'ckpt2',
+        'none',
     ]
     params_list = list(itertools.product(
         model_version_list, pretraining_option_list, conv_part_list, context_part_list,
@@ -157,13 +140,13 @@ if __name__ == '__main__':
                 weight_ckpt_folder = 'dummy'
             elif pretraining_option == 'ckpt1':
                 fine_tune = True
-                params[pkeys.EPOCHS_LR_UPDATE] = 4
+                params[pkeys.EPOCHS_LR_UPDATE] = 3
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
                     '20210409_lego_2_pretrain_exp1_n2_train_cap_full_ss', pretrain_folder_name)
             elif pretraining_option == 'ckpt2':
                 fine_tune = True
-                params[pkeys.EPOCHS_LR_UPDATE] = 4
+                params[pkeys.EPOCHS_LR_UPDATE] = 3
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
                     '20210409_lego_2_pretrain_exp2_n2_train_cap_full_ss', pretrain_folder_name)
@@ -221,28 +204,6 @@ if __name__ == '__main__':
                         prediction,
                         handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
-
-                if set_name == constants.VAL_SUBSET:
-                    # Validation AF1
-                    # ----- Obtain AF1 metric
-                    print('Computing Validation AF1...', flush=True)
-                    detections_val = prediction.get_stamps()
-                    events_val = data_val.get_stamps()
-                    val_af1_at_half_thr = metrics.average_metric_with_list(
-                        events_val, detections_val, verbose=False)
-                    print('Validation AF1 with thr 0.5: %1.6f'
-                          % val_af1_at_half_thr)
-
-                    metric_dict = {
-                        'description': description_str,
-                        'val_seed': id_try,
-                        'database': dataset_name,
-                        'task_mode': task_mode,
-                        'val_af1': float(val_af1_at_half_thr)
-                    }
-                    with open(os.path.join(model.logdir, 'metric.json'),
-                              'w') as outfile:
-                        json.dump(metric_dict, outfile)
 
             print('Predictions saved at %s' % save_dir)
             print('')

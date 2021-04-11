@@ -425,8 +425,10 @@ class BaseModel(object):
             self.sess.run(self.reset_optimizer)
         # Decrease learning rate
         self.lr_updates = self.lr_updates + 1
-        total_factor = update_factor ** self.lr_updates
-        new_lr = self.params[pkeys.LEARNING_RATE] * total_factor
+        # total_factor = update_factor ** self.lr_updates
+        # new_lr = self.params[pkeys.LEARNING_RATE] * total_factor
+        current_lr = self.sess.run(self.learning_rate)
+        new_lr = current_lr * update_factor
         self.sess.run(tf.assign(self.learning_rate, new_lr))
         return new_lr
 

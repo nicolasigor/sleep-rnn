@@ -1,0 +1,12 @@
+Val AF1 report for 20210411_bsf_update_exp1_n2_train_mass_ss
+AF1 66.69/1.89 [0.5] 67.89/2.26 [0.42, 0.52, 0.54, 0.42], F3 80.29/1.62, P3 81.1/ 8.7, R3 81.3/10.1 for v43
+
+    os.path.join('20210411_bsf_update_exp1_n2_train_mass_ss', 'v43'): [0.42, 0.52, 0.54, 0.42],
+    
+
+Val AF1 report for 20210411_bsf_update_exp2_n2_train_mass_ss
+AF1 68.38/1.46 [0.5] 68.49/1.75 [0.48, 0.52, 0.54, 0.44], F3 85.95/1.38, P3 86.4/ 6.4, R3 86.1/ 4.7 for v43
+
+    os.path.join('20210411_bsf_update_exp2_n2_train_mass_ss', 'v43'): [0.48, 0.52, 0.54, 0.44],
+    
+

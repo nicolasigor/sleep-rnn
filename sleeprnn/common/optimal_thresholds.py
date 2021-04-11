@@ -327,6 +327,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att3_from-none'): [0.40, 0.52, 0.52, 0.36],
     os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att2_from-none'): [0.34, 0.50, 0.54, 0.42],
 
+    os.path.join('20210411_bsf_update_exp1_n2_train_mass_ss', 'v43'): [0.42, 0.52, 0.54, 0.42],
+    os.path.join('20210411_bsf_update_exp2_n2_train_mass_ss', 'v43'): [0.48, 0.52, 0.54, 0.44],
+
 }
 
 

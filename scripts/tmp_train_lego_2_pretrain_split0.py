@@ -30,10 +30,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
 
-    for which_expert in [1, 2]:
+    for which_expert in [2]:
 
         # ----- Experiment settings
-        experiment_name = 'lego_2_pretrain_exp%d' % which_expert
+        experiment_name = 'lego_2_pretrain_v2_exp%d' % which_expert
         task_mode = constants.N2_RECORD
         dataset_name = constants.CAP_FULL_SS_NAME
         description_str = 'experiments'
@@ -102,16 +102,16 @@ if __name__ == '__main__':
         ]
 
         context_part_list = [
-            ('att2', {
-                pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
-                pkeys.BIGGER_ATT_N_BLOCKS: 2,
-                pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-            }),
-            ('att3', {
-                pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
-                pkeys.BIGGER_ATT_N_BLOCKS: 3,
-                pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
-            }),
+            # ('att2', {
+            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
+            #     pkeys.BIGGER_ATT_N_BLOCKS: 2,
+            #     pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+            # }),
+            # ('att3', {
+            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'attention',
+            #     pkeys.BIGGER_ATT_N_BLOCKS: 3,
+            #     pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
+            # }),
             ('lstm', {
                 pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
                 pkeys.BIGGER_LSTM_1_SIZE: 256,
@@ -125,13 +125,13 @@ if __name__ == '__main__':
                 pkeys.FC_UNITS: 128,
                 pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
             }),
-            ('res-lstm-bn', {
-                pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
-                pkeys.BIGGER_LSTM_1_SIZE: 256,
-                pkeys.BIGGER_LSTM_2_SIZE: 256,
-                pkeys.FC_UNITS: 128,
-                pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
-            }),
+            # ('res-lstm-bn', {
+            #     pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+            #     pkeys.BIGGER_LSTM_1_SIZE: 256,
+            #     pkeys.BIGGER_LSTM_2_SIZE: 256,
+            #     pkeys.FC_UNITS: 128,
+            #     pkeys.BIGGER_ATT_TYPE_NORM: 'batchnorm'
+            # }),
         ]
 
         params_list = list(itertools.product(
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
         # Training strategy
         base_params[pkeys.PRETRAIN_EPOCHS_INIT] = 20
-        base_params[pkeys.PRETRAIN_EPOCHS_ANNEAL] = 5
+        base_params[pkeys.PRETRAIN_EPOCHS_ANNEAL] = 4
         base_params[pkeys.PRETRAIN_MAX_LR_UPDATES] = 3
 
         print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
