@@ -310,6 +310,22 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210405_check_contralateral_exp1_n2_train_mass_ss_alt', 'v11_mkd2'): [0.50, 0.50, 0.50, 0.42],
     
     os.path.join('20210409_page_mask_exp1_n2_train_mass_ss', 'v11_mkd2'): [0.46, 0.50, 0.50, 0.46],
+    
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_lstm_from-none'): [0.48, 0.50, 0.52, 0.40],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-ln_from-ckpt2'): [0.40, 0.50, 0.42, 0.40],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-ln_from-ckpt1'): [0.48, 0.50, 0.46, 0.42],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-bn_from-ckpt1'): [0.40, 0.50, 0.48, 0.40],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_lstm_from-ckpt1'): [0.36, 0.46, 0.42, 0.36],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_lstm_from-ckpt2'): [0.44, 0.44, 0.48, 0.38],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-bn_from-ckpt2'): [0.40, 0.46, 0.46, 0.36],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-ln_from-none'): [0.46, 0.52, 0.46, 0.44],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_res-lstm-bn_from-none'): [0.38, 0.52, 0.50, 0.40],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att2_from-ckpt1'): [0.36, 0.52, 0.50, 0.36],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att3_from-ckpt2'): [0.40, 0.46, 0.46, 0.34],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att3_from-ckpt1'): [0.32, 0.48, 0.48, 0.36],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att2_from-ckpt2'): [0.48, 0.40, 0.52, 0.38],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att3_from-none'): [0.40, 0.52, 0.52, 0.36],
+    os.path.join('20210410_lego_2_finetuning_n2_train_mass_ss', 'v43_res-multi-d8_att2_from-none'): [0.34, 0.50, 0.54, 0.42],
 
 }
 
