@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
 
-    id_try_list = [0, 1]
+    id_try_list = [2, 3]
     train_fraction = 0.75
     global_std = 19.209161  # CapFullSS std is 19.209161
 
