@@ -54,9 +54,9 @@ class IntaSS(Dataset):
     def __init__(self, params=None, load_checkpoint=False, repair_stamps=False, verbose=True):
         """Constructor"""
         # INTA parameters
-        self.state_ids = np.array([1, 2, 3, 4, 5, 6])
         self.original_page_duration = 30  # Time of window page [s]
         self.channel = 0  # Channel for SS, first is F4-C4, third is F3-C3
+        self.state_ids = np.array([1, 2, 3, 4, 5, 6])
         self.n2_id = 3  # Character for N2 identification in hypnogram
         # Sleep states dictionary for INTA:
         # 1:SQ4   2:SQ3   3:SQ2   4:SQ1   5:REM   6:WA
@@ -75,7 +75,7 @@ class IntaSS(Dataset):
 
         # Sleep spindles characteristics
         self.min_ss_duration = 0.5  # Minimum duration of SS in seconds (set to 0.5 according to INTA)
-        self.max_ss_duration = 3  # Maximum duration of SS in seconds
+        self.max_ss_duration = 5  # Maximum duration of SS in seconds
 
         if repair_stamps:
             self._repair_stamps()
@@ -97,7 +97,41 @@ class IntaSS(Dataset):
             print('Global STD:', self.global_std)
 
     def get_name(self, subject_id):
-        return self.names[subject_id]
+        return self.names[subject_id-1]
+
+    def cv_split(self, n_folds, fold_id, seed=0):
+        """5-fold or 10-fold CV splits
+        stratified in the sense of preserving distribution of phases and n_blocks.
+
+        Inputs:
+            n_folds: either 5 or 10
+            fold_id: integer in [0, 1, ..., n_folds - 1] (which fold to retrieve)
+            seed: random seed (determines the permutation of subjects before k-fold CV)
+        """
+        if n_folds not in [5, 10]:
+            raise ValueError("%d folds are not supported, choose 5 or 10" % n_folds)
+        if fold_id >= n_folds:
+            raise ValueError("fold id %s invalid for %d folds" % (fold_id, n_folds))
+        # Retrieve data
+        subject_ids = np.asarray(self.all_ids.copy())
+        # Random permutation
+        subject_ids = np.random.RandomState(seed=seed).permutation(subject_ids)
+        # Form folds
+        test_folds = []
+        n_test = len(subject_ids) // n_folds
+        for i in range(n_folds):
+            start_loc = i * n_test
+            end_loc = (i + 1) * n_test
+            test_folds.append(subject_ids[start_loc:end_loc])
+        # Select split
+        test_ids = test_folds[fold_id]
+        val_ids = test_folds[(fold_id + 1) % n_folds]
+        train_ids = [s for s in subject_ids if s not in np.concatenate([val_ids, test_ids])]
+        # Sort
+        train_ids = np.sort(train_ids)
+        val_ids = np.sort(val_ids)
+        test_ids = np.sort(test_ids)
+        return train_ids, val_ids, test_ids
 
     def compute_global_std(
             self,
@@ -110,14 +144,14 @@ class IntaSS(Dataset):
             hypnogram_page_size = int(self.original_page_duration * self.fs)
         if sleep_labels is None:
             sleep_labels = [1, 2, 3, 4, 5]
-        super(IntaSS, self).compute_global_std(
+        global_std = super(IntaSS, self).compute_global_std(
             subject_ids,
             only_sleep=only_sleep,
             hypnogram_page_size=hypnogram_page_size,
             sleep_labels=sleep_labels)
+        return global_std
 
     def _load_from_source(self):
-        # Fusion BTOL's two files
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()
         data = {}
@@ -127,29 +161,36 @@ class IntaSS(Dataset):
         for i, subject_id in enumerate(data_paths.keys()):
             print('\nLoading ID %d' % subject_id)
             path_dict = data_paths[subject_id]
-
-            # Check if two or one files:
             if len(path_dict[KEY_FILE_EEG]) == 2:
-                # Fusion
                 signal_1 = self._read_eeg(path_dict[KEY_FILE_EEG][0])
                 signal_2 = self._read_eeg(path_dict[KEY_FILE_EEG][1])
                 signal_1, hypnogram_original_1 = self._read_states(
                     path_dict[KEY_FILE_STATES][0], signal_1, block_duration)
                 signal_2, hypnogram_original_2 = self._read_states(
                     path_dict[KEY_FILE_STATES][1], signal_2, block_duration)
-                signal = np.concatenate([signal_1, np.zeros(self.page_size), signal_2])
+                signal_between = np.zeros(int(self.fs * block_duration))  # 3 20s, 2 30s
+                states_between = [6, 6]  # in original 30s pages
+                signal = np.concatenate([signal_1, signal_between, signal_2])
+                hypnogram_original = np.concatenate([hypnogram_original_1, states_between, hypnogram_original_2])
+                # Now marks
+                marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS][0])
+                marks_2 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS][1])
+                marks_1 = utils.filter_stamps(marks_1, 0, signal_1.size - 1)  # avoid runaway
+                marks_2 = utils.filter_stamps(marks_2, 0, signal_2.size - 1)
+                offset_for_marks_2 = signal_1.size + signal_between.size
+                marks_2_shifted = marks_2 + offset_for_marks_2
+                marks = np.concatenate([marks_1, marks_2_shifted], axis=0)
             else:
-                # Read data
                 signal = self._read_eeg(path_dict[KEY_FILE_EEG][0])
                 signal, hypnogram_original = self._read_states(
                     path_dict[KEY_FILE_STATES][0], signal, block_duration)
-                n2_pages = self._get_n2_pages(hypnogram_original)
-                total_pages = int(np.ceil(signal.size / self.page_size))
-                all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
-                print('N2 pages: %d' % n2_pages.shape[0])
-                print('Whole-night pages: %d' % all_pages.shape[0])
-                marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS][0])
-                print('Marks SS from E1: %d' % marks_1.shape[0])
+                marks = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS][0])
+            n2_pages = self._get_n2_pages(hypnogram_original)
+            total_pages = int(np.ceil(signal.size / self.page_size))
+            all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
+            print('N2 pages: %d' % n2_pages.shape[0])
+            print('Whole-night pages: %d' % all_pages.shape[0])
+            print('Marks SS from E1: %d' % marks.shape[0])
 
             # Save data
             ind_dict = {
@@ -157,7 +198,7 @@ class IntaSS(Dataset):
                 KEY_N2_PAGES: n2_pages,
                 KEY_ALL_PAGES: all_pages,
                 KEY_HYPNOGRAM: hypnogram_original,
-                '%s_1' % KEY_MARKS: marks_1
+                '%s_1' % KEY_MARKS: marks
             }
             data[subject_id] = ind_dict
             print('Loaded ID %d (%02d/%02d ready). Time elapsed: %1.4f [s]'
@@ -219,20 +260,16 @@ class IntaSS(Dataset):
             fs_old = file.samplefrequency(self.channel)
             # Check
             print('Channel extracted: %s' % file.getLabel(self.channel))
-
         # Particular for INTA dataset
         fs_old = int(np.round(fs_old))
-
         # Broand bandpass filter to signal
         signal = utils.broad_filter(signal, fs_old)
-
         # Now resample to the required frequency
         if self.fs != fs_old:
             print('Resampling from %d Hz to required %d Hz' % (fs_old, self.fs))
             signal = utils.resample_signal(signal, fs_old=fs_old, fs_new=self.fs)
         else:
             print('Signal already at required %d Hz' % self.fs)
-
         signal = signal.astype(np.float32)
         return signal
 
@@ -244,7 +281,6 @@ class IntaSS(Dataset):
         marks_file = np.loadtxt(path_marks_file, dtype='i', delimiter=' ')
         marks = marks_file[marks_file[:, 5] == self.channel + 1][:, [0, 1]]
         marks = np.round(marks).astype(np.int32)
-
         # Sample-stamps assume 200Hz sampling rate
         marks_fs = 200
         if self.fs != marks_fs:
@@ -253,13 +289,10 @@ class IntaSS(Dataset):
             marks_time = marks.astype(np.float32) / marks_fs
             # Transform to sample-stamps
             marks = np.round(marks_time * self.fs).astype(np.int32)
-
         # Combine marks that are too close according to standards
-        marks = stamp_correction.combine_close_stamps(
-            marks, self.fs, self.min_ss_duration)
+        marks = stamp_correction.combine_close_stamps(marks, self.fs, self.min_ss_duration)
         # Fix durations that are outside standards
-        marks = stamp_correction.filter_duration_stamps(
-            marks, self.fs, self.min_ss_duration, self.max_ss_duration)
+        marks = stamp_correction.filter_duration_stamps(marks, self.fs, self.min_ss_duration, self.max_ss_duration)
         return marks
 
     def _read_states(self, path_states_file, signal, block_duration):
@@ -277,6 +310,7 @@ class IntaSS(Dataset):
         signal_total_duration = len(hypnogram_original) * self.original_page_duration
         # Extract N2 pages
         n2_pages_original = np.where(hypnogram_original == self.n2_id)[0]
+        print("Original N2 pages: %d" % len(n2_pages_original))
         onsets_original = n2_pages_original * self.original_page_duration
         offsets_original = (n2_pages_original + 1) * self.original_page_duration
         total_pages = int(np.ceil(signal_total_duration / self.page_duration))
