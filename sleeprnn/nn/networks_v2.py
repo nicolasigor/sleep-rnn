@@ -3215,7 +3215,10 @@ def residual_lstm_contextualization(
         params,
         training,
 ):
-    outputs = inputs
+    outputs = layers.dropout_layer(
+        inputs, 'drop_in', training,
+        dropout=params[pkeys.TYPE_DROPOUT],
+        drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM])
     # Lstm - First layer
     if params[pkeys.BIGGER_LSTM_1_SIZE] > 0:
         layer_dim = 2 * params[pkeys.BIGGER_LSTM_1_SIZE]
@@ -3224,8 +3227,6 @@ def residual_lstm_contextualization(
             outputs,
             num_units=layer_dim//2,
             num_dirs=constants.BIDIRECTIONAL,
-            dropout=params[pkeys.TYPE_DROPOUT],
-            drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM],
             training=training,
             name='lstm_1')
         outputs = tf.keras.layers.Conv1D(
@@ -3234,6 +3235,10 @@ def residual_lstm_contextualization(
             use_bias=False,
             kernel_initializer=tf.initializers.he_normal(),
             name='linear_1')(outputs)
+        outputs = layers.dropout_layer(
+            outputs, 'drop_1', training,
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_HIDDEN])
         # project shortcut if necessary
         if shortcut.get_shape().as_list()[-1] != layer_dim:
             shortcut = tf.keras.layers.Conv1D(
@@ -3242,6 +3247,7 @@ def residual_lstm_contextualization(
                 use_bias=False,
                 kernel_initializer=tf.initializers.he_normal(),
                 name='project_1')(shortcut)
+        # add & norm
         outputs = outputs + shortcut
         if params[pkeys.BIGGER_ATT_TYPE_NORM] == 'layernorm':
             outputs = tf.keras.layers.LayerNormalization()(outputs)
@@ -3257,8 +3263,6 @@ def residual_lstm_contextualization(
             outputs,
             num_units=layer_dim//2,
             num_dirs=constants.BIDIRECTIONAL,
-            dropout=params[pkeys.TYPE_DROPOUT],
-            drop_rate=params[pkeys.DROP_RATE_HIDDEN],
             training=training,
             name='lstm_2')
         outputs = tf.keras.layers.Conv1D(
@@ -3267,6 +3271,10 @@ def residual_lstm_contextualization(
             use_bias=False,
             kernel_initializer=tf.initializers.he_normal(),
             name='linear_2')(outputs)
+        outputs = layers.dropout_layer(
+            outputs, 'drop_2', training,
+            dropout=params[pkeys.TYPE_DROPOUT],
+            drop_rate=params[pkeys.DROP_RATE_HIDDEN])
         # project shortcut if necessary
         if shortcut.get_shape().as_list()[-1] != layer_dim:
             shortcut = tf.keras.layers.Conv1D(
@@ -3275,6 +3283,7 @@ def residual_lstm_contextualization(
                 use_bias=False,
                 kernel_initializer=tf.initializers.he_normal(),
                 name='project_2')(shortcut)
+        # add & norm
         outputs = outputs + shortcut
         if params[pkeys.BIGGER_ATT_TYPE_NORM] == 'layernorm':
             outputs = tf.keras.layers.LayerNormalization()(outputs)
@@ -3288,8 +3297,6 @@ def residual_lstm_contextualization(
             outputs,
             params[pkeys.FC_UNITS],
             kernel_init=tf.initializers.he_normal(),
-            dropout=params[pkeys.TYPE_DROPOUT],
-            drop_rate=params[pkeys.DROP_RATE_HIDDEN],
             training=training,
             activation=tf.nn.relu,
             name='fc_1')

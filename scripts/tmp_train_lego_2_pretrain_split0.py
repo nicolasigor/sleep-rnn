@@ -112,6 +112,13 @@ if __name__ == '__main__':
             #     pkeys.BIGGER_ATT_N_BLOCKS: 3,
             #     pkeys.BIGGER_ATT_TYPE_NORM: 'layernorm'
             # }),
+            ('res-lstm', {
+                pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+                pkeys.BIGGER_LSTM_1_SIZE: 256,
+                pkeys.BIGGER_LSTM_2_SIZE: 256,
+                pkeys.FC_UNITS: 128,
+                pkeys.BIGGER_ATT_TYPE_NORM: None
+            }),
             ('lstm', {
                 pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
                 pkeys.BIGGER_LSTM_1_SIZE: 256,
@@ -146,6 +153,8 @@ if __name__ == '__main__':
         base_params[pkeys.ATT_DIM] = 256
         base_params[pkeys.ATT_N_HEADS] = 4
         base_params[pkeys.ATT_PE_FACTOR] = 10000
+        base_params[pkeys.DROP_RATE_BEFORE_LSTM] = 0.2
+        base_params[pkeys.DROP_RATE_HIDDEN] = 0.2
 
         base_params[pkeys.MAX_EPOCHS] = 100
         base_params[pkeys.EPOCHS_LR_UPDATE] = 4

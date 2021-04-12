@@ -65,6 +65,13 @@ if __name__ == '__main__':
         })
     ]
     context_part_list = [
+        ('res-lstm', {
+            pkeys.BIGGER_CONTEXT_PART_OPTION: 'residual_lstm',
+            pkeys.BIGGER_LSTM_1_SIZE: 256,
+            pkeys.BIGGER_LSTM_2_SIZE: 256,
+            pkeys.FC_UNITS: 128,
+            pkeys.BIGGER_ATT_TYPE_NORM: None
+        }),
         ('lstm', {
             pkeys.BIGGER_CONTEXT_PART_OPTION: 'lstm',
             pkeys.BIGGER_LSTM_1_SIZE: 256,
@@ -96,6 +103,8 @@ if __name__ == '__main__':
     base_params[pkeys.ATT_DIM] = 256
     base_params[pkeys.ATT_N_HEADS] = 4
     base_params[pkeys.ATT_PE_FACTOR] = 10000
+    base_params[pkeys.DROP_RATE_BEFORE_LSTM] = 0.2
+    base_params[pkeys.DROP_RATE_HIDDEN] = 0.2
 
     base_params[pkeys.FACTOR_INIT_LR_FINE_TUNE] = 0.5
 
@@ -143,13 +152,13 @@ if __name__ == '__main__':
                 params[pkeys.EPOCHS_LR_UPDATE] = 3
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
-                    '20210409_lego_2_pretrain_exp1_n2_train_cap_full_ss', pretrain_folder_name)
+                    '20210409_lego_2_pretrain_v2_exp1_n2_train_cap_full_ss', pretrain_folder_name)
             elif pretraining_option == 'ckpt2':
                 fine_tune = True
                 params[pkeys.EPOCHS_LR_UPDATE] = 3
                 params[pkeys.MAX_LR_UPDATES] = 3
                 weight_ckpt_folder = os.path.join(
-                    '20210409_lego_2_pretrain_exp2_n2_train_cap_full_ss', pretrain_folder_name)
+                    '20210409_lego_2_pretrain_v2_exp2_n2_train_cap_full_ss', pretrain_folder_name)
             else:
                 raise ValueError()
 
