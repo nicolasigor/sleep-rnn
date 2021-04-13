@@ -7,6 +7,47 @@ from joblib import delayed, Parallel
 import numpy as np
 
 from sleeprnn.detection import metrics
+from sleeprnn.common import constants
+
+
+def fit_threshold(
+        feeder_dataset_list,
+        predicted_dataset_list,
+        threshold_space,
+        average_mode
+):
+    n_thr = int(np.floor((threshold_space['max'] - threshold_space['min']) / threshold_space['step'] + 1))
+    thr_list = np.array([threshold_space['min'] + threshold_space['step'] * i for i in range(n_thr)])
+    thr_list = np.round(thr_list, 2)
+
+    events_list = []
+    for feeder_dataset in feeder_dataset_list:
+        # Prepare expert labels
+        this_events = feeder_dataset.get_stamps()
+        events_list = events_list + this_events
+
+    predictions_at_thr_list = []
+    for thr in thr_list:
+        detections_list = []
+        for predicted_dataset in predicted_dataset_list:
+            # Prepare model predictions
+            predicted_dataset.set_probability_threshold(thr)
+            this_detections = predicted_dataset.get_stamps()
+            detections_list = detections_list + this_detections
+        predictions_at_thr_list.append(detections_list)
+
+    metric_fn_dict = {
+        constants.MACRO_AVERAGE: metrics.average_metric_macro_average,
+        constants.MICRO_AVERAGE: metrics.average_metric_micro_average}
+    metric_fn = metric_fn_dict[average_mode]
+    af1_list = Parallel(n_jobs=-1)(
+        delayed(metric_fn)(
+            events_list, single_prediction_list)
+        for single_prediction_list in predictions_at_thr_list
+    )
+    max_idx = np.argmax(af1_list).item()
+    best_thr = thr_list[max_idx]
+    return best_thr
 
 
 def get_optimal_threshold(

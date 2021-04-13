@@ -18,8 +18,6 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data import utils
-from sleeprnn.detection import metrics
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.nn.models import WaveletBLSTM
 from sleeprnn.helpers.reader import load_dataset
@@ -31,7 +29,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == '__main__':
-    n_folds = 5
+    n_folds = 10
     cv_seed = 0
     fold_id_list = [i for i in range(n_folds)]
     dataset_name = constants.MODA_SS_NAME

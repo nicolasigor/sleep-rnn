@@ -38,6 +38,80 @@ class RefactorUnpickler(pickle.Unpickler):
         return super().find_class(module, name)
 
 
+def read_predictions_crossval(
+        ckpt_folder,
+        parent_dataset,
+        task_mode,
+        verbose=False
+):
+    print("Loading predictions") if verbose else None
+    predictions_path = os.path.abspath(os.path.join(
+        RESULTS_PATH,
+        'predictions_%s' % parent_dataset.dataset_name,
+        ckpt_folder))
+    fold_ids, fold_prefix = parse_folds(predictions_path)
+    predictions_dict = {}
+    for k in fold_ids:
+        ckpt_path = os.path.abspath(os.path.join(
+            RESULTS_PATH,
+            'predictions_%s' % parent_dataset.dataset_name,
+            ckpt_folder,
+            '%s%d' % (fold_prefix, k)))
+        pred_path_dict = parse_prediction_files(ckpt_path)
+        this_dict = {}
+        for set_name in pred_path_dict.keys():
+            with open(pred_path_dict[set_name], 'rb') as handle:
+                this_pred = RefactorUnpickler(handle).load()
+            this_pred.set_parent_dataset(parent_dataset)
+            this_dict[set_name] = this_pred
+        predictions_dict[k] = this_dict
+    return predictions_dict
+
+
+def parse_prediction_files(ckpt_path):
+    available_preds = os.listdir(ckpt_path)
+    available_preds.sort()
+    set_names = [pred_fname.split(".")[0].split("_")[-1] for pred_fname in available_preds]
+    path_dict = {
+        set_name: os.path.join(ckpt_path, pred_fname)
+        for (set_name, pred_fname) in zip(set_names, available_preds)
+    }
+    return path_dict
+
+
+def parse_folds(predictions_path):
+    folds = os.listdir(predictions_path)
+    if not folds[0][-1].isdigit():
+        raise ValueError("Inside %s there are no numbered folders" % predictions_path)
+    # Get available fold ids
+    fold_ids = [get_fold_id(fold) for fold in folds]
+    fold_ids.sort()
+    fold_prefix = get_fold_prefix(folds[0])
+    return fold_ids, fold_prefix
+
+
+def generate_imputed_ids(fold_ids):
+    max_id = np.max(fold_ids)
+    n_possible_ids = max_id + 1
+    fold_ids_imputed = n_possible_ids * [None]
+    for fold_id in fold_ids:
+        fold_ids_imputed[fold_id] = fold_id
+    return fold_ids_imputed
+
+
+def get_fold_id(fold_name):
+    x = [s for s in fold_name if s.isdigit()]
+    x = "".join(x)
+    x = int(x)
+    return x
+
+
+def get_fold_prefix(fold_name):
+    x = [s for s in fold_name if s.isalpha()]
+    x = "".join(x)
+    return x
+
+
 def read_prediction_with_seeds(
         ckpt_folder,
         dataset_name,

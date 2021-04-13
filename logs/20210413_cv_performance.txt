@@ -1,0 +1,23 @@
+Val AF1 report (macro_average, iou >= 0.20) for 20210411_bsf_update_exp1_n2_train_mass_ss
+AF1 66.69/1.89 [0.5] 67.89/2.26 [0.42, 0.52, 0.54, 0.42], F 80.37/1.60, P 81.2/ 8.7, R 81.4/10.1 for v43
+
+    os.path.join('20210411_bsf_update_exp1_n2_train_mass_ss', 'v43'): [0.42, 0.52, 0.54, 0.42],
+    
+
+Val AF1 report (macro_average, iou >= 0.20) for 20210411_bsf_update_exp2_n2_train_mass_ss
+AF1 68.38/1.46 [0.5] 68.49/1.75 [0.48, 0.52, 0.54, 0.44], F 86.57/1.21, P 87.0/ 6.3, R 86.8/ 4.8 for v43
+
+    os.path.join('20210411_bsf_update_exp2_n2_train_mass_ss', 'v43'): [0.48, 0.52, 0.54, 0.44],
+    
+
+Val AF1 report (macro_average, iou >= 0.20) for 20210412_5fold-cv_exp1_n2_train_inta_ss
+AF1 62.67/5.10 [0.5] 63.26/4.78 [0.42, 0.42, 0.52, 0.44, 0.42], F 83.11/4.85, P 80.3/ 9.3, R 87.1/ 6.4 for v43
+
+    os.path.join('20210412_5fold-cv_exp1_n2_train_inta_ss', 'v43'): [0.42, 0.42, 0.52, 0.44, 0.42],
+    
+
+Val AF1 report (micro_average, iou >= 0.20) for 20210411_5fold-cv_exp1_n2_train_moda_ss
+AF1 68.38/1.32 [0.5] 68.43/1.31 [0.50, 0.54, 0.54, 0.52, 0.50], F 82.10/1.39, P 80.9/ 1.7, R 83.3/ 1.3 for v43
+
+    os.path.join('20210411_5fold-cv_exp1_n2_train_moda_ss', 'v43'): [0.50, 0.54, 0.54, 0.52, 0.50],
+

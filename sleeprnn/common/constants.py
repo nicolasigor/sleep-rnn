@@ -38,6 +38,8 @@ FP = 'fp'
 FN = 'fn'
 MEAN_ALL_IOU = 'mean_all_iou'
 MEAN_NONZERO_IOU = 'mean_nonzero_iou'
+MACRO_AVERAGE = 'macro_average'
+MICRO_AVERAGE = 'micro_average'
 
 # Baselines data keys
 F1_VS_IOU = 'f1_vs_iou'

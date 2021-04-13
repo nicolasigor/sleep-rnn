@@ -18,8 +18,6 @@ import numpy as np
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data import utils
-from sleeprnn.detection import metrics
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.nn.models import WaveletBLSTM
 from sleeprnn.helpers.reader import load_dataset

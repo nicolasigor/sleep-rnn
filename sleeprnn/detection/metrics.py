@@ -170,6 +170,158 @@ def matching_with_list(events_list, detections_list):
     return iou_matching_list, idx_matching_list
 
 
+def confusion_vs_iou(
+        events,
+        detections,
+        iou_thr_list,
+        iou_matching=None
+):
+    if iou_matching is None:
+        iou_matching, _ = matching(events, detections)
+    n_events = events.shape[0]
+    n_detections = detections.shape[0]
+    # First, remove the zero iou_array entries
+    iou_matching = iou_matching[iou_matching > 0]
+    if iou_matching.size > 0:
+        tp_vs_iou = [np.sum(iou_matching >= iou_thr) for iou_thr in iou_thr_list]
+        fp_vs_iou = [(n_detections - tp) for tp in tp_vs_iou]
+        fn_vs_iou = [(n_events - tp) for tp in tp_vs_iou]
+    else:
+        # There are no positive iou -> no true positives
+        n_thrs = len(iou_thr_list)
+        tp_vs_iou = n_thrs * [0]
+        fp_vs_iou = n_thrs * [n_detections]
+        fn_vs_iou = n_thrs * [n_events]
+    metrics = {
+        'tp_vs_iou': tp_vs_iou,
+        'fp_vs_iou': fp_vs_iou,
+        'fn_vs_iou': fn_vs_iou,
+    }
+    return metrics
+
+
+def confusion_vs_iou_with_list(
+        events_list,
+        detections_list,
+        iou_thr_list,
+        iou_matching_list=None
+):
+    if iou_matching_list is None:
+        iou_matching_list = [None] * len(events_list)
+    outputs_list = [
+        confusion_vs_iou(events, detections, iou_thr_list, iou_matching)
+        for (events, detections, iou_matching)
+        in zip(events_list, detections_list, iou_matching_list)
+    ]
+    metrics = {}
+    for key in outputs_list[0].keys():
+        metrics[key] = np.stack([o[key] for o in outputs_list], axis=0)
+    return metrics
+
+
+def metric_vs_iou_micro_average(
+        events_list,
+        detections_list,
+        iou_thr_list,
+        metric_name=constants.F1_SCORE,
+        iou_matching_list=None
+):
+    """Aggregates TP, FP and FN from all subjects and then computes a single metric."""
+    metrics = confusion_vs_iou_with_list(events_list, detections_list, iou_thr_list, iou_matching_list)
+    tp_vs_iou = metrics['tp_vs_iou'].sum(axis=0)
+    edge_case = 1.0 * len(tp_vs_iou)
+    n_events = np.sum([e.shape[0] for e in events_list])
+    n_detections = np.sum([d.shape[0] for d in detections_list])
+    recall_vs_iou = edge_case if n_events == 0 else (tp_vs_iou / n_events)
+    precision_vs_iou = edge_case if n_detections == 0 else (tp_vs_iou / n_detections)
+    f1_score_vs_iou = edge_case if (n_events + n_detections) == 0 else (2 * tp_vs_iou / (n_events + n_detections))
+    if metric_name == constants.RECALL:
+        chosen_vs_iou = recall_vs_iou
+    elif metric_name == constants.PRECISION:
+        chosen_vs_iou = precision_vs_iou
+    elif metric_name == constants.F1_SCORE:
+        chosen_vs_iou = f1_score_vs_iou
+    else:
+        raise ValueError("Metric name '%s' unsupported" % metric_name)
+    return chosen_vs_iou
+
+
+def metric_vs_iou_macro_average(
+        events_list,
+        detections_list,
+        iou_thr_list,
+        metric_name=constants.F1_SCORE,
+        iou_matching_list=None,
+        collapse_values=True
+):
+    """ Computes metric independently for each subject and then combines them."""
+    if iou_matching_list is None:
+        iou_matching_list = [None] * len(events_list)
+    chosen_vs_iou_list = [
+        metric_vs_iou_micro_average(
+            [events],
+            [detections],
+            iou_thr_list,
+            metric_name,
+            [iou_matching])
+        for (events, detections, iou_matching)
+        in zip(events_list, detections_list, iou_matching_list)
+    ]
+    chosen_vs_iou_list = np.stack(chosen_vs_iou_list, axis=0)
+    if collapse_values:
+        return chosen_vs_iou_list.mean(axis=0)
+    else:
+        return chosen_vs_iou_list
+
+
+def average_metric_micro_average(
+        events_list,
+        detections_list,
+        metric_name=constants.F1_SCORE,
+        iou_matching_list=None
+):
+    # Go through several IoU values
+    first_iou = 0
+    last_iou = 1
+    res_iou = 0.01
+    n_points = int(np.round((last_iou - first_iou) / res_iou))
+    full_iou_list = np.arange(n_points + 1) * res_iou + first_iou
+    chosen_vs_iou = metric_vs_iou_micro_average(
+        events_list, detections_list, full_iou_list, metric_name, iou_matching_list)
+    # To compute the area under the curve, we'll use trapezoidal approximation
+    # So we need to divide by 2 the extremes
+    chosen_vs_iou[0] = chosen_vs_iou[0] / 2
+    chosen_vs_iou[-1] = chosen_vs_iou[-1] / 2
+    # And now we compute the AUC
+    avg_metric = np.sum(chosen_vs_iou * res_iou)
+    return avg_metric
+
+
+def average_metric_macro_average(
+        events_list,
+        detections_list,
+        metric_name=constants.F1_SCORE,
+        iou_matching_list=None,
+        collapse_values=True
+):
+    # Go through several IoU values
+    first_iou = 0
+    last_iou = 1
+    res_iou = 0.01
+    n_points = int(np.round((last_iou - first_iou) / res_iou))
+    full_iou_list = np.arange(n_points + 1) * res_iou + first_iou
+    chosen_vs_iou = metric_vs_iou_macro_average(
+        events_list, detections_list, full_iou_list, metric_name, iou_matching_list,
+        collapse_values=collapse_values)
+    # To compute the area under the curve, we'll use trapezoidal approximation
+    # So we need to divide by 2 the extremes
+    chosen_vs_iou[..., 0] = chosen_vs_iou[..., 0] / 2
+    chosen_vs_iou[..., -1] = chosen_vs_iou[..., -1] / 2
+    # And now we compute the AUC
+    avg_metric = np.sum(chosen_vs_iou * res_iou, axis=-1)
+    return avg_metric
+
+
 def metric_vs_iou(
         events,
         detections,
