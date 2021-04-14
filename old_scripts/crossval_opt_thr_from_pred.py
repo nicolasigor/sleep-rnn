@@ -26,9 +26,10 @@ if __name__ == '__main__':
     # ----- Prediction settings
     # Set checkpoint from where to restore, relative to results dir
 
-    ckpt_folder = '20210211_cap_init_check'
-    id_try_list = [0, 1, 2, 3]
-    dataset_name = constants.CAP_SS_NAME
+    ckpt_folder = ''
+    id_try_list = [i for i in range(4)]
+    train_fraction = 0.75
+    dataset_name = constants.MASS_SS_NAME
     which_expert = 1
 
     dataset_params = {pkeys.FS: 200}
@@ -89,7 +90,7 @@ if __name__ == '__main__':
             print('Seed %d' % k)
             # Split to form validation set
             train_ids, val_ids = utils.split_ids_list_v2(
-                all_train_ids, split_id=k)
+                all_train_ids, split_id=k, train_fraction=train_fraction)
             ids_dict = {
                 constants.TRAIN_SUBSET: train_ids,
                 constants.VAL_SUBSET: val_ids}
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 
             # Now load validation set and compute performance
             _, val_ids = utils.split_ids_list_v2(
-                all_train_ids, split_id=k, verbose=False)
+                all_train_ids, split_id=k, verbose=False, train_fraction=train_fraction)
             # Prepare expert labels
             data_val = FeederDataset(
                 dataset, val_ids, task_mode, which_expert=which_expert)

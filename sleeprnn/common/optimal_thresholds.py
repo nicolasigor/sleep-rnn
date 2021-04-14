@@ -330,6 +330,9 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210411_bsf_update_exp1_n2_train_mass_ss', 'v43'): [0.42, 0.52, 0.54, 0.42],
     os.path.join('20210411_bsf_update_exp2_n2_train_mass_ss', 'v43'): [0.48, 0.52, 0.54, 0.44],
 
+    os.path.join('20210412_5fold-cv_exp1_n2_train_inta_ss', 'v43'): [0.42, 0.42, 0.52, 0.44, 0.42],
+    os.path.join('20210411_5fold-cv_exp1_n2_train_moda_ss', 'v43'): [0.50, 0.54, 0.54, 0.52, 0.50],
+    os.path.join('20210413_10fold-cv_exp1_n2_train_moda_ss', 'v43'): [0.50, 0.48, 0.48, 0.54, 0.48, 0.46, 0.52, 0.48, 0.62, 0.50],
 }
 
 

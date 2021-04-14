@@ -24,6 +24,8 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     # Experiment setting
     ckpt_folder_prefix = ''
+    # You may specify certain runs within that ckpt_folder in grid_folder_list.
+    # If None then all runs are returned
     grid_folder_list = None
 
     # Data settings

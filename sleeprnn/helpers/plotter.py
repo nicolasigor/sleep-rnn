@@ -9,7 +9,7 @@ from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy.interpolate import interp1d
 
-from sleeprnn.common import viz
+from sleeprnn.common import viz, constants
 
 
 class AnchoredScaleBar(AnchoredOffsetbox):
@@ -292,3 +292,55 @@ def show_isof1(ax, min_level, max_level):
 def add_label_chart(ax, label, fontsize):
     ax.set_title(r"$\bf{%s}$"% label, fontsize=fontsize, loc='left')
     return ax
+
+
+def format_precision_recall_plot_simple(
+    ax,
+    axis_markers=None,
+    show_quadrants=True,
+    show_grid=True,
+    minor_axis_markers=None
+):
+    if axis_markers is None:
+        axis_markers = np.arange(0, 1 + 0.001, 0.1)
+    if minor_axis_markers is None:
+        minor_axis_markers = axis_markers
+    # Diagonal
+    ax.plot([0, 1], [0, 1], zorder=1, linewidth=1, color=viz.GREY_COLORS[4])
+    # Square basis
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.set_aspect('equal')
+    # Ticks
+    ax.set_yticks(axis_markers)
+    ax.set_xticks(axis_markers)
+    ax.set_xticks(minor_axis_markers, minor=True)
+    ax.set_yticks(minor_axis_markers, minor=True)
+    if show_grid:
+        ax.grid(which="minor")
+    if show_quadrants:
+        ax.axhline(0.5, color=viz.GREY_COLORS[5], linewidth=2)
+        ax.axvline(0.5, color=viz.GREY_COLORS[5], linewidth=2)
+
+
+def get_fold_colors():
+    color_dict = {
+        0: viz.PALETTE[constants.RED],
+        1: viz.PALETTE[constants.BLUE],
+        2: viz.PALETTE[constants.GREEN],
+        3: viz.PALETTE[constants.DARK],
+        4: viz.PALETTE[constants.PURPLE],
+        5: viz.PALETTE[constants.CYAN],
+        6: viz.PALETTE[constants.GREY],
+    }
+    return color_dict
+
+
+def get_performance_string(outputs):
+    perf_str = "F1: %1.1f\u00B1%1.1f, IoU: %1.1f\u00B1%1.1f\nP: %1.1f\u00B1%1.1f, R: %1.1f\u00B1%1.1f" % (
+        100 * np.nanmean(outputs['f1']), 100 * np.nanstd(outputs['f1']),
+        100 * np.nanmean(outputs['miou']), 100 * np.nanstd(outputs['miou']),
+        100 * np.nanmean(outputs['prec']), 100 * np.nanstd(outputs['prec']),
+        100 * np.nanmean(outputs['rec']), 100 * np.nanstd(outputs['rec']),
+    )
+    return perf_str

@@ -229,7 +229,7 @@ def metric_vs_iou_micro_average(
     """Aggregates TP, FP and FN from all subjects and then computes a single metric."""
     metrics = confusion_vs_iou_with_list(events_list, detections_list, iou_thr_list, iou_matching_list)
     tp_vs_iou = metrics['tp_vs_iou'].sum(axis=0)
-    edge_case = 1.0 * len(tp_vs_iou)
+    edge_case = [1.0] * len(tp_vs_iou)
     n_events = np.sum([e.shape[0] for e in events_list])
     n_detections = np.sum([d.shape[0] for d in detections_list])
     recall_vs_iou = edge_case if n_events == 0 else (tp_vs_iou / n_events)
