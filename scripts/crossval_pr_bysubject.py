@@ -55,12 +55,12 @@ if __name__ == "__main__":
     show_fold_id = True
     show_grid = True
     show_mean = True
-    show_quadrants = False
+    show_quadrants = True
     weight_marker_by_density = False
     weight_marker_max_alpha = 1.0
     weight_marker_min_alpha = 0.2
-    axis_markers = np.arange(0, 1 + 0.001, 0.2)
-    minor_axis_markers = np.arange(0, 1 + 0.001, 0.2)
+    axis_markers = np.arange(0, 1 + 0.001, 0.1)
+    minor_axis_markers = np.arange(0, 1 + 0.001, 0.1)
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------

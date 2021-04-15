@@ -53,9 +53,9 @@ if __name__ == "__main__":
     show_fold_id = True
     show_grid = True
     show_mean = True
-    show_quadrants = False
-    axis_markers = np.arange(0, 1 + 0.001, 0.2)
-    minor_axis_markers = np.arange(0, 1 + 0.001, 0.2)
+    show_quadrants = True
+    axis_markers = np.arange(0, 1 + 0.001, 0.1)
+    minor_axis_markers = np.arange(0, 1 + 0.001, 0.1)
 
     # -----------------------------------------------------------
     # -----------------------------------------------------------
