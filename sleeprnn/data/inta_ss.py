@@ -159,7 +159,7 @@ class IntaSS(Dataset):
         block_duration = np.lcm(self.page_duration, self.original_page_duration)
         start = time.time()
         for i, subject_id in enumerate(data_paths.keys()):
-            print('\nLoading ID %d' % subject_id)
+            print('\nLoading ID %d (%s)' % (subject_id, self.get_name(subject_id)))
             path_dict = data_paths[subject_id]
             if len(path_dict[KEY_FILE_EEG]) == 2:
                 signal_1 = self._read_eeg(path_dict[KEY_FILE_EEG][0])
@@ -201,8 +201,8 @@ class IntaSS(Dataset):
                 '%s_1' % KEY_MARKS: marks
             }
             data[subject_id] = ind_dict
-            print('Loaded ID %d (%02d/%02d ready). Time elapsed: %1.4f [s]'
-                  % (subject_id, i+1, n_data, time.time()-start))
+            print('Loaded ID %d (%s) (%02d/%02d ready). Time elapsed: %1.4f [s]'
+                  % (subject_id, self.get_name(subject_id), i+1, n_data, time.time()-start))
         print('%d records have been read.' % len(data))
         return data
 
@@ -236,7 +236,11 @@ class IntaSS(Dataset):
             # Find spindles
             subject_spindles = [f for f in spindle_files_manual_fix if subject_name in f]
             if len(subject_spindles) == 0:
+                print("Subject %02d (%s): Spindle manual session not found, using automatic NewerWins fix instead." % (
+                    subject_id, subject_name))
                 subject_spindles = [f for f in spindle_files_auto_fix if subject_name in f]
+            else:
+                print("Subject %02d (%s): Using spindle manual session." % (subject_id, subject_name))
             subject_spindles.sort()
             path_marks_1_file = tuple([
                 os.path.join(self.dataset_dir, PATH_MARKS, f)
