@@ -14,7 +14,8 @@ def fit_threshold(
         feeder_dataset_list,
         predicted_dataset_list,
         threshold_space,
-        average_mode
+        average_mode,
+        return_best_af1=False
 ):
     n_thr = int(np.floor((threshold_space['max'] - threshold_space['min']) / threshold_space['step'] + 1))
     thr_list = np.array([threshold_space['min'] + threshold_space['step'] * i for i in range(n_thr)])
@@ -47,7 +48,10 @@ def fit_threshold(
     )
     max_idx = np.argmax(af1_list).item()
     best_thr = thr_list[max_idx]
-    return best_thr
+    if return_best_af1:
+        return best_thr, af1_list[max_idx]
+    else:
+        return best_thr
 
 
 def get_optimal_threshold(

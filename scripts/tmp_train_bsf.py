@@ -33,16 +33,16 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == '__main__':
     folds = 4
     dataset_name = constants.MASS_SS_NAME
-    which_expert_list = [1, 2]
+    which_expert_list = [1]
 
-    id_try_list = [i for i in range(folds)]
+    id_try_list = [0]  #  [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
 
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     for which_expert in which_expert_list:
 
         # ----- Experiment settings
-        experiment_name = 'bsf_update_exp%d' % which_expert
+        experiment_name = 'bsf_exp%d' % which_expert
         task_mode = constants.N2_RECORD
         description_str = 'experiments'
         verbose = True

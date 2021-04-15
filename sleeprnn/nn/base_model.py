@@ -172,6 +172,12 @@ class BaseModel(object):
         # Fusion of all summaries
         self.merged = tf.summary.merge_all()
 
+        # AF1 in validation
+        self.eval_threshold = tf.placeholder(tf.float32, shape=[], name='eval_threshold_ph')
+        self.eval_af1 = tf.placeholder(tf.float32, shape=[], name='eval_af1_ph')
+        self.eval_threshold_summ = tf.summary.scalar('eval_threshold', self.eval_threshold)
+        self.eval_af1_summ = tf.summary.scalar('eval_threshold', self.eval_af1)
+
         # Tensorflow session for graph management
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True

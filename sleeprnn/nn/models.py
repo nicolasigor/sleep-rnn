@@ -15,6 +15,7 @@ from sleeprnn.common import pkeys
 from sleeprnn.common import constants
 from sleeprnn.common import checks
 from sleeprnn.data import utils
+from sleeprnn.detection import threshold_optimization
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
@@ -335,6 +336,15 @@ class WaveletBLSTM(BaseModel):
             'lr_update_criterion',
             [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
 
+        # Validation events for AF1
+        val_thr_space = {'min': 0.2, 'max': 0.8, 'step': 0.02}
+        if 'moda' in data_val.dataset_name:
+            val_avg_mode = constants.MICRO_AVERAGE
+        else:
+            val_avg_mode = constants.MACRO_AVERAGE
+        print("Validation AF1 computed using %s and thr space %s:%s:%s" % (
+            val_avg_mode, val_thr_space['min'], val_thr_space['step'], val_thr_space['max']))
+
         # Training loop
         start_time = time.time()
         last_elapsed = 0
@@ -353,7 +363,19 @@ class WaveletBLSTM(BaseModel):
                     # Val set report (whole set)
                     val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, m_val)
                     self.val_writer.add_summary(val_summ, it)
-                    metric_msg += ' - val loss %1.4f f1 %1.4f' % (val_loss, val_metrics[KEY_F1_SCORE])
+
+                    # Val set report AF1
+                    val_prediction = self.predict_dataset(data_val, verbose=False)
+                    val_thr, val_af1 = threshold_optimization.fit_threshold(
+                        [data_val], [val_prediction], val_thr_space, val_avg_mode, return_best_af1=True)
+                    val_thr_summ, val_af1_summ = self.sess.run(
+                        [self.eval_threshold_summ, self.eval_af1_summ],
+                        feed_dict={self.eval_threshold: val_thr, self.eval_af1: val_af1})
+                    self.val_writer.add_summary(val_thr_summ, it)
+                    self.val_writer.add_summary(val_af1_summ, it)
+
+                    metric_msg += ' - val loss %1.4f f1 %1.4f AF1 %1.4f (thr %1.2f)' % (
+                        val_loss, val_metrics[KEY_F1_SCORE], val_af1, val_thr)
                     # Time passed
                     elapsed = time.time() - start_time
                     time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
