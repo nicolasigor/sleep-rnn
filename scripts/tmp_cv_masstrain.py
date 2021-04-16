@@ -32,7 +32,7 @@ if __name__ == '__main__':
     n_folds = 5
     cv_seed = 0
     fold_id_list = [i for i in range(n_folds)]
-    dataset_name = constants.INTA_SS_NAME
+    dataset_name = constants.MASS_SS_NAME
     which_expert = 1
 
     # ----- Experiment settings
@@ -76,9 +76,13 @@ if __name__ == '__main__':
     for fold_id in fold_id_list:
         print('\nUsing CV fold id %d' % fold_id)
         # Generate split
-        train_ids, val_ids, test_ids = dataset.cv_split(n_folds, fold_id, cv_seed)
+        train_ids, val_ids, test_ids = dataset.cv_split(
+            n_folds, fold_id, cv_seed, subject_ids=dataset.train_ids[1:])
+        train_ids.append(dataset.train_ids[0])
+        train_ids.sort()
         print("Subjects in each partition: train %d, val %d, test %d" % (
-            len(train_ids), len(val_ids), len(test_ids.size)))
+            len(train_ids), len(val_ids), len(test_ids)))
+
         # Compute global std
         fold_global_std = dataset.compute_global_std(np.concatenate([train_ids, val_ids]))
         dataset.global_std = fold_global_std

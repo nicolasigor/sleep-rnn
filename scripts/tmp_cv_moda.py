@@ -78,7 +78,7 @@ if __name__ == '__main__':
         # Generate split
         train_ids, val_ids, test_ids = dataset.cv_split(n_folds, fold_id, cv_seed)
         print("Subjects in each partition: train %d, val %d, test %d" % (
-            train_ids.size, val_ids.size, test_ids.size))
+            len(train_ids), len(val_ids), len(test_ids)))
         # Compute global std
         fold_global_std = dataset.compute_global_std(np.concatenate([train_ids, val_ids]))
         dataset.global_std = fold_global_std

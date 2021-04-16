@@ -53,7 +53,7 @@ class ModaSS(Dataset):
         if verbose:
             print('Global STD:', self.global_std)
 
-    def cv_split(self, n_folds, fold_id, seed=0):
+    def cv_split(self, n_folds, fold_id, seed=0, subject_ids=None):
         """Stratified 5-fold or 10-fold CV splits
         stratified in the sense of preserving distribution of phases and n_blocks.
 
@@ -114,9 +114,9 @@ class ModaSS(Dataset):
         val_ids = test_folds[(fold_id + 1) % n_folds]
         train_ids = [s for s in subject_ids if s not in np.concatenate([val_ids, test_ids])]
         # Sort
-        train_ids = np.sort(train_ids)
-        val_ids = np.sort(val_ids)
-        test_ids = np.sort(test_ids)
+        train_ids = np.sort(train_ids).tolist()
+        val_ids = np.sort(val_ids).tolist()
+        test_ids = np.sort(test_ids).tolist()
         return train_ids, val_ids, test_ids
 
     def _get_ids(self):

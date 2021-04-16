@@ -99,40 +99,6 @@ class IntaSS(Dataset):
     def get_name(self, subject_id):
         return self.names[subject_id-1]
 
-    def cv_split(self, n_folds, fold_id, seed=0):
-        """5-fold or 10-fold CV splits
-        stratified in the sense of preserving distribution of phases and n_blocks.
-
-        Inputs:
-            n_folds: either 5 or 10
-            fold_id: integer in [0, 1, ..., n_folds - 1] (which fold to retrieve)
-            seed: random seed (determines the permutation of subjects before k-fold CV)
-        """
-        if n_folds not in [5, 10]:
-            raise ValueError("%d folds are not supported, choose 5 or 10" % n_folds)
-        if fold_id >= n_folds:
-            raise ValueError("fold id %s invalid for %d folds" % (fold_id, n_folds))
-        # Retrieve data
-        subject_ids = np.asarray(self.all_ids.copy())
-        # Random permutation
-        subject_ids = np.random.RandomState(seed=seed).permutation(subject_ids)
-        # Form folds
-        test_folds = []
-        n_test = len(subject_ids) // n_folds
-        for i in range(n_folds):
-            start_loc = i * n_test
-            end_loc = (i + 1) * n_test
-            test_folds.append(subject_ids[start_loc:end_loc])
-        # Select split
-        test_ids = test_folds[fold_id]
-        val_ids = test_folds[(fold_id + 1) % n_folds]
-        train_ids = [s for s in subject_ids if s not in np.concatenate([val_ids, test_ids])]
-        # Sort
-        train_ids = np.sort(train_ids)
-        val_ids = np.sort(val_ids)
-        test_ids = np.sort(test_ids)
-        return train_ids, val_ids, test_ids
-
     def compute_global_std(
             self,
             subject_ids,

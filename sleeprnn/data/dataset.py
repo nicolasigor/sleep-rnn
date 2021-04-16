@@ -101,6 +101,61 @@ class Dataset(object):
         else:
             self.custom_scaling_dict = custom_scaling_dict
 
+    def cv_split(self, n_folds, fold_id, seed=0, subject_ids=None):
+        """5-fold or 10-fold CV splits
+        stratified in the sense of preserving distribution of phases and n_blocks.
+
+        Inputs:
+            n_folds: either 5 or 10
+            fold_id: integer in [0, 1, ..., n_folds - 1] (which fold to retrieve)
+            seed: random seed (determines the permutation of subjects before k-fold CV)
+            subject_ids: optional list of subject to restrict the cv. By default uses all ids.
+        """
+        if fold_id >= n_folds:
+            raise ValueError("fold id %s invalid for %d folds" % (fold_id, n_folds))
+        # Retrieve data
+        if subject_ids is None:
+            subject_ids = np.asarray(self.all_ids.copy())
+
+        n_test = int(np.ceil(len(subject_ids) / n_folds))
+        attempts = 1
+        while True:
+            # Random permutation
+            subject_ids_1 = np.random.RandomState(seed=seed).permutation(subject_ids)
+            subject_ids_2 = np.random.RandomState(seed=seed + attempts).permutation(subject_ids)
+            subject_ids_extended = np.concatenate([subject_ids_1, subject_ids_2])
+            # Form folds
+            test_folds = []
+            for i in range(n_folds):
+                start_loc = i * n_test
+                end_loc = (i + 1) * n_test
+                subset_of_subjects = subject_ids_extended[start_loc:end_loc]
+                subset_of_subjects = np.unique(subset_of_subjects)
+                test_folds.append(subset_of_subjects)
+            # Test two breaking conditions to avoid problems when extending the list
+            # Test length condition
+            concat_folds = np.concatenate(test_folds)
+            cond1 = (concat_folds.size == (n_test * n_folds))
+            # val sets and test sets do not overlap
+            val_folds = [test_folds[(loc + 1) % n_folds] for loc in range(n_folds)]
+            concat_test_and_val = [np.concatenate([v, t]) for v, t in zip(val_folds, test_folds)]
+            concat_test_and_val = [np.unique(a) for a in concat_test_and_val]
+            concat_test_and_val = np.concatenate(concat_test_and_val)
+            cond2 = (concat_test_and_val.size == (2 * n_test * n_folds))
+            if cond1 and cond2:
+                break
+            else:
+                attempts = attempts + 1000
+        # Select split
+        test_ids = test_folds[fold_id]
+        val_ids = test_folds[(fold_id + 1) % n_folds]
+        train_ids = [s for s in subject_ids if s not in np.concatenate([val_ids, test_ids])]
+        # Sort
+        train_ids = np.sort(train_ids).tolist()
+        val_ids = np.sort(val_ids).tolist()
+        test_ids = np.sort(test_ids).tolist()
+        return train_ids, val_ids, test_ids
+
     def compute_global_std(self, subject_ids, only_sleep=False, hypnogram_page_size=None, sleep_labels=None):
         # Memory-efficient method:
         # Var(x) = E(x ** 2) - (E(x) ** 2)
