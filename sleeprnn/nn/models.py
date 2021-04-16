@@ -16,7 +16,9 @@ from sleeprnn.common import constants
 from sleeprnn.common import checks
 from sleeprnn.data import utils
 from sleeprnn.detection import threshold_optimization
-from sleeprnn.detection.metrics import matching_with_list, metric_vs_iou_macro_average, metric_vs_iou_micro_average
+from sleeprnn.detection.metrics import matching_with_list
+from sleeprnn.detection.metrics import metric_vs_iou_macro_average, metric_vs_iou_micro_average
+from sleeprnn.detection.metrics import average_metric_macro_average, average_metric_micro_average
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
@@ -445,6 +447,9 @@ class WaveletBLSTM(BaseModel):
         metric_vs_iou_fn_dict = {
             constants.MACRO_AVERAGE: metric_vs_iou_macro_average,
             constants.MICRO_AVERAGE: metric_vs_iou_micro_average}
+        average_metric_fn_dict = {
+            constants.MACRO_AVERAGE: average_metric_macro_average,
+            constants.MICRO_AVERAGE: average_metric_micro_average}
 
         prediction_val = self.predict_dataset(validation_dataset, verbose=False)
 
@@ -479,9 +484,16 @@ class WaveletBLSTM(BaseModel):
         else:
             byevent_miou = np.concatenate(nonzero_iou_list).mean()
 
+        # Now using thr 0.5
+        prediction_val.set_probability_threshold(0.5)
+        val_detections_list = prediction_val.get_stamps()
+        iou_matching_list, _ = matching_with_list(val_events_list, val_detections_list)
+        byevent_af1_half = average_metric_fn_dict[average_mode](val_events_list, val_detections_list)
+
         byevent_metrics = {
             'threshold': byevent_thr,
             'af1': byevent_af1,
+            'af1_half': byevent_af1_half,
             'f1': byevent_f1,
             'recall': byevent_recall,
             'precision': byevent_precision,
@@ -491,6 +503,7 @@ class WaveletBLSTM(BaseModel):
             self.byevent_metrics_summ, feed_dict={
                 self.eval_threshold: byevent_thr,
                 self.eval_af1: byevent_af1,
+                self.eval_af1_half: byevent_af1_half,
                 self.eval_f1: byevent_f1,
                 self.eval_precision: byevent_precision,
                 self.eval_recall: byevent_recall,

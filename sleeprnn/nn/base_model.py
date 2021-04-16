@@ -176,18 +176,20 @@ class BaseModel(object):
         with tf.variable_scope("by_event_metrics"):
             self.eval_threshold = tf.placeholder(tf.float32, shape=[], name='threshold_ph')
             self.eval_af1 = tf.placeholder(tf.float32, shape=[], name='af1_ph')
+            self.eval_af1_half = tf.placeholder(tf.float32, shape=[], name='af1_half_ph')
             self.eval_f1 = tf.placeholder(tf.float32, shape=[], name='f1_ph')
             self.eval_precision = tf.placeholder(tf.float32, shape=[], name='precision_ph')
             self.eval_recall = tf.placeholder(tf.float32, shape=[], name='recall_ph')
             self.eval_miou = tf.placeholder(tf.float32, shape=[], name='miou_ph')
             eval_threshold_summ = tf.summary.scalar('threshold', self.eval_threshold)
             eval_af1_summ = tf.summary.scalar('af1', self.eval_af1)
+            eval_af1_half_summ = tf.summary.scalar('af1_half', self.eval_af1_half)
             eval_f1_summ = tf.summary.scalar('f1', self.eval_f1)
             eval_precision_summ = tf.summary.scalar('precision', self.eval_precision)
             eval_recall_summ = tf.summary.scalar('recall', self.eval_recall)
             eval_miou_summ = tf.summary.scalar('miou', self.eval_miou)
             self.byevent_metrics_summ = tf.summary.merge([
-                eval_threshold_summ, eval_af1_summ,
+                eval_threshold_summ, eval_af1_summ, eval_af1_half_summ,
                 eval_f1_summ, eval_recall_summ, eval_precision_summ, eval_miou_summ])
 
         # Tensorflow session for graph management
