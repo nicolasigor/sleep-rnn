@@ -62,6 +62,14 @@ if __name__ == "__main__":
     axis_markers = np.arange(0, 1 + 0.001, 0.1)
     minor_axis_markers = np.arange(0, 1 + 0.001, 0.1)
 
+    metric_thr_to_print = 0.6
+
+    # MODA specific filters:
+    n_blocks_to_include = [10]
+    phase_to_include = [1, 2]
+    n_blocks_to_highlight = [2, 3, 10]
+    phase_to_highlight = [1]
+
     # -----------------------------------------------------------
     # -----------------------------------------------------------
     color_dict = plotter.get_fold_colors()
@@ -93,6 +101,13 @@ if __name__ == "__main__":
         dataset_name.split('_')[1].upper(),
         which_expert,
         task_mode.upper())
+    # Highlight subjects for MODA:
+    if dataset_name == constants.MODA_SS_NAME:
+        for subject_id in dataset.all_ids:
+            subject_n_blocks = dataset.data[subject_id]['n_blocks']
+            subject_phase = dataset.data[subject_id]['phase']
+            if (subject_n_blocks in n_blocks_to_highlight) and (subject_phase in phase_to_highlight):
+                subject_to_highlight.append(subject_id)
     for grid_folder in grid_folder_list:
         fig, ax = plt.subplots(1, 1, figsize=(4, 4), dpi=viz.DPI)
         opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[os.path.join(ckpt_folder, grid_folder)]
@@ -162,6 +177,18 @@ if __name__ == "__main__":
         for key in outputs.keys():
             outputs[key] = np.asarray(outputs[key])[sorted_loc]
         outputs['densities'] = outputs['densities'] / np.max(outputs['densities'])
+        # Filter subjects:
+        if dataset_name == constants.MODA_SS_NAME:
+            filt_outputs = {key: [] for key in outputs.keys()}
+            for i in range(len(outputs['f1'])):
+                subject_id = outputs['subjects'][i]
+                subject_n_blocks = dataset.data[subject_id]['n_blocks']
+                subject_phase = dataset.data[subject_id]['phase']
+                if (subject_n_blocks in n_blocks_to_include) and (subject_phase in phase_to_include):
+                    for key in outputs.keys():
+                        filt_outputs[key].append(outputs[key][i])
+            outputs = filt_outputs
+        print("Subjects to plot:", len(outputs['f1']))
         # Plot
         folds_shown = []
         for i in range(len(outputs['f1'])):
@@ -169,8 +196,10 @@ if __name__ == "__main__":
             k = outputs['fold'][i]
             if fold_monocolor:
                 color = viz.PALETTE['green'] if subject_id in subject_to_highlight else viz.PALETTE['blue']
+                zorder = 100 if subject_id in subject_to_highlight else 50
             else:
                 color = color_dict[k]
+                zorder = 50
             label = 'Fold %d' % k if k not in folds_shown else None
             folds_shown.append(k)
             if weight_marker_by_density:
@@ -180,7 +209,7 @@ if __name__ == "__main__":
                 point_alpha = marker_alpha
             ax.plot(
                 outputs['rec'][i], outputs['prec'][i],
-                color=color, linestyle='None', alpha=point_alpha,
+                color=color, linestyle='None', alpha=point_alpha, zorder=zorder,
                 markeredgewidth=0.0, marker='o', markersize=marker_size,
                 label=label)
             if show_subject_id:
@@ -194,6 +223,9 @@ if __name__ == "__main__":
                     single_id_to_show, (outputs['rec'][i], outputs['prec'][i]),
                     horizontalalignment="center", verticalalignment="center",
                     fontsize=subject_id_fontsize, color="w")
+            if outputs['rec'][i] <= metric_thr_to_print or outputs['prec'][i] <= metric_thr_to_print:
+                print("Subject %s with Recall %1.4f and Precision %1.4f" % (
+                    subject_id, outputs['rec'][i], outputs['prec'][i]))
         if show_mean:
             ax.plot(
                 np.mean(outputs['rec']), np.mean(outputs['prec']),
