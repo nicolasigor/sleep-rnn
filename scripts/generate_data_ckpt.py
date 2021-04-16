@@ -15,6 +15,7 @@ from sleeprnn.data.moda_ss import ModaSS
 from sleeprnn.data.inta_ss import IntaSS
 from sleeprnn.data.mass_kc_inv import MassKCInv
 from sleeprnn.data.mass_ss_inv import MassSSInv
+from sleeprnn.data.cap_full_ss import CapFullSS
 from sleeprnn.common import pkeys
 
 

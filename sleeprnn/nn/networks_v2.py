@@ -2927,52 +2927,87 @@ def multi_dilated_feature_extractor(
         params,
         training
 ):
-    outputs = inputs
-
-    kernel_size = params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE]
+    with tf.variable_scope("stem"):
+        outputs = inputs
+        for i in range(params[pkeys.BIGGER_STEM_DEPTH]):
+            layer_num = i + 1
+            outputs = tf.keras.layers.Conv1D(
+                filters=params[pkeys.BIGGER_STEM_FILTERS],
+                kernel_size=params[pkeys.BIGGER_STEM_KERNEL_SIZE],
+                padding=constants.PAD_SAME,
+                use_bias=False,
+                kernel_initializer=tf.initializers.he_normal(),
+                name='conv%d_%d' % (params[pkeys.BIGGER_STEM_KERNEL_SIZE], layer_num))(outputs)
+            outputs = layers.batchnorm_layer(
+                outputs, 'bn_%d' % layer_num, batchnorm=params[pkeys.TYPE_BATCHNORM],
+                training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
 
     max_exponent = int(np.round(np.log(params[pkeys.BIGGER_MAX_DILATION]) / np.log(2)))
-    stages_max_exponents = [0, max_exponent, max_exponent]
+    stage_sizes = [1, 1, 0]
+    stage_kernel_size = params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE]
 
-    for i, stage_max_exponent in enumerate(stages_max_exponents):
-        stage_num = i + 1
-        stage_filters = params[pkeys.BIGGER_STEM_FILTERS] * (2 ** i)
+    for stage in range(len(stage_sizes)):
+        stage_num = stage + 1
+
+        outputs = tf.keras.layers.AvgPool1D(name='pool%d' % stage_num)(outputs)
+
+        stage_filters = params[pkeys.BIGGER_STEM_FILTERS] * (2 ** stage_num)
+
         stage_config = []
-        for single_exponent in range(stage_max_exponent + 1):
-            d = int(2 ** single_exponent)
+        for single_exponent in range(max_exponent + 1):
             f = int(stage_filters / (2 ** (single_exponent + 1)))
+            d = int(2 ** single_exponent)
             stage_config.append((f, d))
         stage_config[-1] = (2 * stage_config[-1][0], stage_config[-1][1])
 
-        # Apply computed config
-        outputs_branches = []
-        for branch_filters, branch_dilation in stage_config:
-            with tf.variable_scope("stage%d-branch-d%d" % (stage_num, branch_dilation)):
-                branch_outputs = tf.keras.layers.Conv1D(
-                    filters=branch_filters,
-                    kernel_size=kernel_size,
-                    padding=constants.PAD_SAME,
-                    dilation_rate=branch_dilation,
-                    use_bias=False,
-                    kernel_initializer=tf.initializers.he_normal(),
-                    name='conv%d-d%d-a' % (kernel_size, branch_dilation))(outputs)
-                branch_outputs = layers.batchnorm_layer(
-                    branch_outputs, 'bn-a', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
-                branch_outputs = tf.nn.relu(branch_outputs)
-                branch_outputs = tf.keras.layers.Conv1D(
-                    filters=branch_filters,
-                    kernel_size=kernel_size,
-                    padding=constants.PAD_SAME,
-                    dilation_rate=branch_dilation,
-                    use_bias=False,
-                    kernel_initializer=tf.initializers.he_normal(),
-                    name='conv%d-d%d-b' % (kernel_size, branch_dilation))(branch_outputs)
-                branch_outputs = layers.batchnorm_layer(
-                    branch_outputs, 'bn-b', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
-                branch_outputs = tf.nn.relu(branch_outputs)
-                outputs_branches.append(branch_outputs)
-        outputs = tf.concat(outputs_branches, axis=-1)
-        outputs = tf.keras.layers.AvgPool1D(name='pool%d' % stage_num)(outputs)
+        for i in range(stage_sizes[stage]):
+            block_num = i + 1
+            with tf.variable_scope("stage%d-%d" % (stage_num, block_num)):
+                # Here we split
+                # Apply computed config
+                outputs_branches = []
+                for branch_filters, branch_dilation in stage_config:
+                    with tf.variable_scope("branch-d%d" % branch_dilation):
+                        branch_outputs = tf.keras.layers.Conv1D(
+                            filters=branch_filters,
+                            kernel_size=stage_kernel_size,
+                            padding=constants.PAD_SAME,
+                            dilation_rate=branch_dilation,
+                            use_bias=False,
+                            kernel_initializer=tf.initializers.he_normal(),
+                            name='conv%d-d%d-a' % (stage_kernel_size, branch_dilation))(outputs)
+                        branch_outputs = layers.batchnorm_layer(
+                            branch_outputs, 'bn-a', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                            training=training, scale=False)
+                        branch_outputs = tf.nn.relu(branch_outputs)
+                        branch_outputs = tf.keras.layers.Conv1D(
+                            filters=branch_filters,
+                            kernel_size=stage_kernel_size,
+                            padding=constants.PAD_SAME,
+                            dilation_rate=branch_dilation,
+                            use_bias=False,
+                            kernel_initializer=tf.initializers.he_normal(),
+                            name='conv%d-d%d-b' % (stage_kernel_size, branch_dilation))(branch_outputs)
+                        branch_outputs = layers.batchnorm_layer(
+                            branch_outputs, 'bn-b', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                            training=training, scale=False)
+                        branch_outputs = tf.nn.relu(branch_outputs)
+                        outputs_branches.append(branch_outputs)
+                outputs = tf.concat(outputs_branches, axis=-1)
+                transformation = params[pkeys.BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD]
+                if transformation == 'nonlinear':
+                    outputs = tf.keras.layers.Conv1D(
+                        filters=stage_filters,
+                        kernel_size=1,
+                        padding=constants.PAD_SAME,
+                        use_bias=False,
+                        kernel_initializer=tf.initializers.he_normal(),
+                        name='conv1')(outputs)
+                    outputs = layers.batchnorm_layer(
+                        outputs, 'bn_extra', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                        training=training, scale=False)
+                    outputs = tf.nn.relu(outputs)
     return outputs
 
 
@@ -2981,37 +3016,43 @@ def residual_multi_dilated_feature_extractor(
         params,
         training
 ):
-    with tf.variable_scope("conv1"):
-        outputs = tf.keras.layers.Conv1D(
-            filters=params[pkeys.BIGGER_STEM_FILTERS],
-            kernel_size=params[pkeys.BIGGER_STEM_KERNEL_SIZE],
-            padding=constants.PAD_SAME,
-            use_bias=False,
-            kernel_initializer=tf.initializers.he_normal(),
-            name='conv%d' % params[pkeys.BIGGER_STEM_KERNEL_SIZE])(inputs)
-        outputs = layers.batchnorm_layer(
-            outputs, 'bn', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
-        outputs = tf.nn.relu(outputs)
-
-    max_exponent = int(np.round(np.log(params[pkeys.BIGGER_MAX_DILATION]) / np.log(2)))
+    with tf.variable_scope("stem"):
+        outputs = inputs
+        for i in range(params[pkeys.BIGGER_STEM_DEPTH]):
+            layer_num = i + 1
+            outputs = tf.keras.layers.Conv1D(
+                filters=params[pkeys.BIGGER_STEM_FILTERS],
+                kernel_size=params[pkeys.BIGGER_STEM_KERNEL_SIZE],
+                padding=constants.PAD_SAME,
+                use_bias=False,
+                kernel_initializer=tf.initializers.he_normal(),
+                name='conv%d_%d' % (params[pkeys.BIGGER_STEM_KERNEL_SIZE], layer_num))(outputs)
+            outputs = layers.batchnorm_layer(
+                outputs, 'bn_%d' % layer_num, batchnorm=params[pkeys.TYPE_BATCHNORM],
+                training=training, scale=False)
+            outputs = tf.nn.relu(outputs)
 
     # Residual blocks
+    max_exponent = int(np.round(np.log(params[pkeys.BIGGER_MAX_DILATION]) / np.log(2)))
     stage_sizes = [
         params[pkeys.BIGGER_STAGE_1_SIZE],
         params[pkeys.BIGGER_STAGE_2_SIZE],
         params[pkeys.BIGGER_STAGE_3_SIZE]
     ]
+    stage_kernel_size = params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE]
+
     last_stage = 3 if stage_sizes[2] > 0 else 2
-    for stage in range(3):
+    for stage in range(len(stage_sizes)):
         stage_num = stage + 1
-        stage_filters = params[pkeys.BIGGER_STEM_FILTERS] * (2 ** stage_num)
-        stage_kernel_size = params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE]
+
         outputs = tf.keras.layers.AvgPool1D(name='pool%d' % stage_num)(outputs)
+
+        stage_filters = params[pkeys.BIGGER_STEM_FILTERS] * (2 ** stage_num)
 
         stage_config = []
         for single_exponent in range(max_exponent + 1):
-            d = int(2 ** single_exponent)
             f = int(stage_filters / (2 ** (single_exponent + 1)))
+            d = int(2 ** single_exponent)
             stage_config.append((f, d))
         stage_config[-1] = (2 * stage_config[-1][0], stage_config[-1][1])
 
@@ -3025,7 +3066,8 @@ def residual_multi_dilated_feature_extractor(
 
                 if not is_first_block:
                     outputs = layers.batchnorm_layer(
-                        outputs, 'bn-a', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                        outputs, 'bn-a', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                        training=training, scale=False)
                     outputs = tf.nn.relu(outputs)
 
                 # Here we split
@@ -3042,7 +3084,8 @@ def residual_multi_dilated_feature_extractor(
                             kernel_initializer=tf.initializers.he_normal(),
                             name='conv%d-d%d-a' % (stage_kernel_size, branch_dilation))(outputs)
                         branch_outputs = layers.batchnorm_layer(
-                            branch_outputs, 'bn-b', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                            branch_outputs, 'bn-b', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                            training=training, scale=False)
                         branch_outputs = tf.nn.relu(branch_outputs)
                         branch_outputs = tf.keras.layers.Conv1D(
                             filters=branch_filters,
@@ -3054,13 +3097,28 @@ def residual_multi_dilated_feature_extractor(
                             name='conv%d-d%d-b' % (stage_kernel_size, branch_dilation))(branch_outputs)
                         outputs_branches.append(branch_outputs)
                 outputs = tf.concat(outputs_branches, axis=-1)
-                outputs = tf.keras.layers.Conv1D(
-                    filters=stage_filters,
-                    kernel_size=1,
-                    padding=constants.PAD_SAME,
-                    use_bias=False,
-                    kernel_initializer=tf.initializers.he_normal(),
-                    name='linear')(outputs)
+
+                transformation = params[pkeys.BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD]
+                if transformation == 'linear':
+                    outputs = tf.keras.layers.Conv1D(
+                        filters=stage_filters,
+                        kernel_size=1,
+                        padding=constants.PAD_SAME,
+                        use_bias=False,
+                        kernel_initializer=tf.initializers.he_normal(),
+                        name='conv1')(outputs)
+                elif transformation == 'nonlinear':
+                    outputs = layers.batchnorm_layer(
+                        outputs, 'bn_extra', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                        training=training, scale=False)
+                    outputs = tf.nn.relu(outputs)
+                    outputs = tf.keras.layers.Conv1D(
+                        filters=stage_filters,
+                        kernel_size=1,
+                        padding=constants.PAD_SAME,
+                        use_bias=False,
+                        kernel_initializer=tf.initializers.he_normal(),
+                        name='conv1')(outputs)
 
                 if block_num == 1:
                     shortcut = tf.keras.layers.Conv1D(
@@ -3076,7 +3134,8 @@ def residual_multi_dilated_feature_extractor(
                 if (stage_num == last_stage) and (block_num == stage_sizes[stage]):
                     # Finish residuals
                     outputs = layers.batchnorm_layer(
-                        outputs, 'bn-c', batchnorm=params[pkeys.TYPE_BATCHNORM], training=training, scale=False)
+                        outputs, 'bn-c', batchnorm=params[pkeys.TYPE_BATCHNORM],
+                        training=training, scale=False)
                     outputs = tf.nn.relu(outputs)
     return outputs
 

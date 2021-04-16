@@ -294,6 +294,8 @@ BIGGER_ATT_N_BLOCKS = 'bigger_att_n_blocks'
 BIGGER_ATT_TYPE_NORM = 'bigger_att_type_norm'
 BIGGER_CONVOLUTION_PART_OPTION = 'bigger_convolution_part_option'
 BIGGER_CONTEXT_PART_OPTION = 'bigger_context_part_option'
+BIGGER_STEM_DEPTH = 'bigger_stem_depth'
+BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD = 'bigger_multi_transformation_before_add'
 
 """ Loss params
 
@@ -627,4 +629,6 @@ default_params = {
     BIGGER_ATT_TYPE_NORM: None,
     BIGGER_CONVOLUTION_PART_OPTION: None,
     BIGGER_CONTEXT_PART_OPTION: None,
+    BIGGER_STEM_DEPTH: None,
+    BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD: None,
 }
