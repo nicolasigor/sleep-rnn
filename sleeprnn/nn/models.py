@@ -29,6 +29,7 @@ KEY_FN = 'fn'
 KEY_PRECISION = 'precision'
 KEY_RECALL = 'recall'
 KEY_F1_SCORE = 'f1_score'
+KEY_AF1 = 'af1'
 
 # Fit dicts
 KEY_ITER = 'iteration'
@@ -325,7 +326,8 @@ class WaveletBLSTM(BaseModel):
         model_criterion = {
             KEY_ITER: 0,
             KEY_LOSS: 1e10,
-            KEY_F1_SCORE: 0
+            KEY_F1_SCORE: 0,
+            KEY_AF1: 0,
         }
         rel_tol_criterion = self.params[pkeys.REL_TOL_CRITERION]
         iter_last_lr_update = 0
@@ -387,20 +389,21 @@ class WaveletBLSTM(BaseModel):
                     if lr_update_criterion == constants.LOSS_CRITERION:
                         improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
                     else:
-                        improvement_criterion = val_metrics[KEY_F1_SCORE] > (1.0 + rel_tol_criterion) * model_criterion[KEY_F1_SCORE]
-
+                        improvement_criterion = val_af1 > (1.0 + rel_tol_criterion) * model_criterion[KEY_AF1]
                     if improvement_criterion:
                         # Update last time the improvement criterion was met
                         model_criterion[KEY_LOSS] = val_loss
                         model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
                         model_criterion[KEY_ITER] = it
+                        model_criterion[KEY_AF1] = val_af1
                         # Save best model
                         if self.params[pkeys.KEEP_BEST_VALIDATION]:
+                            print("Checkpointing best model so far.")
                             self.saver.save(self.sess, self.ckptdir)
 
                     # Check LR update criterion
 
-                    # The model has not improved enough
+                    # The model has not improved for long time
                     lr_criterion_1 = (it - model_criterion[KEY_ITER]) >= iters_lr_update
                     # The last lr update is far enough
                     lr_criterion_2 = (it - iter_last_lr_update) >= iters_lr_update
