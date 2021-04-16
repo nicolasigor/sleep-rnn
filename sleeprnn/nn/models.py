@@ -16,6 +16,7 @@ from sleeprnn.common import constants
 from sleeprnn.common import checks
 from sleeprnn.data import utils
 from sleeprnn.detection import threshold_optimization
+from sleeprnn.detection.metrics import matching_with_list, metric_vs_iou_macro_average, metric_vs_iou_micro_average
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
@@ -308,18 +309,6 @@ class WaveletBLSTM(BaseModel):
         else:
             self._initialize_variables()
 
-        # Debug
-        min_valids_in_mask = self.get_page_size()
-        d_check = np.all(m_train_1.sum(axis=-1) >= min_valids_in_mask)
-        if not d_check:
-            raise ValueError("Mask train 1 did not pass sanity check")
-        d_check = np.all(m_train_2.sum(axis=-1) >= min_valids_in_mask)
-        if not d_check:
-            raise ValueError("Mask train 2 did not pass sanity check")
-        d_check = np.all(m_val == 1)
-        if not d_check:
-            raise ValueError("Mask val did not pass sanity check")
-
         self._init_iterator_train(x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2)
 
         # Improvement criterion
@@ -337,6 +326,7 @@ class WaveletBLSTM(BaseModel):
             lr_update_criterion,
             'lr_update_criterion',
             [constants.LOSS_CRITERION, constants.METRIC_CRITERION])
+        print("Learning rate decay criterion: %s" % lr_update_criterion)
 
         # Validation events for AF1
         val_thr_space = {'min': 0.2, 'max': 0.8, 'step': 0.02}
@@ -365,19 +355,13 @@ class WaveletBLSTM(BaseModel):
                     # Val set report (whole set)
                     val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, m_val)
                     self.val_writer.add_summary(val_summ, it)
-
-                    # Val set report AF1
-                    val_prediction = self.predict_dataset(data_val, verbose=False)
-                    val_thr, val_af1 = threshold_optimization.fit_threshold(
-                        [data_val], [val_prediction], val_thr_space, val_avg_mode, return_best_af1=True)
-                    val_thr_summ, val_af1_summ = self.sess.run(
-                        [self.eval_threshold_summ, self.eval_af1_summ],
-                        feed_dict={self.eval_threshold: val_thr, self.eval_af1: val_af1})
-                    self.val_writer.add_summary(val_thr_summ, it)
-                    self.val_writer.add_summary(val_af1_summ, it)
+                    byevent_val_metrics, byevent_val_summ = self.evaluate_byevent(
+                        data_val, val_thr_space, val_avg_mode)
+                    self.val_writer.add_summary(byevent_val_summ, it)
 
                     metric_msg += ' - val loss %1.4f f1 %1.4f AF1 %1.4f (thr %1.2f)' % (
-                        val_loss, val_metrics[KEY_F1_SCORE], val_af1, val_thr)
+                        val_loss, val_metrics[KEY_F1_SCORE],
+                        byevent_val_metrics['af1'], byevent_val_metrics['threshold'])
                     # Time passed
                     elapsed = time.time() - start_time
                     time_rate_per_100 = 100 * (elapsed - last_elapsed) / (it - last_it)
@@ -389,13 +373,13 @@ class WaveletBLSTM(BaseModel):
                     if lr_update_criterion == constants.LOSS_CRITERION:
                         improvement_criterion = val_loss < (1.0 - rel_tol_criterion) * model_criterion[KEY_LOSS]
                     else:
-                        improvement_criterion = val_af1 > (1.0 + rel_tol_criterion) * model_criterion[KEY_AF1]
+                        improvement_criterion = byevent_val_metrics['af1'] > (1.0 + rel_tol_criterion) * model_criterion[KEY_AF1]
                     if improvement_criterion:
                         # Update last time the improvement criterion was met
                         model_criterion[KEY_LOSS] = val_loss
                         model_criterion[KEY_F1_SCORE] = val_metrics[KEY_F1_SCORE]
                         model_criterion[KEY_ITER] = it
-                        model_criterion[KEY_AF1] = val_af1
+                        model_criterion[KEY_AF1] = byevent_val_metrics['af1']
                         # Save best model
                         if self.params[pkeys.KEEP_BEST_VALIDATION]:
                             print("Checkpointing best model so far.")
@@ -454,6 +438,66 @@ class WaveletBLSTM(BaseModel):
         # Save last model quick info
         with open(os.path.join(self.logdir, 'last_model.json'), 'w') as outfile:
             json.dump(last_model, outfile)
+
+    def evaluate_byevent(
+            self, validation_dataset, threshold_space, average_mode, iou_threshold_report=0.2):
+
+        metric_vs_iou_fn_dict = {
+            constants.MACRO_AVERAGE: metric_vs_iou_macro_average,
+            constants.MICRO_AVERAGE: metric_vs_iou_micro_average}
+
+        prediction_val = self.predict_dataset(validation_dataset, verbose=False)
+
+        byevent_thr, byevent_af1 = threshold_optimization.fit_threshold(
+            [validation_dataset], [prediction_val], threshold_space, average_mode, return_best_af1=True)
+        prediction_val.set_probability_threshold(byevent_thr)
+
+        val_events_list = validation_dataset.get_stamps()
+        val_detections_list = prediction_val.get_stamps()
+
+        iou_matching_list, _ = matching_with_list(val_events_list, val_detections_list)
+
+        byevent_f1 = metric_vs_iou_fn_dict[average_mode](
+            val_events_list, val_detections_list, [iou_threshold_report],
+            metric_name=constants.F1_SCORE,
+            iou_matching_list=iou_matching_list)
+
+        byevent_precision = metric_vs_iou_fn_dict[average_mode](
+            val_events_list, val_detections_list, [iou_threshold_report],
+            metric_name=constants.PRECISION,
+            iou_matching_list=iou_matching_list)
+
+        byevent_recall = metric_vs_iou_fn_dict[average_mode](
+            val_events_list, val_detections_list, [iou_threshold_report],
+            metric_name=constants.RECALL,
+            iou_matching_list=iou_matching_list)
+
+        nonzero_iou_list = [iou_matching[iou_matching > 0] for iou_matching in iou_matching_list]
+        if average_mode == constants.MACRO_AVERAGE:
+            miou_list = [np.mean(nonzero_iou) for nonzero_iou in nonzero_iou_list]
+            byevent_miou = np.mean(miou_list)
+        else:
+            byevent_miou = np.concatenate(nonzero_iou_list).mean()
+
+        byevent_metrics = {
+            'threshold': byevent_thr,
+            'af1': byevent_af1,
+            'f1': byevent_f1,
+            'recall': byevent_recall,
+            'precision': byevent_precision,
+            'miou': byevent_miou}
+
+        byevent_summ = self.sess.run(
+            self.byevent_metrics_summ, feed_dict={
+                self.eval_threshold: byevent_thr,
+                self.eval_af1: byevent_af1,
+                self.eval_f1: byevent_f1,
+                self.eval_precision: byevent_precision,
+                self.eval_recall: byevent_recall,
+                self.eval_miou: byevent_miou
+            }
+        )
+        return byevent_metrics, byevent_summ
 
     def _eval_map_fn(self, feat, label, mask):
         label = tf.cast(label, tf.int32)

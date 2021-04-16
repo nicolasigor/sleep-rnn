@@ -35,14 +35,14 @@ if __name__ == '__main__':
     dataset_name = constants.MASS_SS_NAME
     which_expert_list = [1]
 
-    id_try_list = [0]  #  [i for i in range(folds)]
+    id_try_list = [i for i in range(folds)]
     train_fraction = (folds - 1) / folds
 
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     for which_expert in which_expert_list:
 
         # ----- Experiment settings
-        experiment_name = 'bsf_exp%d' % which_expert
+        experiment_name = 'check_byevent_summ_exp%d' % which_expert
         task_mode = constants.N2_RECORD
         description_str = 'experiments'
         verbose = True
