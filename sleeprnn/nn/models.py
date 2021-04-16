@@ -460,17 +460,17 @@ class WaveletBLSTM(BaseModel):
         byevent_f1 = metric_vs_iou_fn_dict[average_mode](
             val_events_list, val_detections_list, [iou_threshold_report],
             metric_name=constants.F1_SCORE,
-            iou_matching_list=iou_matching_list)
+            iou_matching_list=iou_matching_list)[0]
 
         byevent_precision = metric_vs_iou_fn_dict[average_mode](
             val_events_list, val_detections_list, [iou_threshold_report],
             metric_name=constants.PRECISION,
-            iou_matching_list=iou_matching_list)
+            iou_matching_list=iou_matching_list)[0]
 
         byevent_recall = metric_vs_iou_fn_dict[average_mode](
             val_events_list, val_detections_list, [iou_threshold_report],
             metric_name=constants.RECALL,
-            iou_matching_list=iou_matching_list)
+            iou_matching_list=iou_matching_list)[0]
 
         nonzero_iou_list = [iou_matching[iou_matching > 0] for iou_matching in iou_matching_list]
         if average_mode == constants.MACRO_AVERAGE:
