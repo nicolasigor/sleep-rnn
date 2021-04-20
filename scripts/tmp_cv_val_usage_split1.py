@@ -78,9 +78,11 @@ if __name__ == '__main__':
     # Conv part: multi-d8
     params[pkeys.BIGGER_CONVOLUTION_PART_OPTION] = 'multi_dilated'
     params[pkeys.BIGGER_STEM_KERNEL_SIZE] = 3
+    params[pkeys.BIGGER_STEM_DEPTH] = 2
     params[pkeys.BIGGER_STEM_FILTERS] = 64
     params[pkeys.BIGGER_BLOCKS_KERNEL_SIZE] = 3
     params[pkeys.BIGGER_MAX_DILATION] = 8
+    params[pkeys.BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD] = None
     # Context part: lstm
     params[pkeys.BIGGER_CONTEXT_PART_OPTION] = 'lstm'
     params[pkeys.BIGGER_LSTM_1_SIZE] = 256
