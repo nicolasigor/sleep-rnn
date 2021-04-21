@@ -24,7 +24,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == "__main__":
     save_figs = True
 
-    ckpt_folder_prefix = ''
+    ckpt_folder_prefix = '20210420_val_usage_5fold-cv_exp1'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     load_dataset_from_ckpt = True
 
     # Evaluation settings
-    evaluation_set = constants.VAL_SUBSET
+    evaluation_set = constants.TEST_SUBSET
     iou_threshold_report = 0.2
 
     # Plot settings
@@ -196,10 +196,10 @@ if __name__ == "__main__":
             k = outputs['fold'][i]
             if fold_monocolor:
                 color = viz.PALETTE['green'] if subject_id in subject_to_highlight else viz.PALETTE['blue']
-                zorder = 100 if subject_id in subject_to_highlight else 50
+                zorder = 10 if subject_id in subject_to_highlight else 5
             else:
                 color = color_dict[k]
-                zorder = 50
+                zorder = 5
             label = 'Fold %d' % k if k not in folds_shown else None
             folds_shown.append(k)
             if weight_marker_by_density:
@@ -222,7 +222,7 @@ if __name__ == "__main__":
                 ax.annotate(
                     single_id_to_show, (outputs['rec'][i], outputs['prec'][i]),
                     horizontalalignment="center", verticalalignment="center",
-                    fontsize=subject_id_fontsize, color="w", zorder=200)
+                    fontsize=subject_id_fontsize, color="w", zorder=20)
             if outputs['rec'][i] <= metric_thr_to_print or outputs['prec'][i] <= metric_thr_to_print:
                 print("Subject %s with Recall %1.4f and Precision %1.4f" % (
                     subject_id, outputs['rec'][i], outputs['prec'][i]))
