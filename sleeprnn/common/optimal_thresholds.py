@@ -333,6 +333,15 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210411_5fold-cv_exp1_n2_train_moda_ss', 'v43'): [0.50, 0.54, 0.54, 0.52, 0.50],
     os.path.join('20210413_10fold-cv_exp1_n2_train_moda_ss', 'v43'): [0.50, 0.48, 0.48, 0.54, 0.48, 0.46, 0.52, 0.48, 0.62, 0.50],
     os.path.join('20210415_5fold-cv_exp1_n2_train_inta_ss', 'v43'): [0.42, 0.48, 0.46, 0.46, 0.40],
+    
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset1_metric_criterion'): [0.44, 0.48, 0.44, 0.52, 0.44],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.46, 0.56, 0.44, 0.46, 0.48],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset1_loss_criterion'): [0.48, 0.48, 0.46, 0.52, 0.42],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset1_metric_criterion'): [0.52, 0.58, 0.40, 0.52, 0.44],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_loss_criterion'): [0.48, 0.52, 0.40, 0.52, 0.48],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset1_loss_criterion'): [0.44, 0.36, 0.54, 0.36, 0.56],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.52, 0.46, 0.36, 0.56, 0.50],
+    os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.46, 0.22, 0.50, 0.30, 0.48],
 }
 
 
