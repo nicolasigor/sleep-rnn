@@ -46,6 +46,7 @@ if __name__ == '__main__':
     # -----------------------------------------------------------
 
     print("Cross-validation performance evaluation (mode: %s)" % average_mode)
+    print("Fitting in %s and evaluating in %s" % (fitting_sets, evaluation_sets))
     print("Predictions loaded from PredictedDataset objects in pickle files")
     print("Threshold space: %s:%s:%s" % (threshold_space['min'], threshold_space['step'], threshold_space['max']))
     # Load data
@@ -89,7 +90,7 @@ if __name__ == '__main__':
                 feeder_dataset_list, predicted_dataset_list, threshold_space, average_mode)
 
     # Report results with metrics
-    print('\nVal AF1 report (%s, iou >= %1.2f) for %s' % (average_mode, iou_threshold_report, ckpt_folder))
+    print('\nVal AF1 report (%s, iou >= %1.2f, from %s to %s) for %s' % (average_mode, iou_threshold_report, fitting_sets, evaluation_sets, ckpt_folder))
     average_metric_fn_dict = {
         constants.MACRO_AVERAGE: metrics.average_metric_macro_average,
         constants.MICRO_AVERAGE: metrics.average_metric_micro_average}
