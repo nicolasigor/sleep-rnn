@@ -222,7 +222,7 @@ if __name__ == "__main__":
                 ax.annotate(
                     single_id_to_show, (outputs['rec'][i], outputs['prec'][i]),
                     horizontalalignment="center", verticalalignment="center",
-                    fontsize=subject_id_fontsize, color="w")
+                    fontsize=subject_id_fontsize, color="w", zorder=200)
             if outputs['rec'][i] <= metric_thr_to_print or outputs['prec'][i] <= metric_thr_to_print:
                 print("Subject %s with Recall %1.4f and Precision %1.4f" % (
                     subject_id, outputs['rec'][i], outputs['prec'][i]))
