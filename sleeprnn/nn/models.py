@@ -453,8 +453,9 @@ class WaveletBLSTM(BaseModel):
 
         prediction_val = self.predict_dataset(validation_dataset, verbose=False)
 
-        byevent_thr, byevent_af1 = threshold_optimization.fit_threshold(
-            [validation_dataset], [prediction_val], threshold_space, average_mode, return_best_af1=True)
+        # byevent_thr, byevent_af1 = threshold_optimization.fit_threshold(
+        #     [validation_dataset], [prediction_val], threshold_space, average_mode, return_best_af1=True)
+        byevent_thr = 0.5
         prediction_val.set_probability_threshold(byevent_thr)
 
         val_events_list = validation_dataset.get_stamps()
@@ -485,14 +486,15 @@ class WaveletBLSTM(BaseModel):
             byevent_miou = np.concatenate(nonzero_iou_list).mean()
 
         # Now using thr 0.5
-        prediction_val.set_probability_threshold(0.5)
-        val_detections_list = prediction_val.get_stamps()
-        iou_matching_list, _ = matching_with_list(val_events_list, val_detections_list)
+        # prediction_val.set_probability_threshold(0.5)
+        # val_detections_list = prediction_val.get_stamps()
+        # iou_matching_list, _ = matching_with_list(val_events_list, val_detections_list)
         byevent_af1_half = average_metric_fn_dict[average_mode](val_events_list, val_detections_list)
 
         byevent_metrics = {
             'threshold': byevent_thr,
-            'af1': byevent_af1,
+            # 'af1': byevent_af1,
+            'af1': byevent_af1_half,
             'af1_half': byevent_af1_half,
             'f1': byevent_f1,
             'recall': byevent_recall,
@@ -502,7 +504,8 @@ class WaveletBLSTM(BaseModel):
         byevent_summ = self.sess.run(
             self.byevent_metrics_summ, feed_dict={
                 self.eval_threshold: byevent_thr,
-                self.eval_af1: byevent_af1,
+                # self.eval_af1: byevent_af1,
+                self.eval_af1: byevent_af1_half,
                 self.eval_af1_half: byevent_af1_half,
                 self.eval_f1: byevent_f1,
                 self.eval_precision: byevent_precision,

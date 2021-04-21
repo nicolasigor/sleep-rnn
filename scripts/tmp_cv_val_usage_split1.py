@@ -55,8 +55,7 @@ if __name__ == '__main__':
         False
     ]
     reset_optimizer_list = [
-        False,
-        True
+        False
     ]
     params_list = list(itertools.product(
         model_version_list, decay_criterion_list, keep_best_list, reset_optimizer_list
