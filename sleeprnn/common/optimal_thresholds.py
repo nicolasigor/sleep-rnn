@@ -342,6 +342,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset1_loss_criterion'): [0.44, 0.36, 0.54, 0.36, 0.56],
     os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.52, 0.46, 0.36, 0.56, 0.50],
     os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.46, 0.22, 0.50, 0.30, 0.48],
+    
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.44, 0.42, 0.46, 0.54, 0.44],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.40, 0.52, 0.54, 0.36, 0.56],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_loss_criterion'): [0.48, 0.46, 0.54, 0.50, 0.44],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.54, 0.54, 0.40, 0.46, 0.44],
 }
 
 

@@ -46,3 +46,24 @@ AF1 63.09/3.47 [0.5] 64.81/4.44 [0.48, 0.34, 0.40, 0.30, 0.40], F 79.16/3.89, P 
     os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.52, 0.56, 0.26, 0.62, 0.32],
     os.path.join('20210420_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.48, 0.34, 0.40, 0.30, 0.40],
 
+
+Second grid search:
+Threshold in 0.1 - 0.9 fitted with train + val
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss
+AF1 67.43/3.62 [0.5] 67.16/3.62 [0.44, 0.42, 0.46, 0.54, 0.44], F 79.89/3.26, P 78.3/ 8.6, R 83.4/ 9.5 for v43_best1_reset0_metric_criterion
+AF1 65.98/3.55 [0.5] 66.53/3.70 [0.40, 0.52, 0.54, 0.36, 0.56], F 79.95/3.65, P 78.6/ 8.8, R 83.0/ 8.5 for v43_best1_reset0_loss_criterion
+AF1 66.48/4.05 [0.5] 66.53/3.86 [0.48, 0.46, 0.54, 0.50, 0.44], F 79.40/3.20, P 78.1/ 9.2, R 82.7/ 9.5 for v43_best0_reset0_loss_criterion
+AF1 66.90/3.56 [0.5] 66.52/4.07 [0.54, 0.54, 0.40, 0.46, 0.44], F 79.65/3.24, P 77.7/ 9.4, R 83.6/ 8.9 for v43_best0_reset0_metric_criterion
+
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.44, 0.42, 0.46, 0.54, 0.44],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.40, 0.52, 0.54, 0.36, 0.56],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_loss_criterion'): [0.48, 0.46, 0.54, 0.50, 0.44],
+    os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.54, 0.54, 0.40, 0.46, 0.44],
+
+
+
+
+
+
+
