@@ -62,6 +62,48 @@ AF1 66.90/3.56 [0.5] 66.52/4.07 [0.54, 0.54, 0.40, 0.46, 0.44], F 79.65/3.24, P 
     os.path.join('20210421_val_usage_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.54, 0.54, 0.40, 0.46, 0.44],
 
 
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210421_val_usage_2_5fold-cv_exp1_n2_train_mass_ss
+AF1 66.03/0.72 [0.5] 66.46/0.70 [0.56, 0.56, 0.46, 0.54, 0.46], F 78.91/1.48, P 79.1/ 9.7, R 81.1/11.1 for v43_best0_reset0_metric_criterion
+AF1 66.14/0.96 [0.5] 66.26/0.91 [0.48, 0.50, 0.48, 0.42, 0.52], F 78.79/1.22, P 78.5/ 9.7, R 81.7/11.3 for v43_best0_reset0_loss_criterion
+AF1 65.94/1.49 [0.5] 66.11/1.27 [0.38, 0.48, 0.48, 0.42, 0.48], F 78.77/1.61, P 78.7/ 9.6, R 81.4/11.6 for v43_best1_reset0_metric_criterion
+AF1 61.35/4.17 [0.5] 62.52/3.53 [0.20, 0.54, 0.44, 0.46, 0.46], F 77.00/2.89, P 75.4/ 9.6, R 81.5/12.8 for v43_best1_reset0_loss_criterion
+
+    os.path.join('20210421_val_usage_2_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.56, 0.56, 0.46, 0.54, 0.46],
+    os.path.join('20210421_val_usage_2_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_loss_criterion'): [0.48, 0.50, 0.48, 0.42, 0.52],
+    os.path.join('20210421_val_usage_2_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.38, 0.48, 0.48, 0.42, 0.48],
+    os.path.join('20210421_val_usage_2_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.20, 0.54, 0.44, 0.46, 0.46],
+
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210421_val_usage_3_5fold-cv_exp1_n2_train_mass_ss
+AF1 67.25/1.08 [0.5] 67.18/1.15 [0.56, 0.48, 0.52, 0.46, 0.48], F 79.88/0.47, P 79.1/ 9.4, R 82.8/ 9.5 for v43_best0_reset0_metric_criterion
+AF1 67.22/1.69 [0.5] 67.17/1.71 [0.50, 0.52, 0.42, 0.44, 0.56], F 79.67/1.03, P 79.3/ 9.2, R 82.2/10.5 for v43_best1_reset0_metric_criterion
+AF1 66.93/1.45 [0.5] 66.74/1.10 [0.56, 0.52, 0.52, 0.48, 0.40], F 79.46/1.04, P 78.5/ 9.2, R 82.6/10.6 for v43_best0_reset0_loss_criterion
+AF1 63.61/4.43 [0.5] 64.46/2.93 [0.38, 0.46, 0.46, 0.44, 0.46], F 77.99/2.53, P 77.5/ 9.4, R 81.1/12.6 for v43_best1_reset0_loss_criterion
+
+    os.path.join('20210421_val_usage_3_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_metric_criterion'): [0.56, 0.48, 0.52, 0.46, 0.48],
+    os.path.join('20210421_val_usage_3_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_metric_criterion'): [0.50, 0.52, 0.42, 0.44, 0.56],
+    os.path.join('20210421_val_usage_3_5fold-cv_exp1_n2_train_mass_ss', 'v43_best0_reset0_loss_criterion'): [0.56, 0.52, 0.52, 0.48, 0.40],
+    os.path.join('20210421_val_usage_3_5fold-cv_exp1_n2_train_mass_ss', 'v43_best1_reset0_loss_criterion'): [0.38, 0.46, 0.46, 0.44, 0.46],
+
+
+Grouped:
+
+AF1 66.90/3.56 [0.5] 66.52/4.07 [0.54, 0.54, 0.40, 0.46, 0.44], F 79.65/3.24, P 77.7/ 9.4, R 83.6/ 8.9 for v43_best0_reset0_metric_criterion
+AF1 66.03/0.72 [0.5] 66.46/0.70 [0.56, 0.56, 0.46, 0.54, 0.46], F 78.91/1.48, P 79.1/ 9.7, R 81.1/11.1 for v43_best0_reset0_metric_criterion
+AF1 67.25/1.08 [0.5] 67.18/1.15 [0.56, 0.48, 0.52, 0.46, 0.48], F 79.88/0.47, P 79.1/ 9.4, R 82.8/ 9.5 for v43_best0_reset0_metric_criterion
+
+AF1 67.43/3.62 [0.5] 67.16/3.62 [0.44, 0.42, 0.46, 0.54, 0.44], F 79.89/3.26, P 78.3/ 8.6, R 83.4/ 9.5 for v43_best1_reset0_metric_criterion
+AF1 65.94/1.49 [0.5] 66.11/1.27 [0.38, 0.48, 0.48, 0.42, 0.48], F 78.77/1.61, P 78.7/ 9.6, R 81.4/11.6 for v43_best1_reset0_metric_criterion
+AF1 67.22/1.69 [0.5] 67.17/1.71 [0.50, 0.52, 0.42, 0.44, 0.56], F 79.67/1.03, P 79.3/ 9.2, R 82.2/10.5 for v43_best1_reset0_metric_criterion
+
+AF1 66.48/4.05 [0.5] 66.53/3.86 [0.48, 0.46, 0.54, 0.50, 0.44], F 79.40/3.20, P 78.1/ 9.2, R 82.7/ 9.5 for v43_best0_reset0_loss_criterion
+AF1 66.14/0.96 [0.5] 66.26/0.91 [0.48, 0.50, 0.48, 0.42, 0.52], F 78.79/1.22, P 78.5/ 9.7, R 81.7/11.3 for v43_best0_reset0_loss_criterion
+AF1 66.93/1.45 [0.5] 66.74/1.10 [0.56, 0.52, 0.52, 0.48, 0.40], F 79.46/1.04, P 78.5/ 9.2, R 82.6/10.6 for v43_best0_reset0_loss_criterion
+
+Out:
+AF1 65.98/3.55 [0.5] 66.53/3.70 [0.40, 0.52, 0.54, 0.36, 0.56], F 79.95/3.65, P 78.6/ 8.8, R 83.0/ 8.5 for v43_best1_reset0_loss_criterion
+AF1 61.35/4.17 [0.5] 62.52/3.53 [0.20, 0.54, 0.44, 0.46, 0.46], F 77.00/2.89, P 75.4/ 9.6, R 81.5/12.8 for v43_best1_reset0_loss_criterion
+AF1 63.61/4.43 [0.5] 64.46/2.93 [0.38, 0.46, 0.46, 0.44, 0.46], F 77.99/2.53, P 77.5/ 9.4, R 81.1/12.6 for v43_best1_reset0_loss_criterion
 
 
 
