@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = 'val_usage_%dfold-cv_exp%d' % (n_folds, which_expert)
+    experiment_name = 'val_usage_2_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     verbose = True
