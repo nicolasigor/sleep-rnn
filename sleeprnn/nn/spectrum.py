@@ -92,6 +92,8 @@ def compute_wavelets_noisy(
         size_factor=1.0,
         flattening=False,
         trainable=False,
+        expansion_factor=1.0,
+        trainable_expansion_factor=False,
         name=None):
     """
     Computes the complex morlet wavelets
@@ -111,6 +113,8 @@ def compute_wavelets_noisy(
         lower_freq: (float) Lower frequency to be considered for the scalogram.
         upper_freq: (float) Upper frequency to be considered for the scalogram.
         n_scales: (int) Number of scales to cover the frequency range.
+        training_flag: (boolean) whether it is training phase.
+        noise_intensity: (float) intensity of the noise in the scales during training.
         flattening: (Optional, boolean, defaults to False) If True, each wavelet
             will be multiplied by its corresponding frequency, to avoid having
             too large coefficients for low frequency ranges, since it is
@@ -121,6 +125,10 @@ def compute_wavelets_noisy(
             size.
         trainable: (Optional, boolean, defaults to False) If True, the fb params
             will be trained with backprop.
+        expansion_factor: (Optional, float between 0 and 1, defaults to 1)
+            interpolates between STFT (0) and CWT (1) behavior of the kernel width.
+        trainable_expansion_factor: (Optional, boolean, default to False)
+            If true, the expansion factor will be trained with backprop.
         name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
@@ -147,20 +155,32 @@ def compute_wavelets_noisy(
     frequencies = 1 / scales
 
     print("CWT noise intensity:", noise_intensity)
-
     with tf.variable_scope(name):
+        print("CWT expansion factor:", expansion_factor)
+        if trainable_expansion_factor:
+            expansion_factor = np.clip(expansion_factor, a_min=0.02, a_max=0.98)
+            q_logit = np.log(expansion_factor / (1.0 - expansion_factor))
+            q_logit_tensor = tf.Variable(
+                initial_value=q_logit, trainable=True, name='q_logit', dtype=tf.float32)
+            q = tf.nn.sigmoid(q_logit_tensor)
+            tf.summary.scalar('expansion_factor', q)
+        else:
+            q = tf.cast(expansion_factor, tf.float32)
+
         # Generate the wavelets
         wavelets = []
         for j, fb in enumerate(fb_list):
             # Trainable fb value
             # (we enforce positive number and avoids zero division)
             fb_tensor = tf.Variable(
-                initial_value=fb, trainable=trainable, name='fb_%d' % j,
-                dtype=tf.float32)
+                initial_value=fb, trainable=trainable, name='fb_%d' % j, dtype=tf.float32)
+            fb_tensor = tf.math.abs(fb_tensor)  # Ensure positivity
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
-            one_side = size_factor * int(scales[-1] * fs * np.sqrt(4.5 * fb))
+            largest_scale = np.max(scales)
+            largest_scale_expanded = expansion_factor * largest_scale + (1.0 - expansion_factor)
+            one_side = int(size_factor * largest_scale_expanded * fs * np.sqrt(4.5 * fb))
             kernel_size = 2 * one_side + 1
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
             k_array = k_array / fs  # Time units
@@ -177,8 +197,9 @@ def compute_wavelets_noisy(
                     lambda: scale_original / tf.random.uniform([], 1.0 - noise_intensity, 1.0 + noise_intensity),
                     lambda: scale_original
                 )
-                norm_constant = tf.sqrt(np.pi * fb_tensor) * scale * fs / 2.0
-                exp_term = tf.exp(-((k_array / scale) ** 2) / fb_tensor)
+                scale_expanded = q * scale + (1.0 - q)
+                norm_constant = tf.sqrt(np.pi * fb_tensor) * scale_expanded * fs / 2.0
+                exp_term = tf.exp(-((k_array / scale_expanded) ** 2) / fb_tensor)
                 kernel_base = exp_term / norm_constant
                 kernel_real = kernel_base * tf.cos(2 * np.pi * k_array / scale)
                 kernel_imag = kernel_base * tf.sin(2 * np.pi * k_array / scale)
@@ -212,6 +233,8 @@ def compute_wavelets(
         size_factor=1.0,
         flattening=False,
         trainable=False,
+        expansion_factor=1.0,
+        trainable_expansion_factor=False,
         name=None):
     """
     Computes the complex morlet wavelets
@@ -241,6 +264,10 @@ def compute_wavelets(
             size.
         trainable: (Optional, boolean, defaults to False) If True, the fb params
             will be trained with backprop.
+        expansion_factor: (Optional, float between 0 and 1, defaults to 1)
+            interpolates between STFT (0) and CWT (1) behavior of the kernel width.
+        trainable_expansion_factor: (Optional, boolean, default to False)
+            If true, the expansion factor will be trained with backprop.
         name: (Optional, string, defaults to None) A name for the operation.
 
     Returns:
@@ -266,18 +293,31 @@ def compute_wavelets(
     frequencies = 1 / scales
 
     with tf.variable_scope(name):
+        print("CWT expansion factor:", expansion_factor)
+        if trainable_expansion_factor:
+            expansion_factor = np.clip(expansion_factor, a_min=0.02, a_max=0.98)
+            q_logit = np.log(expansion_factor / (1.0 - expansion_factor))
+            q_logit_tensor = tf.Variable(
+                initial_value=q_logit, trainable=True, name='q_logit', dtype=tf.float32)
+            q = tf.nn.sigmoid(q_logit_tensor)
+            tf.summary.scalar('expansion_factor', q)
+        else:
+            q = tf.cast(expansion_factor, tf.float32)
+
         # Generate the wavelets
         wavelets = []
         for j, fb in enumerate(fb_list):
             # Trainable fb value
             # (we enforce positive number and avoids zero division)
             fb_tensor = tf.Variable(
-                initial_value=fb, trainable=trainable, name='fb_%d' % j,
-                dtype=tf.float32)
+                initial_value=fb, trainable=trainable, name='fb_%d' % j, dtype=tf.float32)
+            fb_tensor = tf.math.abs(fb_tensor)  # Ensure positivity
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
-            one_side = size_factor * int(scales[-1] * fs * np.sqrt(4.5 * fb))
+            largest_scale = np.max(scales)
+            largest_scale_expanded = expansion_factor * largest_scale + (1.0 - expansion_factor)
+            one_side = int(size_factor * largest_scale_expanded * fs * np.sqrt(4.5 * fb))
             kernel_size = 2 * one_side + 1
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
             k_array = k_array / fs  # Time units
@@ -288,8 +328,9 @@ def compute_wavelets(
             # wavelet_bank_imag = np.zeros((1, kernel_size, 1, n_scales))
             for i in range(n_scales):
                 scale = scales[i]
-                norm_constant = tf.sqrt(np.pi * fb_tensor) * scale * fs / 2.0
-                exp_term = tf.exp(-((k_array / scale) ** 2) / fb_tensor)
+                scale_expanded = q * scale + (1.0 - q)
+                norm_constant = tf.sqrt(np.pi * fb_tensor) * scale_expanded * fs / 2.0
+                exp_term = tf.exp(-((k_array / scale_expanded) ** 2) / fb_tensor)
                 kernel_base = exp_term / norm_constant
                 kernel_real = kernel_base * np.cos(2 * np.pi * k_array / scale)
                 kernel_imag = kernel_base * np.sin(2 * np.pi * k_array / scale)
