@@ -3180,6 +3180,94 @@ def lstm_contextualization(
     return outputs
 
 
+def lstm_skip_early_contextualization(
+        inputs,
+        params,
+        training,
+):
+    outputs = layers.dropout_layer(
+        inputs, 'drop_0', drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM], dropout=params[pkeys.TYPE_DROPOUT],
+        training=training)
+    shortcut = outputs
+    # Lstm - First layer
+    if params[pkeys.BIGGER_LSTM_1_SIZE] > 0:
+        outputs = layers.lstm_layer(
+            outputs,
+            num_units=params[pkeys.BIGGER_LSTM_1_SIZE],
+            num_dirs=constants.BIDIRECTIONAL,
+            training=training,
+            name='lstm_1')
+        outputs = layers.dropout_layer(
+            outputs, 'drop_1', drop_rate=params[pkeys.DROP_RATE_HIDDEN], dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+    # Lstm - Second layer
+    if params[pkeys.BIGGER_LSTM_2_SIZE] > 0:
+        outputs = layers.lstm_layer(
+            outputs,
+            num_units=params[pkeys.BIGGER_LSTM_2_SIZE],
+            num_dirs=constants.BIDIRECTIONAL,
+            training=training,
+            name='lstm_2')
+        outputs = layers.dropout_layer(
+            outputs, 'drop_2', drop_rate=params[pkeys.DROP_RATE_HIDDEN], dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+    outputs = tf.concat([outputs, shortcut], axis=-1)
+    # Additional FC layer to increase model flexibility
+    if params[pkeys.FC_UNITS] > 0:
+        outputs = layers.sequence_fc_layer(
+            outputs,
+            params[pkeys.FC_UNITS],
+            kernel_init=tf.initializers.he_normal(),
+            training=training,
+            activation=tf.nn.relu,
+            name='fc_1')
+    return outputs
+
+
+def lstm_skip_late_contextualization(
+        inputs,
+        params,
+        training,
+):
+    outputs = layers.dropout_layer(
+        inputs, 'drop_0', drop_rate=params[pkeys.DROP_RATE_BEFORE_LSTM], dropout=params[pkeys.TYPE_DROPOUT],
+        training=training)
+    shortcut = outputs
+    # Lstm - First layer
+    if params[pkeys.BIGGER_LSTM_1_SIZE] > 0:
+        outputs = layers.lstm_layer(
+            outputs,
+            num_units=params[pkeys.BIGGER_LSTM_1_SIZE],
+            num_dirs=constants.BIDIRECTIONAL,
+            training=training,
+            name='lstm_1')
+        outputs = layers.dropout_layer(
+            outputs, 'drop_1', drop_rate=params[pkeys.DROP_RATE_HIDDEN], dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+    # Lstm - Second layer
+    if params[pkeys.BIGGER_LSTM_2_SIZE] > 0:
+        outputs = layers.lstm_layer(
+            outputs,
+            num_units=params[pkeys.BIGGER_LSTM_2_SIZE],
+            num_dirs=constants.BIDIRECTIONAL,
+            training=training,
+            name='lstm_2')
+        outputs = layers.dropout_layer(
+            outputs, 'drop_2', drop_rate=params[pkeys.DROP_RATE_HIDDEN], dropout=params[pkeys.TYPE_DROPOUT],
+            training=training)
+    # Additional FC layer to increase model flexibility
+    if params[pkeys.FC_UNITS] > 0:
+        outputs = layers.sequence_fc_layer(
+            outputs,
+            params[pkeys.FC_UNITS],
+            kernel_init=tf.initializers.he_normal(),
+            training=training,
+            activation=tf.nn.relu,
+            name='fc_1')
+    outputs = tf.concat([outputs, shortcut], axis=-1)
+    return outputs
+
+
 def attention_contextualization(
         inputs,
         params,
@@ -3606,6 +3694,12 @@ def wavelet_blstm_net_v43(
             outputs, att_weights_dict = attention_contextualization(outputs, params, training)
         elif params[pkeys.BIGGER_CONTEXT_PART_OPTION] == 'residual_lstm':
             outputs = residual_lstm_contextualization(outputs, params, training)
+            att_weights_dict = {}
+        elif params[pkeys.BIGGER_CONTEXT_PART_OPTION] == 'lstm_skip_early':
+            outputs = lstm_skip_early_contextualization(outputs, params, training)
+            att_weights_dict = {}
+        elif params[pkeys.BIGGER_CONTEXT_PART_OPTION] == 'lstm_skip_late':
+            outputs = lstm_skip_late_contextualization(outputs, params, training)
             att_weights_dict = {}
         else:
             raise ValueError("Context part invalid: %s" % params[pkeys.BIGGER_CONTEXT_PART_OPTION])

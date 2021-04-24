@@ -30,13 +30,13 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
     n_folds = 5
-    fold_id_list = [i for i in range(n_folds)]
+    fold_id_list = [3, 4]  # [i for i in range(n_folds)]
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = 'lego4_%dfold-cv_exp%d' % (n_folds, which_expert)
+    experiment_name = 'lego5_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     verbose = True
@@ -47,28 +47,18 @@ if __name__ == '__main__':
     model_version_list = [
         constants.V43
     ]
-    conv_part_option_list = [
-        ('multi_dilated', 'plain'),
-        ('residual_multi_dilated', 'resid')
+    context_part_list = [
+        'lstm_skip_early',
+        'lstm_skip_late',
+        'lstm'
     ]
-    stem_kernel_depth_list = [
-        # (7, 1),
-        (3, 2)
-    ]
-    transformation_before_add_list = [
-        ('linear', 'linear'),
-        ('nonlinear', 'nonlin'),
-        (None, 'none__')
-    ]
-
     cv_seed_list = [
         0,
         1,
         2
     ]
     params_list = list(itertools.product(
-        model_version_list,
-        conv_part_option_list, stem_kernel_depth_list, transformation_before_add_list
+        model_version_list, context_part_list
     ))
 
     # Common parameters
@@ -81,14 +71,18 @@ if __name__ == '__main__':
     base_params[pkeys.BIGGER_STAGE_1_SIZE] = 1
     base_params[pkeys.BIGGER_STAGE_2_SIZE] = 1
     base_params[pkeys.BIGGER_STAGE_3_SIZE] = 0
+    # Fitted params
+    base_params[pkeys.BIGGER_CONVOLUTION_PART_OPTION] = 'multi_dilated'
+    base_params[pkeys.BIGGER_STEM_KERNEL_SIZE] = 3
+    base_params[pkeys.BIGGER_STEM_DEPTH] = 2
+    base_params[pkeys.BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD] = None
     # Context part parameters: lstm
-    base_params[pkeys.BIGGER_CONTEXT_PART_OPTION] = 'lstm'
-    base_params[pkeys.BIGGER_LSTM_1_SIZE] = 128
-    base_params[pkeys.BIGGER_LSTM_2_SIZE] = 128
+    base_params[pkeys.BIGGER_LSTM_1_SIZE] = 256
+    base_params[pkeys.BIGGER_LSTM_2_SIZE] = 256
     base_params[pkeys.FC_UNITS_1] = 128
     # Training parameters
-    base_params[pkeys.EPOCHS_LR_UPDATE] = 4
-    base_params[pkeys.MAX_LR_UPDATES] = 3
+    base_params[pkeys.EPOCHS_LR_UPDATE] = 5
+    base_params[pkeys.MAX_LR_UPDATES] = 4
 
     # Data loading
     print('\nModel training on %s_%s (marks %d)' % (dataset_name, task_mode, which_expert))
@@ -113,25 +107,15 @@ if __name__ == '__main__':
             data_val = FeederDataset(dataset, val_ids, task_mode, which_expert=which_expert)
             data_test = FeederDataset(dataset, test_ids, task_mode, which_expert=which_expert)
             # Run CV
-            for model_version, conv_part_option, stem_kernel_depth, transformation_before_add in params_list:
-                if transformation_before_add[0] == 'linear' and conv_part_option[0] == 'multi_dilated':
-                    continue
-                stem_kernel_size = stem_kernel_depth[0]
-                stem_depth = stem_kernel_depth[1]
+            for model_version, context_part in params_list:
                 params = base_params.copy()
                 params[pkeys.MODEL_VERSION] = model_version
-                params[pkeys.BIGGER_CONVOLUTION_PART_OPTION] = conv_part_option[0]
-                params[pkeys.BIGGER_STEM_KERNEL_SIZE] = stem_kernel_size
-                params[pkeys.BIGGER_STEM_DEPTH] = stem_depth
-                params[pkeys.BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD] = transformation_before_add[0]
+                params[pkeys.BIGGER_CONTEXT_PART_OPTION] = context_part
 
-                folder_name = '%s_cv%d_k%dl%d_%s_%s' % (
+                folder_name = '%s_cv%d_%s' % (
                     model_version,
                     cv_seed,
-                    stem_kernel_size,
-                    stem_depth,
-                    transformation_before_add[1],
-                    conv_part_option[1]
+                    context_part
                 )
 
                 base_dir = os.path.join(
