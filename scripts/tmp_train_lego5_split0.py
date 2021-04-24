@@ -35,7 +35,7 @@ if __name__ == '__main__':
     which_expert = 1
 
     # ----- Experiment settings
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20210424'  # datetime.datetime.now().strftime("%Y%m%d")
     experiment_name = 'lego5_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
@@ -124,29 +124,31 @@ if __name__ == '__main__':
 
                 # Path to save results of run
                 logdir = os.path.join(RESULTS_PATH, base_dir)
+                if os.path.isdir(logdir):
+                    continue
                 print('This run directory: %s' % logdir)
 
-                # Create and train model
-                model = WaveletBLSTM(params=params, logdir=logdir)
-                model.fit(data_train, data_val, verbose=verbose)
-                # --------------  Predict
-                # Save path for predictions
-                save_dir = os.path.abspath(os.path.join(
-                    RESULTS_PATH, 'predictions_%s' % dataset_name, base_dir))
-                checks.ensure_directory(save_dir)
-                feeders_dict = {
-                    constants.TRAIN_SUBSET: data_train,
-                    constants.VAL_SUBSET: data_val,
-                    constants.TEST_SUBSET: data_test
-                }
-                for set_name in feeders_dict.keys():
-                    print('Predicting %s' % set_name, flush=True)
-                    data_inference = feeders_dict[set_name]
-                    prediction = model.predict_dataset(data_inference, verbose=verbose)
-                    filename = os.path.join(
-                        save_dir,
-                        'prediction_%s_%s.pkl' % (task_mode, set_name))
-                    with open(filename, 'wb') as handle:
-                        pickle.dump(prediction, handle, protocol=pickle.HIGHEST_PROTOCOL)
-                print('Predictions saved at %s' % save_dir)
-                print('')
+                # # Create and train model
+                # model = WaveletBLSTM(params=params, logdir=logdir)
+                # model.fit(data_train, data_val, verbose=verbose)
+                # # --------------  Predict
+                # # Save path for predictions
+                # save_dir = os.path.abspath(os.path.join(
+                #     RESULTS_PATH, 'predictions_%s' % dataset_name, base_dir))
+                # checks.ensure_directory(save_dir)
+                # feeders_dict = {
+                #     constants.TRAIN_SUBSET: data_train,
+                #     constants.VAL_SUBSET: data_val,
+                #     constants.TEST_SUBSET: data_test
+                # }
+                # for set_name in feeders_dict.keys():
+                #     print('Predicting %s' % set_name, flush=True)
+                #     data_inference = feeders_dict[set_name]
+                #     prediction = model.predict_dataset(data_inference, verbose=verbose)
+                #     filename = os.path.join(
+                #         save_dir,
+                #         'prediction_%s_%s.pkl' % (task_mode, set_name))
+                #     with open(filename, 'wb') as handle:
+                #         pickle.dump(prediction, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                # print('Predictions saved at %s' % save_dir)
+                # print('')
