@@ -140,7 +140,7 @@ def broad_filter(signal, fs, lowcut=0.1, highcut=35):
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
-    b, a = butter(3, [low, high], btype='band')
+    b, a = butter(3, (low, high), btype='band')
     # Apply filter to the signal with zero-phase.
     filtered_signal = filtfilt(b, a, signal)
     return filtered_signal
@@ -162,7 +162,7 @@ def filter_fir(kernel, signal):
     filtered_signal = lfilter(kernel, 1.0, signal)
     n_shift = (kernel.size - 1) // 2
     aligned = np.zeros(filtered_signal.shape)
-    aligned[:-n_shift] = filtered_signal[n_shift:]
+    aligned[..., :-n_shift] = filtered_signal[..., n_shift:]
     return aligned
 
 
