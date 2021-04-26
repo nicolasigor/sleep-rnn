@@ -29,6 +29,7 @@ class FeederDataset(Dataset):
             [constants.WN_RECORD, constants.N2_RECORD])
 
         self.parent_dataset = dataset
+        self.parent_dataset_class = dataset.__class__
         self.task_mode = task_mode
         self.which_expert = which_expert
 
@@ -45,6 +46,9 @@ class FeederDataset(Dataset):
         )
         self.global_std = dataset.global_std
         self.mean_fft_scaling = dataset.mean_fft_scaling
+
+    def read_subject_data(self, subject_id):
+        return self.parent_dataset_class.read_subject_data(self, subject_id)
 
     def _load_from_source(self):
         """Loads the data from source."""
@@ -301,7 +305,7 @@ class FeederDataset(Dataset):
             verbose=False
     ):
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         # Unpack data
         signal = ind_dict[KEY_EEG]

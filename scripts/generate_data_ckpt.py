@@ -21,7 +21,7 @@ from sleeprnn.common import pkeys
 
 if __name__ == '__main__':
 
-    datasets_class = [IntaSS]  # [ModaSS]  # [MassSS, MassKC, MassSSInv, MassKCInv]
+    datasets_class = [CapFullSS]  # [IntaSS]  # [ModaSS]  # [MassSS, MassKC, MassSSInv, MassKCInv]
     repair_inta = False
     params = {pkeys.FS: 200}
     mass_global_std = None

@@ -210,18 +210,34 @@ class CapFullSS(Dataset):
             if verbose:
                 print('Global STD set externally:', self.global_std)
         else:
-            self.global_std = self.compute_global_std(
-                self.train_ids,
-                only_sleep=True,
-                hypnogram_page_size=int(self.original_page_duration * self.fs),
-                sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'])
+            self.global_std = None
             if verbose:
-                print('Global STD computed (only sleep):', self.global_std)
+                print('Global STD:', self.global_std)
+
+    def compute_global_std(
+            self,
+            subject_ids,
+            only_sleep=True,
+            hypnogram_page_size=None,
+            sleep_labels=None):
+        """Ensures global std computation using only sleep stages"""
+        if hypnogram_page_size is None:
+            hypnogram_page_size = int(self.original_page_duration * self.fs)
+        if sleep_labels is None:
+            sleep_labels = ['S1', 'S2', 'S3', 'S4', 'R']
+        global_std = super(CapFullSS, self).compute_global_std(
+            subject_ids,
+            only_sleep=only_sleep,
+            hypnogram_page_size=hypnogram_page_size,
+            sleep_labels=sleep_labels)
+        return global_std
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
         data_paths = self._get_file_paths()
         data = {}
+        save_dir = os.path.join(self.dataset_dir, 'pretty_files')
+        os.makedirs(save_dir, exist_ok=True)
         n_data = len(data_paths)
         start = time.time()
         for i, subject_id in enumerate(data_paths.keys()):
@@ -250,11 +266,18 @@ class CapFullSS(Dataset):
                 '%s_1' % KEY_MARKS: marks_1,
                 '%s_2' % KEY_MARKS: marks_2
             }
-            data[subject_id] = ind_dict
+            fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
+            data[subject_id] = {'pretty_file_path': fname}
+            np.savez(fname, **ind_dict)
             print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
                 subject_id, i+1, n_data, time.time()-start))
-        print('%d records have been read.' % len(data))
+        print('%d records have been read.' % n_data)
         return data
+
+    def read_subject_data(self, subject_id):
+        path_dict = self.data[subject_id]
+        ind_dict = np.load(path_dict['pretty_file_path'])
+        return ind_dict
 
     def _get_file_paths(self):
         """Returns a list of dicts containing paths to load the database."""
@@ -297,8 +320,6 @@ class CapFullSS(Dataset):
         if self.fs != original_fs:
             print('Resampling from %d Hz to required %d Hz' % (original_fs, self.fs))
             signal = utils.resample_signal(signal, fs_old=original_fs, fs_new=self.fs)
-        else:
-            print('Signal already at required %d Hz' % self.fs)
         signal = signal.astype(np.float32)
         return signal, hypnogram
 

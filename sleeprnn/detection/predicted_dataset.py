@@ -58,20 +58,18 @@ class PredictedDataset(Dataset):
 
     def _load_from_source(self):
         """Loads the data from source."""
-        original_data = self.parent_dataset.get_sub_dataset(self.all_ids)
-        self.parent_dataset = None
-
         # Extract only necessary stuff
         data = {}
         for sub_id in self.all_ids:
+            ind_dict = self.parent_dataset.read_subject_data(sub_id)
             pat_dict = {
                 KEY_EEG: None,
-                KEY_N2_PAGES: original_data[sub_id][KEY_N2_PAGES],
-                KEY_ALL_PAGES: original_data[sub_id][KEY_ALL_PAGES],
+                KEY_N2_PAGES: ind_dict[KEY_N2_PAGES],
+                KEY_ALL_PAGES: ind_dict[KEY_ALL_PAGES],
                 '%s_%d' % (KEY_MARKS, 1): None
             }
             data[sub_id] = pat_dict
-
+        self.parent_dataset = None
         return data
 
     def set_probability_threshold(self, new_probability_threshold):

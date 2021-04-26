@@ -163,9 +163,10 @@ class Dataset(object):
         sum_x = 0.0
         sum_x2 = 0.0
         for subject_id in subject_ids:
-            x = self.get_subject_signal(subject_id, normalize_clip=False)
+            ind_dict = self.read_subject_data(subject_id)
+            x = ind_dict[KEY_EEG]
             if only_sleep:
-                hypno = self.get_subject_hypnogram(subject_id)
+                hypno = ind_dict[KEY_HYPNOGRAM]
                 pages = np.concatenate([np.where(hypno == lbl)[0] for lbl in sleep_labels])
                 x = utils.extract_pages(x, pages, hypnogram_page_size).flatten()
             outlier_thr = np.percentile(np.abs(x), 99)
@@ -212,6 +213,9 @@ class Dataset(object):
             fft_scaling_factor_dict[subject_id] = 1 / band_mean
         return fft_scaling_factor_dict
 
+    def read_subject_data(self, subject_id):
+        return self.data[subject_id]
+
     def get_subject_signal(
             self,
             subject_id,
@@ -227,7 +231,7 @@ class Dataset(object):
             normalization_mode, 'normalization_mode',
             [constants.N2_RECORD, constants.WN_RECORD])
 
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         # Unpack data
         signal = ind_dict[KEY_EEG]
@@ -242,9 +246,7 @@ class Dataset(object):
                 # Transform stamps into sequence
                 marks = utils.stamp2seq(marks, 0, signal.shape[0] - 1)
                 tmp_pages = ind_dict[KEY_ALL_PAGES]
-                activity = utils.extract_pages(
-                    marks, tmp_pages,
-                    self.page_size, border_size=0)
+                activity = utils.extract_pages(marks, tmp_pages, self.page_size, border_size=0)
                 activity = activity.sum(axis=1)
                 activity = np.where(activity > 0)[0]
                 tmp_pages = tmp_pages[activity]
@@ -314,7 +316,7 @@ class Dataset(object):
             pages_subset, 'pages_subset',
             [constants.N2_RECORD, constants.WN_RECORD])
 
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         if pages_subset == constants.WN_RECORD:
             pages = ind_dict[KEY_ALL_PAGES]
@@ -370,7 +372,7 @@ class Dataset(object):
             pages_subset, 'pages_subset',
             [constants.N2_RECORD, constants.WN_RECORD])
 
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         marks = ind_dict['%s_%d' % (KEY_MARKS, which_expert)]
 
@@ -380,8 +382,7 @@ class Dataset(object):
             pages = ind_dict[KEY_N2_PAGES]
 
         # Get stamps that are inside selected pages
-        marks = utils.extract_pages_for_stamps(
-            marks, pages, self.page_size)
+        marks = utils.extract_pages_for_stamps(marks, pages, self.page_size)
 
         if verbose:
             print('Getting ID %s, %s pages, %d stamps'
@@ -429,7 +430,7 @@ class Dataset(object):
         """Returns the hypogram of this subject."""
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
 
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         hypno = ind_dict[KEY_HYPNOGRAM]
 
@@ -520,7 +521,7 @@ class Dataset(object):
             normalization_mode, 'normalization_mode',
             [constants.N2_RECORD, constants.WN_RECORD])
 
-        ind_dict = self.data[subject_id]
+        ind_dict = self.read_subject_data(subject_id)
 
         # Unpack data
         signal = ind_dict[KEY_EEG]

@@ -139,6 +139,7 @@ class WaveletBLSTM(BaseModel):
             m_train = np.concatenate([m_train, m_extra], axis=0)
             print('Extra data to be added x, y, m:', x_extra.shape, y_extra.shape, m_extra.shape)
             print('New train data', x_train.shape, y_train.shape, m_train.shape)
+            del extra_data_train
 
         # Shuffle training set
         list_of_outputs = utils.shuffle_data_collection([x_train, y_train, m_train], seed=0)
@@ -149,6 +150,7 @@ class WaveletBLSTM(BaseModel):
 
         x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2 = self._split_train(
             x_train, y_train, m_train)
+        del x_train, y_train, m_train
 
         batch_size = self.params[pkeys.BATCH_SIZE]
         iters_resolution = 10
@@ -167,7 +169,7 @@ class WaveletBLSTM(BaseModel):
               'Training examples %d, Init iters %d, Annealing iters %d, Total iters %d' %
               (self.params[pkeys.BATCH_SIZE],
                iter_per_epoch,
-               x_train.shape[0], niters_init, niters_anneal, total_iters))
+               x_train_1.shape[0] + x_train_2.shape[0], niters_init, niters_anneal, total_iters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
 
@@ -182,6 +184,7 @@ class WaveletBLSTM(BaseModel):
             self._initialize_variables()
 
         self._init_iterator_train(x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2)
+        del x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2
 
         # Training loop
         start_time = time.time()
@@ -269,6 +272,7 @@ class WaveletBLSTM(BaseModel):
             m_train = np.concatenate([m_train, m_extra], axis=0)
             print('Extra data to be added x, y, m:', x_extra.shape, y_extra.shape, m_extra.shape)
             print('New train data', x_train.shape, y_train.shape, m_train.shape)
+            del extra_data_train
 
         # Shuffle training set
         list_of_outputs = utils.shuffle_data_collection([x_train, y_train, m_train], seed=0)
@@ -281,6 +285,7 @@ class WaveletBLSTM(BaseModel):
             x_train, y_train, m_train, x_val, y_val, m_val)
         x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2 = self._split_train(
             x_train, y_train, m_train)
+        del x_train, y_train, m_train
 
         batch_size = self.params[pkeys.BATCH_SIZE]
         iters_resolution = 10
@@ -297,7 +302,7 @@ class WaveletBLSTM(BaseModel):
               'Training examples %d, Max iterations %d' %
               (self.params[pkeys.BATCH_SIZE],
                iter_per_epoch,
-               x_train.shape[0], niters))
+               x_train_1.shape[0] + x_train_2.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
         print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
 
@@ -312,6 +317,7 @@ class WaveletBLSTM(BaseModel):
             self._initialize_variables()
 
         self._init_iterator_train(x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2)
+        del x_train_1, y_train_1, m_train_1, x_train_2, y_train_2, m_train_2
 
         # Improvement criterion
         model_criterion = {
@@ -331,13 +337,11 @@ class WaveletBLSTM(BaseModel):
         print("Learning rate decay criterion: %s" % lr_update_criterion)
 
         # Validation events for AF1
-        val_thr_space = {'min': 0.2, 'max': 0.8, 'step': 0.02}
         if 'moda' in data_val.dataset_name:
             val_avg_mode = constants.MICRO_AVERAGE
         else:
             val_avg_mode = constants.MACRO_AVERAGE
-        print("Validation AF1 computed using %s and thr space %s:%s:%s" % (
-            val_avg_mode, val_thr_space['min'], val_thr_space['step'], val_thr_space['max']))
+        print("Validation AF1 computed using %s and thr 0.5" % val_avg_mode)
 
         # Training loop
         start_time = time.time()
@@ -357,8 +361,7 @@ class WaveletBLSTM(BaseModel):
                     # Val set report (whole set)
                     val_loss, val_metrics, val_summ = self.evaluate(x_val, y_val, m_val)
                     self.val_writer.add_summary(val_summ, it)
-                    byevent_val_metrics, byevent_val_summ = self.evaluate_byevent(
-                        data_val, val_thr_space, val_avg_mode)
+                    byevent_val_metrics, byevent_val_summ = self.evaluate_byevent(data_val, val_avg_mode)
                     self.val_writer.add_summary(byevent_val_summ, it)
 
                     metric_msg += ' - val loss %1.4f f1 %1.4f AF1 %1.4f (thr %1.2f)' % (
@@ -442,7 +445,7 @@ class WaveletBLSTM(BaseModel):
             json.dump(last_model, outfile)
 
     def evaluate_byevent(
-            self, validation_dataset, threshold_space, average_mode, iou_threshold_report=0.2):
+            self, validation_dataset, average_mode, iou_threshold_report=0.2):
 
         metric_vs_iou_fn_dict = {
             constants.MACRO_AVERAGE: metric_vs_iou_macro_average,
@@ -453,8 +456,6 @@ class WaveletBLSTM(BaseModel):
 
         prediction_val = self.predict_dataset(validation_dataset, verbose=False)
 
-        # byevent_thr, byevent_af1 = threshold_optimization.fit_threshold(
-        #     [validation_dataset], [prediction_val], threshold_space, average_mode, return_best_af1=True)
         byevent_thr = 0.5
         prediction_val.set_probability_threshold(byevent_thr)
 
@@ -485,15 +486,10 @@ class WaveletBLSTM(BaseModel):
         else:
             byevent_miou = np.concatenate(nonzero_iou_list).mean()
 
-        # Now using thr 0.5
-        # prediction_val.set_probability_threshold(0.5)
-        # val_detections_list = prediction_val.get_stamps()
-        # iou_matching_list, _ = matching_with_list(val_events_list, val_detections_list)
         byevent_af1_half = average_metric_fn_dict[average_mode](val_events_list, val_detections_list)
 
         byevent_metrics = {
             'threshold': byevent_thr,
-            # 'af1': byevent_af1,
             'af1': byevent_af1_half,
             'af1_half': byevent_af1_half,
             'f1': byevent_f1,
@@ -504,7 +500,6 @@ class WaveletBLSTM(BaseModel):
         byevent_summ = self.sess.run(
             self.byevent_metrics_summ, feed_dict={
                 self.eval_threshold: byevent_thr,
-                # self.eval_af1: byevent_af1,
                 self.eval_af1: byevent_af1_half,
                 self.eval_af1_half: byevent_af1_half,
                 self.eval_f1: byevent_f1,
