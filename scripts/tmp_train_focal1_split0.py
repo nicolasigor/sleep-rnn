@@ -30,7 +30,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
     n_folds = 4
-    fold_id_list = [0, 1]  # [i for i in range(n_folds)]
+    fold_id_list = [i for i in range(n_folds)]
     dataset_name = constants.CAP_FULL_SS_NAME
     which_expert = 2
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         -1, -2, -3
     ]
     focal_width_list = [
-        0.1, 0.2, 0.3
+        0.1
     ]
     positive_weight_exponent_list = [
         0, -1, -2, -3

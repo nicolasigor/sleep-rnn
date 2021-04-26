@@ -56,7 +56,7 @@ if __name__ == '__main__':
         -1, -2, -3
     ]
     focal_width_list = [
-        0.2
+        0.3
     ]
     positive_weight_exponent_list = [
         0, -1, -2, -3
