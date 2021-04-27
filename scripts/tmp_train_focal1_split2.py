@@ -29,10 +29,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == '__main__':
-    n_folds = 4
+    n_folds = 5
     fold_id_list = [i for i in range(n_folds)]
-    dataset_name = constants.CAP_FULL_SS_NAME
-    which_expert = 2
+    dataset_name = constants.MASS_SS_NAME
+    which_expert = 1
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -83,7 +83,9 @@ if __name__ == '__main__':
             print('\nUsing CV seed %d and fold id %d' % (cv_seed, fold_id))
             # Generate split
             train_ids, val_ids, test_ids = dataset.cv_split(
-                n_folds, fold_id, cv_seed, subject_ids=dataset.train_ids)
+                n_folds, fold_id, cv_seed, subject_ids=dataset.train_ids[1:])
+            train_ids.append(dataset.train_ids[0])
+            train_ids.sort()
             print("Subjects in each partition: train %d, val %d, test %d" % (
                 len(train_ids), len(val_ids), len(test_ids)))
             # Compute global std
@@ -120,8 +122,6 @@ if __name__ == '__main__':
 
                 # Path to save results of run
                 logdir = os.path.join(RESULTS_PATH, base_dir)
-                if os.path.isdir(logdir):
-                    continue
                 print('This run directory: %s' % logdir)
 
                 # Create and train model
