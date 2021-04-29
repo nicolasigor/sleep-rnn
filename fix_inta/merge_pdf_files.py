@@ -3,17 +3,15 @@ import os
 
 
 folders = [
-	'BTOL083105_conflicts',
-	'BRCA062405_conflicts',
-	'CRCA020205_conflicts',
-	'ESCI031905_conflicts',
-	'BRLO041102_conflicts',
-	'BTOL090105_conflicts',
-	'BECA011405_conflicts',
-	'ADGU101504_conflicts',
-	'BECA011405_SQ2-SQ3'
+	'BECA011405_SQ2_cycle1',
+	'BECA011405_SQ2_cycle2',
+	'BECA011405_SQ2_cycle3',
+	'BECA011405_SQ2_cycle4',
+	'BECA011405_SQ2_cycle5',
+	'BECA011405_SQ2_cycle6',
+	'BECA011405_SQ2_cycle7',
+	'BECA011405_SQ2_cycle8'
 ]
-
 
 for single_folder in folders:
 	pdfs = os.listdir(single_folder)

@@ -51,9 +51,14 @@ NAMES = [
 
 # Load subject
 # subject_id = 2
-save_selected_pages = False
-for subject_id in [3]:
+save_selected_pages = True
+# Sleep states dictionary for INTA:
+# 1:SQ4   2:SQ3   3:SQ2   4:SQ1   5:REM   6:WA
+inta_stages_names = {1: 'SQ4', 2: 'SQ3', 3: 'SQ2', 4: 'SQ1', 5: 'REM', 6: 'WA'}
+stages_valid = [3]
+subject_ids = [3]
 
+for subject_id in subject_ids:
     fs = 200
     marked_channel = 'F4-C4'
     dataset_dir = os.path.abspath(os.path.join('..', 'resources/datasets/inta'))
@@ -354,11 +359,6 @@ for subject_id in [3]:
         hypnogram_original = states[:max_page]
 
         # Collect stages
-        # Sleep states dictionary for INTA:
-        # 1:SQ4   2:SQ3   3:SQ2   4:SQ1   5:REM   6:WA
-
-        stages_valid = [3, 2]
-
         signal_total_duration = len(hypnogram_original) * original_page_duration
         select_pages_original = np.sort(np.concatenate([np.where(hypnogram_original == state_id)[0] for state_id in stages_valid]))
         print("Original selected pages: %d" % len(select_pages_original))
@@ -380,13 +380,16 @@ for subject_id in [3]:
         # save
         start_from_page = 1  # min is 1
         last_page = None  # None
-
-        folder_name = '%s_SQ2-SQ3' % NAMES[subject_id - 1]
+        stages_str = [inta_stages_names[state_id] for state_id in stages_valid]
+        stages_str.sort()
+        stages_str = "-".join(stages_str)
+        folder_name = '%s_%s' % (NAMES[subject_id - 1], stages_str)
         os.makedirs(folder_name, exist_ok=True)
         n_selected_pages = select_pages.size
         if last_page is None:
             last_page = n_selected_pages
         print('Total selected pages: %d' % n_selected_pages)
+        print("Saving selected pages at %s" % folder_name)
         fig, ax = plt.subplots(1, 1, figsize=(12, 1+len(to_show_names)), dpi=180)
         for page_id in range(start_from_page, last_page + 1):
             fname = os.path.join(folder_name, 'page_%03d.pdf' % page_id)
