@@ -1,0 +1,75 @@
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210427_focal1_5fold-cv_exp1_n2_train_mass_ss
+AF1 54.78/4.55 [0.5] 66.06/3.84 [0.32, 0.30, 0.30, 0.36, 0.30], F 79.44/3.61, P 76.4/ 9.3, R 84.8/ 9.1 for v43_cv0_eps-2_width0.3_pos-3
+AF1 56.62/3.99 [0.5] 66.04/4.15 [0.28, 0.20, 0.20, 0.26, 0.24], F 79.19/3.74, P 78.0/ 9.7, R 82.6/ 9.9 for v43_cv0_eps-1_width0.1_pos-3
+AF1 65.69/4.52 [0.5] 65.96/4.31 [0.46, 0.48, 0.48, 0.50, 0.52], F 79.50/3.46, P 77.2/ 9.5, R 84.0/ 8.8 for v43_cv0_eps-3_width0.1_pos+0
+AF1 57.17/3.16 [0.5] 65.86/3.78 [0.32, 0.32, 0.28, 0.30, 0.30], F 79.74/3.23, P 76.7/ 8.2, R 84.5/ 7.5 for v43_cv0_eps-2_width0.1_pos-3
+AF1 65.69/3.93 [0.5] 65.84/3.69 [0.48, 0.48, 0.50, 0.50, 0.50], F 79.33/3.18, P 77.0/ 9.4, R 83.7/ 8.3 for v43_cv0_eps-3_width0.2_pos+0
+AF1 65.38/4.57 [0.5] 65.83/4.23 [0.42, 0.42, 0.38, 0.50, 0.38], F 79.32/3.52, P 77.6/ 9.9, R 83.3/ 9.3 for v43_cv0_eps-1_width0.1_pos-1
+AF1 65.15/4.53 [0.5] 65.82/4.66 [0.44, 0.46, 0.42, 0.44, 0.44], F 78.93/4.11, P 76.9/ 9.5, R 83.2/ 9.7 for v43_cv0_eps-1_width0.2_pos-1
+AF1 64.64/4.12 [0.5] 65.79/4.17 [0.46, 0.44, 0.42, 0.44, 0.44], F 79.52/3.36, P 77.7/ 9.3, R 83.5/ 9.4 for v43_cv0_eps-3_width0.1_pos-1
+AF1 65.41/3.82 [0.5] 65.77/3.95 [0.48, 0.44, 0.46, 0.46, 0.44], F 79.50/3.73, P 77.0/ 9.4, R 84.1/ 8.9 for v43_cv0_eps-2_width0.3_pos-1
+AF1 52.87/3.74 [0.5] 65.76/4.37 [0.36, 0.36, 0.38, 0.38, 0.36], F 79.67/3.91, P 78.4/ 8.7, R 82.7/ 8.9 for v43_cv0_eps-3_width0.2_pos-3
+AF1 55.60/3.71 [0.5] 65.66/4.54 [0.36, 0.34, 0.28, 0.34, 0.34], F 79.55/3.59, P 77.8/ 9.8, R 83.3/ 8.4 for v43_cv0_eps-2_width0.2_pos-3
+AF1 62.46/4.18 [0.5] 65.66/4.36 [0.38, 0.32, 0.30, 0.36, 0.36], F 79.02/3.68, P 78.2/ 9.7, R 82.2/10.1 for v43_cv0_eps-1_width0.3_pos-2
+AF1 65.93/4.01 [0.5] 65.62/4.19 [0.50, 0.48, 0.48, 0.50, 0.46], F 79.52/3.91, P 77.6/ 9.9, R 83.7/ 9.4 for v43_cv0_eps-1_width0.2_pos+0
+AF1 61.24/2.93 [0.5] 65.61/4.38 [0.46, 0.38, 0.40, 0.40, 0.40], F 79.46/3.72, P 77.4/ 9.4, R 83.9/ 9.9 for v43_cv0_eps-2_width0.3_pos-2
+AF1 65.49/4.39 [0.5] 65.55/4.56 [0.50, 0.48, 0.48, 0.50, 0.52], F 79.28/3.74, P 78.6/ 9.0, R 81.9/ 9.5 for v43_cv0_eps-1_width0.1_pos+0
+AF1 56.07/3.87 [0.5] 65.47/4.38 [0.34, 0.34, 0.30, 0.34, 0.36], F 79.39/3.79, P 77.1/ 9.3, R 83.9/ 9.9 for v43_cv0_eps-3_width0.1_pos-3
+AF1 64.57/4.51 [0.5] 65.45/4.22 [0.42, 0.44, 0.44, 0.44, 0.46], F 79.02/3.79, P 77.1/ 9.6, R 83.3/10.0 for v43_cv0_eps-2_width0.2_pos-1
+AF1 55.62/2.09 [0.5] 65.41/4.52 [0.28, 0.20, 0.26, 0.24, 0.24], F 78.88/4.08, P 78.4/10.5, R 81.9/10.4 for v43_cv0_eps-1_width0.2_pos-3
+AF1 59.31/3.70 [0.5] 65.29/4.43 [0.40, 0.38, 0.38, 0.42, 0.42], F 79.23/4.19, P 77.6/ 9.2, R 83.1/10.4 for v43_cv0_eps-3_width0.2_pos-2
+AF1 62.25/5.24 [0.5] 65.28/4.87 [0.32, 0.36, 0.34, 0.38, 0.34], F 78.57/4.19, P 77.0/10.1, R 82.7/10.5 for v43_cv0_eps-1_width0.2_pos-2
+AF1 64.77/4.95 [0.5] 65.20/4.47 [0.46, 0.46, 0.44, 0.46, 0.44], F 79.09/3.71, P 76.1/ 9.5, R 84.4/ 8.8 for v43_cv0_eps-3_width0.2_pos-1
+AF1 54.89/4.49 [0.5] 65.18/4.91 [0.22, 0.24, 0.30, 0.22, 0.26], F 79.01/4.29, P 78.2/ 9.2, R 81.8/10.3 for v43_cv0_eps-1_width0.3_pos-3
+AF1 59.97/3.84 [0.5] 65.13/4.45 [0.38, 0.40, 0.36, 0.38, 0.32], F 79.04/3.81, P 78.2/ 9.6, R 82.0/ 9.6 for v43_cv0_eps-2_width0.1_pos-2
+AF1 61.15/4.46 [0.5] 65.04/5.39 [0.32, 0.28, 0.34, 0.36, 0.38], F 78.98/4.44, P 77.0/10.2, R 83.4/ 9.7 for v43_cv0_eps-1_width0.1_pos-2
+AF1 60.49/6.72 [0.5] 65.03/5.79 [0.38, 0.40, 0.36, 0.40, 0.38], F 78.77/5.01, P 77.0/10.7, R 83.0/ 9.7 for v43_cv0_eps-3_width0.1_pos-2
+AF1 48.90/6.01 [0.5] 64.97/3.92 [0.42, 0.38, 0.34, 0.34, 0.38], F 79.18/3.68, P 76.9/ 9.8, R 83.6/ 8.8 for v43_cv0_eps-3_width0.3_pos-3
+AF1 60.89/4.49 [0.5] 64.90/4.22 [0.44, 0.46, 0.42, 0.42, 0.42], F 79.13/3.93, P 77.1/ 8.9, R 83.1/ 9.1 for v43_cv0_eps-3_width0.3_pos-2
+AF1 62.97/6.74 [0.5] 64.86/5.46 [0.44, 0.46, 0.40, 0.44, 0.32], F 79.00/4.33, P 76.6/10.6, R 83.9/ 9.2 for v43_cv0_eps-1_width0.3_pos-1
+AF1 59.37/4.47 [0.5] 64.73/5.15 [0.40, 0.42, 0.36, 0.38, 0.42], F 78.89/4.60, P 76.5/11.4, R 83.9/ 8.1 for v43_cv0_eps-2_width0.2_pos-2
+AF1 64.73/3.81 [0.5] 64.71/3.82 [0.46, 0.44, 0.44, 0.46, 0.44], F 78.49/3.25, P 75.8/ 9.2, R 83.5/ 9.2 for v43_cv0_eps-2_width0.1_pos-1
+AF1 64.20/5.96 [0.5] 64.45/5.38 [0.48, 0.46, 0.46, 0.50, 0.42], F 78.45/4.67, P 77.4/10.9, R 82.2/10.5 for v43_cv0_eps-1_width0.3_pos+0
+AF1 63.50/4.38 [0.5] 64.40/4.32 [0.46, 0.46, 0.46, 0.46, 0.48], F 78.48/3.90, P 75.9/ 9.3, R 83.7/10.9 for v43_cv0_eps-3_width0.3_pos-1
+AF1 64.45/4.87 [0.5] 64.38/5.02 [0.50, 0.48, 0.48, 0.48, 0.48], F 78.78/4.14, P 76.4/ 9.7, R 83.4/ 9.3 for v43_cv0_eps-3_width0.3_pos+0
+AF1 64.17/4.99 [0.5] 64.24/5.07 [0.50, 0.48, 0.50, 0.48, 0.50], F 78.47/4.50, P 77.3/10.7, R 82.3/10.3 for v43_cv0_eps-2_width0.1_pos+0
+AF1 63.22/7.31 [0.5] 63.90/7.05 [0.46, 0.50, 0.48, 0.48, 0.50], F 78.08/5.75, P 76.5/12.5, R 82.9/10.7 for v43_cv0_eps-2_width0.2_pos+0
+AF1 63.10/7.45 [0.5] 63.50/7.33 [0.48, 0.50, 0.46, 0.46, 0.48], F 77.98/5.87, P 75.8/12.3, R 83.3/ 9.8 for v43_cv0_eps-2_width0.3_pos+0
+
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.3_pos-3'): [0.32, 0.30, 0.30, 0.36, 0.30],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.1_pos-3'): [0.28, 0.20, 0.20, 0.26, 0.24],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.1_pos+0'): [0.46, 0.48, 0.48, 0.50, 0.52],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.1_pos-3'): [0.32, 0.32, 0.28, 0.30, 0.30],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.2_pos+0'): [0.48, 0.48, 0.50, 0.50, 0.50],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.1_pos-1'): [0.42, 0.42, 0.38, 0.50, 0.38],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.2_pos-1'): [0.44, 0.46, 0.42, 0.44, 0.44],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.1_pos-1'): [0.46, 0.44, 0.42, 0.44, 0.44],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.3_pos-1'): [0.48, 0.44, 0.46, 0.46, 0.44],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.2_pos-3'): [0.36, 0.36, 0.38, 0.38, 0.36],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.2_pos-3'): [0.36, 0.34, 0.28, 0.34, 0.34],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.3_pos-2'): [0.38, 0.32, 0.30, 0.36, 0.36],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.2_pos+0'): [0.50, 0.48, 0.48, 0.50, 0.46],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.3_pos-2'): [0.46, 0.38, 0.40, 0.40, 0.40],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.1_pos+0'): [0.50, 0.48, 0.48, 0.50, 0.52],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.1_pos-3'): [0.34, 0.34, 0.30, 0.34, 0.36],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.2_pos-1'): [0.42, 0.44, 0.44, 0.44, 0.46],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.2_pos-3'): [0.28, 0.20, 0.26, 0.24, 0.24],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.2_pos-2'): [0.40, 0.38, 0.38, 0.42, 0.42],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.2_pos-2'): [0.32, 0.36, 0.34, 0.38, 0.34],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.2_pos-1'): [0.46, 0.46, 0.44, 0.46, 0.44],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.3_pos-3'): [0.22, 0.24, 0.30, 0.22, 0.26],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.1_pos-2'): [0.38, 0.40, 0.36, 0.38, 0.32],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.1_pos-2'): [0.32, 0.28, 0.34, 0.36, 0.38],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.1_pos-2'): [0.38, 0.40, 0.36, 0.40, 0.38],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.3_pos-3'): [0.42, 0.38, 0.34, 0.34, 0.38],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.3_pos-2'): [0.44, 0.46, 0.42, 0.42, 0.42],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.3_pos-1'): [0.44, 0.46, 0.40, 0.44, 0.32],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.2_pos-2'): [0.40, 0.42, 0.36, 0.38, 0.42],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.1_pos-1'): [0.46, 0.44, 0.44, 0.46, 0.44],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-1_width0.3_pos+0'): [0.48, 0.46, 0.46, 0.50, 0.42],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.3_pos-1'): [0.46, 0.46, 0.46, 0.46, 0.48],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-3_width0.3_pos+0'): [0.50, 0.48, 0.48, 0.48, 0.48],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.1_pos+0'): [0.50, 0.48, 0.50, 0.48, 0.50],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.2_pos+0'): [0.46, 0.50, 0.48, 0.48, 0.50],
+    os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.3_pos+0'): [0.48, 0.50, 0.46, 0.46, 0.48],
+
