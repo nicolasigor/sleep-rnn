@@ -22,7 +22,7 @@ from sleeprnn.detection.metrics import average_metric_macro_average, average_met
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from .base_model import BaseModel
 from .base_model import KEY_LOSS
-from . import networks, networks_v2
+from . import networks, networks_v2, networks_v3
 from . import losses, optimizers, metrics, augmentations
 
 # Metrics dict
@@ -68,13 +68,13 @@ class WaveletBLSTM(BaseModel):
     def get_border_size(self):
         border_duration = self.params[pkeys.BORDER_DURATION]
         fs = self.params[pkeys.FS]
-        border_size = fs * border_duration
+        border_size = int(fs * border_duration)
         return border_size
 
     def get_page_size(self):
         page_duration = self.params[pkeys.PAGE_DURATION]
         fs = self.params[pkeys.FS]
-        page_size = fs * page_duration
+        page_size = int(fs * page_duration)
         return page_size
 
     def check_train_inputs(self, x_train, y_train, m_train, x_val, y_val, m_val):
@@ -749,7 +749,10 @@ class WaveletBLSTM(BaseModel):
                 constants.V11_MKD2_SWISH,
                 constants.V41,
                 constants.V42,
-                constants.V43
+                constants.V43,
+                constants.V2_TIME,
+                constants.V2_CWT1D,
+                constants.V2_CWT2D,
              ])
         if model_version == constants.V1:
             model_fn = networks.wavelet_blstm_net_v1
@@ -953,6 +956,12 @@ class WaveletBLSTM(BaseModel):
             model_fn = networks_v2.wavelet_blstm_net_v42
         elif model_version == constants.V43:
             model_fn = networks_v2.wavelet_blstm_net_v43
+        elif model_version == constants.V2_TIME:
+            model_fn = networks_v3.redv2_time
+        elif model_version == constants.V2_CWT1D:
+            model_fn = networks_v3.redv2_cwt1d
+        elif model_version == constants.V2_CWT2D:
+            model_fn = networks_v3.redv2_cwt2d
         elif model_version == constants.DEBUG:
             model_fn = networks.debug_net
         else:

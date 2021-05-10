@@ -596,12 +596,13 @@ def cmorlet_layer_general_noisy(
         training,
         noise_intensity,
         return_real_part=True,
-        return_imag_part=False,
+        return_imag_part=True,
         return_magnitude=False,
         return_phase=False,
         size_factor=1.0,
+        expansion_factor=1.0,
         border_crop=0,
-        use_avg_pool=True,
+        use_avg_pool=False,
         pool_scales=None,
         batchnorm=None,
         trainable_wavelet=False,
@@ -656,6 +657,7 @@ def cmorlet_layer_general_noisy(
                 trainable=trainable_wavelet,
                 training_flag=training,
                 noise_intensity=noise_intensity,
+                expansion_factor=expansion_factor,
                 name='cmorlet')
             cwt = apply_wavelets_rectangular(
                 inputs=inputs,
@@ -677,6 +679,7 @@ def cmorlet_layer_general_noisy(
                 trainable=trainable_wavelet,
                 training_flag=training,
                 noise_intensity=noise_intensity,
+                expansion_factor=expansion_factor,
                 name='cmorlet')
             cwt = apply_wavelets_rectangular(
                 inputs=inputs,

@@ -153,7 +153,7 @@ def compute_wavelets_noisy(
 
     # Generate the frequency range
     frequencies = 1 / scales
-
+    noise_intensity = 0.0 if (noise_intensity is None) else noise_intensity
     print("CWT noise intensity:", noise_intensity)
     with tf.variable_scope(name):
         print("CWT expansion factor:", expansion_factor)
@@ -178,9 +178,7 @@ def compute_wavelets_noisy(
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
-            largest_scale = np.max(scales)
-            largest_scale_expanded = expansion_factor * largest_scale + (1.0 - expansion_factor)
-            one_side = int(size_factor * largest_scale_expanded * fs * np.sqrt(4.5 * fb))
+            one_side = int(size_factor * s_n * fs * np.sqrt(4.5 * fb))
             kernel_size = 2 * one_side + 1
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
             k_array = k_array / fs  # Time units
@@ -197,7 +195,7 @@ def compute_wavelets_noisy(
                     lambda: scale_original / tf.random.uniform([], 1.0 - noise_intensity, 1.0 + noise_intensity),
                     lambda: scale_original
                 )
-                scale_expanded = q * scale + (1.0 - q)
+                scale_expanded = q * scale + (1.0 - q) * s_n
                 norm_constant = tf.sqrt(np.pi * fb_tensor) * scale_expanded * fs / 2.0
                 exp_term = tf.exp(-((k_array / scale_expanded) ** 2) / fb_tensor)
                 kernel_base = exp_term / norm_constant
@@ -315,9 +313,7 @@ def compute_wavelets(
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
-            largest_scale = np.max(scales)
-            largest_scale_expanded = expansion_factor * largest_scale + (1.0 - expansion_factor)
-            one_side = int(size_factor * largest_scale_expanded * fs * np.sqrt(4.5 * fb))
+            one_side = int(size_factor * s_n * fs * np.sqrt(4.5 * fb))
             kernel_size = 2 * one_side + 1
             k_array = np.arange(kernel_size, dtype=np.float32) - one_side
             k_array = k_array / fs  # Time units
@@ -328,7 +324,7 @@ def compute_wavelets(
             # wavelet_bank_imag = np.zeros((1, kernel_size, 1, n_scales))
             for i in range(n_scales):
                 scale = scales[i]
-                scale_expanded = q * scale + (1.0 - q)
+                scale_expanded = q * scale + (1.0 - q) * s_n
                 norm_constant = tf.sqrt(np.pi * fb_tensor) * scale_expanded * fs / 2.0
                 exp_term = tf.exp(-((k_array / scale_expanded) ** 2) / fb_tensor)
                 kernel_base = exp_term / norm_constant

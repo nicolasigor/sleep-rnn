@@ -296,6 +296,10 @@ BIGGER_CONVOLUTION_PART_OPTION = 'bigger_convolution_part_option'
 BIGGER_CONTEXT_PART_OPTION = 'bigger_context_part_option'
 BIGGER_STEM_DEPTH = 'bigger_stem_depth'
 BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD = 'bigger_multi_transformation_before_add'
+# Final models
+BORDER_DURATION_CWT = 'border_duration_cwt'
+BORDER_DURATION_CONV = 'border_duration_conv'
+CWT_EXPANSION_FACTOR = 'cwt_expansion_factor'
 
 """ Loss params
 
@@ -421,7 +425,7 @@ default_params = {
     DROP_RATE_BEFORE_LSTM: 0.2,
     DROP_RATE_HIDDEN: 0.5,
     DROP_RATE_OUTPUT: 0.0,
-    FB_LIST: [0.5],
+    FB_LIST: None,
     TRAINABLE_WAVELET: True,
     WAVELET_SIZE_FACTOR: 1.5,
     USE_LOG: None,
@@ -487,7 +491,7 @@ default_params = {
     ATT_DROP_RATE: 0.1,
     ATT_LSTM_DIM: 256,
     ATT_PE_CONCAT_DIM: 256,
-    INIT_POSITIVE_PROBA: 0.5,
+    INIT_POSITIVE_PROBA: 0.1,
     FOCUSING_PARAMETER: None,
     NEG_ENTROPY_PARAMETER: None,
     SOFT_LABEL_PARAMETER: None,
@@ -528,7 +532,7 @@ default_params = {
     ATT_BANDS_V_ADD_BAND_ENC: None,
     ATT_BANDS_K_ADD_BAND_ENC: None,
     CWT_NOISE_INTENSITY: None,
-    SOFT_FOCAL_GAMMA: None,
+    SOFT_FOCAL_GAMMA: 2.5,
     SOFT_FOCAL_EPSILON: 1.0,
     ANTIBORDER_AMPLITUDE: None,
     ANTIBORDER_HALF_WIDTH: None,
@@ -631,4 +635,7 @@ default_params = {
     BIGGER_CONTEXT_PART_OPTION: 'lstm',
     BIGGER_STEM_DEPTH: 2,
     BIGGER_MULTI_TRANSFORMATION_BEFORE_ADD: None,
+    BORDER_DURATION_CWT: None,
+    BORDER_DURATION_CONV: 0.6,
+    CWT_EXPANSION_FACTOR: 0.9,
 }

@@ -257,3 +257,6 @@ V11_MKD2_SWISH = 'v11_mkd2_swish'  # v11-mkd2 but with swish activation instead 
 V41 = 'v41'  # BIGGER NET (1D residual stages, possibly with dilations at last stage)
 V42 = 'v42'  # v41 but with self att instead of lstm
 V43 = 'v43'  # a lego extension of v41/v42 to support additional options for BigNet
+V2_TIME = 'v2_time'  # REDv2-Time
+V2_CWT1D = 'v2_cwt1d'  # REDv2-CWT1D
+V2_CWT2D = 'v2_cwt2d'  # REDv2-CWT2D
