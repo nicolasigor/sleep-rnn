@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = 'focal2_%dfold-cv_exp%d' % (n_folds, which_expert)
+    experiment_name = 'focal3_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     verbose = True
@@ -49,13 +49,13 @@ if __name__ == '__main__':
         constants.V43
     ]
     cv_seed_list = [
-        2
+        0
     ]
     focal_eps_list = [
-        1.0, 0.2
+        0.5
     ]
     positive_weight_exponent_list = [
-        0, -1, -2, -3
+        0, -1, -2
     ]
     params_list = list(itertools.product(
         model_version_list,
