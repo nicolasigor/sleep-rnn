@@ -17,7 +17,7 @@ from sleeprnn.common import pkeys
 
 
 def stage_cwt(inputs, params, training):
-    border_crop = int(params[pkeys.BORDER_DURATION_CWT] * params[pkeys.FS])
+    border_crop = int(np.round(params[pkeys.BORDER_DURATION_CWT] * params[pkeys.FS]))
     outputs, cwt_prebn = layers.cmorlet_layer_general_noisy(
         inputs,
         params[pkeys.FB_LIST],
@@ -153,8 +153,8 @@ def redv2_time(
     print('Using model REDv2-Time')
     fs_after_conv = params[pkeys.FS] // 8
     border_duration_lstm = params[pkeys.BORDER_DURATION] - params[pkeys.BORDER_DURATION_CONV]
-    border_crop_conv = int(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv)
-    border_crop_lstm = int(border_duration_lstm * fs_after_conv)
+    border_crop_conv = int(np.round(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv))
+    border_crop_lstm = int(np.round(border_duration_lstm * fs_after_conv))
     with tf.variable_scope(name):
         outputs = tf.expand_dims(inputs, axis=2)  # [batch, time_len] -> [batch, time_len, 1]
         outputs = layers.batchnorm_layer(
@@ -195,8 +195,8 @@ def redv2_cwt1d(
     print('Using model REDv2-CWT1D')
     fs_after_conv = params[pkeys.FS] // 8
     border_duration_lstm = params[pkeys.BORDER_DURATION] - params[pkeys.BORDER_DURATION_CONV] - params[pkeys.BORDER_DURATION_CWT]
-    border_crop_conv = int(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv)
-    border_crop_lstm = int(border_duration_lstm * fs_after_conv)
+    border_crop_conv = int(np.round(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv))
+    border_crop_lstm = int(np.round(border_duration_lstm * fs_after_conv))
     with tf.variable_scope(name):
         outputs, other_outputs_dict_cwt = stage_cwt(inputs, params, training)  # [batch, time, scales, channels]
         outputs = layers.sequence_flatten(outputs, 'flatten')  # [batch, time, scales * channels]
@@ -235,8 +235,8 @@ def redv2_cwt2d(
     print('Using model REDv2-CWT2D')
     fs_after_conv = params[pkeys.FS] // 8
     border_duration_lstm = params[pkeys.BORDER_DURATION] - params[pkeys.BORDER_DURATION_CONV] - params[pkeys.BORDER_DURATION_CWT]
-    border_crop_conv = int(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv)
-    border_crop_lstm = int(border_duration_lstm * fs_after_conv)
+    border_crop_conv = int(np.round(params[pkeys.BORDER_DURATION_CONV] * fs_after_conv))
+    border_crop_lstm = int(np.round(border_duration_lstm * fs_after_conv))
     with tf.variable_scope(name):
         outputs, other_outputs_dict_cwt = stage_cwt(inputs, params, training)  # [batch, time, scales, channels]
         with tf.variable_scope("stem"):

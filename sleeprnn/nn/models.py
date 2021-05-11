@@ -68,13 +68,13 @@ class WaveletBLSTM(BaseModel):
     def get_border_size(self):
         border_duration = self.params[pkeys.BORDER_DURATION]
         fs = self.params[pkeys.FS]
-        border_size = int(fs * border_duration)
+        border_size = int(np.round(fs * border_duration))
         return border_size
 
     def get_page_size(self):
         page_duration = self.params[pkeys.PAGE_DURATION]
         fs = self.params[pkeys.FS]
-        page_size = int(fs * page_duration)
+        page_size = int(np.round(fs * page_duration))
         return page_size
 
     def check_train_inputs(self, x_train, y_train, m_train, x_val, y_val, m_val):
@@ -114,7 +114,7 @@ class WaveletBLSTM(BaseModel):
             extra_data_train=None,
             verbose=False):
         """Fits the model to the training data."""
-        border_size = int(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
+        border_size = self.get_border_size()
         forced_mark_separation_size = int(
             self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
 
@@ -238,8 +238,7 @@ class WaveletBLSTM(BaseModel):
             extra_data_train=None,
             verbose=False):
         """Fits the model to the training data."""
-        border_size = int(
-            self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
+        border_size = self.get_border_size()
         forced_mark_separation_size = int(
             self.params[pkeys.FORCED_SEPARATION_DURATION] * self.params[pkeys.FS])
 
