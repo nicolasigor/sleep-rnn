@@ -37,7 +37,7 @@ def cycles_to_beta(cycles, q=0.9, freq_min=0.5, freq_ref=13, k_sigma=2.2214):
     return num / den
 
 
-BORDER_DURATION_CWT = 4   # the one for the max cycles
+BORDER_DURATION_CWT = 1.74   # the one for the max cycles
 BORDER_DURATION_CONV = 0.6
 BORDER_DURATION_LSTM = 2
 TIME_PARAMS = {

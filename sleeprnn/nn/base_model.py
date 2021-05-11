@@ -230,7 +230,7 @@ class BaseModel(object):
             input_scale_factor=1.0  # for scaling experiment
     ):
         with_augmented_page = self.params[pkeys.PREDICT_WITH_AUGMENTED_PAGE]
-        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        border_size = int(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
         x_inference, _ = data_inference.get_data_for_prediction(
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
@@ -269,7 +269,7 @@ class BaseModel(object):
 
             if with_augmented_page:
                 page_size = self.params[pkeys.PAGE_DURATION] * self.params[pkeys.FS]
-                border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+                border_size = int(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
                 input_size = page_size + 2 * border_size
                 start_left = int(page_size / 4)
                 end_left = int(start_left + input_size)
@@ -338,7 +338,7 @@ class BaseModel(object):
 
     def predict_tensor_at_samples(self, x, samples, tensor_name='last_hidden'):
         page_size = self.params[pkeys.PAGE_DURATION] * self.params[pkeys.FS]
-        border_size = self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]
+        border_size = int(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS])
         # x is a whole-night signal
         x = extract_pages_from_centers(x, samples, page_size, border_size)
         niters = np.ceil(x.shape[0] / self.params[pkeys.BATCH_SIZE])
