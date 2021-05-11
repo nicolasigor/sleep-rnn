@@ -55,7 +55,7 @@ class MassSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, verbose=True, custom_scaling_dict=None):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -87,26 +87,16 @@ class MassSS(Dataset):
             dataset_name=constants.MASS_SS_NAME,
             all_ids=self.train_ids + self.test_ids,
             event_name=constants.SPINDLE,
+            hypnogram_sleep_labels=['1', '2', '3', '4', 'R'],
+            hypnogram_page_duration=20,
             n_experts=2,
             params=params,
             verbose=verbose,
-            custom_scaling_dict=custom_scaling_dict
         )
 
         self.global_std = self.compute_global_std(self.train_ids)
         if verbose:
             print('Global STD:', self.global_std)
-        fft_scaling_factor_dict = self.compute_fft_scaling_factor()
-        self.mean_fft_scaling = np.mean([fft_scaling_factor_dict[subject_id] for subject_id in self.train_ids])
-        if verbose:
-            print("Mean FFT Scaling of non-testing set:", self.mean_fft_scaling)
-            print("Per subject FFT scaling / Mean:")
-            for subject_id in self.all_ids:
-                print("S%02d: %1.4f" % (subject_id, fft_scaling_factor_dict[subject_id] / self.mean_fft_scaling))
-        if verbose and self.custom_scaling_dict is not None:
-            print("Using Custom Scaling Dict")
-            for subject_id in self.all_ids:
-                print("S%02d: %1.4f" % (subject_id, self.custom_scaling_dict[subject_id]))
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

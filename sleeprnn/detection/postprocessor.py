@@ -66,10 +66,8 @@ class PostProcessor(object):
             min_duration = self.params[pkeys.KC_MIN_DURATION]
             max_duration = self.params[pkeys.KC_MAX_DURATION]
 
-        stamps = combine_close_stamps(
-            stamps, fs_input, min_separation)
-        stamps = filter_duration_stamps(
-            stamps, fs_input, min_duration, max_duration)
+        stamps = combine_close_stamps(stamps, fs_input, min_separation)
+        stamps = filter_duration_stamps(stamps, fs_input, min_duration, max_duration)
 
         # Upsampling
         if fs_output > fs_input:

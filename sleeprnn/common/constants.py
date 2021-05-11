@@ -2,17 +2,10 @@
 
 # Dataset name
 MASS_SS_NAME = 'mass_ss'
-INTA_SS_NAME = 'inta_ss'
 MASS_KC_NAME = 'mass_kc'
-MASS_SS_INV_NAME = 'mass_ss_inv'
-MASS_SS_ALT_NAME = 'mass_ss_alt'
-MASS_KC_INV_NAME = 'mass_kc_inv'
-ISRUC_SS_NAME = 'isruc_ss'
-CAP_SS_NAME = 'cap_ss'
-CAP_AGE_SS_NAME = 'cap_age_ss'
-CAP_ALL_SS_NAME = 'cap_all_ss'
-CAP_FULL_SS_NAME = 'cap_full_ss'
+INTA_SS_NAME = 'inta_ss'
 MODA_SS_NAME = 'moda_ss'
+CAP_FULL_SS_NAME = 'cap_full_ss'
 
 # Database split
 TRAIN_SUBSET = 'train'
@@ -131,8 +124,6 @@ METRIC_CRITERION = 'metric_criterion'
 NORM_IQR = 'norm_iqr'
 NORM_STD = 'norm_std'
 NORM_GLOBAL = 'norm_global'
-NORM_GLOBAL_FFT = "norm_global_fft"
-NORM_GLOBAL_CUSTOM = "norm_global_custom"
 
 # Type of masking for wave augmentation
 MASK_KEEP_EVENTS = "mask_keep_events"

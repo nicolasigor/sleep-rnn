@@ -24,7 +24,7 @@ KEY_PHASE = 'phase'
 
 
 class ModaSS(Dataset):
-    def __init__(self, params=None, load_checkpoint=False, verbose=True):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         """Constructor"""
         self.original_fs = 256  # Hz
         self.original_border_duration = 30  # s
@@ -44,6 +44,8 @@ class ModaSS(Dataset):
             dataset_name=constants.MODA_SS_NAME,
             all_ids=all_ids,
             event_name=constants.SPINDLE,
+            hypnogram_sleep_labels=['2'],
+            hypnogram_page_duration=20,
             n_experts=1,
             params=params,
             verbose=verbose,
@@ -146,9 +148,7 @@ class ModaSS(Dataset):
             signals = dataset['signals'][subject_locs, :]
             labels = dataset['labels'][subject_locs, :]
             signals = self._prepare_signals(signals)  # [n_samples]
-            print("Debug:", n_blocks, "blocks, final shape of signal", signals.shape, signals.dtype)
             labels = self._prepare_labels(labels)  # [n_spindles, 2]
-            print("Debug:", n_blocks, "blocks, final shape of labels", labels.shape, labels.dtype)
             n2_pages, hypnogram = self._generate_states(n_blocks)
             total_pages = hypnogram.size
             all_pages = np.arange(1, total_pages - 1, dtype=np.int16)

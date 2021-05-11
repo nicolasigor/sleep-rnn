@@ -175,7 +175,7 @@ class CapFullSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, verbose=True, external_global_std=None):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         """Constructor"""
         # CAP parameters
         self.state_ids = np.array(['S1', 'S2', 'S3', 'S4', 'R', 'W', '?'])
@@ -187,50 +187,24 @@ class CapFullSS(Dataset):
         self.min_ss_duration = 0.3  # Minimum duration of SS in seconds
         self.max_ss_duration = 3  # Maximum duration of SS in seconds
 
-        self.train_ids = ALL_IDS
-        self.train_ids = [s for s in self.train_ids if s not in IDS_INVALID]
-        self.train_ids.sort()
-
-        if verbose:
-            print('Train size: %d.' % len(self.train_ids))
-            print('Train subjects: \n', self.train_ids)
+        all_ids = [s for s in ALL_IDS if s not in IDS_INVALID]
+        all_ids.sort()
 
         super(CapFullSS, self).__init__(
             dataset_dir=PATH_CAP_RELATIVE,
             load_checkpoint=load_checkpoint,
             dataset_name=constants.CAP_FULL_SS_NAME,
-            all_ids=self.train_ids,
+            all_ids=all_ids,
             event_name=constants.SPINDLE,
+            hypnogram_sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'],
+            hypnogram_page_duration=self.original_page_duration,
             n_experts=2,
             params=params,
             verbose=verbose
         )
-        if external_global_std is not None:
-            self.global_std = external_global_std
-            if verbose:
-                print('Global STD set externally:', self.global_std)
-        else:
-            self.global_std = None
-            if verbose:
-                print('Global STD:', self.global_std)
-
-    def compute_global_std(
-            self,
-            subject_ids,
-            only_sleep=True,
-            hypnogram_page_size=None,
-            sleep_labels=None):
-        """Ensures global std computation using only sleep stages"""
-        if hypnogram_page_size is None:
-            hypnogram_page_size = int(self.original_page_duration * self.fs)
-        if sleep_labels is None:
-            sleep_labels = ['S1', 'S2', 'S3', 'S4', 'R']
-        global_std = super(CapFullSS, self).compute_global_std(
-            subject_ids,
-            only_sleep=only_sleep,
-            hypnogram_page_size=hypnogram_page_size,
-            sleep_labels=sleep_labels)
-        return global_std
+        self.global_std = None
+        if verbose:
+            print('Global STD:', self.global_std)
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

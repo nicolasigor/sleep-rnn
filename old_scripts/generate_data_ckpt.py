@@ -11,8 +11,6 @@ sys.path.append(project_root)
 from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.inta_ss import IntaSS
-from sleeprnn.data.mass_kc_inv import MassKCInv
-from sleeprnn.data.mass_ss_inv import MassSSInv
 from sleeprnn.common import pkeys
 
 

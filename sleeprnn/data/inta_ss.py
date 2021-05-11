@@ -51,7 +51,7 @@ class IntaSS(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, repair_stamps=False, verbose=True):
+    def __init__(self, params=None, load_checkpoint=False, repair_stamps=False, verbose=True, **kwargs):
         """Constructor"""
         # INTA parameters
         self.original_page_duration = 30  # Time of window page [s]
@@ -88,34 +88,17 @@ class IntaSS(Dataset):
             dataset_name=constants.INTA_SS_NAME,
             all_ids=all_ids,
             event_name=constants.SPINDLE,
+            hypnogram_sleep_labels=[1, 2, 3, 4, 5],
+            hypnogram_page_duration=self.original_page_duration,
             params=params,
             verbose=verbose
         )
-
         self.global_std = None
         if verbose:
             print('Global STD:', self.global_std)
 
     def get_name(self, subject_id):
         return self.names[subject_id-1]
-
-    def compute_global_std(
-            self,
-            subject_ids,
-            only_sleep=True,
-            hypnogram_page_size=None,
-            sleep_labels=None):
-        """Ensures global std computation using only sleep stages"""
-        if hypnogram_page_size is None:
-            hypnogram_page_size = int(self.original_page_duration * self.fs)
-        if sleep_labels is None:
-            sleep_labels = [1, 2, 3, 4, 5]
-        global_std = super(IntaSS, self).compute_global_std(
-            subject_ids,
-            only_sleep=only_sleep,
-            hypnogram_page_size=hypnogram_page_size,
-            sleep_labels=sleep_labels)
-        return global_std
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""

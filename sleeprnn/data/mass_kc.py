@@ -53,7 +53,7 @@ class MassKC(Dataset):
         |__ ...
     """
 
-    def __init__(self, params=None, load_checkpoint=False, verbose=True):
+    def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         """Constructor"""
         # MASS parameters
         self.channel = 'EEG C3-CLE'  # Channel for SS marks
@@ -84,6 +84,8 @@ class MassKC(Dataset):
             dataset_name=constants.MASS_KC_NAME,
             all_ids=self.train_ids + self.test_ids,
             event_name=constants.KCOMPLEX,
+            hypnogram_sleep_labels=['1', '2', '3', '4', 'R'],
+            hypnogram_page_duration=20,
             params=params,
             verbose=verbose
         )

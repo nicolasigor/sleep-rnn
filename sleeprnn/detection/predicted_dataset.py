@@ -25,8 +25,7 @@ class PredictedDataset(Dataset):
         self.parent_dataset = dataset
         self.task_mode = dataset.task_mode
         self.probabilities_dict = probabilities_dict
-        self.postprocessor = PostProcessor(
-            event_name=dataset.event_name, params=params)
+        self.postprocessor = PostProcessor(event_name=dataset.event_name, params=params)
         self.probability_threshold = None
 
         """Constructor"""
@@ -36,13 +35,15 @@ class PredictedDataset(Dataset):
             dataset_name='%s_predicted' % dataset.dataset_name,
             all_ids=dataset.all_ids,
             event_name=dataset.event_name,
+            hypnogram_sleep_labels=dataset.hypnogram_sleep_labels,
+            hypnogram_page_duration=dataset.hypnogram_page_duration,
+            default_expert=1,
+            default_page_subset=dataset.task_mode,
             n_experts=1,
             params=dataset.params.copy(),
             verbose=verbose,
-            custom_scaling_dict=dataset.custom_scaling_dict
         )
         self.global_std = dataset.global_std
-        self.mean_fft_scaling = dataset.mean_fft_scaling
         # Check that subject ids in probabilities are the same as the ones
         # on the dataset
         ids_proba = list(self.probabilities_dict.keys())

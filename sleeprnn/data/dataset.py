@@ -36,10 +36,13 @@ class Dataset(object):
             dataset_name,
             all_ids,
             event_name,
+            hypnogram_sleep_labels,
+            hypnogram_page_duration,
             n_experts=1,
+            default_expert=None,
+            default_page_subset=constants.N2_RECORD,
             params=None,
             verbose=True,
-            custom_scaling_dict=None
     ):
         """Constructor.
 
@@ -50,9 +53,22 @@ class Dataset(object):
                load from scratch using the original files of the dataset.
             dataset_name: (String) Name of the dataset. This name will be used for
                checkpoints.
-            n_experts: (Int) Number of available data experts for data
-                spindle annotations.
             all_ids: (list of int) List of available IDs.
+            event_name: (str) Name of the event annotated in the dataset.
+            hypnogram_sleep_labels: (list) IDs corresponding to sleep stages in the
+                hypnogram to compute the global standard deviation.
+            hypnogram_page_duration: (int) The duration in seconds of the pages in the hypnogram
+                (could be different from the page duration for data segmentation in pkeys.PAGE_DURATION).
+            n_experts: (Optional, Int, default to 1) Number of available event annotation sets.
+            default_expert: (Optional, Int, default to None) The assumed expert whenever an specific expert
+                (i.e., an specific set of annotations) is not specified when retrieving data.
+                Useful for FeederDataset.
+            default_page_subset: (Optional, str, default to 'n2') The assumed page subset (e.g., only N2)
+                whenever a specific subset is not specified when retrieving data. Useful for FeederDataset.
+            params: (Optional, dict, default to None) Parameters that overwrite those in pkeys.default_params.
+                If None, all values are as in the default. Note that you can pass a dictionary
+                containing only those parameter that you want to overwrite.
+            verbose: (Optional, bool, default to True) Whether you want to print stuff.
         """
         # Save attributes
         if os.path.isabs(dataset_dir):
@@ -66,14 +82,16 @@ class Dataset(object):
         self.load_checkpoint = load_checkpoint
         self.dataset_name = dataset_name
         self.event_name = event_name
+        self.hypnogram_sleep_labels = hypnogram_sleep_labels
+        self.hypnogram_page_duration = hypnogram_page_duration
         self.n_experts = n_experts
-        self.ckpt_dir = os.path.abspath(os.path.join(
-            self.dataset_dir, '..', 'ckpt_%s' % self.dataset_name))
+        self.default_expert = 1 if (n_experts == 1) else default_expert
+        self.default_page_subset = default_page_subset
+        self.ckpt_dir = os.path.abspath(os.path.join(self.dataset_dir, '..', 'ckpt_%s' % self.dataset_name))
         self.all_ids = all_ids
         self.all_ids.sort()
         if verbose:
-            print('Dataset %s with %d patients.'
-                  % (self.dataset_name, len(self.all_ids)))
+            print('Dataset %s with %d patients.' % (self.dataset_name, len(self.all_ids)))
 
         # events and data EEG related parameters
         self.params = pkeys.default_params.copy()
@@ -87,29 +105,20 @@ class Dataset(object):
         self.page_size = int(self.page_duration * self.fs)
 
         # Ckpt file associated with the sampling frequency
-        self.ckpt_file = os.path.join(
-            self.ckpt_dir, '%s_fs%d.pickle' % (self.dataset_name, self.fs))
+        self.ckpt_file = os.path.join(self.ckpt_dir, '%s_fs%d.pickle' % (self.dataset_name, self.fs))
 
         # Data loading
         self.data = self._load_data(verbose=verbose)
         self.global_std = 1.0
-        # FFT norm stuff
-        self.mean_fft_scaling = 1.0
-
-        if custom_scaling_dict is None:
-            self.custom_scaling_dict = {subject_id: 1.0 for subject_id in self.all_ids}
-        else:
-            self.custom_scaling_dict = custom_scaling_dict
 
     def cv_split(self, n_folds, fold_id, seed=0, subject_ids=None):
-        """5-fold or 10-fold CV splits
-        stratified in the sense of preserving distribution of phases and n_blocks.
-
+        """k-fold CV splits, by-subject split.
         Inputs:
-            n_folds: either 5 or 10
+            n_folds: number of folds of CV
             fold_id: integer in [0, 1, ..., n_folds - 1] (which fold to retrieve)
-            seed: random seed (determines the permutation of subjects before k-fold CV)
+            seed: random seed (determines the permutation of subjects to generate k-fold CV)
             subject_ids: optional list of subject to restrict the cv. By default uses all ids.
+        Returns 3 lists of IDs: train_ids, val_ids, test_ids.
         """
         if fold_id >= n_folds:
             raise ValueError("fold id %s invalid for %d folds" % (fold_id, n_folds))
@@ -156,7 +165,7 @@ class Dataset(object):
         test_ids = np.sort(test_ids).tolist()
         return train_ids, val_ids, test_ids
 
-    def compute_global_std(self, subject_ids, only_sleep=False, hypnogram_page_size=None, sleep_labels=None):
+    def compute_global_std(self, subject_ids):
         # Memory-efficient method:
         # Var(x) = E(x ** 2) - (E(x) ** 2)
         total_samples = 0
@@ -165,10 +174,13 @@ class Dataset(object):
         for subject_id in subject_ids:
             ind_dict = self.read_subject_data(subject_id)
             x = ind_dict[KEY_EEG]
-            if only_sleep:
-                hypno = ind_dict[KEY_HYPNOGRAM]
-                pages = np.concatenate([np.where(hypno == lbl)[0] for lbl in sleep_labels])
-                x = utils.extract_pages(x, pages, hypnogram_page_size).flatten()
+
+            # Only sleep
+            hypno = ind_dict[KEY_HYPNOGRAM]
+            pages = np.concatenate([np.where(hypno == lbl)[0] for lbl in self.hypnogram_sleep_labels])
+            hypnogram_page_size = int(np.round(self.hypnogram_page_duration * self.fs))
+            x = utils.extract_pages(x, pages, hypnogram_page_size).flatten()
+
             outlier_thr = np.percentile(np.abs(x), 99)
             x = x[np.abs(x) <= outlier_thr]
             total_samples += x.shape[0]
@@ -192,27 +204,6 @@ class Dataset(object):
 
         return global_std
 
-    def compute_fft_scaling_factor(self, band=[2, 6]):
-        # Using FFT on whole page
-        window_han = np.hanning(self.page_size)
-        fft_scaling_factor_dict = {}
-        for subject_id in self.all_ids:
-            amp_all = []
-            signal = self.get_subject_signal(subject_id, normalize_clip=False)
-            n2_pages = self.data[subject_id][KEY_N2_PAGES]
-            for page in n2_pages:
-                start_page = page * self.page_size
-                end_page = start_page + self.page_size
-                amp, freq = utils.power_spectrum(window_han * signal[start_page:end_page], self.fs)
-                amp_all.append(amp)
-            amp_all = np.stack(amp_all, axis=0).mean(axis=0)
-            band_low = (freq >= band[0]).astype(np.float32)
-            band_high = (freq <= band[1]).astype(np.float32)
-            band_weights = band_low * band_high
-            band_mean = np.sum(amp_all * band_weights) / np.sum(band_weights)
-            fft_scaling_factor_dict[subject_id] = 1 / band_mean
-        return fft_scaling_factor_dict
-
     def read_subject_data(self, subject_id):
         return self.data[subject_id]
 
@@ -220,10 +211,15 @@ class Dataset(object):
             self,
             subject_id,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            normalization_mode=None,
+            which_expert=None,
             verbose=False
     ):
+        if which_expert is None:
+            which_expert = self.default_expert
+        if normalization_mode is None:
+            normalization_mode = self.default_page_subset
+
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i + 1) for i in range(self.n_experts)]
         checks.check_valid_value(which_expert, 'which_expert', valid_experts)
@@ -253,8 +249,7 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling,
-                    custom_scaling=self.custom_scaling_dict[subject_id])
+                    global_std=self.global_std)
             else:
                 if verbose:
                     print('Normalization with stats from '
@@ -263,16 +258,15 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size, clip_value=self.params[pkeys.CLIP_VALUE],
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, mean_fft_scaling=self.mean_fft_scaling,
-                    custom_scaling=self.custom_scaling_dict[subject_id])
+                    global_std=self.global_std)
         return signal
 
     def get_subset_signals(
             self,
             subject_id_list,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            normalization_mode=None,
+            which_expert=None,
             verbose=False
     ):
         subset_signals = []
@@ -289,8 +283,8 @@ class Dataset(object):
     def get_signals(
             self,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
-            which_expert=1,
+            normalization_mode=None,
+            which_expert=None,
             verbose=False
     ):
         subset_signals = self.get_subset_signals(
@@ -307,10 +301,12 @@ class Dataset(object):
     def get_subject_pages(
             self,
             subject_id,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the indices of the pages of this subject."""
+        if pages_subset is None:
+            pages_subset = self.default_page_subset
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         checks.check_valid_value(
             pages_subset, 'pages_subset',
@@ -331,7 +327,7 @@ class Dataset(object):
     def get_subset_pages(
             self,
             subject_id_list,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the list of pages from a list of subjects."""
@@ -346,7 +342,7 @@ class Dataset(object):
 
     def get_pages(
             self,
-            pages_subset=constants.WN_RECORD,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the list of pages from all subjects."""
@@ -360,11 +356,15 @@ class Dataset(object):
     def get_subject_stamps(
             self,
             subject_id,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the sample-stamps of marks of this subject."""
+        if which_expert is None:
+            which_expert = self.default_expert
+        if pages_subset is None:
+            pages_subset = self.default_page_subset
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i + 1) for i in range(self.n_experts)]
         checks.check_valid_value(which_expert, 'which_expert', valid_experts)
@@ -392,8 +392,8 @@ class Dataset(object):
     def get_subset_stamps(
             self,
             subject_id_list,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the list of stamps from a list of subjects."""
@@ -409,8 +409,8 @@ class Dataset(object):
 
     def get_stamps(
             self,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             verbose=False
     ):
         """Returns the list of stamps from all subjects."""
@@ -469,10 +469,10 @@ class Dataset(object):
             augmented_page=False,
             border_size=0,
             forced_mark_separation_size=0,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
+            normalization_mode=None,
             return_page_mask=False,
             verbose=False,
     ):
@@ -511,6 +511,13 @@ class Dataset(object):
         Optional return:
             page_mask: (2D array) each row is an (augmented) page of a binary mask.
         """
+        if which_expert is None:
+            which_expert = self.default_expert
+        if pages_subset is None:
+            pages_subset = self.default_page_subset
+        if normalization_mode is None:
+            normalization_mode = self.default_page_subset
+
         checks.check_valid_value(subject_id, 'ID', self.all_ids)
         valid_experts = [(i+1) for i in range(self.n_experts)]
         checks.check_valid_value(which_expert, 'which_expert', valid_experts)
@@ -555,8 +562,7 @@ class Dataset(object):
         if normalize_clip:
             if normalization_mode == constants.WN_RECORD:
                 if True:  # verbose:
-                    print('Normalization with stats from '
-                          'pages containing true events.')
+                    print('Normalization with stats from pages containing true events.')
                 # Normalize using stats from pages with true events.
                 tmp_pages = ind_dict[KEY_ALL_PAGES]
                 activity = utils.extract_pages(
@@ -568,18 +574,15 @@ class Dataset(object):
                 signal, _ = utils.norm_clip_signal(
                     signal, tmp_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
-                    mean_fft_scaling=self.mean_fft_scaling, custom_scaling=self.custom_scaling_dict[subject_id])
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
             else:
                 if verbose:
-                    print('Normalization with stats from '
-                          'N2 pages.')
+                    print('Normalization with stats from N2 pages.')
                 n2_pages = ind_dict[KEY_N2_PAGES]
                 signal, _ = utils.norm_clip_signal(
                     signal, n2_pages, self.page_size,
                     norm_computation=self.params[pkeys.NORM_COMPUTATION_MODE],
-                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE],
-                    mean_fft_scaling=self.mean_fft_scaling, custom_scaling=self.custom_scaling_dict[subject_id])
+                    global_std=self.global_std, clip_value=self.params[pkeys.CLIP_VALUE])
 
         # Extract segments
         signal = utils.extract_pages(
@@ -608,10 +611,10 @@ class Dataset(object):
             augmented_page=False,
             border_size=0,
             forced_mark_separation_size=0,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
+            normalization_mode=None,
             return_page_mask=False,
             verbose=False,
     ):
@@ -646,10 +649,10 @@ class Dataset(object):
             augmented_page=False,
             border_size=0,
             forced_mark_separation_size=0,
-            which_expert=1,
-            pages_subset=constants.WN_RECORD,
+            which_expert=None,
+            pages_subset=None,
             normalize_clip=True,
-            normalization_mode=constants.WN_RECORD,
+            normalization_mode=None,
             return_page_mask=False,
             verbose=False
     ):
