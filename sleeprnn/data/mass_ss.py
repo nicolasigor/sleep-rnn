@@ -109,24 +109,19 @@ class MassSS(Dataset):
             path_dict = data_paths[subject_id]
 
             # Read data
-            signal = self._read_eeg(
-                path_dict[KEY_FILE_EEG])
-            signal_len = signal.shape[0]
+            signal = self._read_eeg(path_dict[KEY_FILE_EEG])
+            hypnogram, start_sample = self._read_states_raw(path_dict[KEY_FILE_STATES])
+            signal, hypnogram, end_sample = self._fix_signal_and_states(signal, hypnogram, start_sample)
+            all_pages, n2_pages = self._hypnogram_selections(hypnogram)
+            marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
+            marks_2 = self._read_marks(path_dict['%s_2' % KEY_FILE_MARKS])
+            marks_1 = self._fix_marks(marks_1, start_sample, end_sample)
+            marks_2 = self._fix_marks(marks_2, start_sample, end_sample)
 
-            n2_pages, hypnogram = self._read_states(
-                path_dict[KEY_FILE_STATES], signal_len)
-            total_pages = int(np.ceil(signal_len / self.page_size))
-            all_pages = np.arange(1, total_pages - 2, dtype=np.int16)
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
             print('Hypnogram pages: %d' % hypnogram.shape[0])
-
-            marks_1 = self._read_marks(
-                path_dict['%s_1' % KEY_FILE_MARKS])
-            marks_2 = self._read_marks(
-                path_dict['%s_2' % KEY_FILE_MARKS])
-            print('Marks SS from E1: %d, Marks SS from E2: %d'
-                  % (marks_1.shape[0], marks_2.shape[0]))
+            print('Marks SS from E1: %d, Marks SS from E2: %d' % (marks_1.shape[0], marks_2.shape[0]))
 
             # Save data
             ind_dict = {
@@ -227,57 +222,59 @@ class MassSS(Dataset):
             marks, self.fs, self.min_ss_duration, self.max_ss_duration)
         return marks
 
-    def _read_states(self, path_states_file, signal_length):
-        """Loads hypnogram from 'path_states_file'. Only n2 pages are returned.
-        First, last and second to last pages of the hypnogram are ignored, since
-        there is no enough context."""
-        # Total pages not necessarily equal to total_annots
-        total_pages = int(np.ceil(signal_length / self.page_size))
-
+    def _read_states_raw(self, path_states_file):
+        """Loads hypnogram from 'path_states_file'."""
         with pyedflib.EdfReader(path_states_file) as file:
             annotations = file.readAnnotations()
-
-        onsets = np.array(annotations[0])
-        durations = np.round(np.array(annotations[1]))
+        onsets = np.array(annotations[0])  # In seconds
+        durations = np.round(np.array(annotations[1]))  # In seconds
         stages_str = annotations[2]
         # keep only 20s durations
         valid_idx = (durations == self.page_duration)
         onsets = onsets[valid_idx]
-        onsets_pages = np.round(onsets / self.page_duration).astype(np.int32)
         stages_str = stages_str[valid_idx]
-        stages_char = [single_annot[-1] for single_annot in stages_str]
-
-        # Build complete hypnogram
-        total_annots = len(stages_char)
-
-        not_unkown_ids = [
-            state_id for state_id in self.state_ids
-            if state_id != self.unknown_id]
-        not_unkown_state_dict = {}
-        for state_id in not_unkown_ids:
-            state_idx = np.where(
-                [stages_char[i] == state_id for i in range(total_annots)])[0]
-            not_unkown_state_dict[state_id] = onsets_pages[state_idx]
-        hypnogram = []
-        for page in range(total_pages):
-            state_not_found = True
-            for state_id in not_unkown_ids:
-                if page in not_unkown_state_dict[state_id] and state_not_found:
-                    hypnogram.append(state_id)
-                    state_not_found = False
-            if state_not_found:
-                hypnogram.append(self.unknown_id)
+        stages_char = np.asarray([single_annot[-1] for single_annot in stages_str])
+        # Sort by onset
+        sorted_locs = np.argsort(onsets)
+        onsets = onsets[sorted_locs]
+        stages_char = stages_char[sorted_locs]
+        # The hypnogram could start at a sample different from 0
+        start_time = onsets[0]
+        onsets_relative = onsets - start_time
+        onsets_pages = np.round(onsets_relative / self.page_duration).astype(np.int32)
+        n_scored_pages = 1 + onsets_pages[-1]  # might be greater than onsets_pages.size if some labels are missing
+        start_sample = int(start_time * self.fs)
+        hypnogram = (n_scored_pages + 1) * [self.unknown_id]  # if missing, it will be "?", we add one final '?'
+        for scored_pos, scored_label in zip(onsets_pages, stages_char):
+            hypnogram[scored_pos] = scored_label
         hypnogram = np.asarray(hypnogram)
+        return hypnogram, start_sample
 
-        # Extract N2 pages
-        n2_pages = np.where(hypnogram == self.n2_id)[0]
-        # Drop first, last and second to last page of the whole registers
-        # if they where selected.
+    def _fix_signal_and_states(self, signal, hypnogram, start_sample):
+        # Crop start of signal
+        signal = signal[start_sample:]
+        # Find the largest valid sample, common in both signal and hypnogram, with an integer number of pages
+        n_samples_from_signal = int(self.page_size * (signal.size // self.page_size))
+        n_samples_from_hypnogram = int(hypnogram.size * self.page_size)
+        n_samples_valid = min(n_samples_from_signal, n_samples_from_hypnogram)
+        n_pages_valid = int(n_samples_valid / self.page_size)
+        # Fix signal and hypnogram according to this maximum sample
+        signal = signal[:n_samples_valid]
+        hypnogram = hypnogram[:n_pages_valid]
+        end_sample = start_sample + n_samples_valid  # wrt original beginning of recording, useful for marks
+        return signal, hypnogram, end_sample
+
+    def _hypnogram_selections(self, hypnogram):
+        total_pages = hypnogram.size
+        n2_pages = np.where(hypnogram == self.n2_id)[0].astype(np.int16)
+        # Drop first and last page of the whole registers if they where selected.
         last_page = total_pages - 1
-        n2_pages = n2_pages[
-            (n2_pages != 0)
-            & (n2_pages != last_page)
-            & (n2_pages != last_page - 1)]
-        n2_pages = n2_pages.astype(np.int16)
+        n2_pages = n2_pages[(n2_pages != 0) & (n2_pages != last_page)]
+        all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
+        return all_pages, n2_pages
 
-        return n2_pages, hypnogram
+    def _fix_marks(self, marks, start_sample, end_sample):
+        marks = marks - start_sample  # reference to new start
+        end_sample = end_sample - start_sample
+        marks = utils.filter_stamps(marks, 0, end_sample - 1)  # avoid runaway
+        return marks
