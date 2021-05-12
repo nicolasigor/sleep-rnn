@@ -645,3 +645,35 @@ def overlapping_groups(overlap_matrix):
         single_group.sort()
 
     return groups_overlap
+
+
+def apply_lowpass(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
+    numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
+    numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hanning", fs=fs).astype(np.float32)
+    lp_kernel /= lp_kernel.sum()
+    new_signal = filter_fir(lp_kernel, signal)
+    return new_signal
+
+
+def apply_highpass(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
+    numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
+    numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hanning", fs=fs).astype(np.float32)
+    lp_kernel /= lp_kernel.sum()
+    # HP = delta - LP
+    hp_kernel = -lp_kernel
+    hp_kernel[numtaps//2] += 1
+    new_signal = filter_fir(hp_kernel, signal)
+    return new_signal
+
+
+def apply_bandpass(signal, fs, lowcut, highcut, filter_duration_ref=6, wave_expansion_factor=0.5):
+    new_signal = signal
+    if lowcut is not None:
+        new_signal = apply_highpass(
+            new_signal, fs, lowcut, filter_duration_ref, wave_expansion_factor)
+    if highcut is not None:
+        new_signal = apply_lowpass(
+            new_signal, fs, highcut, filter_duration_ref, wave_expansion_factor)
+    return new_signal
