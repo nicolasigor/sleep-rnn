@@ -158,6 +158,7 @@ def compute_wavelets_noisy(
     with tf.variable_scope(name):
         print("CWT expansion factor:", expansion_factor)
         if trainable_expansion_factor:
+            print("Expansion factor trainable")
             expansion_factor = np.clip(expansion_factor, a_min=0.02, a_max=0.98)
             q_logit = np.log(expansion_factor / (1.0 - expansion_factor))
             q_logit_tensor = tf.Variable(
@@ -165,6 +166,7 @@ def compute_wavelets_noisy(
             q = tf.nn.sigmoid(q_logit_tensor)
             tf.summary.scalar('expansion_factor', q)
         else:
+            print("Expansion factor NOT trainable")
             q = tf.cast(expansion_factor, tf.float32)
 
         # Generate the wavelets
@@ -172,9 +174,10 @@ def compute_wavelets_noisy(
         for j, fb in enumerate(fb_list):
             # Trainable fb value
             # (we enforce positive number and avoids zero division)
+            print("Using initial wavelet width %s" % fb)
             fb_tensor = tf.Variable(
                 initial_value=fb, trainable=trainable, name='fb_%d' % j, dtype=tf.float32)
-            fb_tensor = tf.math.abs(fb_tensor)  # Ensure positivity
+            fb_tensor = tf.math.abs(fb_tensor) + 1e-4  # Ensure positivity
             tf.summary.scalar('fb_%d' % j, fb_tensor)
             # We will make a bigger wavelet in case fb grows
             # Note that for the size of the wavelet we use the initial fb value.
@@ -187,8 +190,8 @@ def compute_wavelets_noisy(
             wavelet_bank_imag = []
             # wavelet_bank_real = np.zeros((1, kernel_size, 1, n_scales))
             # wavelet_bank_imag = np.zeros((1, kernel_size, 1, n_scales))
+            print("Applying scale noise at CWT (%d scales)" % n_scales)
             for i in range(n_scales):
-                print("Applying scale noise at CWT")
                 scale_original = scales[i]
                 scale = tf.cond(
                     training_flag,

@@ -1,0 +1,27 @@
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss
+AF1 66.37/1.38 [0.5] 66.82/1.30 [0.48, 0.52, 0.34, 0.42, 0.48], F 79.63/1.14, P 77.7/ 9.8, R 83.9/ 9.5 for red-cwt1d_cv2_cycles3
+AF1 66.55/2.26 [0.5] 66.71/2.26 [0.48, 0.48, 0.40, 0.50, 0.50], F 79.68/1.57, P 77.1/ 9.6, R 84.4/ 8.6 for red-cwt2d_cv2_cycles3
+AF1 66.34/3.95 [0.5] 66.69/3.62 [0.40, 0.40, 0.54, 0.50, 0.52], F 79.76/3.17, P 77.6/ 9.0, R 83.9/ 8.7 for red-cwt1d_cv0_cycles3
+AF1 66.26/1.82 [0.5] 66.59/1.99 [0.46, 0.52, 0.42, 0.48, 0.50], F 79.52/1.37, P 78.2/ 9.5, R 82.9/ 9.7 for red-cwt2d-var_cv2_cycles3
+AF1 66.41/4.11 [0.5] 66.45/3.88 [0.48, 0.42, 0.52, 0.50, 0.50], F 79.19/3.33, P 77.7/ 9.9, R 82.8/ 9.3 for red-cwt2d_cv0_cycles3
+AF1 66.23/3.48 [0.5] 66.28/3.58 [0.46, 0.40, 0.46, 0.42, 0.46], F 79.37/2.89, P 77.1/ 9.3, R 83.7/ 9.0 for red-cwt2d-var_cv0_cycles3
+AF1 65.96/3.61 [0.5] 66.08/3.49 [0.44, 0.44, 0.48, 0.50, 0.50], F 79.19/3.06, P 77.2/ 9.8, R 83.4/ 8.7 for red-cwt1d-var_cv0_cycles3
+AF1 65.85/1.73 [0.5] 66.06/1.62 [0.48, 0.52, 0.54, 0.44, 0.48], F 78.90/1.88, P 77.1/ 9.8, R 83.4/10.8 for red-cwt1d_cv1_cycles3
+AF1 65.84/2.61 [0.5] 65.97/2.47 [0.52, 0.50, 0.36, 0.44, 0.56], F 79.00/1.58, P 77.9/10.0, R 82.5/ 9.9 for red-cwt1d-var_cv2_cycles3
+AF1 65.21/3.00 [0.5] 65.70/2.50 [0.38, 0.54, 0.52, 0.42, 0.54], F 78.95/1.86, P 76.7/10.0, R 83.7/ 9.8 for red-cwt2d_cv1_cycles3
+AF1 64.16/3.50 [0.5] 64.79/2.97 [0.40, 0.54, 0.50, 0.40, 0.50], F 77.88/2.82, P 76.7/11.6, R 82.6/12.2 for red-cwt2d-var_cv1_cycles3
+AF1 64.78/2.13 [0.5] 64.44/2.47 [0.36, 0.46, 0.54, 0.52, 0.40], F 77.50/2.19, P 76.3/11.8, R 82.1/11.7 for red-cwt1d-var_cv1_cycles3
+
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d_cv2_cycles3'): [0.48, 0.52, 0.34, 0.42, 0.48],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d_cv2_cycles3'): [0.48, 0.48, 0.40, 0.50, 0.50],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d_cv0_cycles3'): [0.40, 0.40, 0.54, 0.50, 0.52],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d-var_cv2_cycles3'): [0.46, 0.52, 0.42, 0.48, 0.50],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d_cv0_cycles3'): [0.48, 0.42, 0.52, 0.50, 0.50],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d-var_cv0_cycles3'): [0.46, 0.40, 0.46, 0.42, 0.46],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d-var_cv0_cycles3'): [0.44, 0.44, 0.48, 0.50, 0.50],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d_cv1_cycles3'): [0.48, 0.52, 0.54, 0.44, 0.48],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d-var_cv2_cycles3'): [0.52, 0.50, 0.36, 0.44, 0.56],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d_cv1_cycles3'): [0.38, 0.54, 0.52, 0.42, 0.54],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt2d-var_cv1_cycles3'): [0.40, 0.54, 0.50, 0.40, 0.50],
+    os.path.join('20210511_cwt_choice1_5fold-cv_exp1_n2_train_mass_ss', 'red-cwt1d-var_cv1_cycles3'): [0.36, 0.46, 0.54, 0.52, 0.40],
+
