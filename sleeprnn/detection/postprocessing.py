@@ -75,5 +75,8 @@ def kcomplex_stamp_split(
                 new_stamps.append([edges_list[i], edges_list[i+1]])
         else:
             new_stamps.append(stamp)
-    new_stamps = np.stack(new_stamps, axis=0).astype(np.int32)
+    if len(new_stamps) > 0:
+        new_stamps = np.stack(new_stamps, axis=0).astype(np.int32)
+    else:
+        new_stamps = np.zeros((0, 2)).astype(np.int32)
     return new_stamps
