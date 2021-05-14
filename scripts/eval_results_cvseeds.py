@@ -52,7 +52,7 @@ def group_by_model(parsed_reports, metric):
 if __name__ == "__main__":
     model_loc = 0
     cv_seed_loc = 1
-    metric = 'p_mean'
+    metric = 'r_mean'
     larger_is_better = True
     sort_by_value = False
 
