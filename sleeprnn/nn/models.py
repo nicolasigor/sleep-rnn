@@ -563,82 +563,26 @@ class WaveletBLSTM(BaseModel):
         return feat, label, mask
 
     def _augmentation_fn(self, feat, label, mask):
-        rescale_proba = self.params[pkeys.AUG_RESCALE_NORMAL_PROBA]
-        rescale_std = self.params[pkeys.AUG_RESCALE_NORMAL_STD]
-        noise_proba = self.params[pkeys.AUG_GAUSSIAN_NOISE_PROBA]
-        noise_std = self.params[pkeys.AUG_GAUSSIAN_NOISE_STD]
-
-        rescale_unif_proba = self.params[pkeys.AUG_RESCALE_UNIFORM_PROBA]
-        rescale_unif_intens = self.params[pkeys.AUG_RESCALE_UNIFORM_INTENSITY]
-
-        elastic_proba = self.params[pkeys.AUG_ELASTIC_PROBA]
-        elastic_alpha = self.params[pkeys.AUG_ELASTIC_ALPHA]
-        elastic_sigma = self.params[pkeys.AUG_ELASTIC_SIGMA]
-
-        indep_noise_proba = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_PROBA]
-        indep_noise_std = self.params[pkeys.AUG_INDEP_GAUSSIAN_NOISE_STD]
-
+        indep_unif_noise_proba = self.params[pkeys.AUG_INDEP_UNIFORM_NOISE_PROBA]
+        indep_unif_noise_intens = self.params[pkeys.AUG_INDEP_UNIFORM_NOISE_INTENSITY]
         random_waves_proba = self.params[pkeys.AUG_RANDOM_WAVES_PROBA]
         random_waves_params = self.params[pkeys.AUG_RANDOM_WAVES_PARAMS]
-
         random_anti_waves_proba = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA]
         random_anti_waves_params = self.params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS]
-
-        false_spindles_single_cont_proba = self.params[pkeys.AUG_FALSE_SPINDLES_SINGLE_CONT_PROBA]
-        false_spindles_single_cont_params = self.params[pkeys.AUG_FALSE_SPINDLES_SINGLE_CONT_PARAMS]
-
-        print('rescale proba %s, std %s' % (rescale_proba, rescale_std))
-        print('rescale unif proba %s, intens %s' % (rescale_unif_proba, rescale_unif_intens))
-        print('noise proba %s, std %s' % (noise_proba, noise_std))
-        print('indep noise proba %s, std %s' % (indep_noise_proba, indep_noise_std))
-        print('elastic proba %s, alpha %s, sigma %s' % (elastic_proba, elastic_alpha, elastic_sigma))
+        print('indep uniform noise proba %s, intens %s' % (indep_unif_noise_proba, indep_unif_noise_intens))
         print('random waves proba %s, params %s' % (random_waves_proba, random_waves_params))
         print('random anti waves proba %s, params %s' % (random_anti_waves_proba, random_anti_waves_params))
-        print("false spindles single cont proba %s, params %s" % (
-            false_spindles_single_cont_proba, false_spindles_single_cont_params))
-
-        if rescale_proba > 0:
-            print('Applying gaussian rescaling augmentation')
-            feat = augmentations.rescale_normal(
-                feat, rescale_proba, rescale_std)
-
-        if noise_proba > 0:
-            print('Applying gaussian noise augmentation')
-            feat = augmentations.gaussian_noise(
-                feat, noise_proba, noise_std)
-
-        if rescale_unif_proba > 0:
-            print('Applying uniform rescaling augmentation')
-            feat = augmentations.rescale_uniform(
-                feat, rescale_unif_proba, rescale_unif_intens)
-
-        if elastic_proba > 0:
-            print('Applying elastic deformations')
-            feat, label = augmentations.elastic_1d_deformation_wrapper(
-                feat, label, elastic_proba, self.params[pkeys.FS],
-                elastic_alpha, elastic_sigma)
-
-        if indep_noise_proba > 0:
-            print('Applying INDEPENDENT gaussian noise augmentation')
-            feat = augmentations.independent_gaussian_noise(
-                feat, indep_noise_proba, indep_noise_std)
-
+        if indep_unif_noise_proba > 0:
+            print('Applying INDEPENDENT UNIFORM noise augmentation')
+            feat = augmentations.independent_uniform_noise(feat, indep_unif_noise_proba, indep_unif_noise_intens)
         if random_anti_waves_proba > 0:
             print("Applying random anti waves augmentation")
             feat = augmentations.random_anti_waves_wrapper(
-                feat, label, random_anti_waves_proba, self.params[pkeys.FS], random_anti_waves_params
-            )
-
+                feat, label, random_anti_waves_proba, self.params[pkeys.FS], random_anti_waves_params)
         if random_waves_proba > 0:
             print("Applying random waves augmentation")
             feat = augmentations.random_waves_wrapper(
                 feat, label, random_waves_proba, self.params[pkeys.FS], random_waves_params)
-
-        if false_spindles_single_cont_proba > 0:
-            print("Applying false spindle single cont. augmentation")
-            feat = augmentations.false_spindles_single_contamination_wrapper(
-                feat, label, random_waves_proba, self.params[pkeys.FS], false_spindles_single_cont_params)
-
         return feat, label, mask
 
     def _model_fn(self):
@@ -646,326 +590,13 @@ class WaveletBLSTM(BaseModel):
         checks.check_valid_value(
             model_version, 'model_version',
             [
-                constants.DUMMY,
-                constants.V1,
-                constants.V4,
-                constants.V5,
-                constants.V6,
-                constants.V7,
-                constants.V8,
-                constants.V9,
-                constants.DEBUG,
-                constants.V7lite,
-                constants.V7litebig,
-                constants.V10,
-                constants.V11,
-                constants.V12,
-                constants.V13,
-                constants.V14,
-                constants.V15,
-                constants.V16,
-                constants.V17,
-                constants.V18,
-                constants.V19,
-                constants.V20_INDEP,
-                constants.V20_CONCAT,
-                constants.V21,
-                constants.V22,
-                constants.V23,
-                constants.V24,
-                constants.V25,
-                constants.V11_SKIP,
-                constants.V19_SKIP,
-                constants.V19_SKIP2,
-                constants.V19_SKIP3,
-                constants.V26,
-                constants.V27,
-                constants.V28,
-                constants.V29,
-                constants.V30,
-                constants.V115,
-                constants.V195,
-                constants.V11G,
-                constants.V19G,
-                constants.V31,
-                constants.V32,
-                constants.V19P,
-                constants.V33,
-                constants.V34,
-                constants.ATT01,
-                constants.ATT02,
-                constants.ATT03,
-                constants.ATT04,
-                constants.ATT04C,
-                constants.V35,
-                constants.V11_ABLATION,
-                constants.V11_ABLATION_SCALED,
-                constants.V11_D6K5,
-                constants.V11_D8K3,
-                constants.V11_D8K5,
-                constants.V11_OUTRES,
-                constants.V11_OUTPLUS,
-                constants.V11_SHIELD,
-                constants.V11_LITE,
-                constants.V11_NORM,
-                constants.V11_PR_1,
-                constants.V11_PR_2P,
-                constants.V11_PR_2C,
-                constants.V11_PR_3P,
-                constants.V11_PR_3C,
-                constants.V11_LLC_STFT,
-                constants.V11_LLC_STFT_1,
-                constants.V11_LLC_STFT_2,
-                constants.V11_LLC_STFT_3,
-                constants.V19_LLC_STFT_2,
-                constants.V19_LLC_STFT_3,
-                constants.TCN01,
-                constants.TCN02,
-                constants.TCN03,
-                constants.TCN04,
-                constants.V19_FROZEN,
-                constants.ATT05,
-                constants.V19_VAR,
-                constants.V19_NOISY,
-                constants.A7_V1,
-                constants.A7_V2,
-                constants.A7_V3,
-                constants.V11_BP,
-                constants.V19_BP,
-                constants.V11_LN,
-                constants.V11_LN2,
-                constants.V11_LN3,
-                constants.V19_LN2,
-                constants.V11_MK,
-                constants.V11_MKD,
-                constants.V11_MKD2,
-                constants.V11_MKD2_STATMOD,
-                constants.V11_MKD2_STATDOT,
-                constants.V36,
-                constants.V11_ATT,
-                constants.V11_MKD2_EXPERTMOD,
-                constants.V11_MKD2_EXPERTREG,
-                constants.V11_MKD2_SWISH,
-                constants.V41,
-                constants.V42,
-                constants.V43,
                 constants.V2_TIME,
                 constants.V2_CWT1D,
-                constants.V2_CWT2D,
              ])
-        if model_version == constants.V1:
-            model_fn = networks.wavelet_blstm_net_v1
-        elif model_version == constants.V4:
-            model_fn = networks.wavelet_blstm_net_v4
-        elif model_version == constants.V5:
-            model_fn = networks.wavelet_blstm_net_v5
-        elif model_version == constants.V6:
-            model_fn = networks.wavelet_blstm_net_v6
-        elif model_version == constants.V7:
-            model_fn = networks.wavelet_blstm_net_v7
-        elif model_version == constants.V8:
-            model_fn = networks.wavelet_blstm_net_v8
-        elif model_version == constants.V9:
-            model_fn = networks.wavelet_blstm_net_v9
-        elif model_version == constants.V7lite:
-            model_fn = networks.wavelet_blstm_net_v7_lite
-        elif model_version == constants.V7litebig:
-            model_fn = networks.wavelet_blstm_net_v7_litebig
-        elif model_version == constants.V10:
-            model_fn = networks.wavelet_blstm_net_v10
-        elif model_version == constants.V11:
-            model_fn = networks.wavelet_blstm_net_v11
-        elif model_version == constants.V12:
-            model_fn = networks.wavelet_blstm_net_v12
-        elif model_version == constants.V13:
-            model_fn = networks.wavelet_blstm_net_v13
-        elif model_version == constants.V14:
-            model_fn = networks.wavelet_blstm_net_v14
-        elif model_version == constants.V15:
-            model_fn = networks.wavelet_blstm_net_v15
-        elif model_version == constants.V16:
-            model_fn = networks.wavelet_blstm_net_v16
-        elif model_version == constants.V17:
-            model_fn = networks.wavelet_blstm_net_v17
-        elif model_version == constants.V18:
-            model_fn = networks.wavelet_blstm_net_v18
-        elif model_version == constants.V19:
-            model_fn = networks.wavelet_blstm_net_v19
-        elif model_version == constants.V20_INDEP:
-            model_fn = networks.wavelet_blstm_net_v20_indep
-        elif model_version == constants.V20_CONCAT:
-            model_fn = networks.wavelet_blstm_net_v20_concat
-        elif model_version == constants.V21:
-            model_fn = networks.wavelet_blstm_net_v21
-        elif model_version == constants.V22:
-            model_fn = networks.wavelet_blstm_net_v22
-        elif model_version == constants.V23:
-            model_fn = networks.wavelet_blstm_net_v23
-        elif model_version == constants.V24:
-            model_fn = networks.wavelet_blstm_net_v24
-        elif model_version == constants.V25:
-            model_fn = networks.wavelet_blstm_net_v25
-        elif model_version == constants.V11_SKIP:
-            model_fn = networks.wavelet_blstm_net_v11_skip
-        elif model_version == constants.V19_SKIP:
-            model_fn = networks.wavelet_blstm_net_v19_skip
-        elif model_version == constants.V19_SKIP2:
-            model_fn = networks.wavelet_blstm_net_v19_skip2
-        elif model_version == constants.V19_SKIP3:
-            model_fn = networks.wavelet_blstm_net_v19_skip3
-        elif model_version == constants.V26:
-            model_fn = networks.wavelet_blstm_net_v26
-        elif model_version == constants.V27:
-            model_fn = networks.wavelet_blstm_net_v27
-        elif model_version == constants.V28:
-            model_fn = networks.wavelet_blstm_net_v28
-        elif model_version == constants.V29:
-            model_fn = networks.wavelet_blstm_net_v29
-        elif model_version == constants.V30:
-            model_fn = networks.wavelet_blstm_net_30
-        elif model_version == constants.V115:
-            model_fn = networks.wavelet_blstm_net_v115
-        elif model_version == constants.V195:
-            model_fn = networks.wavelet_blstm_net_v195
-        elif model_version == constants.V11G:
-            model_fn = networks.wavelet_blstm_net_v11g
-        elif model_version == constants.V19G:
-            model_fn = networks.wavelet_blstm_net_v19g
-        elif model_version == constants.V31:
-            model_fn = networks.wavelet_blstm_net_v31
-        elif model_version == constants.V32:
-            model_fn = networks.wavelet_blstm_net_v32
-        elif model_version == constants.V19P:
-            model_fn = networks.wavelet_blstm_net_v19p
-        elif model_version == constants.V33:
-            model_fn = networks.wavelet_blstm_net_v33
-        elif model_version == constants.V34:
-            model_fn = networks.wavelet_blstm_net_v34
-        elif model_version == constants.ATT01:
-            model_fn = networks.wavelet_blstm_net_att01
-        elif model_version == constants.ATT02:
-            model_fn = networks.wavelet_blstm_net_att02
-        elif model_version == constants.ATT03:
-            model_fn = networks.wavelet_blstm_net_att03
-        elif model_version == constants.ATT04:
-            model_fn = networks.wavelet_blstm_net_att04
-        elif model_version == constants.ATT04C:
-            model_fn = networks.wavelet_blstm_net_att04c
-        elif model_version == constants.V35:
-            model_fn = networks.wavelet_blstm_net_v35
-        elif model_version == constants.V11_ABLATION:
-            model_fn = networks.wavelet_blstm_net_v11_ablation
-        elif model_version == constants.V11_ABLATION_SCALED:
-            model_fn = networks.wavelet_blstm_net_v11_ablation_scaled
-        elif model_version == constants.V11_D6K5:
-            model_fn = networks.wavelet_blstm_net_v11_d6k5
-        elif model_version == constants.V11_D8K3:
-            model_fn = networks.wavelet_blstm_net_v11_d8k3
-        elif model_version == constants.V11_D8K5:
-            model_fn = networks.wavelet_blstm_net_v11_d8k5
-        elif model_version == constants.V11_OUTRES:
-            model_fn = networks.wavelet_blstm_net_v11_outres
-        elif model_version == constants.V11_OUTPLUS:
-            model_fn = networks.wavelet_blstm_net_v11_outplus
-        elif model_version == constants.V11_SHIELD:
-            model_fn = networks.wavelet_blstm_net_v11_shield
-        elif model_version == constants.V11_LITE:
-            model_fn = networks.wavelet_blstm_net_v11_lite
-        elif model_version == constants.V11_NORM:
-            model_fn = networks.wavelet_blstm_net_v11_norm
-        elif model_version == constants.V11_PR_1:
-            model_fn = networks.wavelet_blstm_net_v11_pr_1
-        elif model_version == constants.V11_PR_2P:
-            model_fn = networks.wavelet_blstm_net_v11_pr_2p
-        elif model_version == constants.V11_PR_2C:
-            model_fn = networks.wavelet_blstm_net_v11_pr_2c
-        elif model_version == constants.V11_PR_3P:
-            model_fn = networks.wavelet_blstm_net_v11_pr_3p
-        elif model_version == constants.V11_PR_3C:
-            model_fn = networks.wavelet_blstm_net_v11_pr_3c
-        elif model_version == constants.V11_LLC_STFT:
-            model_fn = networks.wavelet_blstm_net_v11_llc_stft
-        elif model_version == constants.V11_LLC_STFT_1:
-            model_fn = networks.wavelet_blstm_net_v11_llc_stft_1
-        elif model_version == constants.V11_LLC_STFT_2:
-            model_fn = networks.wavelet_blstm_net_v11_llc_stft_2
-        elif model_version == constants.V11_LLC_STFT_3:
-            model_fn = networks.wavelet_blstm_net_v11_llc_stft_3
-        elif model_version == constants.V19_LLC_STFT_2:
-            model_fn = networks.wavelet_blstm_net_v19_llc_stft_2
-        elif model_version == constants.V19_LLC_STFT_3:
-            model_fn = networks.wavelet_blstm_net_v19_llc_stft_3
-        elif model_version == constants.TCN01:
-            model_fn = networks.wavelet_blstm_net_tcn01
-        elif model_version == constants.TCN02:
-            model_fn = networks.wavelet_blstm_net_tcn02
-        elif model_version == constants.TCN03:
-            model_fn = networks.wavelet_blstm_net_tcn03
-        elif model_version == constants.TCN04:
-            model_fn = networks.wavelet_blstm_net_tcn04
-        elif model_version == constants.V19_FROZEN:
-            model_fn = networks.wavelet_blstm_net_v19_frozen
-        elif model_version == constants.ATT05:
-            model_fn = networks_v2.wavelet_blstm_net_att05
-        elif model_version == constants.V19_VAR:
-            model_fn = networks.wavelet_blstm_net_v19_var
-        elif model_version == constants.V19_NOISY:
-            model_fn = networks.wavelet_blstm_net_v19_noisy
-        elif model_version == constants.A7_V1:
-            model_fn = networks_v2.deep_a7_v1
-        elif model_version == constants.A7_V2:
-            model_fn = networks_v2.deep_a7_v2
-        elif model_version == constants.A7_V3:
-            model_fn = networks_v2.deep_a7_v3
-        elif model_version == constants.V11_BP:
-            model_fn = networks_v2.wavelet_blstm_net_v11_bp
-        elif model_version == constants.V19_BP:
-            model_fn = networks_v2.wavelet_blstm_net_v19_bp
-        elif model_version == constants.V11_LN:
-            model_fn = networks_v2.wavelet_blstm_net_v11_ln
-        elif model_version == constants.V11_LN2:
-            model_fn = networks_v2.wavelet_blstm_net_v11_ln2
-        elif model_version == constants.V11_LN3:
-            model_fn = networks_v2.wavelet_blstm_net_v11_ln3
-        elif model_version == constants.V19_LN2:
-            model_fn = networks_v2.wavelet_blstm_net_v19_ln2
-        elif model_version == constants.V11_MK:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mk
-        elif model_version == constants.V11_MKD:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd
-        elif model_version == constants.V11_MKD2:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2
-        elif model_version == constants.V11_MKD2_STATMOD:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_statmod
-        elif model_version == constants.V11_MKD2_STATDOT:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_statdot
-        elif model_version == constants.V36:
-            model_fn = networks_v2.wavelet_blstm_net_v36
-        elif model_version == constants.V11_ATT:
-            model_fn = networks_v2.wavelet_blstm_net_v11_att
-        elif model_version == constants.V11_MKD2_EXPERTMOD:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_expertmod
-        elif model_version == constants.V11_MKD2_EXPERTREG:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_expertreg
-        elif model_version == constants.V11_MKD2_SWISH:
-            model_fn = networks_v2.wavelet_blstm_net_v11_mkd2_swish
-        elif model_version == constants.V41:
-            model_fn = networks_v2.wavelet_blstm_net_v41
-        elif model_version == constants.V42:
-            model_fn = networks_v2.wavelet_blstm_net_v42
-        elif model_version == constants.V43:
-            model_fn = networks_v2.wavelet_blstm_net_v43
-        elif model_version == constants.V2_TIME:
+        if model_version == constants.V2_TIME:
             model_fn = networks_v3.redv2_time
-        elif model_version == constants.V2_CWT1D:
-            model_fn = networks_v3.redv2_cwt1d
-        elif model_version == constants.V2_CWT2D:
-            model_fn = networks_v3.redv2_cwt2d
-        elif model_version == constants.DEBUG:
-            model_fn = networks.debug_net
         else:
-            model_fn = networks.dummy_net
-
+            model_fn = networks_v3.redv2_cwt1d
         logits, probabilities, other_outputs_dict = model_fn(self.feats, self.params, self.training_ph)
         return logits, probabilities, other_outputs_dict
 
@@ -974,163 +605,12 @@ class WaveletBLSTM(BaseModel):
         checks.check_valid_value(
             type_loss, 'type_loss',
             [
-                constants.CROSS_ENTROPY_LOSS,
-                constants.DICE_LOSS,
-                constants.FOCAL_LOSS,
-                constants.WORST_MINING_LOSS,
-                constants.WORST_MINING_V2_LOSS,
-                constants.CROSS_ENTROPY_NEG_ENTROPY_LOSS,
-                constants.CROSS_ENTROPY_SMOOTHING_LOSS,
-                constants.CROSS_ENTROPY_HARD_CLIP_LOSS,
-                constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS,
-                constants.MOD_FOCAL_LOSS,
-                constants.CROSS_ENTROPY_BORDERS_LOSS,
-                constants.CROSS_ENTROPY_BORDERS_IND_LOSS,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_HARD,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_SOFT,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4,
-                constants.HINGE_LOSS,
-                constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5,
-                constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG,
-                constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION,
                 constants.MASKED_SOFT_FOCAL_LOSS
             ])
-
-        if type_loss == constants.CROSS_ENTROPY_LOSS:
-            loss, loss_summ = losses.cross_entropy_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
-        elif type_loss == constants.FOCAL_LOSS:
-            loss, loss_summ = losses.focal_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.FOCUSING_PARAMETER])
-        elif type_loss == constants.WORST_MINING_LOSS:
-            loss, loss_summ = losses.worst_mining_loss_fn(
-                self.logits, self.labels,
-                self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
-                self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
-        elif type_loss == constants.WORST_MINING_V2_LOSS:
-            loss, loss_summ = losses.worst_mining_v2_loss_fn(
-                self.logits, self.labels,
-                self.params[pkeys.WORST_MINING_FACTOR_NEGATIVE],
-                self.params[pkeys.WORST_MINING_MIN_NEGATIVE])
-        elif type_loss == constants.CROSS_ENTROPY_NEG_ENTROPY_LOSS:
-            loss, loss_summ = losses.cross_entropy_negentropy_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.NEG_ENTROPY_PARAMETER])
-        elif type_loss == constants.CROSS_ENTROPY_SMOOTHING_LOSS:
-            loss, loss_summ = losses.cross_entropy_smoothing_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.SOFT_LABEL_PARAMETER])
-        elif type_loss == constants.CROSS_ENTROPY_SMOOTHING_CLIP_LOSS:
-            loss, loss_summ = losses.cross_entropy_smoothing_clip_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.SOFT_LABEL_PARAMETER])
-        elif type_loss == constants.CROSS_ENTROPY_HARD_CLIP_LOSS:
-            loss, loss_summ = losses.cross_entropy_hard_clip_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.SOFT_LABEL_PARAMETER])
-        elif type_loss == constants.MOD_FOCAL_LOSS:
-            loss, loss_summ = losses.mod_focal_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.FOCUSING_PARAMETER],
-                self.params[pkeys.MIS_WEIGHT_PARAMETER])
-        elif type_loss == constants.CROSS_ENTROPY_BORDERS_LOSS:
-            loss, loss_summ = losses.cross_entropy_loss_borders_fn(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH])
-        elif type_loss == constants.CROSS_ENTROPY_BORDERS_IND_LOSS:
-            loss, loss_summ = losses.cross_entropy_loss_borders_ind_fn(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS:
-            loss, loss_summ = losses.weighted_cross_entropy_loss(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.FOCUSING_PARAMETER],
-                self.params[pkeys.MIS_WEIGHT_PARAMETER],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_HARD:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_hard(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_SOFT:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_soft(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.SOFT_LABEL_PARAMETER],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_V2:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_v2(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.FOCUSING_PARAMETER],
-                self.params[pkeys.MIS_WEIGHT_PARAMETER],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY],
-                self.params[pkeys.PREDICTION_VARIABILITY_REGULARIZER])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_V3:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_v3(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.FOCUSING_PARAMETER],
-                self.params[pkeys.MIS_WEIGHT_PARAMETER],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY],
-                self.params[pkeys.PREDICTION_VARIABILITY_REGULARIZER],
-                self.params[pkeys.PREDICTION_VARIABILITY_LAG])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_V4:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_v4(
-                self.logits, self.labels,
-                self.params[pkeys.BORDER_WEIGHT_AMPLITUDE],
-                self.params[pkeys.BORDER_WEIGHT_HALF_WIDTH],
-                self.params[pkeys.FOCUSING_PARAMETER],
-                self.params[pkeys.MIS_WEIGHT_PARAMETER],
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.MIX_WEIGHTS_STRATEGY],
-                self.params[pkeys.PREDICTION_VARIABILITY_REGULARIZER],
-                self.params[pkeys.PREDICTION_VARIABILITY_LAG])
-        elif type_loss == constants.WEIGHTED_CROSS_ENTROPY_LOSS_V5:
-            loss, loss_summ = losses.weighted_cross_entropy_loss_v5(
-                self.logits, self.labels,
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.SOFT_FOCAL_GAMMA], self.params[pkeys.SOFT_FOCAL_EPSILON],
-                self.params[pkeys.ANTIBORDER_AMPLITUDE], self.params[pkeys.ANTIBORDER_HALF_WIDTH]
-            )
-        elif type_loss == constants.CROSS_ENTROPY_LOSS_WITH_LOGITS_REG:
-            loss, loss_summ = losses.cross_entropy_loss_with_logits_reg_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.LOGITS_REG_TYPE], self.params[pkeys.LOGITS_REG_WEIGHT]
-            )
-        elif type_loss == constants.HINGE_LOSS:
-            loss, loss_summ = losses.hinge_loss_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS])
-        elif type_loss == constants.CROSS_ENTROPY_LOSS_WITH_SELF_SUPERVISION:
-            loss, loss_summ = losses.cross_entropy_loss_with_self_supervision_fn(
-                self.logits, self.labels, self.params[pkeys.CLASS_WEIGHTS],
-                self.other_outputs_dict["regression_loss"],
-                self.params[pkeys.EXPERT_BRANCH_REGRESSION_LOSS_COEFFICIENT])
-        elif type_loss == constants.MASKED_SOFT_FOCAL_LOSS:
-            loss, loss_summ = losses.masked_soft_focal_loss(
-                self.logits, self.labels, self.masks,
-                self.params[pkeys.CLASS_WEIGHTS],
-                self.params[pkeys.SOFT_FOCAL_GAMMA], self.params[pkeys.SOFT_FOCAL_EPSILON])
-        else:
-            loss, loss_summ = losses.dice_loss_fn(
-                self.probabilities[..., 1], self.labels)
+        loss, loss_summ = losses.masked_soft_focal_loss(
+            self.logits, self.labels, self.masks,
+            self.params[pkeys.CLASS_WEIGHTS],
+            self.params[pkeys.SOFT_FOCAL_GAMMA], self.params[pkeys.SOFT_FOCAL_EPSILON])
         return loss, loss_summ
 
     def _optimizer_fn(self):
@@ -1139,29 +619,10 @@ class WaveletBLSTM(BaseModel):
             type_optimizer, 'type_optimizer',
             [
                 constants.ADAM_OPTIMIZER,
-                constants.SGD_OPTIMIZER,
-                constants.RMSPROP_OPTIMIZER,
-                constants.ADAM_W_OPTIMIZER
             ])
-
-        if type_optimizer == constants.ADAM_OPTIMIZER:
-            train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
-                self.loss, self.learning_rate,
-                self.params[pkeys.CLIP_NORM])
-        elif type_optimizer == constants.ADAM_W_OPTIMIZER:
-            train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_w_optimizer_fn(
-                self.loss, self.learning_rate, self.weight_decay,
-                self.params[pkeys.CLIP_NORM])
-        elif type_optimizer == constants.RMSPROP_OPTIMIZER:
-            train_step, reset_optimizer_op, grad_norm_summ = optimizers.rmsprop_optimizer_fn(
-                self.loss, self.learning_rate, self.params[pkeys.MOMENTUM],
-                self.params[pkeys.CLIP_NORM])
-        else:
-            train_step, reset_optimizer_op, grad_norm_summ = optimizers.sgd_optimizer_fn(
-                self.loss, self.learning_rate,
-                self.params[pkeys.MOMENTUM],
-                self.params[pkeys.CLIP_NORM],
-                self.params[pkeys.USE_NESTEROV_MOMENTUM])
+        train_step, reset_optimizer_op, grad_norm_summ = optimizers.adam_optimizer_fn(
+            self.loss, self.learning_rate,
+            self.params[pkeys.CLIP_NORM])
         return train_step, reset_optimizer_op, grad_norm_summ
 
     def _batch_metrics_fn(self):

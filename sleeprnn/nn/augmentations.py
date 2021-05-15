@@ -171,6 +171,23 @@ def independent_gaussian_noise(feat, probability, std):
     return new_feat
 
 
+def independent_uniform_noise(feat, probability, intensity):
+    """Noise is an independent uniform and additive noise"""
+    checks.check_valid_range(probability, 'probability', [0, 1])
+    if intensity is None:
+        raise ValueError("Independent uniform noise requires setting its intensity, but it is 'None'.")
+    with tf.variable_scope('independent_gaussian_noise'):
+        print("Using uniform add noise intensity %1.6f with probability %1.2f" % (intensity, probability))
+        uniform_random = tf.random.uniform([], 0.0, 1.0)
+        aug_condition = tf.less(uniform_random, probability)
+        new_feat = tf.cond(
+            aug_condition,
+            lambda: feat + tf.random.uniform(tf.shape(feat), -intensity, intensity),
+            lambda: feat
+        )
+    return new_feat
+
+
 def rescale_normal(feat, probability, std):
     checks.check_valid_range(probability, 'probability', [0, 1])
     with tf.variable_scope('rescale_normal'):

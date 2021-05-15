@@ -7,7 +7,7 @@ from __future__ import print_function
 from sleeprnn.data.dataset import Dataset
 from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
 from sleeprnn.helpers.reader import load_dataset
-from sleeprnn.common import constants
+from sleeprnn.common import constants, pkeys
 from .feeder_dataset import FeederDataset
 from .postprocessor import PostProcessor
 from . import postprocessing
@@ -22,6 +22,16 @@ class PredictedDataset(Dataset):
             params=None,
             verbose=False
     ):
+        # make the changes local
+        params = {} if (params is None) else params.copy()
+        # Force for the INTA case
+        if 'inta' in dataset.dataset_name:
+            print("inta contained in dataset name '%s'" % dataset.dataset_name)
+            print("Overwriting SS postprocessing parameters for INTA dataset to sep 0.5, min 0.5, max 5.0")
+            params[pkeys.SS_MIN_SEPARATION] = 0.5
+            params[pkeys.SS_MIN_DURATION] = 0.5
+            params[pkeys.SS_MAX_DURATION] = 5.0
+
         self.parent_dataset = dataset
         self.task_mode = dataset.task_mode
         self.probabilities_dict = probabilities_dict
