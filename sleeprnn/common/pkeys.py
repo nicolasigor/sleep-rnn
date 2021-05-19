@@ -395,7 +395,58 @@ KC_MAX_DURATION = 'kc_max_duration'
 PREDICT_WITH_AUGMENTED_PAGE = 'predict_with_augmented_page'
 
 
-# Default parameters dictionary
+""" Default utility params 
+"""
+DEFAULT_BORDER_DURATION_V2_TIME = 2.60
+DEFAULT_BORDER_DURATION_V2_CWT = 4.91
+DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS = 1
+DEFAULT_INTA_POSTPROCESSING_PARAMS = {
+    SS_MIN_SEPARATION: 0.5,
+    SS_MIN_DURATION: 0.5,
+    SS_MAX_DURATION: 5.0,
+}
+DEFAULT_AUG_RANDOM_WAVES_PARAMS_SPINDLE = [
+    dict(
+        min_frequency=0.5, max_frequency=2, frequency_bandwidth=1, max_amplitude_microvolts=18,
+        min_duration=3, max_duration=5, mask=constants.MASK_NONE),
+    dict(
+        min_frequency=2, max_frequency=4, frequency_bandwidth=1, max_amplitude_microvolts=13,
+        min_duration=3, max_duration=5, mask=constants.MASK_NONE),
+    dict(
+        min_frequency=4, max_frequency=8, frequency_bandwidth=2, max_amplitude_microvolts=20,
+        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
+    dict(
+        min_frequency=7, max_frequency=10, frequency_bandwidth=2, max_amplitude_microvolts=12,
+        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
+]
+DEFAULT_AUG_RANDOM_WAVES_PARAMS_KCOMPLEX = [
+    dict(
+        min_frequency=11, max_frequency=16, frequency_bandwidth=2, max_amplitude_microvolts=10,
+        min_duration=1, max_duration=5, mask=constants.MASK_NONE),
+]
+DEFAULT_AUG_RANDOM_ANTI_WAVES_PARAMS_SPINDLE = [
+    dict(
+        lowcut=None, highcut=4, max_attenuation=0.5,
+        min_duration=3, max_duration=5, mask=constants.MASK_NONE),
+    dict(
+        lowcut=4, highcut=8, max_attenuation=1.0,
+        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_EVENTS),
+    dict(
+        lowcut=7, highcut=10, max_attenuation=1.0,
+        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_EVENTS),
+    dict(
+        lowcut=11, highcut=16, max_attenuation=1.0,
+        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
+]
+DEFAULT_AUG_RANDOM_ANTI_WAVES_PARAMS_KCOMPLEX = [
+    dict(
+        lowcut=11, highcut=16, max_attenuation=1.0,
+        min_duration=1, max_duration=5, mask=constants.MASK_NONE),
+]
+
+
+""" Default parameter dictionary 
+"""
 default_params = {
     # Input pipeline
     FS: 200,
@@ -406,13 +457,13 @@ default_params = {
     PAGE_DURATION: 20,
     BORDER_DURATION_CWT: 2.31,
     BORDER_DURATION_CONV: 0.6,
-    BORDER_DURATION: None,  # 2.60 for Time, 4.91 for CWT
+    BORDER_DURATION: None,
     AUG_INDEP_UNIFORM_NOISE_PROBA: 1.0,
-    AUG_INDEP_UNIFORM_NOISE_INTENSITY: None,  # 1uV / global_std
-    AUG_RANDOM_WAVES_PROBA: 0.0,  # TBD
-    AUG_RANDOM_WAVES_PARAMS: None,  # TBD
-    AUG_RANDOM_ANTI_WAVES_PROBA: 0.0,  # TBD
-    AUG_RANDOM_ANTI_WAVES_PARAMS: None,  # TBD
+    AUG_INDEP_UNIFORM_NOISE_INTENSITY: None,
+    AUG_RANDOM_WAVES_PROBA: 1.0,
+    AUG_RANDOM_WAVES_PARAMS: None,
+    AUG_RANDOM_ANTI_WAVES_PROBA: 1.0,
+    AUG_RANDOM_ANTI_WAVES_PARAMS: None,
     FORCED_SEPARATION_DURATION: 0,
     TOTAL_DOWNSAMPLING_FACTOR: 8,
     ALIGNED_DOWNSAMPLING: True,
@@ -468,9 +519,9 @@ default_params = {
     FACTOR_INIT_LR_FINE_TUNE: 0.5,
     # Inference
     PREDICT_WITH_AUGMENTED_PAGE: True,
-    SS_MIN_SEPARATION: 0.3,  # should be 0.5 for INTA-UCH
-    SS_MIN_DURATION: 0.3,  # should be 0.5 for INTA-UCH
-    SS_MAX_DURATION: 3.0,  # should be 5.0 for INTA-UCH
+    SS_MIN_SEPARATION: 0.3,
+    SS_MIN_DURATION: 0.3,
+    SS_MAX_DURATION: 3.0,
     KC_MIN_SEPARATION: None,
     KC_MIN_DURATION: 0.3,
     KC_MAX_DURATION: None,

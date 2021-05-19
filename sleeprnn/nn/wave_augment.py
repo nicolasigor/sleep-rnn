@@ -48,7 +48,7 @@ def random_smooth_function_tf(signal_size, function_min_val, function_max_val, l
 def lowpass_tf(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
-    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hamming", fs=fs).astype(np.float32)
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hann", fs=fs).astype(np.float32)
     lp_kernel /= lp_kernel.sum()
     new_signal = apply_fir_filter_tf(signal, lp_kernel)
     return new_signal
@@ -57,7 +57,7 @@ def lowpass_tf(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=
 def highpass_tf(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
-    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hamming", fs=fs).astype(np.float32)
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hann", fs=fs).astype(np.float32)
     lp_kernel /= lp_kernel.sum()
     # HP = delta - LP
     hp_kernel = -lp_kernel
@@ -101,7 +101,7 @@ def generate_wave_tf(
     max_amplitude,  # signal units
     min_frequency,  # [Hz]
     max_frequency,  # [Hz]
-    frequency_deviation,  # [Hz]
+    frequency_bandwidth,  # [Hz]
     min_duration,  # [s]
     max_duration,  # [s]
     mask,  # [0, 1]
@@ -114,9 +114,8 @@ def generate_wave_tf(
     frequency_lp_filter_size = int(fs * frequency_lp_filter_duration)
     amplitude_lp_filter_size = int(fs * amplitude_lp_filter_duration)
     # Oscillation
-    central_freq = tf.random.uniform([], minval=min_frequency, maxval=max_frequency)
-    lower_freq = central_freq - frequency_deviation
-    upper_freq = central_freq + frequency_deviation
+    lower_freq = tf.random.uniform([], minval=min_frequency, maxval=max_frequency - frequency_bandwidth)
+    upper_freq = lower_freq + frequency_bandwidth
     wave_freq = random_smooth_function_tf(signal_size, lower_freq, upper_freq, frequency_lp_filter_size)
     wave_phase = 2 * np.pi * tf.math.cumsum(wave_freq) / fs
     oscillation = tf.math.cos(wave_phase)
@@ -136,7 +135,7 @@ def generate_wave_tf(
 
 def generate_anti_wave_tf(
     signal,
-    signal_size, # number of samples
+    signal_size,  # number of samples
     fs,  # [Hz]
     lowcut,  # [Hz]
     highcut,  # [Hz]

@@ -49,14 +49,12 @@ def random_waves(
             constants.MASK_NONE: None,
         }
         feat_size = feat.get_shape().as_list()[0]
-        random_wave = 0
         for params_dict in params_dict_list:
             my_params = params_dict.copy()
             my_params["mask"] = mask_map_dict[params_dict["mask"]]
-            random_wave += wave_augment.generate_wave_tf(
-                feat_size, fs, **my_params)
-        new_feat = random_wave + feat
-    return new_feat
+            random_wave = wave_augment.generate_wave_tf(feat_size, fs, **my_params)
+            feat = random_wave + feat
+    return feat
 
 
 def random_anti_waves_wrapper(
@@ -94,14 +92,12 @@ def random_anti_waves(
             constants.MASK_NONE: None,
         }
         feat_size = feat.get_shape().as_list()[0]
-        random_anti_wave = 0
         for params_dict in params_dict_list:
             my_params = params_dict.copy()
             my_params["mask"] = mask_map_dict[params_dict["mask"]]
-            random_anti_wave += wave_augment.generate_anti_wave_tf(
-                feat + random_anti_wave, feat_size, fs, **my_params)
-        new_feat = random_anti_wave + feat
-    return new_feat
+            random_anti_wave = wave_augment.generate_anti_wave_tf(feat, feat_size, fs, **my_params)
+            feat = feat + random_anti_wave
+    return feat
 
 
 def false_spindles_single_contamination_wrapper(
