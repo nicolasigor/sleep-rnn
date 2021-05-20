@@ -107,6 +107,7 @@ def generate_wave_tf(
     mask,  # [0, 1]
     frequency_lp_filter_duration=0.5,  # [s]
     amplitude_lp_filter_duration=0.5,  # [s]
+    return_intermediate_steps=False
 ):
     # This is ok to be numpy
     window_min_size = int(fs * min_duration)
@@ -130,6 +131,10 @@ def generate_wave_tf(
     # Optional masking
     if mask is not None:
         generated_wave = generated_wave * mask
+    if return_intermediate_steps:
+        intermediate_steps = {
+            'oscillation': oscillation, 'amplitude': amplitude, 'window': window, 'mask': mask}
+        return generated_wave, intermediate_steps
     return generated_wave
 
 
@@ -142,7 +147,8 @@ def generate_anti_wave_tf(
     min_duration,  # [s]
     max_duration,  # [s]
     max_attenuation,  # [0, 1]
-    mask  # [0, 1]
+    mask,  # [0, 1]
+    return_intermediate_steps=False
 ):
     # This is ok to be numpy
     window_min_size = int(fs * min_duration)
@@ -157,6 +163,10 @@ def generate_anti_wave_tf(
     # Optional masking
     if mask is not None:
         generated_wave = generated_wave * mask
+    if return_intermediate_steps:
+        intermediate_steps = {
+            'oscillation': -oscillation, 'attenuation': -attenuation_factor, 'window': window, 'mask': mask}
+        return generated_wave, intermediate_steps
     return generated_wave
 
 
