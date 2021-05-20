@@ -124,7 +124,10 @@ class BaseModel(object):
             self.lr_updates = 0
 
         # Weight decay variable
-        wd_factor = self.params[pkeys.WEIGHT_DECAY_FACTOR]
+        if pkeys.WEIGHT_DECAY_FACTOR in self.params.keys():
+            wd_factor = self.params[pkeys.WEIGHT_DECAY_FACTOR]
+        else:
+            wd_factor = None
         if wd_factor is not None:
             with tf.variable_scope('weight_decay'):
                 # Has the same decay than learning rate

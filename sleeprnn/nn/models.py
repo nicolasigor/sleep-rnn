@@ -171,7 +171,8 @@ class WaveletBLSTM(BaseModel):
                iter_per_epoch,
                x_train_1.shape[0] + x_train_2.shape[0], niters_init, niters_anneal, total_iters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
-        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
+        if pkeys.WEIGHT_DECAY_FACTOR in self.params.keys():
+            print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
 
         if fine_tune:
             init_lr = self.params[pkeys.LEARNING_RATE]
@@ -303,7 +304,8 @@ class WaveletBLSTM(BaseModel):
                iter_per_epoch,
                x_train_1.shape[0] + x_train_2.shape[0], niters))
         print('Initial learning rate:', self.params[pkeys.LEARNING_RATE])
-        print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
+        if pkeys.WEIGHT_DECAY_FACTOR in self.params.keys():
+            print('Initial weight decay:', self.params[pkeys.WEIGHT_DECAY_FACTOR])
 
         if fine_tune:
             init_lr = self.params[pkeys.LEARNING_RATE]
