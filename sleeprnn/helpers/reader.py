@@ -10,7 +10,7 @@ from sleeprnn.data.mass_kc import MassKC
 from sleeprnn.data.mass_ss import MassSS
 from sleeprnn.data.moda_ss import ModaSS
 from sleeprnn.data.cap_full_ss import CapFullSS
-from sleeprnn.data.pink_signal import PinkSignal
+from sleeprnn.data.pink import Pink
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), '../..')
 RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
@@ -229,7 +229,7 @@ def load_dataset(dataset_name, load_checkpoint=True, params=None, verbose=True, 
         constants.MODA_SS_NAME: ModaSS,
         constants.INTA_SS_NAME: IntaSS,
         constants.CAP_FULL_SS_NAME: CapFullSS,
-        constants.PINK_NAME: PinkSignal
+        constants.PINK_NAME: Pink
     }
     dataset_class = name_to_class_map[dataset_name]
     dataset = dataset_class(load_checkpoint=load_checkpoint, params=params, verbose=verbose, **kwargs)

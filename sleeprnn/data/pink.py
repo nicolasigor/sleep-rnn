@@ -17,7 +17,7 @@ from .utils import apply_lowpass
 PATH_PINK_RELATIVE = 'pink'
 
 
-class PinkSignal(Dataset):
+class Pink(Dataset):
     def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         self.channel = 'artificial'
         self.n_signals = 50
@@ -33,7 +33,7 @@ class PinkSignal(Dataset):
         self.signal_standard_deviation = 16.7  # [mu V] adjusted in Mass-Train
 
         all_ids = np.arange(1, self.n_signals + 1).tolist()
-        super(PinkSignal, self).__init__(
+        super(Pink, self).__init__(
             dataset_dir=PATH_PINK_RELATIVE,
             load_checkpoint=load_checkpoint,
             dataset_name=constants.PINK_NAME,
