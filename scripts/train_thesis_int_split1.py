@@ -40,16 +40,16 @@ if __name__ == '__main__':
     # Datasets
     dataset_configs = [
         # Internal, independent test
-        {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
-        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
-        {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        # {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
+        # {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
         # External test
-        {'name': constants.INTA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
-        {'name': constants.MODA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.INTA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.MODA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
         # Internal, not independent test
-        # {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
-        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
-        # {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
+        {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
     ]
 
     # Models
