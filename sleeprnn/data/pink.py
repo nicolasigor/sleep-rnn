@@ -4,15 +4,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import time
 
 import numpy as np
+from scipy.interpolate import interp1d
 
 from sleeprnn.common import constants
 from .dataset import Dataset
 from .dataset import KEY_EEG, KEY_MARKS
 from .dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
-from .utils import apply_lowpass
+from . import utils
 
 PATH_PINK_RELATIVE = 'pink'
 
@@ -25,12 +27,9 @@ class Pink(Dataset):
         self.unknown_id = '?'
         # Generation parameters
         self.signal_duration = 3 * 3600 + 2 * 20  # 3 hours of useful signal + 1 page at borders
-        self.decay_exponent = 1.14  # adjusted in Mass-Train
-        self.min_frequency = 1  # [Hz]
-        self.max_frequency = 29  # [Hz]
-        self.frequency_step = 2  # [Hz]
-        self.filter_zero_padding = 10  # [s] removed after generation
-        self.signal_standard_deviation = 16.7  # [mu V] adjusted in Mass-Train
+        self.power_matching_highcut = 8  # [Hz]
+        self.power_matching_target_value = 0.7286483227138594
+        self.spectrum_profile_fn = self._get_profile_fn()
 
         all_ids = np.arange(1, self.n_signals + 1).tolist()
         super(Pink, self).__init__(
@@ -54,7 +53,7 @@ class Pink(Dataset):
         start = time.time()
         for i, subject_id in enumerate(self.all_ids):
             print("\nGenerating pink noise ID %s" % subject_id)
-            signal = self._generate_pink_noise(subject_id)
+            signal = self._generate_signal(subject_id)
             hypnogram = [self.unknown_id] + (n_pages - 2) * [self.n2_id] + [self.unknown_id]
             hypnogram = np.asarray(hypnogram)
             n2_pages = np.where(hypnogram == self.n2_id)[0].astype(np.int16)
@@ -77,29 +76,33 @@ class Pink(Dataset):
         print('%d records have been read.' % len(data))
         return data
 
-    def _generate_pink_noise(self, seed):
-        border_size = int(self.filter_zero_padding * self.fs)
-        signal_size = int(self.signal_duration * self.fs)
-        extended_size = signal_size + 2 * border_size
-        gauss_noise = np.random.RandomState(seed=seed).normal(size=extended_size)
-        n_cutoffs = int(np.floor((self.max_frequency - self.min_frequency) / self.frequency_step))
-        pink_noise = np.zeros(signal_size)
-        for i in range(n_cutoffs + 1):
-            cutoff = self.min_frequency + i * self.frequency_step
-            narrow_band = apply_lowpass(gauss_noise, self.fs, cutoff)  # (past_f_low, f_low)
-            gauss_noise -= narrow_band  # [f_low, fs/2]
-            if i > 0:
-                narrow_band = narrow_band[border_size:-border_size]
-                # Normalize band
-                mean = narrow_band.mean()
-                std = narrow_band.std()
-                narrow_band = (narrow_band - mean) / std
-                band_central_frequency = cutoff - self.frequency_step / 2
-                narrow_band *= band_central_frequency ** (-self.decay_exponent)
-                pink_noise += narrow_band
-        mean = pink_noise.mean()
-        std = pink_noise.std()
-        pink_noise = (pink_noise - mean) / std
-        pink_noise *= self.signal_standard_deviation
-        pink_noise = pink_noise.astype(np.float32)
-        return pink_noise
+    def _get_profile_fn(self):
+        pink_profile = np.load(os.path.join(
+            utils.PATH_DATA, PATH_PINK_RELATIVE, "pink_profile.npy"
+        ))
+        profile_fn = interp1d(pink_profile[0], pink_profile[1])
+        return profile_fn
+
+    def _generate_signal(self, seed):
+        # Base noise
+        n_samples = int(self.signal_duration * self.fs)
+        x = np.random.RandomState(seed=seed).normal(size=n_samples)
+        # Scale the FFT spectrum
+        y = np.fft.rfft(x)
+        freq_gen = np.fft.rfftfreq(x.size, d=1. / self.fs)
+        scaling = self.spectrum_profile_fn(freq_gen)
+        y = y * scaling
+        # Return to time domain and normalize
+        x = np.fft.irfft(y)
+        x = x - x.mean()
+        x = x / x.std()
+        # Filter to desired band
+        x = utils.broad_filter(x, self.fs)
+        # Scale to target amplitude
+        f, p = utils.power_spectrum_by_sliding_window(x, self.fs)
+        power_in_band = p[f <= self.power_matching_highcut].mean()
+        correction_factor = self.power_matching_target_value / power_in_band
+        x = x * correction_factor
+        # Cast to desired type
+        x = x.astype(np.float32)
+        return x

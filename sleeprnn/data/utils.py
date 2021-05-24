@@ -376,6 +376,20 @@ def power_spectrum(signal, fs, apply_hanning=False):
     return power, freq
 
 
+def power_spectrum_by_sliding_window(x, fs, window_duration=5):
+    """Computes FFT in non-overlapping windows, then averages.
+    It assumes 1D input.
+    """
+    window_size = int(fs * window_duration)
+    x = x.reshape(-1, window_size)
+    window_shape = np.hanning(window_size).reshape(1, -1)
+    x = x * window_shape
+    y = np.fft.rfft(x, axis=1) / window_size
+    y = np.abs(y).mean(axis=0)
+    f = np.fft.rfftfreq(window_size, d=1. / fs)
+    return f, y
+
+
 def extract_pages_from_centers(sequence, centers, page_size, border_size=0):
     """Extracts and returns the pages centered at the given set of centers
     from the sequence, with zero padding if the extracted segment is beyond the limits
