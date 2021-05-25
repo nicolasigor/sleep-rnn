@@ -22,9 +22,9 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == "__main__":
-    save_figs = True
+    save_figs = False
 
-    ckpt_folder_prefix = ''
+    ckpt_folder_prefix = '20210520_thesis_ablation_5fold-cv_exp1'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     load_dataset_from_ckpt = True
 
     # Evaluation settings
-    evaluation_set = constants.VAL_SUBSET
+    evaluation_set = constants.TEST_SUBSET
     average_mode = constants.MACRO_AVERAGE
     iou_threshold_report = 0.2
 
@@ -49,8 +49,8 @@ if __name__ == "__main__":
     general_fontsize = 9
     marker_size = 7
     marker_alpha = 0.8  # 1.0, 0.6 if too crowded
-    fold_monocolor = False
-    show_fold_id = True
+    fold_monocolor = True
+    show_fold_id = False
     show_grid = True
     show_mean = True
     show_quadrants = True

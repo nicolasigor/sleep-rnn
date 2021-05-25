@@ -1,0 +1,22 @@
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss
+AF1 66.01/1.85 [0.5] 67.04/1.67 [0.42, 0.42, 0.36, 0.42, 0.44], F 79.93/0.83, P 75.8/ 8.6, R 86.3/ 8.0 for v2-time_cv2_loss-soft_wave1
+AF1 67.11/1.79 [0.5] 67.03/1.75 [0.52, 0.50, 0.46, 0.42, 0.50], F 79.77/0.82, P 77.7/ 9.3, R 83.9/ 9.2 for v2-time_cv2_loss-xent_wave0
+AF1 65.82/0.96 [0.5] 66.93/1.73 [0.38, 0.42, 0.40, 0.48, 0.42], F 79.90/2.01, P 77.5/ 9.3, R 84.7/ 9.8 for v2-time_cv1_loss-soft_wave1
+AF1 66.62/3.61 [0.5] 66.87/3.55 [0.46, 0.40, 0.52, 0.50, 0.50], F 79.75/3.37, P 77.4/ 9.5, R 84.1/ 8.3 for v2-time_cv0_loss-xent_wave0
+AF1 65.17/1.63 [0.5] 66.55/1.65 [0.42, 0.44, 0.40, 0.40, 0.38], F 79.49/1.16, P 77.0/ 9.9, R 84.6/10.6 for v2-time_cv2_loss-soft_wave0
+AF1 66.64/1.47 [0.5] 66.18/1.57 [0.28, 0.46, 0.52, 0.52, 0.50], F 78.94/1.80, P 78.1/10.8, R 82.8/11.3 for v2-time_cv1_loss-xent_wave0
+AF1 65.00/4.04 [0.5] 66.00/4.13 [0.40, 0.42, 0.44, 0.38, 0.42], F 79.06/3.61, P 76.7/ 9.6, R 83.9/10.1 for v2-time_cv0_loss-soft_wave1
+AF1 64.71/4.86 [0.5] 65.74/4.92 [0.38, 0.44, 0.40, 0.42, 0.42], F 78.91/4.65, P 76.2/10.4, R 84.5/10.5 for v2-time_cv0_loss-soft_wave0
+AF1 64.68/3.00 [0.5] 65.43/1.48 [0.38, 0.40, 0.48, 0.40, 0.38], F 78.44/1.99, P 76.6/10.0, R 83.2/11.7 for v2-time_cv1_loss-soft_wave0
+
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv2_loss-soft_wave1'): [0.42, 0.42, 0.36, 0.42, 0.44],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv2_loss-xent_wave0'): [0.52, 0.50, 0.46, 0.42, 0.50],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv1_loss-soft_wave1'): [0.38, 0.42, 0.40, 0.48, 0.42],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv0_loss-xent_wave0'): [0.46, 0.40, 0.52, 0.50, 0.50],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv2_loss-soft_wave0'): [0.42, 0.44, 0.40, 0.40, 0.38],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv1_loss-xent_wave0'): [0.28, 0.46, 0.52, 0.52, 0.50],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv0_loss-soft_wave1'): [0.40, 0.42, 0.44, 0.38, 0.42],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv0_loss-soft_wave0'): [0.38, 0.44, 0.40, 0.42, 0.42],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv1_loss-soft_wave0'): [0.38, 0.40, 0.48, 0.40, 0.38],
+
+

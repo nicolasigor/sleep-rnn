@@ -22,9 +22,9 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == "__main__":
-    save_figs = True
+    save_figs = False
 
-    ckpt_folder_prefix = '20210420_val_usage_5fold-cv_exp1'
+    ckpt_folder_prefix = '20210520_thesis_ablation_5fold-cv_exp1'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     show_subject_id = True
     group_by_subject = False
     subject_to_highlight = []  # inta [2, 7, 10], others []
-    fold_monocolor = False
-    show_fold_id = True
+    fold_monocolor = True
+    show_fold_id = False
     show_grid = True
     show_mean = True
     show_quadrants = True

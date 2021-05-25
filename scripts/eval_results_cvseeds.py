@@ -50,9 +50,9 @@ def group_by_model(parsed_reports, metric):
 
 
 if __name__ == "__main__":
-    model_loc = 0
+    model_loc = 2
     cv_seed_loc = 1
-    metric = 'r_mean'
+    metric = 'p_std'
     larger_is_better = True
     sort_by_value = False
 

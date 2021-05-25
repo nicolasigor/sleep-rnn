@@ -384,6 +384,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.1_pos+0'): [0.50, 0.48, 0.50, 0.48, 0.50],
     os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.2_pos+0'): [0.46, 0.50, 0.48, 0.48, 0.50],
     os.path.join('20210427_focal1_5fold-cv_exp1_n2_train_mass_ss', 'v43_cv0_eps-2_width0.3_pos+0'): [0.48, 0.50, 0.46, 0.46, 0.48],
+    
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-xent_wave0'): [0.46, 0.40, 0.52, 0.50, 0.50, 0.28, 0.46, 0.52, 0.52, 0.50, 0.52, 0.50, 0.46, 0.42, 0.50],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave1'): [0.40, 0.42, 0.44, 0.38, 0.42, 0.38, 0.42, 0.40, 0.48, 0.42, 0.42, 0.42, 0.36, 0.42, 0.44],
+    os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave0'): [0.38, 0.44, 0.40, 0.42, 0.42, 0.38, 0.40, 0.48, 0.40, 0.38, 0.42, 0.44, 0.40, 0.40, 0.38],
+    
 }
 
 

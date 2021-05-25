@@ -35,21 +35,21 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
-    experiment_name_base = '%s_thesis_int' % this_date
+    experiment_name_base = '%s_thesis_int_v2' % this_date
 
     # Datasets
     dataset_configs = [
         # Internal, independent test
-        # {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
-        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
-        # {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
         # External test
         # {'name': constants.INTA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
         # {'name': constants.MODA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
         # Internal, not independent test
-        {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
-        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
-        {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
     ]
 
     # Models
@@ -110,6 +110,13 @@ if __name__ == '__main__':
         print("Unique subjects %d, unique counts %s" % (values.size, counts_unique))
 
         for fold_id in range(len(train_ids_list)):
+
+            # ##################################
+            # Skip some folds to split the run
+            if fold_id > 5:
+                continue
+            # ##################################
+
             print("\nStarting evaluation of partition %d (%d/%d)" % (fold_id, fold_id+1, len(train_ids_list)))
             train_ids = train_ids_list[fold_id]
             val_ids = val_ids_list[fold_id]
@@ -134,6 +141,12 @@ if __name__ == '__main__':
             base_params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS] = da_random_antiwaves
             if dataset_name == constants.INTA_SS_NAME:
                 base_params.update(pkeys.DEFAULT_INTA_POSTPROCESSING_PARAMS)
+
+            # ##################################
+            # Overwrite to test regular xentropy
+            base_params[pkeys.SOFT_FOCAL_EPSILON] = 1.0
+            base_params[pkeys.CLASS_WEIGHTS] = [1.0, 1.0]
+            # ##################################
 
             # Run models
             for model_config in model_configs:
