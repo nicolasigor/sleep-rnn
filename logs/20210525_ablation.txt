@@ -20,3 +20,10 @@ AF1 64.68/3.00 [0.5] 65.43/1.48 [0.38, 0.40, 0.48, 0.40, 0.38], F 78.44/1.99, P 
     os.path.join('20210520_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_cv1_loss-soft_wave0'): [0.38, 0.40, 0.48, 0.40, 0.38],
 
 
+Option xent-wave1
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210525_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss
+AF1 66.21/3.15 [0.5] 66.40/2.87 [0.40, 0.50, 0.52, 0.46, 0.54, 0.50, 0.50, 0.56, 0.42, 0.52, 0.48, 0.48, 0.36, 0.44, 0.50], F 79.02/2.65, P 76.9/10.1, R 83.9/10.4 for v2_time_loss-xent_wave1
+
+    os.path.join('20210525_thesis_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-xent_wave1'): [0.40, 0.50, 0.52, 0.46, 0.54, 0.50, 0.50, 0.56, 0.42, 0.52, 0.48, 0.48, 0.36, 0.44, 0.50],
+

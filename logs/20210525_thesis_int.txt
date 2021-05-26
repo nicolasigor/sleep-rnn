@@ -69,3 +69,27 @@ AF1 74.60/1.60 [0.5] 75.29/1.43 [0.40, 0.46, 0.46, 0.46, 0.40, 0.38, 0.42, 0.42,
     os.path.join('20210521_thesis_int_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.40, 0.46, 0.46, 0.46, 0.40, 0.38, 0.42, 0.42, 0.40, 0.44, 0.38, 0.44, 0.44, 0.44, 0.46],
 
 
+
+
+
+XENTROPY LOSS:
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210525_thesis_int_v2_fixed_e1_n2_train_mass_ss
+AF1 68.27/0.49 [0.5] 68.46/0.44 [0.56, 0.48, 0.38, 0.48, 0.58, 0.52, 0.42, 0.48, 0.46, 0.50, 0.44], F 80.98/0.35, P 78.9/ 6.6, R 84.1/ 6.7 for v2_time
+
+    os.path.join('20210525_thesis_int_v2_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.56, 0.48, 0.38, 0.48, 0.58, 0.52, 0.42, 0.48, 0.46, 0.50, 0.44],
+
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210525_thesis_int_v2_fixed_e2_n2_train_mass_ss
+AF1 66.28/0.42 [0.5] 66.42/0.28 [0.50, 0.46, 0.48, 0.60, 0.46, 0.50, 0.46, 0.52, 0.48, 0.52, 0.52], F 85.14/0.27, P 86.6/ 4.7, R 84.6/ 9.0 for v2_time
+
+    os.path.join('20210525_thesis_int_v2_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.50, 0.46, 0.48, 0.60, 0.46, 0.50, 0.46, 0.52, 0.48, 0.52, 0.52],
+    
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210525_thesis_int_v2_fixed_e1_n2_train_mass_kc
+AF1 75.56/0.37 [0.5] 75.53/0.34 [0.52, 0.48, 0.52, 0.60, 0.52, 0.50, 0.50, 0.50, 0.50, 0.48, 0.48], F 83.23/0.31, P 85.5/ 5.4, R 81.9/ 8.0 for v2_time
+
+    os.path.join('20210525_thesis_int_v2_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.52, 0.48, 0.52, 0.60, 0.52, 0.50, 0.50, 0.50, 0.50, 0.48, 0.48],
+
+
+
+
