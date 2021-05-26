@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = 'thesis_ablation_%dfold-cv_exp%d' % (n_folds, which_expert)
+    experiment_name = 'wave_ablation_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     verbose = True
@@ -45,17 +45,14 @@ if __name__ == '__main__':
     experiment_name = '%s_%s' % (this_date, experiment_name)
 
     # Grid parameters
-    model_version_list = [
-        constants.V2_TIME
-    ]
-    cv_seed_list = [
-        0, 1, 2
-    ]
-    loss_augment_list = [
-        ('xent', 1),
-    ]
+    model_version_list = [constants.V2_TIME]
+    cv_seed_list = [0]
+    wave_fast_delta_list = [False]
+    antiwave_fast_delta_list = [True, False]
+    antiwave_sigma_list = [True, False]
+
     params_list = list(itertools.product(
-        model_version_list, loss_augment_list
+        model_version_list, wave_fast_delta_list, antiwave_fast_delta_list, antiwave_sigma_list
     ))
 
     base_params = pkeys.default_params.copy()
@@ -99,27 +96,33 @@ if __name__ == '__main__':
             for da_id in range(len(da_random_waves)):
                 da_random_waves[da_id]['max_amplitude'] = da_random_waves[da_id]['max_amplitude_microvolts'] / dataset.global_std
                 da_random_waves[da_id].pop('max_amplitude_microvolts')
-            base_params[pkeys.AUG_RANDOM_WAVES_PARAMS] = da_random_waves
-            base_params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS] = da_random_antiwaves
             if dataset_name == constants.INTA_SS_NAME:
                 base_params.update(pkeys.DEFAULT_INTA_POSTPROCESSING_PARAMS)
+            base_params[pkeys.AUG_RANDOM_WAVES_PROBA] = 1
+            base_params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA] = 1
             # Run CV
-            for model_version, loss_augment in params_list:
+            for model_version, wave_fast_delta, antiwave_fast_delta, antiwave_sigma in params_list:
                 # Now set parameters for this run
-                loss_name = loss_augment[0]
-                wave_augment_proba = loss_augment[1]
                 params = copy.deepcopy(base_params)
                 params[pkeys.MODEL_VERSION] = model_version
-                params[pkeys.AUG_RANDOM_WAVES_PROBA] = wave_augment_proba
-                params[pkeys.AUG_RANDOM_ANTI_WAVES_PROBA] = wave_augment_proba
-                if loss_name == 'xent':
-                    params[pkeys.SOFT_FOCAL_EPSILON] = 1.0
-                    params[pkeys.CLASS_WEIGHTS] = [1.0, 1.0]
 
-                folder_name = '%s_loss-%s_wave%d' % (
+                run_da_random_waves = copy.deepcopy(da_random_waves)
+                run_da_random_antiwaves = copy.deepcopy(da_random_antiwaves)
+                if not wave_fast_delta:
+                    run_da_random_waves.pop(1)
+                if not antiwave_fast_delta:
+                    run_da_random_antiwaves[0]['highcut'] = 2
+                if not antiwave_sigma:
+                    run_da_random_antiwaves.pop(3)
+
+                params[pkeys.AUG_RANDOM_WAVES_PARAMS] = run_da_random_waves
+                params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS] = run_da_random_antiwaves
+
+                folder_name = '%s_wfd%d_awfd%d_aws%d' % (
                     model_version,
-                    loss_name,
-                    wave_augment_proba
+                    wave_fast_delta,
+                    antiwave_fast_delta,
+                    antiwave_sigma
                 )
 
                 base_dir = os.path.join(
