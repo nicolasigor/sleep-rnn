@@ -395,6 +395,14 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210525_thesis_int_v2_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.56, 0.48, 0.38, 0.48, 0.58, 0.52, 0.42, 0.48, 0.46, 0.50, 0.44],
     os.path.join('20210525_thesis_int_v2_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.52, 0.48, 0.52, 0.60, 0.52, 0.50, 0.50, 0.50, 0.50, 0.48, 0.48],
     
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd1_awfd1_aws1'): [0.42, 0.42, 0.38, 0.38, 0.42],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd1_awfd0_aws1'): [0.42, 0.36, 0.40, 0.40, 0.50],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd1_awfd1_aws0'): [0.44, 0.38, 0.44, 0.38, 0.50],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd0_awfd0_aws0'): [0.42, 0.36, 0.36, 0.40, 0.42],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd0_awfd1_aws1'): [0.44, 0.42, 0.44, 0.46, 0.42],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd0_awfd1_aws0'): [0.38, 0.34, 0.42, 0.36, 0.40],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd1_awfd0_aws0'): [0.38, 0.40, 0.42, 0.38, 0.36],
+    os.path.join('20210526_wave_ablation_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_wfd0_awfd0_aws1'): [0.44, 0.38, 0.40, 0.38, 0.44],
     
     
     
