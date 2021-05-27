@@ -409,9 +409,9 @@ DEFAULT_AUG_RANDOM_WAVES_PARAMS_SPINDLE = [
     dict(
         min_frequency=0.5, max_frequency=2, frequency_bandwidth=1, max_amplitude_microvolts=18,
         min_duration=3, max_duration=5, mask=constants.MASK_NONE),
-    dict(
-        min_frequency=2, max_frequency=4, frequency_bandwidth=1, max_amplitude_microvolts=13,
-        min_duration=3, max_duration=5, mask=constants.MASK_NONE),
+    # dict(
+    #     min_frequency=2, max_frequency=4, frequency_bandwidth=1, max_amplitude_microvolts=13,
+    #     min_duration=3, max_duration=5, mask=constants.MASK_NONE),
     dict(
         min_frequency=4, max_frequency=8, frequency_bandwidth=2, max_amplitude_microvolts=20,
         min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
@@ -426,7 +426,7 @@ DEFAULT_AUG_RANDOM_WAVES_PARAMS_KCOMPLEX = [
 ]
 DEFAULT_AUG_RANDOM_ANTI_WAVES_PARAMS_SPINDLE = [
     dict(
-        lowcut=None, highcut=4, max_attenuation=0.5,
+        lowcut=None, highcut=2, max_attenuation=0.5,
         min_duration=3, max_duration=5, mask=constants.MASK_NONE),
     dict(
         lowcut=4, highcut=8, max_attenuation=1.0,
@@ -434,9 +434,9 @@ DEFAULT_AUG_RANDOM_ANTI_WAVES_PARAMS_SPINDLE = [
     dict(
         lowcut=7, highcut=10, max_attenuation=1.0,
         min_duration=1, max_duration=5, mask=constants.MASK_KEEP_EVENTS),
-    dict(
-        lowcut=11, highcut=16, max_attenuation=1.0,
-        min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
+    # dict(
+    #     lowcut=11, highcut=16, max_attenuation=1.0,
+    #     min_duration=1, max_duration=5, mask=constants.MASK_KEEP_BACKGROUND),
 ]
 DEFAULT_AUG_RANDOM_ANTI_WAVES_PARAMS_KCOMPLEX = [
     dict(

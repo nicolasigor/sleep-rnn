@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # ----- Experiment settings
     this_date = datetime.datetime.now().strftime("%Y%m%d")
-    experiment_name = 'thesis_ablation_%dfold-cv_exp%d' % (n_folds, which_expert)
+    experiment_name = 'thesis_ablation_v3_%dfold-cv_exp%d' % (n_folds, which_expert)
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     verbose = True
@@ -49,10 +49,13 @@ if __name__ == '__main__':
         constants.V2_TIME
     ]
     cv_seed_list = [
-        0,
+        0, 1, 2
     ]
     loss_augment_list = [
-        ('soft', 1),
+        ('xent', 0),
+        # ('xent', 1),
+        # ('soft', 0),
+        # ('soft', 1),
     ]
     params_list = list(itertools.product(
         model_version_list, loss_augment_list
