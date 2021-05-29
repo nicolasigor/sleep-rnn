@@ -18,6 +18,7 @@ from sleeprnn.data import utils, stamp_correction
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
 from sleeprnn.common import constants, pkeys
+from . import butils
 
 BASELINE_PATH = os.path.abspath(os.path.join(project_root, '../sleep_baselines/2019_lacourse_a7'))
 
@@ -32,14 +33,7 @@ def get_settings(parent_dir):
     return settings
 
 
-def get_marks(
-        subject_id,
-        setting,
-        min_separation=None,
-        min_duration=None,
-        max_duration=None,
-        pages_subset=constants.N2_RECORD
-):
+def get_marks(subject_id, setting):
     filepath = os.path.join(
         pred_folder,
         's%s' % subject_id,
@@ -49,66 +43,32 @@ def get_marks(
     start_samples = pred_data.start_sample.values - 1
     end_samples = pred_data.end_sample.values - 1
     pred_marks = np.stack([start_samples, end_samples], axis=1)
-    # Valid subset of marks
-    n2_pages = dataset.get_subject_pages(subject_id, pages_subset=pages_subset)
-    pred_marks_n2 = utils.extract_pages_for_stamps(pred_marks, n2_pages, dataset.page_size)
-    # Postprocessing
-    pred_marks_n2 = stamp_correction.combine_close_stamps(
-        pred_marks_n2, dataset.fs, min_separation=min_separation)
-    pred_marks_n2 = stamp_correction.filter_duration_stamps(
-        pred_marks_n2, dataset.fs, min_duration=min_duration, max_duration=max_duration)
-    pred_marks_n2 = pred_marks_n2.astype(np.int32)
+
+    pred_marks_n2 = butils.postprocess_marks(dataset, pred_marks, subject_id)
     return pred_marks_n2
 
 
-def get_prediction_dict(
-        settings,
-        min_separation=None,
-        min_duration=None,
-        max_duration=None,
-):
+def get_prediction_dict(settings):
     pred_dict = {}
     for setting in settings:
         pred_dict[setting] = {}
         for subject_id in dataset.all_ids:
-            predicted = get_marks(
-                subject_id, setting,
-                min_separation=min_separation, min_duration=min_duration, max_duration=max_duration)
+            predicted = get_marks(subject_id, setting)
             pred_dict[setting][subject_id] = predicted
     return pred_dict
 
 
-def get_partitions(strategy, n_seeds):
-    train_ids_list = []
-    val_ids_list = []
-    test_ids_list = []
-    if strategy == 'fixed':
-        for fold_id in range(n_seeds):
-            train_ids, val_ids = utils.split_ids_list_v2(dataset.train_ids, split_id=fold_id)
-            train_ids_list.append(train_ids)
-            val_ids_list.append(val_ids)
-            test_ids_list.append(dataset.test_ids)
-    elif strategy == '5cv':
-        for cv_seed in range(n_seeds):
-            for fold_id in range(5):
-                train_ids, val_ids, test_ids = dataset.cv_split(5, fold_id, cv_seed)
-                train_ids_list.append(train_ids)
-                val_ids_list.append(val_ids)
-                test_ids_list.append(test_ids)
-    else:
-        raise ValueError
-    return train_ids_list, val_ids_list, test_ids_list
-
-
 if __name__ == '__main__':
+
+    # TODO: abstract stuff to make it common to spinky and dosed
+    # TODO: generate json with maps of partition -> setting, useful to generate final prediction files
+    # TODO: generate script for final npz prediction files (indataset and crossdataset), to simplify results
+
     # Dataset evaluation settings
     dataset_name = constants.INTA_SS_NAME
     which_expert = 1
     strategy = '5cv'
     n_seeds = 3
-    min_separation = 0.5
-    min_duration = 0.5
-    max_duration = 5.0
     average_mode = constants.MACRO_AVERAGE
     iou_threshold_report = 0.2
 
@@ -121,8 +81,7 @@ if __name__ == '__main__':
     pred_folder = os.path.join(BASELINE_PATH, 'output_thesis_%s' % dataset_name.split("_")[0])
     print('Loading predictions from %s' % pred_folder, flush=True)
     settings = get_settings(pred_folder)
-    pred_dict = get_prediction_dict(
-        settings, min_separation=min_separation, min_duration=min_duration, max_duration=max_duration)
+    pred_dict = get_prediction_dict(settings)
 
     # Evaluation
     average_metric_fn_dict = {
@@ -131,7 +90,7 @@ if __name__ == '__main__':
     metric_vs_iou_fn_dict = {
         constants.MACRO_AVERAGE: metrics.metric_vs_iou_macro_average,
         constants.MICRO_AVERAGE: metrics.metric_vs_iou_micro_average}
-    train_ids_list, _, test_ids_list = get_partitions(strategy, n_seeds)
+    train_ids_list, _, test_ids_list = butils.get_partitions(dataset, strategy, n_seeds)
     n_folds = len(train_ids_list)
     # Fitting
     fitted_setting_dict = {}

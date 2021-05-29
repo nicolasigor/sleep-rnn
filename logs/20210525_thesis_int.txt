@@ -93,3 +93,41 @@ AF1 75.56/0.37 [0.5] 75.53/0.34 [0.52, 0.48, 0.52, 0.60, 0.52, 0.50, 0.50, 0.50,
 
 
 
+
+
+
+
+XENTROPY LOSS WITH ADJUSTED WAVE AUGMENT CONFIG:
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210528_thesis_int_v3_fixed_e1_n2_train_mass_ss
+AF1 68.73/0.37 [0.5] 68.65/0.40 [0.46, 0.52, 0.44, 0.50, 0.48, 0.50, 0.40, 0.48, 0.48, 0.46, 0.44], F 80.98/0.37, P 79.3/ 6.9, R 83.7/ 7.2 for v2_time
+
+    os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.46, 0.52, 0.44, 0.50, 0.48, 0.50, 0.40, 0.48, 0.48, 0.46, 0.44],
+
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210528_thesis_int_v3_fixed_e2_n2_train_mass_ss
+AF1 66.30/0.58 [0.5] 66.43/0.52 [0.48, 0.46, 0.50, 0.52, 0.44, 0.48, 0.46, 0.44, 0.48, 0.48, 0.40], F 85.08/0.54, P 86.5/ 4.9, R 84.5/ 9.0 for v2_time
+
+    os.path.join('20210528_thesis_int_v3_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.50, 0.52, 0.44, 0.48, 0.46, 0.44, 0.48, 0.48, 0.40],
+
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc
+AF1 75.54/0.42 [0.5] 75.59/0.35 [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50], F 83.26/0.38, P 85.0/ 5.6, R 82.4/ 8.1 for v2_time
+
+    os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
