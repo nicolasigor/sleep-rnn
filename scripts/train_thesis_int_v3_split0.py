@@ -35,7 +35,7 @@ if __name__ == '__main__':
     this_date = datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
-    experiment_name_base = '%s_thesis_int_v2' % this_date
+    experiment_name_base = '%s_thesis_int_v3' % this_date
 
     # Datasets
     dataset_configs = [
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
             # ##################################
             # Skip some folds to split the run
-            if not(fold_id > 5):
+            if fold_id > 5:
                 continue
             # ##################################
 
@@ -141,12 +141,6 @@ if __name__ == '__main__':
             base_params[pkeys.AUG_RANDOM_ANTI_WAVES_PARAMS] = da_random_antiwaves
             if dataset_name == constants.INTA_SS_NAME:
                 base_params.update(pkeys.DEFAULT_INTA_POSTPROCESSING_PARAMS)
-
-            # ##################################
-            # Overwrite to test regular xentropy
-            base_params[pkeys.SOFT_FOCAL_EPSILON] = 1.0
-            base_params[pkeys.CLASS_WEIGHTS] = [1.0, 1.0]
-            # ##################################
 
             # Run models
             for model_config in model_configs:

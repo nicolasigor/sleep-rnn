@@ -495,9 +495,9 @@ default_params = {
     INIT_POSITIVE_PROBA: 0.1,
     # Loss
     TYPE_LOSS: constants.MASKED_SOFT_FOCAL_LOSS,
-    SOFT_FOCAL_GAMMA: 2.5,
-    SOFT_FOCAL_EPSILON: 0.5,
-    CLASS_WEIGHTS: [1.0, 0.5],
+    SOFT_FOCAL_GAMMA: 0.0,  # 2.5,
+    SOFT_FOCAL_EPSILON: 1.0,  # 0.5,
+    CLASS_WEIGHTS: [1.0, 1.0],  # [1.0, 0.5],
     # Optimization
     BATCH_SIZE: 32,
     TYPE_OPTIMIZER: constants.ADAM_OPTIMIZER,

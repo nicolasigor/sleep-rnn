@@ -24,7 +24,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 if __name__ == "__main__":
     save_figs = False
 
-    ckpt_folder_prefix = '20210520_thesis_ablation_5fold-cv_exp1'
+    ckpt_folder_prefix = '20210527_thesis_ablation_v3_5fold-cv_exp1'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
