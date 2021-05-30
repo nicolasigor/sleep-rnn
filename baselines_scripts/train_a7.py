@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import json
 import os
+from pprint import pprint
 import sys
 
 import numpy as np
@@ -14,7 +15,7 @@ sys.path.append(project_root)
 
 from baselines_scripts import butils
 from sleeprnn.helpers import reader
-from sleeprnn.common import constants
+from sleeprnn.common import constants, pkeys
 
 BASELINE_FOLDER = '2019_lacourse_a7'
 BASELINES_DATA_PATH = os.path.abspath(os.path.join(project_root, '../sleep_baselines'))
@@ -40,34 +41,46 @@ if __name__ == '__main__':
 
     # TODO: generate script for final npz prediction files (indataset and crossdataset), to simplify results
 
+    save_fitting = False
+
     # Dataset training settings
+    fs = 100
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
     strategy = 'fixed'  # {'fixed' or '5cv'}
-    n_seeds = 11
+    n_seeds = 10
     average_mode = constants.MACRO_AVERAGE
     iou_threshold_report = 0.2
 
     # ------------------------------------------------------
 
     # Load dataset
-    dataset = reader.load_dataset(dataset_name, verbose=False)
+    dataset = reader.load_dataset(dataset_name, verbose=True, params={pkeys.FS: fs})
     # Predictions
     pred_dir = os.path.join(BASELINES_DATA_PATH, BASELINE_FOLDER, 'output_thesis_%s' % dataset_name.split("_")[0])
     print('Loading predictions from %s' % pred_dir, flush=True)
     settings = butils.get_settings(pred_dir, extract_setting)
+
+    # print("\nForcing previous best settings to sanity check")
+    # settings = [
+    #     s for s in settings
+    #     if 'relSigPow(1.5)' in s
+    #        and 'absSigPow(1.25)' in s
+    # ]
+    # pprint(settings)
+    # print("")
 
     pred_dict = butils.get_prediction_dict(dataset, pred_dir, settings, get_raw_marks)
     train_ids_list, _, test_ids_list = butils.get_partitions(dataset, strategy, n_seeds)
     fitted_setting_dict = butils.train_grid(dataset, which_expert, train_ids_list, pred_dict, average_mode)
     fit_id = "%s_e%d" % (dataset_name, which_expert)
 
-    # Save training
-    fitting_save_dir = os.path.join(BASELINES_SAVE_PATH, BASELINE_FOLDER)
-    os.makedirs(fitting_save_dir, exist_ok=True)
-    fname = os.path.join(fitting_save_dir, 'fitted_%s.json' % fit_id)
-    with open(fname, 'w') as outfile:
-        json.dump(fitted_setting_dict, outfile)
+    if save_fitting:
+        fitting_save_dir = os.path.join(BASELINES_SAVE_PATH, BASELINE_FOLDER)
+        os.makedirs(fitting_save_dir, exist_ok=True)
+        fname = os.path.join(fitting_save_dir, 'fitted_%s.json' % fit_id)
+        with open(fname, 'w') as outfile:
+            json.dump(fitted_setting_dict, outfile)
 
     results = butils.evaluate_by_fold(
         dataset, which_expert, test_ids_list, fitted_setting_dict, pred_dict, average_mode, iou_threshold_report)

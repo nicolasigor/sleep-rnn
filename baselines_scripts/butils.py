@@ -109,15 +109,11 @@ def train_grid(dataset: Dataset, which_expert, train_ids_list, predictions_dict,
             delayed(average_metric_fn)(events_list, detections_list)
             for detections_list in predictions_at_setting_list)
         af1_list = np.array(af1_list)
-        max_af1_value = np.max(af1_list)
-        max_locs = np.where(af1_list == max_af1_value)[0]
-        possible_settings = settings[max_locs]
-        chosen_setting = possible_settings[0]
-        # max_idx = np.argmax(af1_list).item()
-        # max_af1 = af1_list[max_idx]
-        # max_setting = settings[max_idx]
-        print('Best Train AF1 %1.2f with setting %s' % (max_af1_value, possible_settings), flush=True)
-        fitted_setting_dict[fold_id] = chosen_setting.item()
+        max_idx = np.argmax(af1_list).item()
+        max_af1_value = af1_list[max_idx]
+        max_setting = settings[max_idx]
+        print('Best Train AF1 %1.2f with setting %s' % (max_af1_value, max_setting), flush=True)
+        fitted_setting_dict[fold_id] = max_setting.item()
     return fitted_setting_dict
 
 

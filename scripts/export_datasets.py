@@ -19,9 +19,9 @@ from sleeprnn.common import pkeys, constants
 if __name__ == '__main__':
     fs = 100
     datasets_name_clip_value_list = [
-        (constants.INTA_SS_NAME, 300),
-        (constants.MODA_SS_NAME, 200),
-        # (constants.MASS_SS_NAME, 200),
+        # (constants.INTA_SS_NAME, 300),
+        # (constants.MODA_SS_NAME, 200),
+        (constants.MASS_SS_NAME, 200),
     ]
     params = {pkeys.FS: fs}
     format_to_export = 'mat'  # {'mat', 'npz'}
@@ -29,7 +29,8 @@ if __name__ == '__main__':
     for dataset_name, clip_value in datasets_name_clip_value_list:
         # Create directories
         name_to_save = dataset_name.split("_")[0]
-        save_dir = os.path.abspath("../resources/datasets/exported/%s_%s_files" % (name_to_save, format_to_export))
+        save_dir = os.path.abspath(
+            "../resources/datasets/exported/%s_%s_files_fs_%d" % (name_to_save, format_to_export, fs))
         os.makedirs(save_dir, exist_ok=True)
         print("\nDataset: %s" % name_to_save)
         print("Saving directory")
