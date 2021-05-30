@@ -94,7 +94,7 @@ def get_metric_functions(average_mode):
 def train_grid(dataset: Dataset, which_expert, train_ids_list, predictions_dict, average_mode):
     fitted_setting_dict = {}
     n_folds = len(train_ids_list)
-    settings = list(predictions_dict.keys())
+    settings = np.array(list(predictions_dict.keys()))
     _, average_metric_fn = get_metric_functions(average_mode)
     for fold_id in range(n_folds):
         print('Training fold %d. ' % fold_id, flush=True, end='')
@@ -117,7 +117,7 @@ def train_grid(dataset: Dataset, which_expert, train_ids_list, predictions_dict,
         # max_af1 = af1_list[max_idx]
         # max_setting = settings[max_idx]
         print('Best Train AF1 %1.2f with setting %s' % (max_af1_value, possible_settings), flush=True)
-        fitted_setting_dict[fold_id] = chosen_setting
+        fitted_setting_dict[fold_id] = chosen_setting.item()
     return fitted_setting_dict
 
 

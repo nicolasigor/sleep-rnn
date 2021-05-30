@@ -41,10 +41,10 @@ if __name__ == '__main__':
     # TODO: generate script for final npz prediction files (indataset and crossdataset), to simplify results
 
     # Dataset training settings
-    dataset_name = constants.INTA_SS_NAME
+    dataset_name = constants.MASS_SS_NAME
     which_expert = 1
-    strategy = '5cv'
-    n_seeds = 3
+    strategy = 'fixed'  # {'fixed' or '5cv'}
+    n_seeds = 11
     average_mode = constants.MACRO_AVERAGE
     iou_threshold_report = 0.2
 
@@ -57,23 +57,20 @@ if __name__ == '__main__':
     print('Loading predictions from %s' % pred_dir, flush=True)
     settings = butils.get_settings(pred_dir, extract_setting)
 
-    # ########## debug
-    settings = settings[:4]
-    # ##########
-
     pred_dict = butils.get_prediction_dict(dataset, pred_dir, settings, get_raw_marks)
     train_ids_list, _, test_ids_list = butils.get_partitions(dataset, strategy, n_seeds)
     fitted_setting_dict = butils.train_grid(dataset, which_expert, train_ids_list, pred_dict, average_mode)
+    fit_id = "%s_e%d" % (dataset_name, which_expert)
 
     # Save training
-    os.makedirs(BASELINES_SAVE_PATH, exist_ok=True)
-    fname = os.path.join(BASELINES_SAVE_PATH, 'fitted_%s.json' % dataset_name)
+    fitting_save_dir = os.path.join(BASELINES_SAVE_PATH, BASELINE_FOLDER)
+    os.makedirs(fitting_save_dir, exist_ok=True)
+    fname = os.path.join(fitting_save_dir, 'fitted_%s.json' % fit_id)
     with open(fname, 'w') as outfile:
         json.dump(fitted_setting_dict, outfile)
 
     results = butils.evaluate_by_fold(
         dataset, which_expert, test_ids_list, fitted_setting_dict, pred_dict, average_mode, iou_threshold_report)
-    eval_id = "%s_exp%d" % (dataset_name, which_expert)
-    print("Test performance (%s, iou >= %1.2f, from train to test) for %s" % (
-        average_mode, iou_threshold_report, eval_id))
+    print("\nTest performance (%s, iou >= %1.2f, from train to test) for %s" % (
+        average_mode, iou_threshold_report, fit_id))
     butils.print_performance(results)
