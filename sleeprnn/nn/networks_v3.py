@@ -10,8 +10,7 @@ PATH_RESOURCES = os.path.join(PATH_THIS_DIR, '..', '..', 'resources')
 import numpy as np
 import tensorflow as tf
 
-from . import layers
-
+from sleeprnn.nn import layers
 from sleeprnn.common import constants
 from sleeprnn.common import pkeys
 

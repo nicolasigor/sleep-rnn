@@ -20,10 +20,10 @@ from sleeprnn.detection.metrics import matching_with_list
 from sleeprnn.detection.metrics import metric_vs_iou_macro_average, metric_vs_iou_micro_average
 from sleeprnn.detection.metrics import average_metric_macro_average, average_metric_micro_average
 from sleeprnn.detection.feeder_dataset import FeederDataset
-from .base_model import BaseModel
-from .base_model import KEY_LOSS
-from . import networks, networks_v2, networks_v3
-from . import losses, optimizers, metrics, augmentations
+from sleeprnn.nn.base_model import BaseModel
+from sleeprnn.nn.base_model import KEY_LOSS
+from sleeprnn.nn import networks, networks_v2, networks_v3
+from sleeprnn.nn import losses, optimizers, metrics, augmentations
 
 # Metrics dict
 KEY_TP = 'tp'

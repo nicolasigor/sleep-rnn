@@ -8,9 +8,9 @@ from sleeprnn.data.dataset import Dataset
 from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
 from sleeprnn.helpers.reader import load_dataset
 from sleeprnn.common import constants, pkeys
-from .feeder_dataset import FeederDataset
-from .postprocessor import PostProcessor
-from . import postprocessing
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.detection.postprocessor import PostProcessor
+from sleeprnn.detection import postprocessing
 
 
 class PredictedDataset(Dataset):

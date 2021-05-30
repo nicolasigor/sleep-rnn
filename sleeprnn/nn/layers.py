@@ -9,8 +9,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import array_ops
 
-from .spectrum import compute_cwt, compute_cwt_rectangular, compute_wavelets, apply_wavelets_rectangular, compute_wavelets_noisy
-from .expert_feats import lowpass_tf_batch
+from sleeprnn.nn.spectrum import compute_cwt, compute_cwt_rectangular, compute_wavelets, apply_wavelets_rectangular, compute_wavelets_noisy
+from sleeprnn.nn.expert_feats import lowpass_tf_batch
 from sleeprnn.common import constants
 from sleeprnn.common import checks
 

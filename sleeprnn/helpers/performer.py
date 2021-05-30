@@ -3,7 +3,7 @@ import numpy as np
 from sleeprnn.common import constants
 from sleeprnn.detection import metrics
 from sleeprnn.detection.feeder_dataset import FeederDataset
-from . import misc
+from sleeprnn.helpers import misc
 
 
 def performance_vs_iou_with_seeds(

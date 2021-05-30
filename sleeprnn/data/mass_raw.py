@@ -2,7 +2,7 @@ import os
 import pyedflib
 import numpy as np
 
-from . import utils
+from sleeprnn.data import utils
 
 PATH_REC = 'register'
 PATH_MARKS = os.path.join('label', 'spindle')

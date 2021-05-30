@@ -18,7 +18,7 @@ from sleeprnn.data import utils, stamp_correction
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection import metrics
 from sleeprnn.common import constants, pkeys
-from . import butils
+from baselines_scripts import butils
 
 BASELINE_PATH = os.path.abspath(os.path.join(project_root, '../sleep_baselines/2019_lacourse_a7'))
 

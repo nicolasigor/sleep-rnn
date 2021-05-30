@@ -1,6 +1,6 @@
 from IPython.core.display import display, HTML
 
-from . import constants
+from sleeprnn.common import constants
 
 PALETTE = {
     constants.RED: '#c62828',

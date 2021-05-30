@@ -11,10 +11,10 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from sleeprnn.common import constants
-from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_MARKS
-from .dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
-from . import utils
+from sleeprnn.data.dataset import Dataset
+from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS
+from sleeprnn.data.dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
+from sleeprnn.data import utils
 
 PATH_PINK_RELATIVE = 'pink'
 

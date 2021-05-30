@@ -16,7 +16,7 @@ from sleeprnn.common import constants
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection.predicted_dataset import PredictedDataset
 from sleeprnn.data.utils import pages2seq, extract_pages_from_centers
-from . import feeding
+from sleeprnn.nn import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
 PATH_TO_PROJECT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))

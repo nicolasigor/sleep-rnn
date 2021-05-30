@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import misc
+from sleeprnn.helpers import misc
 from sleeprnn.common import constants
 
 

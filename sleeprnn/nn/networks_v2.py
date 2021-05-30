@@ -10,11 +10,10 @@ PATH_RESOURCES = os.path.join(PATH_THIS_DIR, '..', '..', 'resources')
 import numpy as np
 import tensorflow as tf
 
-from .expert_feats import a7_layer_tf, bandpass_tf_batch
-from . import layers
-from . import spectrum
-from . import expert_feats
-
+from sleeprnn.nn.expert_feats import a7_layer_tf, bandpass_tf_batch
+from sleeprnn.nn import layers
+from sleeprnn.nn import spectrum
+from sleeprnn.nn import expert_feats
 from sleeprnn.common import constants
 from sleeprnn.common import checks
 from sleeprnn.common import pkeys

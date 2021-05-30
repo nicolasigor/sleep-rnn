@@ -11,7 +11,7 @@ from tensorflow.python.ops import math_ops
 import tensorflow_probability as tfp
 
 from sleeprnn.common import checks, constants
-from . import wave_augment
+from sleeprnn.nn import wave_augment
 
 
 def random_waves_wrapper(

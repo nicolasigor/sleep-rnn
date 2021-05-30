@@ -10,11 +10,11 @@ import time
 import numpy as np
 
 from sleeprnn.common import constants
-from . import utils
-from . import stamp_correction
-from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_MARKS
-from .dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
+from sleeprnn.data import utils
+from sleeprnn.data import stamp_correction
+from sleeprnn.data.dataset import Dataset
+from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS
+from sleeprnn.data.dataset import KEY_N2_PAGES, KEY_ALL_PAGES, KEY_HYPNOGRAM
 
 PATH_MODA_RELATIVE = 'moda'
 PATH_SEGMENTS = 'segments/moda_preprocessed_segments.npz'

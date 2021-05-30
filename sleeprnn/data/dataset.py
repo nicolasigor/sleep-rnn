@@ -12,7 +12,7 @@ import numpy as np
 from sleeprnn.common import pkeys
 from sleeprnn.common import constants
 from sleeprnn.common import checks
-from . import utils
+from sleeprnn.data import utils
 
 KEY_EEG = 'signal'
 KEY_N2_PAGES = 'n2_pages'

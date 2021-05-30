@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 
 from sleeprnn.common import constants
-from . import utils
-from . import stamp_correction
-from .dataset import Dataset
-from .dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS, KEY_HYPNOGRAM
+from sleeprnn.data import utils
+from sleeprnn.data import stamp_correction
+from sleeprnn.data.dataset import Dataset
+from sleeprnn.data.dataset import KEY_EEG, KEY_N2_PAGES, KEY_ALL_PAGES, KEY_MARKS, KEY_HYPNOGRAM
 
 PATH_CAP_RELATIVE = 'unlabeled_cap_npz'
 PATH_REC_AND_STATE = 'register_and_state'
