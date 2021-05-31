@@ -56,7 +56,7 @@ def postprocess_marks(dataset: Dataset, marks, subject_id, apply_temporal_proces
                 max_duration = 5.0
             else:
                 min_separation = 0.3
-                min_duration = 0.31  # 0.3, debug
+                min_duration = 0.3
                 max_duration = 3.0
         else:
             min_separation = None
@@ -75,7 +75,7 @@ def get_prediction_dict(dataset: Dataset, predictions_dir, settings, get_raw_mar
     for setting in settings:
         pred_dict[setting] = {}
         for subject_id in dataset.all_ids:
-            pred_marks = get_raw_marks_fn(predictions_dir, subject_id, setting)
+            pred_marks = get_raw_marks_fn(predictions_dir, subject_id, setting, dataset)
             pred_marks_n2 = postprocess_marks(dataset, pred_marks, subject_id)
             pred_dict[setting][subject_id] = pred_marks_n2
     return pred_dict
