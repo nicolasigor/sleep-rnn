@@ -56,7 +56,7 @@ def postprocess_marks(dataset: Dataset, marks, subject_id, apply_temporal_proces
                 max_duration = 5.0
             else:
                 min_separation = 0.3
-                min_duration = 0.3
+                min_duration = 0.31  # 0.3, debug
                 max_duration = 3.0
         else:
             min_separation = None

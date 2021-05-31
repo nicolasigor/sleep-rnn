@@ -44,7 +44,7 @@ if __name__ == '__main__':
     save_fitting = False
 
     # Dataset training settings
-    fs = 100
+    fs = 200
     dataset_name = constants.MASS_SS_NAME
     which_expert = 1
     strategy = 'fixed'  # {'fixed' or '5cv'}
@@ -61,14 +61,15 @@ if __name__ == '__main__':
     print('Loading predictions from %s' % pred_dir, flush=True)
     settings = butils.get_settings(pred_dir, extract_setting)
 
-    # print("\nForcing previous best settings to sanity check")
-    # settings = [
-    #     s for s in settings
-    #     if 'relSigPow(1.5)' in s
-    #        and 'absSigPow(1.25)' in s
-    # ]
-    # pprint(settings)
-    # print("")
+    print("\nForcing previous best settings to sanity check")
+    settings = [
+        s for s in settings
+        if 'relSigPow(1.6)' in s
+           and 'absSigPow(1.75)' in s
+           and 'sigCorr(0.75)' in s
+    ]
+    pprint(settings)
+    print("")
 
     pred_dict = butils.get_prediction_dict(dataset, pred_dir, settings, get_raw_marks)
     train_ids_list, _, test_ids_list = butils.get_partitions(dataset, strategy, n_seeds)
