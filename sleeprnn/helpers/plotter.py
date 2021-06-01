@@ -337,7 +337,7 @@ def get_fold_colors():
 
 
 def get_performance_string(outputs):
-    perf_str = "F1: %1.1f\u00B1%1.1f, IoU: %1.1f\u00B1%1.1f\nP: %1.1f\u00B1%1.1f, R: %1.1f\u00B1%1.1f" % (
+    perf_str = "F1: %1.2f\u00B1%1.2f, IoU: %1.2f\u00B1%1.2f\nP: %1.2f\u00B1%1.2f, R: %1.2f\u00B1%1.2f" % (
         100 * np.nanmean(outputs['f1']), 100 * np.nanstd(outputs['f1']),
         100 * np.nanmean(outputs['miou']), 100 * np.nanstd(outputs['miou']),
         100 * np.nanmean(outputs['prec']), 100 * np.nanstd(outputs['prec']),
