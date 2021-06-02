@@ -12,7 +12,7 @@ from sleeprnn.helpers import reader
 from sleeprnn.common import constants, pkeys
 
 if __name__ == "__main__":
-    dataset_name = constants.CAP_FULL_SS_NAME
+    dataset_name = constants.CAP_SS_NAME
 
     # Load from scratch
     params = {pkeys.FS: 200}

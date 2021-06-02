@@ -5,7 +5,7 @@ MASS_SS_NAME = 'mass_ss'
 MASS_KC_NAME = 'mass_kc'
 INTA_SS_NAME = 'inta_ss'
 MODA_SS_NAME = 'moda_ss'
-CAP_FULL_SS_NAME = 'cap_full_ss'
+CAP_SS_NAME = 'cap_ss'
 PINK_NAME = 'pink'
 
 # Database split

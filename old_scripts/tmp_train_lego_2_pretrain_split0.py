@@ -35,7 +35,7 @@ if __name__ == '__main__':
         # ----- Experiment settings
         experiment_name = 'lego_2_pretrain_v2_exp%d' % which_expert
         task_mode = constants.N2_RECORD
-        dataset_name = constants.CAP_FULL_SS_NAME
+        dataset_name = constants.CAP_SS_NAME
         description_str = 'experiments'
         verbose = True
 

@@ -47,7 +47,7 @@ def generate_mkd_specs(multi_strategy_name, kernel_size, block_filters):
 
 if __name__ == '__main__':
     folds = 4
-    dataset_name = constants.CAP_FULL_SS_NAME
+    dataset_name = constants.CAP_SS_NAME
     which_expert_list = [1]
 
     id_try_list = [i for i in range(folds)]

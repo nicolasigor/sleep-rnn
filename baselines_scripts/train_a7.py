@@ -54,16 +54,13 @@ if __name__ == '__main__':
     # Dataset training settings
     configs = [
         dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1,
-            strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
-        dict(
             dataset_name=constants.MASS_SS_NAME, which_expert=2,
-            strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
-        dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1,
             strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
         dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=2,
+            dataset_name=constants.MODA_SS_NAME, which_expert=1,
+            strategy='5cv', n_seeds=3, average_mode=constants.MICRO_AVERAGE),
+        dict(
+            dataset_name=constants.INTA_SS_NAME, which_expert=1,
             strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
     ]
     # ------------------------------------------------------

@@ -127,35 +127,39 @@ ALL_IDS = [
     '8-003',
     '8-004'
 ]
-IDS_INVALID = ['5-006', '5-027', '5-031', '5-033']
-IDS_INVALID.extend(
-    ['3-002',
-     '3-003',
-     '4-002',
-     '5-001',
-     '6-004',
-     '6-006',
-     '6-007',
-     '7-001',
-     '7-002',
-     '7-003',
-     '7-004',
-     '7-005',
-     '7-007',
-     '7-008',
-     '7-009',
-     '7-010',
-     '7-011',
-     '7-013',
-     '7-014',
-     '7-015',
-     '7-017',
-     '7-020',
-     '8-003',
-     '8-004'])
+IDS_INVALID = [
+    '3-002',
+    '3-003',
+    '4-002',
+    '5-001',
+    '5-006',
+    '5-027',
+    '5-031',
+    '5-033',
+    '6-004',
+    '6-006',
+    '6-007',
+    '7-001',
+    '7-002',
+    '7-003',
+    '7-004',
+    '7-005',
+    '7-007',
+    '7-008',
+    '7-009',
+    '7-010',
+    '7-011',
+    '7-013',
+    '7-014',
+    '7-015',
+    '7-017',
+    '7-020',
+    '8-003',
+    '8-004'
+]
 
 
-class CapFullSS(Dataset):
+class CapSS(Dataset):
     """This is a class to manipulate the CAP data EEG dataset.
 
     The sleep spindle marks are detections made by the A7 algorithm:
@@ -184,21 +188,21 @@ class CapFullSS(Dataset):
         self.original_page_duration = 30  # Time of window page [s]
 
         # Sleep spindles characteristics
-        self.min_ss_duration = 0.3  # Minimum duration of SS in seconds
+        self.min_ss_duration = 0.5  # Minimum duration of SS in seconds
         self.max_ss_duration = 3  # Maximum duration of SS in seconds
 
         all_ids = [s for s in ALL_IDS if s not in IDS_INVALID]
         all_ids.sort()
 
-        super(CapFullSS, self).__init__(
+        super(CapSS, self).__init__(
             dataset_dir=PATH_CAP_RELATIVE,
             load_checkpoint=load_checkpoint,
-            dataset_name=constants.CAP_FULL_SS_NAME,
+            dataset_name=constants.CAP_SS_NAME,
             all_ids=all_ids,
             event_name=constants.SPINDLE,
             hypnogram_sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'],
             hypnogram_page_duration=self.original_page_duration,
-            n_experts=2,
+            n_experts=1,
             params=params,
             verbose=verbose
         )
@@ -226,10 +230,7 @@ class CapFullSS(Dataset):
             print('Whole-night pages: %d' % all_pages.shape[0])
 
             marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
-            print('Marks SS from A7 fitted on MASS-SS2-E1 (spindle_1): %d' % marks_1.shape[0])
-
-            marks_2 = self._read_marks(path_dict['%s_2' % KEY_FILE_MARKS])
-            print('Marks SS from A7 with original paper params (spindle_2): %d' % marks_2.shape[0])
+            print('Marks SS from A7 with original paper params: %d' % marks_1.shape[0])
 
             # Save data
             ind_dict = {
@@ -238,7 +239,6 @@ class CapFullSS(Dataset):
                 KEY_ALL_PAGES: all_pages,
                 KEY_HYPNOGRAM: hypnogram_original,
                 '%s_1' % KEY_MARKS: marks_1,
-                '%s_2' % KEY_MARKS: marks_2
             }
             fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
             data[subject_id] = {'pretty_file_path': fname}
@@ -261,17 +261,11 @@ class CapFullSS(Dataset):
             path_eeg_state_file = os.path.join(self.dataset_dir, PATH_REC_AND_STATE, "cap_%s.npz" % subject_id)
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
-                'spindle_1',
-                'EventDetection_s%s_absSigPow(1.75)_relSigPow(1.6)_sigCov(1.8)_sigCorr(0.75).txt' % subject_id)
-            path_marks_2_file = os.path.join(
-                self.dataset_dir, PATH_MARKS,
-                'spindle_2',
                 'EventDetection_s%s_absSigPow(1.25)_relSigPow(1.6)_sigCov(1.3)_sigCorr(0.69).txt' % subject_id)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG_STATE: path_eeg_state_file,
                 '%s_1' % KEY_FILE_MARKS: path_marks_1_file,
-                '%s_2' % KEY_FILE_MARKS: path_marks_2_file,
             }
             # Check paths
             for key in ind_dict:
