@@ -21,7 +21,7 @@ if __name__ == '__main__':
     datasets_name_clip_value_list = [
         (constants.INTA_SS_NAME, 300),
         (constants.MODA_SS_NAME, 200),
-        # (constants.MASS_SS_NAME, 200),
+        (constants.MASS_SS_NAME, 200),
     ]
     params = {pkeys.FS: fs}
     format_to_export = 'mat'  # {'mat', 'npz'}
