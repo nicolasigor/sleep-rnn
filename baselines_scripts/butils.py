@@ -10,7 +10,7 @@ import numpy as np
 from sleeprnn.data.dataset import Dataset
 from sleeprnn.data import utils, stamp_correction
 from sleeprnn.common import constants, pkeys
-from sleeprnn.detection import metrics
+from sleeprnn.detection import metrics, postprocessing
 
 
 def get_partitions(dataset: Dataset, strategy, n_seeds):
@@ -45,9 +45,7 @@ def get_settings(predictions_dir, extract_setting_fn):
     return settings
 
 
-def postprocess_marks(dataset: Dataset, marks, subject_id, apply_temporal_processing=True):
-    n2_pages = dataset.get_subject_pages(subject_id, pages_subset=constants.N2_RECORD)
-    pred_marks_n2 = utils.extract_pages_for_stamps(marks, n2_pages, dataset.page_size)
+def postprocess_marks(dataset: Dataset, marks, subject_id, apply_temporal_processing=True, kc_split=False):
     if apply_temporal_processing:
         if dataset.event_name == constants.SPINDLE:
             if 'inta' in dataset.dataset_name:
@@ -62,10 +60,15 @@ def postprocess_marks(dataset: Dataset, marks, subject_id, apply_temporal_proces
             min_separation = None
             min_duration = 0.3
             max_duration = None
-        pred_marks_n2 = stamp_correction.combine_close_stamps(
-            pred_marks_n2, dataset.fs, min_separation=min_separation)
-        pred_marks_n2 = stamp_correction.filter_duration_stamps(
-            pred_marks_n2, dataset.fs, min_duration=min_duration, max_duration=max_duration)
+        marks = stamp_correction.combine_close_stamps(
+            marks, dataset.fs, min_separation=min_separation)
+        marks = stamp_correction.filter_duration_stamps(
+            marks, dataset.fs, min_duration=min_duration, max_duration=max_duration)
+    if kc_split:
+        signal = dataset.get_subject_signal(subject_id, normalize_clip=False)
+        marks = postprocessing.kcomplex_stamp_split(signal, marks, dataset.fs)
+    n2_pages = dataset.get_subject_pages(subject_id, pages_subset=constants.N2_RECORD)
+    pred_marks_n2 = utils.extract_pages_for_stamps(marks, n2_pages, dataset.page_size)
     pred_marks_n2 = pred_marks_n2.astype(np.int32)
     return pred_marks_n2
 

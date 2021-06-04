@@ -268,10 +268,9 @@ class MassKC(Dataset):
         return marks
 
     def create_signal_cache(self, highcut=4):
-        signals = self.get_signals()
+        signals = self.get_signals(normalize_clip=False)
         for k, sub_id in enumerate(self.all_ids):
-            filt_signal = utils.filter_iir_lowpass(
-                signals[k], self.fs, highcut=highcut)
+            filt_signal = utils.filter_iir_lowpass(signals[k], self.fs, highcut=highcut)
             filt_signal = filt_signal.astype(np.float32)
             self.filt_signal_dict[sub_id] = filt_signal
         self.exists_cache = True
