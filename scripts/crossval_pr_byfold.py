@@ -23,6 +23,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == "__main__":
     save_figs = True
+    print_f1_score = True
 
     ckpt_folder_prefix = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
@@ -138,12 +139,15 @@ if __name__ == "__main__":
                 np.mean(outputs['rec']), np.mean(outputs['prec']),
                 marker='o', markersize=marker_size / 2, linestyle="None",
                 color=viz.GREY_COLORS[6])
+
         perf_str = plotter.get_performance_string(outputs)
         eval_str = "%s-%s" % (average_mode.split("_")[0].upper(), evaluation_set.upper())
         ax.set_title(
             '%s\n%s, %s\n%s' % (
                 grid_folder, eval_str, result_id, perf_str),
             fontsize=title_fontsize)
+        if print_f1_score:
+            print(grid_folder, "F1-score:", outputs['f1'])
         ax.tick_params(labelsize=general_fontsize)
         ax.set_xlabel('Recall (IoU>%1.1f)' % iou_threshold_report, fontsize=general_fontsize)
         ax.set_ylabel('Precision (IoU>%1.1f)' % iou_threshold_report, fontsize=general_fontsize)
