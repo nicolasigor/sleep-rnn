@@ -40,12 +40,12 @@ if __name__ == '__main__':
     # Datasets
     dataset_configs = [
         # Internal, independent test
-        # {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
-        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
-        # {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': 'fixed', 'n_seeds': 11},
+        {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': 'fixed', 'n_seeds': 11},
         # External test
-        # {'name': constants.INTA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
-        # {'name': constants.MODA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        {'name': constants.INTA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
+        {'name': constants.MODA_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
         # Internal, not independent test
         {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
         {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Models
     model_configs = [
         {pkeys.MODEL_VERSION: constants.V2_TIME, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_TIME},
-        # {pkeys.MODEL_VERSION: constants.V2_CWT1D, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_CWT},
+        {pkeys.MODEL_VERSION: constants.V2_CWT1D, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_CWT},
     ]
 
     # Default parameters with magnitudes in microvolts (uv)
@@ -110,12 +110,6 @@ if __name__ == '__main__':
         print("Unique subjects %d, unique counts %s" % (values.size, counts_unique))
 
         for fold_id in range(len(train_ids_list)):
-
-            # ##################################
-            # Skip some folds to split the run
-            #  if fold_id > 5:
-            #     continue
-            # ##################################
 
             print("\nStarting evaluation of partition %d (%d/%d)" % (fold_id, fold_id+1, len(train_ids_list)))
             train_ids = train_ids_list[fold_id]
