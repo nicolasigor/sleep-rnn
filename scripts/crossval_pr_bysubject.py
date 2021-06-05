@@ -23,6 +23,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == "__main__":
     save_figs = True
+    print_f1_score = True
 
     ckpt_folder_prefix = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
@@ -189,6 +190,15 @@ if __name__ == "__main__":
                         filt_outputs[key].append(outputs[key][i])
             outputs = filt_outputs
         print("Subjects to plot:", len(outputs['f1']))
+        if print_f1_score:
+            print(grid_folder, "F1-score by subject")
+            tmp_subject_ids = outputs['subjects']
+            tmp_all_ids = np.unique(tmp_subject_ids)
+            tmp_f1_score = outputs['f1']
+            for s in tmp_all_ids:
+                subject_locs = np.where(tmp_subject_ids == s)[0]
+                subject_metrics = tmp_f1_score[subject_locs]
+                print("    Subject %s:" % s, subject_metrics)
         # Plot
         folds_shown = []
         for i in range(len(outputs['f1'])):
