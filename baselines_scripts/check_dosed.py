@@ -25,13 +25,17 @@ if __name__ == '__main__':
     # Dataset training settings
     configs = [
         dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1,
-            result_folder="20210603_thesis_mass_fixed_spindle1",
-            strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
-        dict(
             dataset_name=constants.MASS_KC_NAME, which_expert=1,
             result_folder="20210603_thesis_mass_fixed_kcomplex",
             strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MASS_KC_NAME, which_expert=1,
+            result_folder="20210604_thesis_mass_fixed_kcomplex_globalstd",
+            strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
+        # dict(
+        #     dataset_name=constants.MASS_KC_NAME, which_expert=1,
+        #     result_folder="20210603_thesis_mass_fixed_kcomplex",
+        #     strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
     ]
     # ------------------------------------------------------
     for config in configs:
