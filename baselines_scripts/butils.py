@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from joblib import delayed, Parallel
 import os
+import pickle
 
 import numpy as np
 
@@ -124,7 +125,7 @@ def evaluate_by_fold(
         dataset: Dataset, which_expert, test_ids_list,
         fitted_setting_dict, predictions_dict, average_mode, iou_threshold_report):
     # By fold metrics
-    outputs = {'af1': [], 'f1': [], 'prec': [], 'rec': [], 'miou': []}
+    outputs = {'af1': [], 'f1': [], 'rec': [], 'prec': [], 'miou': []}
     metric_vs_iou_fn, average_metric_fn = get_metric_functions(average_mode)
     n_folds = len(test_ids_list)
     for fold_id in range(n_folds):
@@ -162,10 +163,98 @@ def evaluate_by_fold(
     return outputs
 
 
+def evaluate_dosed_by_fold(
+        dataset: Dataset, which_expert, test_ids_list,
+        predictions_dict, average_mode, iou_threshold_report):
+    # By fold metrics
+    outputs = {
+        'AF1      ': [],
+        'F1       ': [],
+        'Recall   ': [],
+        'Precision': [],
+        'mIoU     ': []}
+    metric_vs_iou_fn, average_metric_fn = get_metric_functions(average_mode)
+    n_folds = len(test_ids_list)
+    for fold_id in range(n_folds):
+        test_ids = test_ids_list[fold_id]
+        events_list = dataset.get_subset_stamps(
+            test_ids, which_expert=which_expert, pages_subset=constants.N2_RECORD)
+        detections_list = [predictions_dict[fold_id][subject_id] for subject_id in test_ids]
+        iou_matching_list, _ = metrics.matching_with_list(events_list, detections_list)
+        af1_best = average_metric_fn(
+            events_list, detections_list, iou_matching_list=iou_matching_list)
+        f1_best = metric_vs_iou_fn(
+            events_list, detections_list, [iou_threshold_report], iou_matching_list=iou_matching_list)
+        precision_best = metric_vs_iou_fn(
+            events_list, detections_list, [iou_threshold_report],
+            metric_name=constants.PRECISION, iou_matching_list=iou_matching_list)
+        recall_best = metric_vs_iou_fn(
+            events_list, detections_list, [iou_threshold_report],
+            metric_name=constants.RECALL, iou_matching_list=iou_matching_list)
+        nonzero_iou_list = [iou_matching[iou_matching > 0] for iou_matching in iou_matching_list]
+        if average_mode == constants.MACRO_AVERAGE:
+            miou_list = [np.mean(nonzero_iou) for nonzero_iou in nonzero_iou_list]
+            miou = np.mean(miou_list)
+        elif average_mode == constants.MICRO_AVERAGE:
+            miou = np.concatenate(nonzero_iou_list).mean()
+        else:
+            raise ValueError("Average mode %s invalid" % average_mode)
+        outputs['AF1      '].append(af1_best)
+        outputs['F1       '].append(f1_best)
+        outputs['Recall   '].append(recall_best)
+        outputs['Precision'].append(precision_best)
+        outputs['mIoU     '].append(miou)
+    for key in outputs.keys():
+        outputs[key] = np.array(outputs[key])
+    return outputs
+
+
 def print_performance(results):
     report_dict = {}
     for key in results:
         report_dict[key] = {'mean': 100 * np.mean(results[key]), 'std': 100 * np.std(results[key])}
     # Regular printing
     for key in results:
-        print("%s: %1.2f\u00B1%1.2f" % (key, report_dict[key]['mean'], report_dict[key]['std']))
+        print("%s: %1.2f \pm %1.2f" % (key, report_dict[key]['mean'], report_dict[key]['std']))
+
+
+def get_raw_dosed_marks_in_fold(predictions_dir, fold_id, dataset: Dataset, print_thr=True):
+    pred_filepath = os.path.join(predictions_dir, 'fold%02d_dosed_predictions_ckpt.pkl' % fold_id)
+    with open(pred_filepath, 'rb') as handle:
+        this_predictions = pickle.load(handle)
+    if print_thr:
+        thr_filepath = os.path.join(predictions_dir, 'fold%02d_dosed_threshold_ckpt.pkl' % fold_id)
+        with open(thr_filepath, 'rb') as handle:
+            this_thr = pickle.load(handle)
+        print("Fold %02d with threshold %1.4f" % (fold_id, this_thr))
+    records = list(this_predictions.keys())
+    fs_predicted = int(records[0].split(".")[0].split("_")[3])
+    fs_target = dataset.fs
+    pred_dict = {}
+    for record_name in records:
+        subject_id = record_name.split(".")[0].split("_")[1][1:]
+        dataset_name_short = record_name.split(".")[0].split("_")[0]
+        if dataset_name_short in ['mass', 'inta']:
+            subject_id = int(subject_id)
+        pred_marks = np.array(this_predictions[record_name][0])
+        pred_marks = (pred_marks * fs_target / fs_predicted).astype(np.int32)
+        pred_dict[subject_id] = pred_marks
+    return pred_dict
+
+
+def get_raw_dosed_marks(predictions_dir, n_folds, dataset: Dataset, print_thr=True):
+    pred_dict = {}
+    for fold_id in range(n_folds):
+        pred_dict[fold_id] = get_raw_dosed_marks_in_fold(predictions_dir, fold_id, dataset, print_thr=print_thr)
+    return pred_dict
+
+
+def postprocess_dosed_marks(dataset: Dataset, prediction_dict):
+    kc_split = (dataset.event_name == constants.KCOMPLEX)
+    new_prediction_dict = {}
+    for fold_id in prediction_dict.keys():
+        new_prediction_dict[fold_id] = {}
+        for subject_id in prediction_dict[fold_id].keys():
+            new_prediction_dict[fold_id][subject_id] = postprocess_marks(
+                dataset, prediction_dict[fold_id][subject_id], subject_id, kc_split=kc_split)
+    return new_prediction_dict

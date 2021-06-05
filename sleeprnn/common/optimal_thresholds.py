@@ -428,6 +428,13 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
     os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
     
+    os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_ss', 'v2_time_wave1'): [0.50, 0.48, 0.48, 0.46, 0.58, 0.48, 0.54, 0.48, 0.36, 0.52, 0.48, 0.50, 0.44, 0.40, 0.48],
+    os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_ss', 'v2_time_wave0'): [0.46, 0.44, 0.52, 0.48, 0.50, 0.44, 0.48, 0.50, 0.44, 0.56, 0.50, 0.42, 0.44, 0.42, 0.46],
+    os.path.join('20210602_augment_ablation_5cv_e2_n2_train_mass_ss', 'v2_time_wave0'): [0.52, 0.48, 0.50, 0.48, 0.30, 0.56, 0.62, 0.44, 0.42, 0.54, 0.48, 0.52, 0.54, 0.48, 0.50],
+    os.path.join('20210602_augment_ablation_5cv_e2_n2_train_mass_ss', 'v2_time_wave1'): [0.46, 0.46, 0.54, 0.50, 0.52, 0.48, 0.50, 0.48, 0.52, 0.44, 0.46, 0.52, 0.52, 0.44, 0.52],
+    os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_kc', 'v2_time_wave1'): [0.50, 0.44, 0.50, 0.50, 0.52, 0.50, 0.52, 0.50, 0.38, 0.62, 0.50, 0.54, 0.50, 0.48, 0.50],
+    os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_kc', 'v2_time_wave0'): [0.56, 0.50, 0.54, 0.56, 0.56, 0.40, 0.60, 0.50, 0.40, 0.52, 0.52, 0.60, 0.52, 0.58, 0.50],
+    
 }
 
 

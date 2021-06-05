@@ -19,6 +19,12 @@ AF1 75.54/0.42 [0.5] 75.59/0.35 [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56,
 
     os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
 
+POSTPROCESSING OF KC WITHOUT NORMALIZE_CLIP IN SIGNAL:
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc
+AF1 75.53/0.42 [0.5] 75.59/0.35 [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50], F 83.26/0.38, P 85.0/ 5.6, R 82.4/ 8.1 for v2_time
+    os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
+
+
 
 
 --- REST OF RUNS
@@ -42,6 +48,12 @@ AF1 75.65/0.50 [0.5] 75.57/0.55 [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48,
 
     os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48, 0.56, 0.52, 0.50],
     
+POSTPROCESSING OF KC WITHOUT NORMALIZE_CLIP IN SIGNAL:
+al AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210529_thesis_indata_fixed_e1_n2_train_mass_kc
+AF1 75.65/0.50 [0.5] 75.57/0.55 [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48, 0.56, 0.52, 0.50], F 83.44/0.47, P 85.7/ 5.5, R 82.1/ 8.0 for v2_cwt1d
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48, 0.56, 0.52, 0.50],
+
+
     
 INTA/MODA
 
@@ -86,7 +98,12 @@ AF1 75.94/1.30 [0.5] 76.08/1.19 [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44,
     os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
     os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
 
-
+POSTPROCESSING OF KC WITHOUT NORMALIZE_CLIP IN SIGNAL:
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210529_thesis_indata_5cv_e1_n2_train_mass_kc
+AF1 76.02/1.30 [0.5] 76.09/1.30 [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56], F 83.65/1.47, P 82.9/ 5.9, R 85.2/ 6.8 for v2_time
+AF1 75.94/1.30 [0.5] 76.08/1.19 [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60], F 83.83/1.40, P 83.3/ 5.7, R 85.0/ 6.2 for v2_cwt1d
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
 
 
 
