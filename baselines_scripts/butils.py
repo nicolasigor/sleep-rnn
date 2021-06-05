@@ -258,3 +258,19 @@ def postprocess_dosed_marks(dataset: Dataset, prediction_dict):
             new_prediction_dict[fold_id][subject_id] = postprocess_marks(
                 dataset, prediction_dict[fold_id][subject_id], subject_id, kc_split=kc_split)
     return new_prediction_dict
+
+
+def get_prediction_dict_from_settings(
+        test_ids_list, dataset: Dataset, predictions_dir, fitted_setting_dict, get_raw_marks_fn):
+    n_folds = len(test_ids_list)
+    predictions_dict = {}
+    for fold_id in range(n_folds):
+        best_setting = fitted_setting_dict[str(fold_id)]
+        test_ids = test_ids_list[fold_id]
+        fold_predictions_dict = {}
+        for subject_id in test_ids:
+            pred_marks = get_raw_marks_fn(predictions_dir, subject_id, best_setting, dataset)
+            pred_marks_n2 = postprocess_marks(dataset, pred_marks, subject_id)
+            fold_predictions_dict[subject_id] = pred_marks_n2
+        predictions_dict[fold_id] = fold_predictions_dict
+    return predictions_dict
