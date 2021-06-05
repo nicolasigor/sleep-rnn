@@ -22,9 +22,9 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == "__main__":
-    save_figs = False
+    save_figs = True
 
-    ckpt_folder_prefix = '20210527_thesis_ablation_v3_5fold-cv_exp1'
+    ckpt_folder_prefix = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -48,14 +48,14 @@ if __name__ == "__main__":
     general_fontsize = 9
     marker_size = 7  # moda 5, others 7
     marker_alpha = 0.8  # moda 0.5, others 0.8
-    show_subject_id = True
-    group_by_subject = False
+    show_subject_id = False
+    group_by_subject = True
     subject_to_highlight = []  # inta [2, 7, 10], others []
     fold_monocolor = True
     show_fold_id = False
     show_grid = True
-    show_mean = True
-    show_quadrants = True
+    show_mean = False
+    show_quadrants = False
     weight_marker_by_density = False
     weight_marker_max_alpha = 1.0
     weight_marker_min_alpha = 0.2
@@ -248,8 +248,10 @@ if __name__ == "__main__":
         plt.tight_layout()
         if save_figs:
             dens_str = 'weighted' if weight_marker_by_density else 'plain'
-            fname = os.path.join(save_dir, "pr_bysubject_%s_%s.png" % (dens_str, grid_folder))
-            plt.savefig(fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            fname = os.path.join(save_dir, "pr_bysubject_%s_%s" % (dens_str, grid_folder))
+            plt.savefig('%s.png' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            plt.savefig('%s.svg' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            plt.savefig('%s.pdf' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
         else:
             plt.show()
         plt.close()

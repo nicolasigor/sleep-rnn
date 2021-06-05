@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # Evaluation settings
     fitting_sets = [constants.TRAIN_SUBSET, constants.VAL_SUBSET]
-    evaluation_sets = [constants.VAL_SUBSET]
+    evaluation_sets = [constants.TEST_SUBSET]
     average_mode = constants.MACRO_AVERAGE
     threshold_space = {'min': 0.2, 'max': 0.8, 'step': 0.02}
     iou_threshold_report = 0.2

@@ -22,9 +22,9 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 
 if __name__ == "__main__":
-    save_figs = False
+    save_figs = True
 
-    ckpt_folder_prefix = '20210527_thesis_ablation_v3_5fold-cv_exp1'
+    ckpt_folder_prefix = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     fold_monocolor = True
     show_fold_id = False
     show_grid = True
-    show_mean = True
-    show_quadrants = True
+    show_mean = False
+    show_quadrants = False
     axis_markers = np.arange(0, 1 + 0.001, 0.1)
     minor_axis_markers = np.arange(0, 1 + 0.001, 0.1)
 
@@ -154,8 +154,10 @@ if __name__ == "__main__":
             show_grid=show_grid, minor_axis_markers=minor_axis_markers)
         plt.tight_layout()
         if save_figs:
-            fname = os.path.join(save_dir, "pr_byfold_%s.png" % grid_folder)
-            plt.savefig(fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            fname = os.path.join(save_dir, "pr_byfold_%s" % grid_folder)
+            plt.savefig('%s.png' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            plt.savefig('%s.svg' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
+            plt.savefig('%s.pdf' % fname, dpi=viz.DPI, bbox_inches="tight", pad_inches=0.01)
         else:
             plt.show()
         plt.close()
