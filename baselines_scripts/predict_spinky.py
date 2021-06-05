@@ -9,7 +9,7 @@ import sys
 import pickle
 
 import numpy as np
-import pandas as pd
+from scipy.io import loadmat
 
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
@@ -17,32 +17,38 @@ sys.path.append(project_root)
 from baselines_scripts import butils
 from sleeprnn.helpers import reader
 from sleeprnn.common import constants, pkeys
+from sleeprnn.data import utils
 
-BASELINE_FOLDER = '2019_lacourse_a7'
+BASELINE_FOLDER = '2017_lajnef_spinky'
 BASELINES_DATA_PATH = os.path.abspath(os.path.join(project_root, '../sleep_baselines'))
 BASELINES_SAVE_PATH = os.path.abspath(os.path.join(project_root, 'resources', 'comparison_data', 'baselines_2021'))
 
 
 def extract_setting(fname):
-    setting = "_".join(fname.split("_")[2:])[:-4]
+    setting = fname.split("_")[2][:-4]
     return setting
 
 
 def get_raw_marks(predictions_dir, subject_id, setting, dataset):
-    filepath = os.path.join(predictions_dir, 's%s' % subject_id, 'EventDetection_s%s_%s.txt' % (subject_id, setting))
-    pred_data = pd.read_csv(filepath, sep='\t')
-    # We substract 1 to translate from matlab to numpy indexing system
-    start_samples = pred_data.start_sample.values - 1
-    end_samples = pred_data.end_sample.values - 1
-    # Now transform fs, preserving duration
-    durations = end_samples - start_samples + 1
+    filepath = os.path.join(predictions_dir, 's%s' % subject_id, 'kcomplex_s%s_%s.mat' % (subject_id, setting))
+    pred_data = loadmat(filepath)
+    pred_data = pred_data['detection_matrix']
+    # KC
+    # We only keep what's inside the page
     fs_predicted = 100
+    context_size = int(5 * fs_predicted)
+    pred_data = pred_data[:, context_size:-context_size]
+    # Now we concatenate and then the extract stamps
+    n2_pages = dataset.get_subject_pages(subject_id, pages_subset=constants.N2_RECORD)
+    pred_marks = utils.seq2stamp_with_pages(pred_data, n2_pages)
+    # Now transform to target fs
     fs_target = dataset.fs
-    start_samples = start_samples * fs_target / fs_predicted
-    durations = durations * fs_target / fs_predicted
-    end_samples = start_samples + durations - 1
-    # Stack
-    pred_marks = np.stack([start_samples, end_samples], axis=1).astype(np.int32)
+    pred_marks = (pred_marks * fs_target / fs_predicted).astype(np.int32)
+    #  Now we manually add 0.1 s before and 1.3 s after (paper)
+    add_before = int(np.round(0.1 * fs_target))
+    add_after = int(np.round(1.3 * fs_target))
+    pred_marks[:, 0] = pred_marks[:, 0] - add_before
+    pred_marks[:, 1] = pred_marks[:, 1] + add_after
     return pred_marks
 
 
@@ -81,42 +87,19 @@ def save_predictions(pred_dict, filename):
 
 if __name__ == '__main__':
 
-    fixed_configs = [
+    configs = [
         dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1,
+            dataset_name=constants.MASS_KC_NAME, which_expert=1,
             strategy='fixed', n_seeds=11),
         dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=2,
-            strategy='fixed', n_seeds=11),
-    ]
-    cv_configs = [
-        dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1,
-            strategy='5cv', n_seeds=3),
-        dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=2,
-            strategy='5cv', n_seeds=3),
-        dict(
-            dataset_name=constants.MODA_SS_NAME, which_expert=1,
-            strategy='5cv', n_seeds=3),
-        dict(
-            dataset_name=constants.INTA_SS_NAME, which_expert=1,
+            dataset_name=constants.MASS_KC_NAME, which_expert=1,
             strategy='5cv', n_seeds=3),
     ]
-    # Fixed configs are not involved in cross-dataset prediction
-    for config in fixed_configs:
+    # Spinky is not involved in cross-dataset prediction
+    for config in configs:
         prediction_id = "%s_from_%s" % (get_fit_id(config), get_fit_id(config))
         print("Predicting %s" % prediction_id)
         fitted_params = get_fitted_settings(config)
         predictions_dict = predict(config, fitted_params)
         save_predictions(predictions_dict, prediction_id)
         print("")
-
-    for target_config in cv_configs:
-        for source_config in cv_configs:
-            prediction_id = "%s_from_%s" % (get_fit_id(target_config), get_fit_id(source_config))
-            print("Predicting %s" % prediction_id)
-            fitted_params = get_fitted_settings(source_config)
-            predictions_dict = predict(target_config, fitted_params)
-            save_predictions(predictions_dict, prediction_id)
-            print("")

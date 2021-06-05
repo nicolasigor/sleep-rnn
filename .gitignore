@@ -13,8 +13,6 @@ experiments
 
 
 # Extensions
-*.pickle
-*.pkl
 *.pyc
 *.bak
 *.swp
