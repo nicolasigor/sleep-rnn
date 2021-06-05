@@ -36,11 +36,12 @@ if __name__ == '__main__':
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     experiment_name_base = '%s_augment_ablation' % this_date
+    starting_seed = 3
 
     # Datasets
     dataset_configs = [
         {'name': constants.MASS_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
-        {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
+        # {'name': constants.MASS_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 3},
         {'name': constants.MASS_KC_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 3},
     ]
 
@@ -73,7 +74,8 @@ if __name__ == '__main__':
         val_ids_list = []
         test_ids_list = []
         if strategy == '5cv':
-            for cv_seed in range(dataset_config['n_seeds']):
+            for cv_seed in range(starting_seed, starting_seed + dataset_config['n_seeds']):
+                print("Using cross-validation seed %d" % cv_seed)
                 for fold_id in range(5):
                     train_ids, val_ids, test_ids = dataset.cv_split(
                         5, fold_id, cv_seed, subject_ids=dataset.train_ids[1:])
