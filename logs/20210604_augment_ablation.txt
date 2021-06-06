@@ -101,3 +101,33 @@ v2_time_wave1 F1-score by subject
 
 
 
+---------------------------
+---------------------------
+SUMMARY PREVIOUS 15 PARTITIONS:
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210602_augment_ablation_5cv_e1_n2_train_mass_ss
+AF1 66.48/2.49 [0.5] 66.58/2.42 [15], F 79.36/2.10, P 77.3/ 9.8, R 83.9/ 9.8 for v2_time_wave1
+AF1 66.05/3.12 [0.5] 66.16/3.05 [15], F 79.10/2.57, P 78.2/10.1, R 82.6/10.7 for v2_time_wave0
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210602_augment_ablation_5cv_e1_n2_train_mass_kc
+AF1 76.03/1.59 [0.5] 76.04/1.68 [15], F 83.91/1.91, P 82.8/ 5.9, R 85.7/ 5.6 for v2_time_wave1
+AF1 75.85/1.94 [0.5] 75.89/1.81 [15], F 83.67/1.90, P 82.4/ 5.9, R 85.6/ 5.6 for v2_time_wave0
+
+
+ABLATION 6 CV SEEDS (copy previous 3 + new 3):
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss
+AF1 66.31/3.26 [0.5] 66.64/3.20 [30], F 79.44/2.92, P 77.0/ 9.9, R 84.4/ 9.8 for v2_time_wave1
+AF1 65.94/3.81 [0.5] 66.18/3.51 [30], F 79.03/3.27, P 77.7/10.1, R 83.1/11.3 for v2_time_wave0
+
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss', 'v2_time_wave1'): [0.50, 0.48, 0.48, 0.46, 0.58, 0.48, 0.54, 0.48, 0.36, 0.52, 0.48, 0.50, 0.44, 0.40, 0.48, 0.60, 0.44, 0.56, 0.46, 0.38, 0.50, 0.54, 0.46, 0.42, 0.48, 0.56, 0.44, 0.46, 0.44, 0.42],
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss', 'v2_time_wave0'): [0.46, 0.44, 0.52, 0.48, 0.50, 0.44, 0.48, 0.50, 0.44, 0.56, 0.50, 0.42, 0.44, 0.42, 0.46, 0.50, 0.48, 0.46, 0.50, 0.42, 0.44, 0.46, 0.54, 0.38, 0.60, 0.46, 0.56, 0.56, 0.42, 0.40],
+
+Val AF1 report (macro_average, iou >= 0.20, from ['train', 'val'] to ['test']) for 20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc
+AF1 75.97/1.99 [0.5] 75.94/1.99 [30], F 83.87/2.36, P 82.8/ 6.2, R 85.6/ 5.6 for v2_time_wave1
+AF1 75.82/2.23 [0.5] 75.88/2.09 [30], F 83.70/2.32, P 82.5/ 5.9, R 85.5/ 5.6 for v2_time_wave0
+
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc', 'v2_time_wave1'): [0.50, 0.44, 0.50, 0.50, 0.52, 0.50, 0.52, 0.50, 0.38, 0.62, 0.50, 0.54, 0.50, 0.48, 0.50, 0.54, 0.46, 0.44, 0.46, 0.50, 0.56, 0.48, 0.54, 0.50, 0.52, 0.60, 0.58, 0.46, 0.42, 0.50],
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc', 'v2_time_wave0'): [0.56, 0.50, 0.54, 0.56, 0.56, 0.40, 0.60, 0.50, 0.40, 0.52, 0.52, 0.60, 0.52, 0.58, 0.50, 0.54, 0.50, 0.56, 0.46, 0.42, 0.48, 0.52, 0.52, 0.48, 0.50, 0.66, 0.50, 0.48, 0.44, 0.58],
+
+
+
+
