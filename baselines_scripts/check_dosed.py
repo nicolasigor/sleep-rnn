@@ -25,17 +25,37 @@ if __name__ == '__main__':
     # Dataset training settings
     configs = [
         dict(
-            dataset_name=constants.MASS_KC_NAME, which_expert=1,
-            result_folder="20210603_thesis_mass_fixed_kcomplex",
+            dataset_name=constants.MASS_SS_NAME, which_expert=1,
+            result_folder="20210603_thesis_mass_fixed_spindle1",
+            strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MASS_SS_NAME, which_expert=2,
+            result_folder="20210605_thesis_mass_fixed_spindle2_final",
             strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
         dict(
             dataset_name=constants.MASS_KC_NAME, which_expert=1,
-            result_folder="20210604_thesis_mass_fixed_kcomplex_globalstd",
+            result_folder="20210605_thesis_mass_fixed_kcomplex_final",
             strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
-        # dict(
-        #     dataset_name=constants.MASS_KC_NAME, which_expert=1,
-        #     result_folder="20210603_thesis_mass_fixed_kcomplex",
-        #     strategy='fixed', n_seeds=11, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MODA_SS_NAME, which_expert=1,
+            result_folder="20210605_thesis_moda_5cv_spindle_final",
+            strategy='5cv', n_seeds=3, average_mode=constants.MICRO_AVERAGE),
+        dict(
+            dataset_name=constants.INTA_SS_NAME, which_expert=1,
+            result_folder="20210605_thesis_inta_5cv_spindle_final",
+            strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MASS_SS_NAME, which_expert=1,
+            result_folder="20210605_thesis_mass_5cv_spindle1_final",
+            strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MASS_SS_NAME, which_expert=2,
+            result_folder="20210605_thesis_mass_5cv_spindle2_final",
+            strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
+        dict(
+            dataset_name=constants.MASS_KC_NAME, which_expert=1,
+            result_folder="20210605_thesis_mass_5cv_kcomplex_final",
+            strategy='5cv', n_seeds=3, average_mode=constants.MACRO_AVERAGE),
     ]
     # ------------------------------------------------------
     for config in configs:
