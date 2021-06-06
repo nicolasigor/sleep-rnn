@@ -409,11 +409,11 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210527_thesis_ablation_v3_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave0'): [0.42, 0.38, 0.38, 0.44, 0.46, 0.32, 0.40, 0.40, 0.40, 0.38, 0.40, 0.38, 0.34, 0.42, 0.46],
     os.path.join('20210527_thesis_ablation_v3_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave1'): [0.38, 0.36, 0.38, 0.44, 0.44, 0.40, 0.44, 0.44, 0.32, 0.40, 0.42, 0.38, 0.36, 0.38, 0.42],
     
-    os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.46, 0.52, 0.44, 0.50, 0.48, 0.50, 0.40, 0.48, 0.48, 0.46, 0.44],
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.46, 0.52, 0.44, 0.50, 0.48, 0.50, 0.40, 0.48, 0.48, 0.46, 0.44],
     os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.46, 0.42, 0.58, 0.48, 0.50, 0.40, 0.50, 0.48, 0.38, 0.44],
-    os.path.join('20210528_thesis_int_v3_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.50, 0.52, 0.44, 0.48, 0.46, 0.44, 0.48, 0.48, 0.40],
+    os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.50, 0.52, 0.44, 0.48, 0.46, 0.44, 0.48, 0.48, 0.40],
     os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.50, 0.46, 0.50, 0.50, 0.44, 0.52, 0.44, 0.52, 0.48, 0.50, 0.46],
-    os.path.join('20210528_thesis_int_v3_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
     os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48, 0.56, 0.52, 0.50],
     
     os.path.join('20210529_thesis_indata_5cv_e1_n2_train_moda_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
