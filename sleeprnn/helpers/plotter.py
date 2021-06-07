@@ -295,21 +295,22 @@ def add_label_chart(ax, label, fontsize):
 
 
 def format_precision_recall_plot_simple(
-    ax,
-    axis_markers=None,
-    show_quadrants=True,
-    show_grid=True,
-    minor_axis_markers=None
+        ax,
+        axis_markers=None,
+        show_quadrants=True,
+        show_grid=True,
+        minor_axis_markers=None,
+        axis_range=(0, 1)
 ):
     if axis_markers is None:
-        axis_markers = np.arange(0, 1 + 0.001, 0.1)
+        axis_markers = np.arange(axis_range[0], axis_range[1] + 0.001, 0.1)
     if minor_axis_markers is None:
         minor_axis_markers = axis_markers
     # Diagonal
-    ax.plot([0, 1], [0, 1], zorder=1, linewidth=1, color=viz.GREY_COLORS[4])
+    ax.plot(axis_range, axis_range, zorder=1, linewidth=1, color=viz.GREY_COLORS[4])
     # Square basis
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
+    ax.set_xlim([axis_range[0], axis_range[1]])
+    ax.set_ylim([axis_range[0], axis_range[1]])
     ax.set_aspect('equal')
     # Ticks
     ax.set_yticks(axis_markers)

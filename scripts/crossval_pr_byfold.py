@@ -25,7 +25,7 @@ if __name__ == "__main__":
     save_figs = True
     print_f1_score = True
 
-    ckpt_folder_prefix = ''
+    ckpt_folder_prefix = '20210606_augment_ablation_6seeds_5cv_e1'
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
