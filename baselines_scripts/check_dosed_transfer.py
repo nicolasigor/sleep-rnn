@@ -31,9 +31,9 @@ moda_config = dict(
 if __name__ == '__main__':
     fs = 200
     iou_threshold_report = 0.2
-    average_mode = constants.MICRO_AVERAGE
-    target_dataset_config = moda_config
-    source_dataset_configs = [mass1_config, mass2_config, inta_config]
+    average_mode = constants.MACRO_AVERAGE
+    target_dataset_config = mass1_config
+    source_dataset_configs = [mass2_config, moda_config, inta_config]
     normalization_mode_list = ['adapt']
 
     # ------------------------------------------------------
@@ -67,6 +67,7 @@ if __name__ == '__main__':
         _, _, test_ids_list = butils.get_partitions(dataset, '5cv', 3)
         n_folds = len(test_ids_list)
         pred_dict = butils.get_raw_dosed_marks(pred_dir, n_folds, dataset, print_thr=False)
+        pred_dict = butils.postprocess_dosed_marks(dataset, pred_dict)
         results = butils.evaluate_dosed_by_fold(
             dataset, target_dataset_config["which_expert"], test_ids_list, pred_dict, average_mode, iou_threshold_report)
         print("Test performance (%s, iou >= %1.2f, from train to test), %s to %s" % (
