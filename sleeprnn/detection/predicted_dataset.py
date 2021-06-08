@@ -11,6 +11,7 @@ from sleeprnn.common import constants, pkeys
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection.postprocessor import PostProcessor
 from sleeprnn.detection import postprocessing
+from sleeprnn.detection import det_utils
 
 
 class PredictedDataset(Dataset):
@@ -83,7 +84,24 @@ class PredictedDataset(Dataset):
         self.parent_dataset = None
         return data
 
-    def set_probability_threshold(self, new_probability_threshold):
+    def set_probability_threshold(self, new_probability_threshold, adjusted_by_threshold=None):
+        """Sets a new probability threshold and updates the stamps accordingly.
+
+        If adjusted_by_threshold (float between 0 and 1) is set, then the given
+        new probability threshold is treated as a threshold for probabilities ADJUSTED by the
+        given value, i.e., probabilities that satisfy:
+
+        adjusted_proba > 0.5 <=> predicted_proba > adjusted_by_threshold
+
+        Therefore, the value of new_probability_threshold is first transformed to its equivalent
+        in the predicted probabilities domain, and then it is applied to them.
+
+        If adjusted_by_threshold is None, then the given new probability threshold is used directly
+        on the predicted probabilities.
+        """
+        if adjusted_by_threshold is not None:
+            new_probability_threshold = det_utils.transform_thr_for_adjusted_to_thr_for_predicted(
+                new_probability_threshold, adjusted_by_threshold)
         self.probability_threshold = new_probability_threshold
         self._update_stamps()
 
@@ -123,17 +141,31 @@ class PredictedDataset(Dataset):
         for k, sub_id in enumerate(self.all_ids):
             self.data[sub_id][stamp_key] = stamps_list[k]
 
-    def get_subject_probabilities(self, subject_id):
-        return self.probabilities_dict[subject_id]
+    def get_subject_probabilities(self, subject_id, return_adjusted=False):
+        """ Returns the subject's predicted probability vector.
 
-    def get_subset_probabilities(self, subject_ids):
+        If return_adjusted is False (default), the predicted probabilities are returned.
+        If return_adjusted is True, the predicted probabilities are first ADJUSTED by the
+        set probability threshold, i.e., they are transformed to probabilities that satisfy:
+
+        adjusted_proba > 0.5 <=> predicted_proba > probability_threshold
+
+        after the adjustment, the adjusted probabilities are returned.
+        """
+        subject_probabilities = self.probabilities_dict[subject_id].copy()
+        if return_adjusted:
+            subject_probabilities = det_utils.transform_predicted_proba_to_adjusted_proba(
+                subject_probabilities, self.probability_threshold)
+        return subject_probabilities
+
+    def get_subset_probabilities(self, subject_ids, return_adjusted=False):
         proba_list = []
         for sub_id in subject_ids:
-            proba_list.append(self.get_subject_probabilities(sub_id))
+            proba_list.append(self.get_subject_probabilities(sub_id, return_adjusted=return_adjusted))
         return proba_list
 
-    def get_probabilities(self):
-        return self.get_subset_probabilities(self.all_ids)
+    def get_probabilities(self, return_adjusted=False):
+        return self.get_subset_probabilities(self.all_ids, return_adjusted=return_adjusted)
 
     def set_parent_dataset(self, dataset):
         self.parent_dataset = dataset
