@@ -38,3 +38,12 @@ def transform_thr_for_adjusted_to_thr_for_predicted(thr_for_adjusted, optimal_th
     den = thr_for_adjusted * optimal_threshold + (1.0 - thr_for_adjusted) * (1.0 - optimal_threshold)
     thr_for_predicted = num / den
     return thr_for_predicted
+
+
+def get_event_probabilities(marks, probability, downsampling_factor=8, proba_prc=75):
+    probability_upsampled = np.repeat(probability, downsampling_factor)
+    # Retrieve segments of probabilities
+    marks_segments = [probability_upsampled[m[0]:(m[1] + 1)] for m in marks]
+    marks_proba = [np.percentile(m_seg, proba_prc) for m_seg in marks_segments]
+    marks_proba = np.array(marks_proba)
+    return marks_proba
