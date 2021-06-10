@@ -16,7 +16,7 @@ from sleeprnn.common import pkeys, constants
 
 
 if __name__ == '__main__':
-    dataset_name = constants.MASS_KC_NAME
+    dataset_name = constants.CAP_SS_NAME
     which_expert = 1
 
     dataset_params = {pkeys.FS: 200}

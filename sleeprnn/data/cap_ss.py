@@ -201,7 +201,7 @@ class CapSS(Dataset):
             all_ids=all_ids,
             event_name=constants.SPINDLE,
             hypnogram_sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'],
-            hypnogram_page_duration=self.original_page_duration,
+            hypnogram_page_duration=20,
             n_experts=1,
             params=params,
             verbose=verbose
@@ -224,21 +224,21 @@ class CapSS(Dataset):
             # Read data
             signal, hypnogram_original = self._read_npz(path_dict[KEY_FILE_EEG_STATE])
             n2_pages = self._get_n2_pages(hypnogram_original)
-            total_pages = int(np.ceil(signal.shape[0] / self.page_size))
-            all_pages = np.arange(1, total_pages - 2, dtype=np.int16)
+            marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
+            signal, n2_pages, marks_1, hypnogram_20s = self._short_signals(signal, n2_pages, marks_1)
+            total_pages = int(signal.size / self.page_size)
+            all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
-
-            marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
             print('Marks SS from A7 with original paper params: %d' % marks_1.shape[0])
 
             # Save data
             ind_dict = {
-                KEY_EEG: signal,
-                KEY_N2_PAGES: n2_pages,
-                KEY_ALL_PAGES: all_pages,
-                KEY_HYPNOGRAM: hypnogram_original,
-                '%s_1' % KEY_MARKS: marks_1,
+                KEY_EEG: signal.astype(np.float32),
+                KEY_N2_PAGES: n2_pages.astype(np.int16),
+                KEY_ALL_PAGES: all_pages.astype(np.int16),
+                KEY_HYPNOGRAM: hypnogram_20s,
+                '%s_1' % KEY_MARKS: marks_1.astype(np.int32),
             }
             fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
             data[subject_id] = {'pretty_file_path': fname}
@@ -347,3 +347,26 @@ class CapSS(Dataset):
         # Fix durations that are outside standards
         marks = stamp_correction.filter_duration_stamps(marks, self.fs, self.min_ss_duration, self.max_ss_duration)
         return marks
+
+    def _short_signals(self, signal, n2_pages, marks):
+        valid_pages = np.concatenate([n2_pages - 1, n2_pages, n2_pages + 1])
+        valid_pages = np.clip(valid_pages, a_min=0, a_max=None)
+        valid_pages = np.unique(valid_pages)  # it is ensured to have context at each side of n2 pages
+
+        # Hypnogram of 20s pages with only N2 labels (everything else is invalid stage)
+        n_pages_original = int(signal.size / self.page_size)
+        hypnogram = np.array([self.unknown_id] * n_pages_original, dtype='<U2')
+        hypnogram[n2_pages] = self.n2_id
+
+        # Now simplify
+        hypnogram = hypnogram[valid_pages]
+        n2_pages = np.where(hypnogram == self.n2_id)[0]
+
+        marks = utils.stamp2seq(marks, 0, signal.size - 1)
+        marks = utils.extract_pages(marks, valid_pages, self.page_size)
+        marks = marks.flatten()
+        marks = utils.seq2stamp(marks)
+
+        signal = utils.extract_pages(signal, valid_pages, self.page_size)
+        signal = signal.flatten()
+        return signal, n2_pages, marks, hypnogram
