@@ -84,7 +84,7 @@ class PredictedDataset(Dataset):
         self.parent_dataset = None
         return data
 
-    def set_probability_threshold(self, new_probability_threshold, adjusted_by_threshold=None):
+    def set_probability_threshold(self, new_probability_threshold, adjusted_by_threshold=None, verbose=False):
         """Sets a new probability threshold and updates the stamps accordingly.
 
         If adjusted_by_threshold (float between 0 and 1) is set, then the given
@@ -102,6 +102,7 @@ class PredictedDataset(Dataset):
         if adjusted_by_threshold is not None:
             new_probability_threshold = det_utils.transform_thr_for_adjusted_to_thr_for_predicted(
                 new_probability_threshold, adjusted_by_threshold)
+            print("New threshold: %1.8f" % new_probability_threshold) if verbose else None
         self.probability_threshold = new_probability_threshold
         self._update_stamps()
 

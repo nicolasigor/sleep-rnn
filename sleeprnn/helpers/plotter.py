@@ -267,7 +267,7 @@ def average_curves(x_list, y_list):
     for k in range(len(x_list)):
         single_x = x_list[k]
         single_y = y_list[k]
-        fn_interp = interp1d(single_x, single_y, kind='cubic')
+        fn_interp = interp1d(single_x, single_y, kind='linear')
         new_single_y = fn_interp(x)
         new_y_list.append(new_single_y)
     y = np.stack(new_y_list, axis=1).mean(axis=1)
