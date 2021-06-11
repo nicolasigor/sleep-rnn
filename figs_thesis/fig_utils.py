@@ -79,22 +79,32 @@ def get_red_predictions(
     return predictions_dict
 
 
-def compute_fold_performance(events_list, detections_list, average_mode, iou_threshold_report=0.2):
+def compute_fold_performance_vs_iou(events_list, detections_list, average_mode, iou_axis):
     metric_vs_iou_fn_dict = {
         constants.MACRO_AVERAGE: metrics.metric_vs_iou_macro_average,
         constants.MICRO_AVERAGE: metrics.metric_vs_iou_micro_average}
     # Compute performance
     iou_matching_list, _ = metrics.matching_with_list(events_list, detections_list)
     f1_score = metric_vs_iou_fn_dict[average_mode](
-        events_list, detections_list, [iou_threshold_report],
+        events_list, detections_list, iou_axis,
         iou_matching_list=iou_matching_list, metric_name=constants.F1_SCORE)
     recall = metric_vs_iou_fn_dict[average_mode](
-        events_list, detections_list, [iou_threshold_report],
+        events_list, detections_list, iou_axis,
         iou_matching_list=iou_matching_list, metric_name=constants.RECALL)
     precision = metric_vs_iou_fn_dict[average_mode](
-        events_list, detections_list, [iou_threshold_report],
+        events_list, detections_list, iou_axis,
         iou_matching_list=iou_matching_list, metric_name=constants.PRECISION)
     nonzero_iou_list = [iou_matching[iou_matching > 0] for iou_matching in iou_matching_list]
+    outputs = {
+        'F1-score_vs_iou': f1_score,
+        'Recall_vs_iou': recall,
+        'Precision_vs_iou': precision,
+        'nonzero_IoU': nonzero_iou_list
+    }
+    return outputs
+
+
+def compute_miou(nonzero_iou_list, average_mode):
     if average_mode == constants.MACRO_AVERAGE:
         miou_list = [np.mean(nonzero_iou) for nonzero_iou in nonzero_iou_list]
         miou = np.mean(miou_list)
@@ -102,10 +112,18 @@ def compute_fold_performance(events_list, detections_list, average_mode, iou_thr
         miou = np.concatenate(nonzero_iou_list).mean()
     else:
         raise ValueError("Average mode %s invalid" % average_mode)
+    return miou
+
+
+def compute_fold_performance(events_list, detections_list, average_mode, iou_threshold_report=0.2):
+    # Compute performance
+    outputs_vs_iou = compute_fold_performance_vs_iou(
+        events_list, detections_list, average_mode, [iou_threshold_report])
+    miou = compute_miou(outputs_vs_iou['onzero_IoU'], average_mode)
     outputs = {
-        'F1-score': f1_score[0],
-        'Recall': recall[0],
-        'Precision': precision[0],
+        'F1-score': outputs_vs_iou['F1-score_vs_iou'][0],
+        'Recall': outputs_vs_iou['Recall_vs_iou'][0],
+        'Precision': outputs_vs_iou['Precision_vs_iou'][0],
         'mIoU': miou
     }
     return outputs
