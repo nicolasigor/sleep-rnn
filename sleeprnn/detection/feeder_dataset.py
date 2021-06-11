@@ -20,7 +20,8 @@ class FeederDataset(Dataset):
             sub_ids,
             task_mode=constants.N2_RECORD,
             which_expert=1,
-            verbose=False
+            verbose=False,
+            n2_subsampling_factor=1.0
     ):
 
         """Constructor"""
@@ -32,6 +33,7 @@ class FeederDataset(Dataset):
         self.parent_dataset_class = dataset.__class__
         self.task_mode = task_mode
         self.which_expert = which_expert
+        self.n2_subsampling_factor = n2_subsampling_factor
 
         super(FeederDataset, self).__init__(
             dataset_dir=dataset.dataset_dir,
@@ -50,7 +52,14 @@ class FeederDataset(Dataset):
         self.global_std = dataset.global_std
 
     def read_subject_data(self, subject_id):
-        return self.parent_dataset_class.read_subject_data(self, subject_id)
+        # Original data
+        ind_dict = self.parent_dataset_class.read_subject_data(self, subject_id)
+        # Return a subsample if required
+        if self.n2_subsampling_factor < 1:
+            n2_pages = ind_dict[KEY_N2_PAGES]
+            n_pages_to_extract = int(np.ceil(self.n2_subsampling_factor * n2_pages.size))
+            ind_dict[KEY_N2_PAGES] = n2_pages[:n_pages_to_extract]  # contiguous segment
+        return ind_dict
 
     def _load_from_source(self):
         """Loads the data from source."""

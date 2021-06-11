@@ -251,7 +251,12 @@ class CapSS(Dataset):
     def read_subject_data(self, subject_id):
         path_dict = self.data[subject_id]
         ind_dict = np.load(path_dict['pretty_file_path'])
-        return ind_dict
+
+        loaded_ind_dict = {}
+        for key in ind_dict.files:
+            loaded_ind_dict[key] = ind_dict[key]
+
+        return loaded_ind_dict
 
     def _get_file_paths(self):
         """Returns a list of dicts containing paths to load the database."""
