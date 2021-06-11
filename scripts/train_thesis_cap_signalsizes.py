@@ -122,8 +122,10 @@ if __name__ == '__main__':
                 dataset.global_std = fold_global_std
                 print("Global STD set to %s" % fold_global_std)
                 # Create data feeders
-                data_train = FeederDataset(dataset, train_ids, task_mode, which_expert=which_expert, n2_subsampling_factor=train_size)
-                data_val = FeederDataset(dataset, val_ids, task_mode, which_expert=which_expert, n2_subsampling_factor=train_size)
+                data_train = FeederDataset(
+                    dataset, train_ids, task_mode, which_expert=which_expert, n2_subsampling_factor=(train_size / 100))
+                data_val = FeederDataset(
+                    dataset, val_ids, task_mode, which_expert=which_expert, n2_subsampling_factor=(train_size / 100))
                 data_test = FeederDataset(dataset, test_ids, task_mode, which_expert=which_expert)
                 # Create base parameters for this partition
                 base_params = copy.deepcopy(pkeys.default_params)

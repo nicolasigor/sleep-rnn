@@ -53,6 +53,11 @@ if __name__ == '__main__':
     train_sizes_list = [i * (100 / fraction) for i in range(1, fraction + 1)]
     train_sizes_list = train_sizes_list[::-1]
 
+    # ##################
+    # Debug
+    train_sizes_list = [100]
+    # ##################
+
     # Default parameters with magnitudes in microvolts (uv)
     da_unif_noise_intens_uv = pkeys.DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS
     da_random_waves_map = {
