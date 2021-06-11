@@ -49,13 +49,7 @@ if __name__ == '__main__':
     ]
 
     # Experiment
-    train_sizes_list = [min(2 ** i, 100) for i in range(1, 8)]
-    train_sizes_list = train_sizes_list[::-1]
-
-    # ##################
-    # Debug
-    train_sizes_list = [100]
-    # ##################
+    train_sizes_list = [80, 40, 20, 10, 5]
 
     # Default parameters with magnitudes in microvolts (uv)
     da_unif_noise_intens_uv = pkeys.DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS
