@@ -2,13 +2,14 @@ import os
 import pickle
 
 import numpy as np
+from sklearn.linear_model import LinearRegression, HuberRegressor
 
 PATH_THIS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))
 BASELINES_PATH = os.path.join(PROJECT_ROOT, 'resources', 'comparison_data', 'baselines_2021')
 
 from sleeprnn.helpers import reader
-from sleeprnn.common import constants
+from sleeprnn.common import constants, viz
 from sleeprnn.common.optimal_thresholds import OPTIMAL_THR_FOR_CKPT_DICT
 from sleeprnn.detection import metrics
 
@@ -160,3 +161,30 @@ def compute_subject_performance(events_list, detections_list, iou_threshold_repo
 
 def format_metric(mean_value, std_value, scale_by=100):
     return "$%1.1f\pm %1.1f$" % (scale_by * mean_value, scale_by * std_value)
+
+
+def linear_regression(durations_x, durations_y, min_dur, max_dur, ax, **kwargs):
+    durations_x = durations_x.reshape(-1, 1)
+    reg = LinearRegression().fit(durations_x, durations_y)
+    # reg = HuberRegressor().fit(durations_x, durations_y)
+    r2_score = reg.score(durations_x, durations_y)
+    x_reg = np.array([min_dur, max_dur]).reshape(-1, 1)
+    y_reg = reg.predict(x_reg)
+    ax.plot(
+        x_reg, y_reg, linestyle='--', zorder=20,
+        color=viz.PALETTE['red'], linewidth=0.8, label='$R^2$ = %1.2f' % r2_score)
+    ax.legend(**kwargs)
+
+
+def compute_iou_histogram(nonzero_iou_subject_list, average_mode, iou_hist_bins):
+    if average_mode == constants.MICRO_AVERAGE:
+        nonzero_iou_subject_list = [np.concatenate(nonzero_iou_subject_list)]
+    iou_mean = []
+    iou_hist = []
+    for nz_iou in nonzero_iou_subject_list:
+        iou_mean.append(np.mean(nz_iou))
+        this_iou_hist, _ = np.histogram(nz_iou, bins=iou_hist_bins, density=True)
+        iou_hist.append(this_iou_hist)
+    iou_mean = np.mean(iou_mean)
+    iou_hist_values = np.stack(iou_hist, axis=0).mean(axis=0)
+    return iou_mean, iou_hist_values
