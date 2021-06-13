@@ -3,6 +3,7 @@ import pickle
 
 import numpy as np
 from sklearn.linear_model import LinearRegression, HuberRegressor
+from scipy.signal import find_peaks
 
 PATH_THIS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))
@@ -188,3 +189,31 @@ def compute_iou_histogram(nonzero_iou_subject_list, average_mode, iou_hist_bins)
     iou_mean = np.mean(iou_mean)
     iou_hist_values = np.stack(iou_hist, axis=0).mean(axis=0)
     return iou_mean, iou_hist_values
+
+
+def get_frequency_by_peaks(x, fs, distance_in_seconds=0.05):
+    distance = int(fs * distance_in_seconds)
+    peaks_max, _ = find_peaks(x, distance=distance)
+    peaks_min, _ = find_peaks(-x, distance=distance)
+    dist_maxmax = np.diff(peaks_max)
+    dist_minmin = np.diff(peaks_min)
+    dist_pp = np.concatenate([dist_maxmax, dist_minmin])
+    dist_pp = np.mean(dist_pp)
+    freq_count = fs / dist_pp
+    return freq_count
+
+
+def get_frequency_by_fft(x, fs, pad_to_duration=5):
+    x_base = np.zeros(fs * pad_to_duration)
+    # x = x * np.hanning(x.size)
+    start_sample = (x_base.size - x.size) // 2
+    end_sample = start_sample + x.size
+    x_base[start_sample:end_sample] = x
+    x = x_base
+    y = np.fft.rfft(x) / x.size
+    y = np.abs(y)
+    f = np.fft.rfftfreq(x.size, d=1. / fs)
+    y = y[(f >= 10) & (f<=17)]
+    f = f[(f >= 10) & (f<=17)]
+    freq_fft = f[np.argmax(y)]
+    return freq_fft
