@@ -121,7 +121,7 @@ def compute_fold_performance(events_list, detections_list, average_mode, iou_thr
     # Compute performance
     outputs_vs_iou = compute_fold_performance_vs_iou(
         events_list, detections_list, average_mode, [iou_threshold_report])
-    miou = compute_miou(outputs_vs_iou['onzero_IoU'], average_mode)
+    miou = compute_miou(outputs_vs_iou['nonzero_IoU'], average_mode)
     outputs = {
         'F1-score': outputs_vs_iou['F1-score_vs_iou'][0],
         'Recall': outputs_vs_iou['Recall_vs_iou'][0],
