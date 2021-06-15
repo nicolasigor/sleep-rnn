@@ -378,7 +378,7 @@ STATS_PER_EPOCH = 'stats_per_epoch'
 EPOCHS_LR_UPDATE = 'epochs_lr_update'
 PRETRAIN_EPOCHS_INIT = 'pretrain_epochs_init'
 PRETRAIN_EPOCHS_ANNEAL = 'pretrain_epochs_anneal'
-
+VALIDATION_AVERAGE_MODE = 'validation_average_mode'
 
 """ Postprocessing params 
 """
@@ -512,6 +512,7 @@ default_params = {
     STATS_PER_EPOCH: 5,
     EPOCHS_LR_UPDATE: 5,
     MAX_LR_UPDATES: 4,
+    VALIDATION_AVERAGE_MODE: None,
     # Transfer learning
     PRETRAIN_EPOCHS_INIT: None,  # for fit_without_validation
     PRETRAIN_EPOCHS_ANNEAL: None,  # for fit_without_validation

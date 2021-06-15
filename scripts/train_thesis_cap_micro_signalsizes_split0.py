@@ -35,7 +35,7 @@ if __name__ == '__main__':
     this_date = '20210610'  # datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
-    experiment_name_base = '%s_thesis_signalsizes' % this_date
+    experiment_name_base = '%s_thesis_micro_signalsizes' % this_date
 
     # Datasets
     dataset_configs = [
@@ -49,7 +49,8 @@ if __name__ == '__main__':
     ]
 
     # Experiment
-    train_sizes_list = [5]
+    train_sizes_list = [10, 5]
+    val_avg_mode = constants.MICRO_AVERAGE
 
     # Default parameters with magnitudes in microvolts (uv)
     da_unif_noise_intens_uv = pkeys.DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS
@@ -104,9 +105,6 @@ if __name__ == '__main__':
 
         for fold_id in range(len(train_ids_list)):
 
-            if fold_id == 0:
-                continue
-
             print("\nStarting evaluation of partition %d (%d/%d)" % (fold_id, fold_id+1, len(train_ids_list)))
 
             for train_size in train_sizes_list:
@@ -142,6 +140,9 @@ if __name__ == '__main__':
                 for model_config in model_configs:
                     params = copy.deepcopy(base_params)
                     params.update(model_config)
+                    # enforce average mode
+                    params[pkeys.VALIDATION_AVERAGE_MODE] = val_avg_mode
+
                     folder_name = '%s_signalsize%03d' % (model_config[pkeys.MODEL_VERSION], train_size)
                     base_dir = os.path.join(
                         '%s_%s_train_%s' % (experiment_name, task_mode, dataset_name), folder_name, 'fold%d' % fold_id)

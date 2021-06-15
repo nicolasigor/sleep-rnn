@@ -338,10 +338,13 @@ class WaveletBLSTM(BaseModel):
         print("Learning rate decay criterion: %s" % lr_update_criterion)
 
         # Validation events for AF1
-        if 'moda' in data_val.dataset_name:
-            val_avg_mode = constants.MICRO_AVERAGE
-        else:
-            val_avg_mode = constants.MACRO_AVERAGE
+        val_avg_mode = self.params[pkeys.VALIDATION_AVERAGE_MODE]
+        if val_avg_mode is None:
+            # Default values
+            if 'moda' in data_val.dataset_name:
+                val_avg_mode = constants.MICRO_AVERAGE
+            else:
+                val_avg_mode = constants.MACRO_AVERAGE
         print("Validation AF1 computed using %s and thr 0.5" % val_avg_mode)
 
         # Training loop
