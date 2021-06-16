@@ -4,11 +4,13 @@ import pickle
 import numpy as np
 from sklearn.linear_model import LinearRegression, HuberRegressor
 from scipy.signal import find_peaks
+from scipy.interpolate import interp1d
 
 PATH_THIS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))
 BASELINES_PATH = os.path.join(PROJECT_ROOT, 'resources', 'comparison_data', 'baselines_2021')
 
+from sleeprnn.data import utils
 from sleeprnn.helpers import reader
 from sleeprnn.common import constants, viz
 from sleeprnn.common.optimal_thresholds import OPTIMAL_THR_FOR_CKPT_DICT
@@ -175,6 +177,7 @@ def linear_regression(durations_x, durations_y, min_dur, max_dur, ax, **kwargs):
         x_reg, y_reg, linestyle='--', zorder=20,
         color=viz.PALETTE['red'], linewidth=0.8, label='$R^2$ = %1.2f' % r2_score)
     ax.legend(**kwargs)
+    return r2_score
 
 
 def compute_iou_histogram(nonzero_iou_subject_list, average_mode, iou_hist_bins):
@@ -191,21 +194,61 @@ def compute_iou_histogram(nonzero_iou_subject_list, average_mode, iou_hist_bins)
     return iou_mean, iou_hist_values
 
 
-def get_frequency_by_peaks(x, fs, distance_in_seconds=0.05):
-    distance = int(fs * distance_in_seconds)
-    peaks_max, _ = find_peaks(x, distance=distance)
-    peaks_min, _ = find_peaks(-x, distance=distance)
-    dist_maxmax = np.diff(peaks_max)
-    dist_minmin = np.diff(peaks_min)
-    dist_pp = np.concatenate([dist_maxmax, dist_minmin])
-    dist_pp = np.mean(dist_pp)
-    freq_count = fs / dist_pp
-    return freq_count
+# def get_frequency_by_peaks(x, fs, distance_in_seconds=0.04, use_median=False):
+#     distance = int(fs * distance_in_seconds)
+#     peaks_max, _ = find_peaks(x, distance=distance)
+#     peaks_min, _ = find_peaks(-x, distance=distance)
+#     dist_maxmax = np.diff(peaks_max)
+#     dist_minmin = np.diff(peaks_min)
+#     dist_pp = np.concatenate([dist_maxmax, dist_minmin])
+#
+#     # Filter
+#     min_val, max_val = np.percentile(dist_pp, (10, 90))
+#     dist_pp = dist_pp[(dist_pp >= min_val) & (dist_pp <= max_val)]
+#
+#     # Reduce
+#     if use_median:
+#         dist_pp = np.percentile(dist_pp, 50, interpolation='linear')
+#     else:
+#         dist_pp = np.mean(dist_pp)
+#
+#     freq_count = fs / dist_pp
+#     return freq_count
 
 
-def get_frequency_by_fft(x, fs, pad_to_duration=5):
+# def get_frequency_by_zero_crossings(
+#         x, fs,
+#         distance_in_seconds=0.02,
+#         upsampling_factor=100,
+#         use_median=True
+# ):
+#     t = np.arange(x.size) / fs
+#     fs_new = upsampling_factor * fs
+#     distance = int(fs_new * distance_in_seconds)
+#     # Densify
+#     t_new = np.arange(t[0], t[-1], 1.0 / fs_new)
+#     x_new = interp1d(t, x)(t_new)
+#     # Find crossings
+#     pos = x_new > 0
+#     npos = ~pos
+#     zero_crossings = ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:])).nonzero()[0]
+#     inter_crossing_samples = np.diff(zero_crossings)
+#     # Filter crossing too close
+#     inter_crossing_samples = inter_crossing_samples[inter_crossing_samples > distance]
+#     # Reduce
+#     if use_median:
+#         avg_inter_crossing_samples = np.percentile(inter_crossing_samples, 50, interpolation='linear')
+#     else:
+#         avg_inter_crossing_samples = np.mean(inter_crossing_samples)
+#     # Estimate
+#     freq_estimated = fs_new / (2.0 * avg_inter_crossing_samples)
+#     return freq_estimated
+
+
+def get_frequency_by_fft(x, fs, pad_to_duration=10, f_min=5, f_max=30, apply_hann_window=False):
     x_base = np.zeros(fs * pad_to_duration)
-    # x = x * np.hanning(x.size)
+    if apply_hann_window:
+        x = x * np.hanning(x.size)
     start_sample = (x_base.size - x.size) // 2
     end_sample = start_sample + x.size
     x_base[start_sample:end_sample] = x
@@ -213,7 +256,55 @@ def get_frequency_by_fft(x, fs, pad_to_duration=5):
     y = np.fft.rfft(x) / x.size
     y = np.abs(y)
     f = np.fft.rfftfreq(x.size, d=1. / fs)
-    y = y[(f >= 10) & (f<=17)]
-    f = f[(f >= 10) & (f<=17)]
+    y = y[(f >= f_min) & (f <= f_max)]
+    f = f[(f >= f_min) & (f <= f_max)]
     freq_fft = f[np.argmax(y)]
     return freq_fft
+
+
+def get_amplitude_spindle(x, fs, distance_in_seconds=0.04):
+    distance = int(fs * distance_in_seconds)
+    peaks_max, _ = find_peaks(x, distance=distance)
+    peaks_min, _ = find_peaks(-x, distance=distance)
+    peaks = np.sort(np.concatenate([peaks_max, peaks_min]))
+    peak_values = x[peaks]
+    peak_to_peak_diff = np.abs(np.diff(peak_values))
+    max_pp = np.max(peak_to_peak_diff)
+    return max_pp
+
+
+def find_kcomplex_negative_peak(x, fs, left_edge_tol=0.05, right_edge_tol=0.1):
+    # Find negative peak
+    left_edge_tol = int(fs * left_edge_tol)
+    right_edge_tol = int(fs * right_edge_tol)
+    negative_peaks, _ = find_peaks(-x)
+    negative_peaks = [
+        peak for peak in negative_peaks
+        if left_edge_tol < peak < x.size - right_edge_tol]
+    negative_peaks = np.array(negative_peaks, dtype=np.int32)
+    negative_peaks_values = x[negative_peaks]
+    negative_peak_loc = negative_peaks[np.argmin(negative_peaks_values)]
+    return negative_peak_loc
+
+
+def get_amplitude_kcomplex(x, fs):
+    amplitude = x.max() - x.min()
+    return amplitude
+
+
+def get_amplitude_event(x, fs, event_name):
+    if event_name == 'spindle':
+        return get_amplitude_spindle(x, fs)
+    elif event_name == 'kcomplex':
+        return get_amplitude_kcomplex(x, fs)
+    else:
+        raise ValueError()
+
+
+def get_filtered_signal_for_event(x, fs, event_name):
+    if event_name == 'spindle':
+        return utils.apply_bandpass(x, fs, lowcut=9.5, highcut=16.5)
+    elif event_name == 'kcomplex':
+        return utils.apply_lowpass(x, fs, cutoff=8)
+    else:
+        raise ValueError()
