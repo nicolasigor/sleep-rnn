@@ -60,10 +60,16 @@ def get_red_predictions(
 ):
     # Form ckpt_folder
     if source_dataset_name is None:
+        source_dataset_name = target_dataset.dataset_name
+        source_expert = target_expert
+
+    if (source_dataset_name == target_dataset.dataset_name) and (source_expert == target_expert):
+        # In-dataset
         ckpt_folder = '%s_%s_e%d_%s_train_%s' % (
             ckpt_folder_prefix, strategy, target_expert, task_mode, target_dataset.dataset_name
         )
     else:
+        # Cross-dataset
         ckpt_folder = '%s_from_%s_desc_%s_to_%s' % (
             transfer_date,
             '%s_%s_e%d_%s_train_%s' % (
