@@ -211,7 +211,7 @@ if __name__ == '__main__':
                     # Save path for predictions
                     perturbation_grid_folder = '%s_%s' % (grid_folder, perturbation_name)
                     base_dir = os.path.join(
-                        RESULTS_PATH, experiment_name_full,
+                        experiment_name_full,
                         perturbation_grid_folder,
                         'fold%d' % fold_id
                     )
