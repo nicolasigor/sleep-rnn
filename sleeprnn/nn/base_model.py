@@ -230,7 +230,8 @@ class BaseModel(object):
             self,
             data_inference: FeederDataset,
             verbose=False,
-            input_scale_factor=1.0  # for scaling experiment
+            signal_transform_fn=None,  # For perturbation experiments
+            time_reverse=False,  # For temporal inversion experiment
     ):
         with_augmented_page = self.params[pkeys.PREDICT_WITH_AUGMENTED_PAGE]
         border_size = int(np.round(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]))
@@ -238,17 +239,26 @@ class BaseModel(object):
             border_size=border_size,
             predict_with_augmented_page=with_augmented_page,
             verbose=False)
-        if input_scale_factor != 1.0 and verbose:
-            print('Using input scale factor %s' % input_scale_factor)
-        x_inference = [
-            single_x * input_scale_factor for single_x in x_inference]
-        probabilies_list = self.predict_proba_with_list(
+
+        if signal_transform_fn is None:
+            def signal_transform_fn(x):
+                return x
+        x_inference = [signal_transform_fn(single_x) for single_x in x_inference]
+
+        if time_reverse:  # Reverse time
+            x_inference = [np.flip(single_x, axis=1) for single_x in x_inference]
+
+        probabilities_list = self.predict_proba_with_list(
             x_inference, verbose=verbose, with_augmented_page=with_augmented_page)
+
+        if time_reverse:  # Recover proper time ordering
+            probabilities_list = [np.flip(single_p, axis=1) for single_p in probabilities_list]
+
         # Now create PredictedDataset object
         probabilities_dict = {}
         all_ids = data_inference.get_ids()
         for k, sub_id in enumerate(all_ids):
-            this_proba = probabilies_list[k]
+            this_proba = probabilities_list[k]
             # Transform to whole-night probability vector
             this_proba = pages2seq(
                 this_proba,
