@@ -21,7 +21,8 @@ class PredictedDataset(Dataset):
             dataset: FeederDataset,
             probabilities_dict,
             params=None,
-            verbose=False
+            verbose=False,
+            skip_setting_threshold=False
     ):
         # make the changes local
         params = {} if (params is None) else params.copy()
@@ -65,8 +66,8 @@ class PredictedDataset(Dataset):
             raise ValueError(
                 'IDs mismatch: IDs from predictions are %s '
                 'but IDs from given dataset are %s' % (ids_proba, ids_data))
-
-        self.set_probability_threshold(0.5)
+        if not skip_setting_threshold:
+            self.set_probability_threshold(0.5)
 
     def _load_from_source(self):
         """Loads the data from source."""
