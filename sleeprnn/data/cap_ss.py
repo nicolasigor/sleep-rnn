@@ -162,11 +162,15 @@ IDS_INVALID = [
 class CapSS(Dataset):
     """This is a class to manipulate the CAP data EEG dataset.
 
+    Expert 1:
     The sleep spindle marks are detections made by the A7 algorithm:
     Lacourse, K., Delfrate, J., Beaudry, J., Peppard, P., & Warby, S. C. (2019).
     A sleep spindle detection algorithm that emulates human expert spindle scoring.
     Journal of neuroscience methods, 316, 3-11.
     The four parameters were fitted on MASS-SS2.
+
+    Expert 2: S1 (abs)
+    Expert 3: S2 (rel)
 
     Expected directory tree inside DATA folder (see utils.py):
 
@@ -202,7 +206,7 @@ class CapSS(Dataset):
             event_name=constants.SPINDLE,
             hypnogram_sleep_labels=['S1', 'S2', 'S3', 'S4', 'R'],
             hypnogram_page_duration=20,
-            n_experts=1,
+            n_experts=3,
             params=params,
             verbose=verbose
         )
@@ -226,11 +230,34 @@ class CapSS(Dataset):
             n2_pages = self._get_n2_pages(hypnogram_original)
             marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
             signal, n2_pages, marks_1, hypnogram_20s = self._short_signals(signal, n2_pages, marks_1)
+
+            # ################
+            # Remove weird pages from N2 labels
+            weird_locs = np.where(np.abs(signal) > 300)[0]
+            weird_pages = np.unique(np.floor(weird_locs / self.page_size)).astype(np.int32)
+            if subject_id == '2-001':
+                weird_pages = np.concatenate([
+                    weird_pages,
+                    np.arange(0, 60 + 0.001),
+                    np.arange(120, 130 + 0.001)
+                ])
+                weird_pages = np.unique(weird_pages).astype(np.int32)
+            hypnogram_20s[weird_pages] = self.unknown_id
+            n2_pages = np.where(hypnogram_20s == self.n2_id)[0]
+            # ################
+
             total_pages = int(signal.size / self.page_size)
             all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
+
+            # Marks from simple detectors S1 (abs) and S2 (rel), respectively
+            marks_2 = self._read_marks_simple(path_dict['%s_2' % KEY_FILE_MARKS])
+            marks_3 = self._read_marks_simple(path_dict['%s_3' % KEY_FILE_MARKS])
+
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
             print('Marks SS from A7 with original paper params: %d' % marks_1.shape[0])
+            print('Marks SS from S1-abs with thr 12 uV        : %d' % marks_2.shape[0])
+            print('Marks SS from S2-rel with thr 3.4          : %d' % marks_3.shape[0])
 
             # Save data
             ind_dict = {
@@ -239,6 +266,8 @@ class CapSS(Dataset):
                 KEY_ALL_PAGES: all_pages.astype(np.int16),
                 KEY_HYPNOGRAM: hypnogram_20s,
                 '%s_1' % KEY_MARKS: marks_1.astype(np.int32),
+                '%s_2' % KEY_MARKS: marks_2.astype(np.int32),
+                '%s_3' % KEY_MARKS: marks_3.astype(np.int32),
             }
             fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
             data[subject_id] = {'pretty_file_path': fname}
@@ -267,10 +296,18 @@ class CapSS(Dataset):
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
                 'EventDetection_s%s_absSigPow(1.25)_relSigPow(1.6)_sigCov(1.3)_sigCorr(0.69).txt' % subject_id)
+            path_marks_2_file = os.path.join(
+                self.dataset_dir, '%s_s1_abs' % PATH_MARKS,
+                'SimpleDetectionAbsolute_s%s_thr12_fs200.txt' % subject_id)
+            path_marks_3_file = os.path.join(
+                self.dataset_dir, '%s_s2_rel' % PATH_MARKS,
+                'SimpleDetectionRelative_s%s_thr3.4_fs200.txt' % subject_id)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG_STATE: path_eeg_state_file,
                 '%s_1' % KEY_FILE_MARKS: path_marks_1_file,
+                '%s_2' % KEY_FILE_MARKS: path_marks_2_file,
+                '%s_3' % KEY_FILE_MARKS: path_marks_3_file,
             }
             # Check paths
             for key in ind_dict:
@@ -351,6 +388,19 @@ class CapSS(Dataset):
         marks = stamp_correction.combine_close_stamps(marks, self.fs, self.min_ss_duration)
         # Fix durations that are outside standards
         marks = stamp_correction.filter_duration_stamps(marks, self.fs, self.min_ss_duration, self.max_ss_duration)
+        return marks
+
+    def _read_marks_simple(self, path_marks_file):
+        # files assume fs = 200Hz and shortened signals
+        marks = np.loadtxt(path_marks_file, delimiter=',')
+        marks = marks.astype(np.int32)
+        # Sample-stamps assume 200Hz sampling rate
+        if self.fs != 200:
+            print('Correcting marks from 200 Hz to %d Hz' % self.fs)
+            # We need to transform the marks to the new sampling rate
+            marks_time = marks.astype(np.float32) / 200.0
+            # Transform to sample-stamps
+            marks = np.round(marks_time * self.fs).astype(np.int32)
         return marks
 
     def _short_signals(self, signal, n2_pages, marks):
