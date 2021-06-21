@@ -17,7 +17,7 @@ from sleeprnn.common import pkeys, constants
 
 if __name__ == '__main__':
     dataset_name = constants.CAP_SS_NAME
-    which_expert = 2
+    which_expert = 3
 
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True

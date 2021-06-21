@@ -255,9 +255,9 @@ class CapSS(Dataset):
 
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
-            print('Marks SS from A7 with original paper params: %d' % marks_1.shape[0])
-            print('Marks SS from S1-abs with thr 12 uV        : %d' % marks_2.shape[0])
-            print('Marks SS from S2-rel with thr 3.4          : %d' % marks_3.shape[0])
+            print('Marks SS from A7 with original paper params         : %d' % marks_1.shape[0])
+            print('Marks SS from S1-abs with thr 10 uV and thr low 0.86: %d' % marks_2.shape[0])
+            print('Marks SS from S2-rel with thr 2.9 and thr low 0.80  : %d' % marks_3.shape[0])
 
             # Save data
             ind_dict = {
@@ -298,10 +298,10 @@ class CapSS(Dataset):
                 'EventDetection_s%s_absSigPow(1.25)_relSigPow(1.6)_sigCov(1.3)_sigCorr(0.69).txt' % subject_id)
             path_marks_2_file = os.path.join(
                 self.dataset_dir, '%s_s1_abs' % PATH_MARKS,
-                'SimpleDetectionAbsolute_s%s_thr12_fs200.txt' % subject_id)
+                'SimpleDetectionAbsolute_s%s_thr10-0.86_fs200.txt' % subject_id)
             path_marks_3_file = os.path.join(
                 self.dataset_dir, '%s_s2_rel' % PATH_MARKS,
-                'SimpleDetectionRelative_s%s_thr3.4_fs200.txt' % subject_id)
+                'SimpleDetectionRelative_s%s_thr2.9-0.80_fs200.txt' % subject_id)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG_STATE: path_eeg_state_file,
