@@ -9,6 +9,7 @@ from scipy.interpolate import interp1d
 PATH_THIS_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(PATH_THIS_DIR, '..'))
 BASELINES_PATH = os.path.join(PROJECT_ROOT, 'resources', 'comparison_data', 'baselines_2021')
+RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
 
 from sleeprnn.data import utils
 from sleeprnn.helpers import reader
@@ -43,6 +44,42 @@ def get_baseline_predictions(
         predictions_dict = pickle.load(handle)
     # output is predictions_dict[fold_id][subject_id]
     return predictions_dict
+
+
+def get_red_predictions_for_perturbations(
+        model_version,
+        strategy,
+        dataset,
+        expert,
+        task_mode=constants.N2_RECORD,
+        ckpt_folder_prefix='20210529_thesis_indata',
+        perturbation_date='20210620',
+        verbose=False
+):
+    ckpt_folder = '%s_from_%s_desc_perturbation_to_%s' % (
+        perturbation_date,
+        '%s_%s_e%d_%s_train_%s' % (
+            ckpt_folder_prefix, strategy, expert, task_mode, dataset.dataset_name),
+        'e%d_%s_train_%s' % (expert, task_mode, dataset.dataset_name)
+    )
+    available_grid_folders = os.listdir(os.path.join(
+        RESULTS_PATH, 'predictions_%s' % dataset.dataset_name, ckpt_folder))
+    available_grid_folders.sort()
+    available_grid_folders = [n for n in available_grid_folders if model_version in n]
+    perturbation_predictions_dict = {}
+    for grid_folder in available_grid_folders:
+        perturbation_id = grid_folder.split("_")[-1]
+        grid_folder_complete = os.path.join(ckpt_folder, grid_folder)
+        print("Loading predictions from %s" % grid_folder_complete) if verbose else None
+        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode)
+        # Ensure optimal threshold in predictions
+        opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
+        for k in predictions_dict.keys():
+            for set_name in predictions_dict[k].keys():
+                predictions_dict[k][set_name].set_probability_threshold(opt_thr_list[k])
+        # output is predictions_dict[fold_id][subset] -> [subject_id]
+        perturbation_predictions_dict[perturbation_id] = predictions_dict
+    return perturbation_predictions_dict
 
 
 def get_red_predictions(

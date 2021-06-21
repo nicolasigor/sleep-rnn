@@ -138,9 +138,15 @@ def remove_band(signal, fs, lowcut, highcut):
         lowcut = None
     if highcut >= 30:
         highcut = None
+    print("Filtering signal by", lowcut, highcut)
     band_signal = utils.apply_bandpass(signal, fs, lowcut, highcut)
     signal_without_band = signal - band_signal
     return signal_without_band
+
+
+def scale_signal(signal, scale):
+    print("Scaling signal by", scale)
+    return scale * signal
 
 
 if __name__ == '__main__':
@@ -152,21 +158,21 @@ if __name__ == '__main__':
         #     dataset_name=constants.MODA_SS_NAME, which_expert=1, strategy='5cv', n_seeds=1,
         #     ckpt_folder="20210411_5fold-cv_exp1_n2_train_moda_ss"),
         dict(
-            dataset_name=constants.MASS_KC_NAME, which_expert=1, strategy='5cv', n_seeds=3,
-            ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_mass_kc"),
-        dict(
             dataset_name=constants.MODA_SS_NAME, which_expert=1, strategy='5cv', n_seeds=3,
             ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_moda_ss"),
+        dict(
+            dataset_name=constants.MASS_KC_NAME, which_expert=1, strategy='5cv', n_seeds=3,
+            ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_mass_kc"),
     ]
 
     # Perturbations
     scale_list = np.arange(0.5, 1.5 + 0.001, 0.1)
     perturbations_scale = [
-        ('scale-%1.1f' % scale, dict(signal_transform_fn=lambda x: scale * x, time_reverse=False))
+        ('scale-%1.1f' % scale, dict(signal_transform_fn=lambda x: scale_signal(x, scale), time_reverse=False))
         for scale in scale_list]
     perturbations_inversion = [
-        ('invert-value', dict(signal_transform_fn=lambda x: -x, time_reverse=False)),
-        ('invert-time', dict(signal_transform_fn=lambda x: x, time_reverse=True)),
+        ('invert-value', dict(signal_transform_fn=lambda x: scale_signal(x, -1), time_reverse=False)),
+        ('invert-time', dict(signal_transform_fn=None, time_reverse=True)),
     ]
     band_list = [(0, 2), (2, 4), (4, 8), (8, 11), (10, 16), (16, 30)]
     perturbations_filter = [
