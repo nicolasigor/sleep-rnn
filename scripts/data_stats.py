@@ -16,8 +16,8 @@ from sleeprnn.common import pkeys, constants
 
 
 if __name__ == '__main__':
-    dataset_name = constants.CAP_SS_NAME
-    which_expert = 3
+    dataset_name = constants.INTA_SS_NAME
+    which_expert = 1
 
     dataset_params = {pkeys.FS: 200}
     load_dataset_from_ckpt = True
@@ -38,6 +38,9 @@ if __name__ == '__main__':
         n_per_subject = [e.shape[0] for e in events]
         pages = dataset.get_pages(pages_subset=constants.N2_RECORD)
         min_per_subject = [(p.size * dataset.page_duration / 60) for p in pages]
+        print("Density per subject")
+        for i in range(len(n_per_subject)):
+            print("Subject %s, density %1.2f" % (dataset.all_ids[i], n_per_subject[i] / min_per_subject[i]))
         stats['densidad'] = np.mean([(number / minutes) for (number, minutes) in zip(n_per_subject, min_per_subject)])
         stats['duration'] = np.mean([np.mean(e[:, 1] - e[:, 0] + 1) for e in events]) / dataset.fs
 
