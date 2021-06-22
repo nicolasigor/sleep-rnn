@@ -616,6 +616,18 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210620_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_perturbation_to_e1_n2_train_mass_kc', 'v2_time_filter-10-16'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
     os.path.join('20210620_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_perturbation_to_e1_n2_train_mass_kc', 'v2_time_filter-16-30'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
     
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-1.0'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-1.5'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-2.0'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-1.0'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-1.5'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_mass_kc_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-2.0'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-1.0'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-1.5'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_cwt1d_scale-2.0'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-1.0'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-1.5'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
+    os.path.join('20210621_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_pink_to_e1_n2_train_pink_nn', 'v2_time_scale-2.0'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
     
 }
 
