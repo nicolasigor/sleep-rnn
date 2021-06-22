@@ -6,7 +6,7 @@ MASS_KC_NAME = 'mass_kc'
 INTA_SS_NAME = 'inta_ss'
 MODA_SS_NAME = 'moda_ss'
 CAP_SS_NAME = 'cap_ss'
-PINK_NAME = 'pink'
+PINK_NAME = 'pink_nn'
 
 # Database split
 TRAIN_SUBSET = 'train'
