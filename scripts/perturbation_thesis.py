@@ -140,7 +140,7 @@ def get_remove_band_fn(fs, lowcut, highcut):
         highcut = None
 
     def remove_band(signal):
-        print("Filtering signal by", lowcut, highcut)
+        # print("Filtering signal by", lowcut, highcut)
         band_signal = utils.apply_bandpass(signal, fs, lowcut, highcut)
         signal_without_band = signal - band_signal
         return signal_without_band
@@ -150,7 +150,7 @@ def get_remove_band_fn(fs, lowcut, highcut):
 def get_scale_signal_fn(scale):
 
     def scale_signal(signal):
-        print("Scaling signal by", scale)
+        # print("Scaling signal by", scale)
         return scale * signal
     return scale_signal
 
