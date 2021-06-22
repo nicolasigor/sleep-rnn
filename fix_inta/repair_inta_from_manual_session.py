@@ -11,8 +11,21 @@ import pandas as pd
 project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
-from sleeprnn.data.inta_ss import NAMES
 from sleeprnn.data import utils
+
+
+NAMES = [
+    'ADGU101504',
+    'ALUR012904',
+    'BECA011405',
+    'BRCA062405',
+    'BRLO041102',
+    'BTOL083105',
+    'BTOL090105',
+    'CAPO092605',
+    'CRCA020205',
+    'ESCI031905',
+    'TAGO061203']
 
 
 def get_mark_from_idx(idx_mark, raw_1, raw_2):
@@ -43,7 +56,7 @@ if __name__ == '__main__':
     # incomplete. Please do not use the corrected marks generated for an
     # incomplete manual session as the new labels.
 
-    subject_id = 2
+    subject_id = 3
 
     subject_name = NAMES[subject_id - 1]
     print('Processing %s' % subject_name)
@@ -123,7 +136,7 @@ if __name__ == '__main__':
     overlap_check = overlap_check.sum(axis=1) - 1
     if np.any(overlap_check):
         print(np.where(overlap_check != 0)[0])
-        print(accepted_marks[np.where(overlap_check != 0)[0], :])
+        print(accepted_marks[np.where(overlap_check != 0)[0], :] / fs)
         raise ValueError('Manually accepted marks are overlapped.')
 
     # Now everything is in the right format

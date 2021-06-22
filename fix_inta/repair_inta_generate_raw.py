@@ -12,10 +12,24 @@ project_root = os.path.abspath('..')
 sys.path.append(project_root)
 
 from sleeprnn.data.utils import PATH_DATA
-from sleeprnn.data.inta_ss import PATH_INTA_RELATIVE, PATH_REC, PATH_MARKS, NAMES
+from sleeprnn.data.inta_ss import PATH_INTA_RELATIVE, PATH_REC, PATH_MARKS
 from sleeprnn.data import utils
 from sleeprnn.detection import metrics
 from sleeprnn.helpers import reader
+
+
+NAMES = [
+    'ADGU101504',
+    'ALUR012904',
+    'BECA011405',
+    'BRCA062405',
+    'BRLO041102',
+    'BTOL083105',
+    'BTOL090105',
+    'CAPO092605',
+    'CRCA020205',
+    'ESCI031905',
+    'TAGO061203']
 
 
 if __name__ == '__main__':
