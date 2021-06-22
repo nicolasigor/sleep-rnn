@@ -15,8 +15,8 @@ from sleeprnn.common import pkeys, constants
 if __name__ == '__main__':
 
     datasets_name_list = [
-        constants.CAP_SS_NAME,
-        # constants.PINK_NAME,
+        # constants.CAP_SS_NAME,
+        constants.PINK_NAME,
         # constants.INTA_SS_NAME,
         # constants.MODA_SS_NAME,
         # constants.MASS_SS_NAME,

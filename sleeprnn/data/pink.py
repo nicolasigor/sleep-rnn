@@ -22,11 +22,11 @@ PATH_PINK_RELATIVE = 'pink'
 class Pink(Dataset):
     def __init__(self, params=None, load_checkpoint=False, verbose=True, **kwargs):
         self.channel = 'artificial'
-        self.n_signals = 100
+        self.n_signals = 25
         self.n2_id = '2'
         self.unknown_id = '?'
         # Generation parameters
-        self.signal_duration = 3600 + 2 * 20  # 3 hours of useful signal + 1 page at borders
+        self.signal_duration = 3600 + 2 * 20  # 1 hour of useful signal + 1 page at borders
         self.power_matching_highcut = 8  # [Hz]
         self.power_matching_target_value = 0.7286483227138594
         self.spectrum_profile_fn = self._get_profile_fn()
