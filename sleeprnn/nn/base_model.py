@@ -241,11 +241,14 @@ class BaseModel(object):
             verbose=False)
 
         if signal_transform_fn is None:
+            print("Signal transform fn given is None. Defaults to identity")
+
             def signal_transform_fn(x):
                 return x
         x_inference = [signal_transform_fn(single_x) for single_x in x_inference]
 
         if time_reverse:  # Reverse time
+            print("Reversing time")
             x_inference = [np.flip(single_x, axis=1) for single_x in x_inference]
 
         probabilities_list = self.predict_proba_with_list(

@@ -133,20 +133,26 @@ def get_opt_thr_str(optimal_thr_list, ckpt_folder, grid_folder):
     return str_to_register
 
 
-def remove_band(signal, fs, lowcut, highcut):
+def get_remove_band_fn(fs, lowcut, highcut):
     if lowcut == 0:
         lowcut = None
     if highcut >= 30:
         highcut = None
-    print("Filtering signal by", lowcut, highcut)
-    band_signal = utils.apply_bandpass(signal, fs, lowcut, highcut)
-    signal_without_band = signal - band_signal
-    return signal_without_band
+
+    def remove_band(signal):
+        print("Filtering signal by", lowcut, highcut)
+        band_signal = utils.apply_bandpass(signal, fs, lowcut, highcut)
+        signal_without_band = signal - band_signal
+        return signal_without_band
+    return remove_band
 
 
-def scale_signal(signal, scale):
-    print("Scaling signal by", scale)
-    return scale * signal
+def get_scale_signal_fn(scale):
+
+    def scale_signal(signal):
+        print("Scaling signal by", scale)
+        return scale * signal
+    return scale_signal
 
 
 if __name__ == '__main__':
@@ -168,17 +174,17 @@ if __name__ == '__main__':
     # Perturbations
     scale_list = np.arange(0.5, 1.5 + 0.001, 0.1)
     perturbations_scale = [
-        ('scale-%1.1f' % scale, dict(signal_transform_fn=lambda x: scale_signal(x, scale), time_reverse=False))
+        ('scale-%1.1f' % scale, dict(signal_transform_fn=get_scale_signal_fn(scale), time_reverse=False))
         for scale in scale_list]
     perturbations_inversion = [
-        ('invert-value', dict(signal_transform_fn=lambda x: scale_signal(x, -1), time_reverse=False)),
+        ('invert-value', dict(signal_transform_fn=get_scale_signal_fn(-1), time_reverse=False)),
         ('invert-time', dict(signal_transform_fn=None, time_reverse=True)),
     ]
     band_list = [(0, 2), (2, 4), (4, 8), (8, 11), (10, 16), (16, 30)]
     perturbations_filter = [
         (
             'filter-%d-%d' % (b[0], b[1]),
-            dict(signal_transform_fn=lambda x: remove_band(x, fs=200, lowcut=b[0], highcut=b[1]), time_reverse=False)
+            dict(signal_transform_fn=get_remove_band_fn(fs=200, lowcut=b[0], highcut=b[1]), time_reverse=False)
         ) for b in band_list
     ]
     perturbations = perturbations_scale + perturbations_inversion + perturbations_filter
