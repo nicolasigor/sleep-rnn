@@ -32,7 +32,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
     # ----- Experiment settings
-    this_date = datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20210529'  # datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
     experiment_name_base = '%s_thesis_indata' % this_date
