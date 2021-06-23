@@ -44,7 +44,8 @@ class PostProcessor(object):
             proba_data_bin_high = proba_data
             proba_data_bin_low = proba_data
         else:
-            low_thr = thr * self.params[pkeys.LOW_THRESHOLD_FACTOR]
+            low_thr_factor = 0.85
+            low_thr = thr * low_thr_factor
             print("debug: low thr:", low_thr)
             proba_data_bin_high = (proba_data >= thr).astype(np.int32)
             proba_data_bin_low = (proba_data >= low_thr).astype(np.int32)
