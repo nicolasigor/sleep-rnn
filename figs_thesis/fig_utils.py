@@ -82,6 +82,44 @@ def get_red_predictions_for_perturbations(
     return perturbation_predictions_dict
 
 
+def get_red_predictions_for_pink(
+        model_version,
+        strategy,
+        source_dataset,
+        source_expert,
+        task_mode=constants.N2_RECORD,
+        ckpt_folder_prefix='20210529_thesis_indata',
+        pink_date='20210621',
+        verbose=False
+):
+    pink = reader.load_dataset(constants.PINK_NAME, verbose=False)
+    pink.event_name = source_dataset.event_name
+    ckpt_folder = '%s_from_%s_desc_pink_to_%s' % (
+        pink_date,
+        '%s_%s_e%d_%s_train_%s' % (
+            ckpt_folder_prefix, strategy, source_expert, task_mode, source_dataset.dataset_name),
+        'e%d_%s_train_%s' % (1, task_mode, pink.dataset_name)
+    )
+    available_grid_folders = os.listdir(os.path.join(
+        RESULTS_PATH, 'predictions_%s' % pink.dataset_name, ckpt_folder))
+    available_grid_folders.sort()
+    available_grid_folders = [n for n in available_grid_folders if model_version in n]
+    pink_predictions_dict = {}
+    for grid_folder in available_grid_folders:
+        perturbation_id = grid_folder.split("_")[-1]
+        grid_folder_complete = os.path.join(ckpt_folder, grid_folder)
+        print("Loading predictions from %s" % grid_folder_complete) if verbose else None
+        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, pink, task_mode)
+        # Ensure optimal threshold in predictions
+        opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
+        for k in predictions_dict.keys():
+            for set_name in predictions_dict[k].keys():
+                predictions_dict[k][set_name].set_probability_threshold(opt_thr_list[k])
+        # output is predictions_dict[fold_id][subset] -> [subject_id]
+        pink_predictions_dict[perturbation_id] = predictions_dict
+    return pink_predictions_dict
+
+
 def get_red_predictions(
         model_version,
         strategy,
