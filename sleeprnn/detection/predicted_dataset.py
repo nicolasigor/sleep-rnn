@@ -110,7 +110,9 @@ class PredictedDataset(Dataset):
     def _update_stamps(self):
         probabilities_list = []
         for sub_id in self.all_ids:
-            probabilities_list.append(self.probabilities_dict[sub_id])
+            print("debug: adjusting proba")
+            sub_proba = self.get_subject_probabilities(sub_id, return_adjusted=True)
+            probabilities_list.append(sub_proba)
 
         if self.task_mode == constants.N2_RECORD:
             # Keep only N2 stamps
@@ -122,7 +124,7 @@ class PredictedDataset(Dataset):
         stamps_list = self.postprocessor.proba2stamps_with_list(
             probabilities_list,
             pages_indices_subset_list=n2_pages_val,
-            thr=self.probability_threshold)
+            thr=0.5)  # thr is 0.5 because probas are adjusted
 
         # KC postprocessing
         if self.event_name == constants.KCOMPLEX:

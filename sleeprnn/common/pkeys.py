@@ -390,6 +390,7 @@ SS_MAX_DURATION = 'ss_max_duration'
 KC_MIN_SEPARATION = 'kc_min_separation'
 KC_MIN_DURATION = 'kc_min_duration'
 KC_MAX_DURATION = 'kc_max_duration'
+LOW_THRESHOLD_FACTOR = 'low_threshold_factor'
 
 """Inference params"""
 PREDICT_WITH_AUGMENTED_PAGE = 'predict_with_augmented_page'
@@ -526,4 +527,5 @@ default_params = {
     KC_MIN_SEPARATION: None,
     KC_MIN_DURATION: 0.3,
     KC_MAX_DURATION: None,
+    LOW_THRESHOLD_FACTOR: 0.85,
 }

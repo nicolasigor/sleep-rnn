@@ -11,6 +11,7 @@ from sleeprnn.data.stamp_correction import filter_duration_stamps
 from sleeprnn.data.stamp_correction import combine_close_stamps
 from sleeprnn.data.utils import seq2stamp_with_pages, extract_pages_for_stamps
 from sleeprnn.data.utils import seq2stamp
+from sleeprnn.data.utils import get_overlap_matrix
 
 
 class PostProcessor(object):
@@ -40,16 +41,33 @@ class PostProcessor(object):
         # Thresholding
         if thr is None:
             # We assume that sequence is already binary
-            proba_data_bin = proba_data
+            proba_data_bin_high = proba_data
+            proba_data_bin_low = proba_data
         else:
-            proba_data_bin = (proba_data >= thr).astype(np.int32)
+            low_thr = thr * self.params[pkeys.LOW_THRESHOLD_FACTOR]
+            print("debug: low thr:", low_thr)
+            proba_data_bin_high = (proba_data >= thr).astype(np.int32)
+            proba_data_bin_low = (proba_data >= low_thr).astype(np.int32)
 
-        # Transformation to stamps
+        # Transformation to stamps based on low thr (for duration)
         if pages_indices is None:
-            stamps = seq2stamp(proba_data_bin)
+            stamps_low = seq2stamp(proba_data_bin_low)
+            stamps_high = seq2stamp(proba_data_bin_high)
         else:
-            stamps = seq2stamp_with_pages(
-                proba_data_bin, pages_indices)
+            stamps_low = seq2stamp_with_pages(proba_data_bin_low, pages_indices)
+            stamps_high = seq2stamp_with_pages(proba_data_bin_high, pages_indices)
+
+        # Only keep candidates that surpassed high threshold (for detection)
+        # i.e., only stamps_low intersecting with stamps_high
+        overlap_check = get_overlap_matrix(stamps_low, stamps_high)  # shape (n_low, n_high)
+        if overlap_check.sum() == 0:
+            stamps = np.zeros((0, 2), dtype=np.int32)
+        else:
+            overlap_check = overlap_check.sum(axis=1)  # shape (n_low,)
+            valid_lows = np.where(overlap_check > 0)[0]
+            stamps = stamps_low[valid_lows]
+        print("debug: stamps low", stamps_low.shape, "stamps high", stamps_high.shape, "stamps", stamps.shape)
+
         # Postprocessing
         # Note that when min_separation, min_duration, or max_duration is None,
         # that postprocessing doesn't happen.
