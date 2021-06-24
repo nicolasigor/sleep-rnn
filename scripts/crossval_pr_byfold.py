@@ -23,9 +23,9 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == "__main__":
     save_figs = True
-    print_f1_score = True
+    print_f1_score = False
 
-    ckpt_folder_prefix = '20210606_augment_ablation_6seeds_5cv_e1'
+    ckpt_folder_prefix = ''
     # You may specify certain runs within that ckpt_folder in grid_folder_list.
     # If None then all runs are returned
     grid_folder_list = None
@@ -142,10 +142,11 @@ if __name__ == "__main__":
 
         perf_str = plotter.get_performance_string(outputs)
         eval_str = "%s-%s" % (average_mode.split("_")[0].upper(), evaluation_set.upper())
-        ax.set_title(
-            '%s\n%s, %s\n%s' % (
-                grid_folder, eval_str, result_id, perf_str),
-            fontsize=title_fontsize)
+        title_str = '%s\n%s, %s\n%s' % (grid_folder, eval_str, result_id, perf_str)
+
+        print("\n%s\n" % title_str)
+
+        ax.set_title(title_str, fontsize=title_fontsize)
         if print_f1_score:
             print(grid_folder, "F1-score:", outputs['f1'])
         ax.tick_params(labelsize=general_fontsize)

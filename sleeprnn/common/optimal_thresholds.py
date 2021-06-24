@@ -409,29 +409,29 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210527_thesis_ablation_v3_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave0'): [0.42, 0.38, 0.38, 0.44, 0.46, 0.32, 0.40, 0.40, 0.40, 0.38, 0.40, 0.38, 0.34, 0.42, 0.46],
     os.path.join('20210527_thesis_ablation_v3_5fold-cv_exp1_n2_train_mass_ss', 'v2_time_loss-soft_wave1'): [0.38, 0.36, 0.38, 0.44, 0.44, 0.40, 0.44, 0.44, 0.32, 0.40, 0.42, 0.38, 0.36, 0.38, 0.42],
     
-    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.46, 0.52, 0.44, 0.50, 0.48, 0.50, 0.40, 0.48, 0.48, 0.46, 0.44],
-    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.46, 0.42, 0.58, 0.48, 0.50, 0.40, 0.50, 0.48, 0.38, 0.44],
-    
-    os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.50, 0.52, 0.44, 0.48, 0.46, 0.44, 0.48, 0.48, 0.40],
-    os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.50, 0.46, 0.50, 0.50, 0.44, 0.52, 0.44, 0.52, 0.48, 0.50, 0.46],
-    
-    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.48, 0.54, 0.50, 0.58, 0.62, 0.44, 0.42, 0.56, 0.50, 0.46, 0.50],
-    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.54, 0.54, 0.48, 0.54, 0.56, 0.54, 0.48, 0.48, 0.56, 0.52, 0.50],
-    
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_moda_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
-    
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_inta_ss', 'v2_cwt1d'): [],
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_inta_ss', 'v2_time'): [],
-    
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
-    
-    os.path.join('20210529_thesis_indata_5cv_e2_n2_train_mass_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
-    os.path.join('20210529_thesis_indata_5cv_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
-    
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.50, 0.50, 0.50, 0.52, 0.48, 0.50, 0.54, 0.50, 0.50, 0.64, 0.48, 0.50, 0.50, 0.52, 0.56],
-    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.50, 0.48, 0.50, 0.46, 0.50, 0.54, 0.52, 0.44, 0.48, 0.50, 0.54, 0.62, 0.52, 0.46, 0.60],
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_time'): [0.52, 0.58, 0.54, 0.56, 0.52, 0.58, 0.52, 0.50, 0.56, 0.48, 0.52],
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.58, 0.52, 0.46, 0.64, 0.50, 0.54, 0.46, 0.58, 0.54, 0.48, 0.50],
+
+    os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_time'): [0.52, 0.52, 0.56, 0.60, 0.52, 0.56, 0.52, 0.52, 0.56, 0.52, 0.48],
+    os.path.join('20210529_thesis_indata_fixed_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.56, 0.54, 0.56, 0.56, 0.52, 0.58, 0.48, 0.60, 0.52, 0.56, 0.52],
+
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_time'): [0.54, 0.62, 0.58, 0.64, 0.66, 0.52, 0.50, 0.64, 0.62, 0.52, 0.58],
+    os.path.join('20210529_thesis_indata_fixed_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.64, 0.62, 0.56, 0.60, 0.64, 0.56, 0.56, 0.56, 0.62, 0.58, 0.58],
+
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_moda_ss', 'v2_time'): [0.50, 0.54, 0.58, 0.54, 0.58, 0.50, 0.58, 0.52, 0.52, 0.56, 0.56, 0.56, 0.66, 0.54, 0.40],
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.56, 0.60, 0.56, 0.52, 0.54, 0.52, 0.58, 0.50, 0.54, 0.50, 0.62, 0.58, 0.64, 0.52, 0.44],
+
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_inta_ss', 'v2_time'): [0.50, 0.46, 0.42, 0.46, 0.48, 0.52, 0.52, 0.48, 0.54, 0.58, 0.54, 0.52, 0.48, 0.40, 0.44],
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.52, 0.46, 0.44, 0.50, 0.54, 0.48, 0.56, 0.40, 0.64, 0.56, 0.52, 0.50, 0.46, 0.44, 0.56],
+
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_ss', 'v2_time'): [0.56, 0.50, 0.54, 0.60, 0.50, 0.54, 0.56, 0.54, 0.48, 0.58, 0.54, 0.50, 0.52, 0.58, 0.46],
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.48, 0.54, 0.56, 0.54, 0.56, 0.58, 0.60, 0.44, 0.46, 0.62, 0.54, 0.46, 0.52, 0.54, 0.56],
+
+    os.path.join('20210529_thesis_indata_5cv_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.58, 0.46, 0.50, 0.62, 0.52, 0.58, 0.54, 0.50, 0.50, 0.54, 0.62, 0.58, 0.54, 0.50, 0.60],
+    os.path.join('20210529_thesis_indata_5cv_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.54, 0.60, 0.60, 0.54, 0.50, 0.52, 0.58, 0.56, 0.58, 0.54, 0.54, 0.56],
+
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.56, 0.56, 0.58, 0.60, 0.56, 0.56, 0.58, 0.56, 0.56, 0.70, 0.58, 0.56, 0.56, 0.62, 0.64],
+    os.path.join('20210529_thesis_indata_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.56, 0.56, 0.62, 0.54, 0.58, 0.62, 0.58, 0.48, 0.54, 0.58, 0.62, 0.70, 0.60, 0.52, 0.64],
     
     os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_ss', 'v2_time_wave1'): [0.50, 0.48, 0.48, 0.46, 0.58, 0.48, 0.54, 0.48, 0.36, 0.52, 0.48, 0.50, 0.44, 0.40, 0.48],
     os.path.join('20210602_augment_ablation_5cv_e1_n2_train_mass_ss', 'v2_time_wave0'): [0.46, 0.44, 0.52, 0.48, 0.50, 0.44, 0.48, 0.50, 0.44, 0.56, 0.50, 0.42, 0.44, 0.42, 0.46],
@@ -447,18 +447,12 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e1_n2_train_mass_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.54, 0.50, 0.46, 0.56, 0.48, 0.52, 0.48, 0.50, 0.56, 0.48, 0.56, 0.56, 0.48, 0.36],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_desc_targetstd_to_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.52, 0.52, 0.48, 0.50, 0.46, 0.50, 0.52, 0.44, 0.50, 0.50, 0.54, 0.56, 0.60, 0.44, 0.42],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_inta_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_cwt1d'): [],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_inta_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_time'): [],
@@ -471,33 +465,21 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_moda_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e2_n2_train_mass_ss', 'v2_time'): [0.48, 0.46, 0.46, 0.54, 0.42, 0.50, 0.48, 0.46, 0.36, 0.52, 0.50, 0.44, 0.50, 0.58, 0.42],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_targetstd_to_e2_n2_train_mass_ss', 'v2_cwt1d'): [0.42, 0.52, 0.46, 0.46, 0.48, 0.50, 0.54, 0.36, 0.42, 0.52, 0.48, 0.42, 0.44, 0.46, 0.50],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_moda_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_moda_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_inta_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
 
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
     os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_mass_ss', 'v2_time'): [0.40, 0.48, 0.46, 0.46, 0.54, 0.56, 0.46, 0.40, 0.44, 0.50, 0.48, 0.50, 0.50, 0.48, 0.48],
-    os.path.join('20210605_from_20210529_thesis_indata_5cv_e2_n2_train_mass_ss_desc_targetstd_to_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.50, 0.42, 0.40, 0.60, 0.50, 0.54, 0.50, 0.44, 0.44, 0.50, 0.56, 0.50, 0.48, 0.44, 0.48],
     
     os.path.join('20210610_thesis_subjectsizes_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize100.0'): [0.38, 0.40, 0.40, 0.40, 0.40],
     os.path.join('20210610_thesis_subjectsizes_5cv_e1_n2_train_cap_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.44, 0.46, 0.50, 0.42],
