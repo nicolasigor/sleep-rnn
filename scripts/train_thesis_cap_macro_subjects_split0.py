@@ -32,26 +32,24 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
     # ----- Experiment settings
-    this_date = '20210621'  # datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20210625'  # datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
-    experiment_name_base = '%s_thesis_whole' % this_date
+    experiment_name_base = '%s_thesis_macro_subjects' % this_date
 
     # Datasets
     dataset_configs = [
-        # {'name': constants.CAP_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 1},
-        # {'name': constants.CAP_SS_NAME, 'expert': 2, 'strategy': '5cv', 'n_seeds': 1},
-        {'name': constants.CAP_SS_NAME, 'expert': 3, 'strategy': '5cv', 'n_seeds': 1},
+        {'name': constants.CAP_SS_NAME, 'expert': 1, 'strategy': '5cv', 'n_seeds': 1},
     ]
 
     # Models
     model_configs = [
-        {pkeys.MODEL_VERSION: constants.V2_CWT1D, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_CWT},
+        # {pkeys.MODEL_VERSION: constants.V2_CWT1D, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_CWT},
         {pkeys.MODEL_VERSION: constants.V2_TIME, pkeys.BORDER_DURATION: pkeys.DEFAULT_BORDER_DURATION_V2_TIME},
     ]
 
     # Experiment
-    train_sizes_list = [100]
+    train_sizes_list = [50, 25, 12.5]
 
     # Default parameters with magnitudes in microvolts (uv)
     da_unif_noise_intens_uv = pkeys.DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS
