@@ -1,0 +1,17 @@
+ABLATION 6 CV SEEDS (copy previous 3 + new 3):
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss
+AF1 66.09/3.99 [0.5] 66.25/3.68 [30], F 78.96/3.39, P 78.4/10.1, R 82.3/11.8 for v2_time_wave0
+AF1 66.42/3.47 [0.5] 66.72/3.24 [30], F 79.37/2.86, P 77.8/ 9.8, R 83.4/10.3 for v2_time_wave1
+
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss', 'v2_time_wave1'): [0.54, 0.52, 0.50, 0.52, 0.64, 0.52, 0.58, 0.56, 0.40, 0.56, 0.52, 0.58, 0.48, 0.48, 0.54, 0.60, 0.54, 0.60, 0.54, 0.48, 0.54, 0.56, 0.54, 0.46, 0.60, 0.60, 0.52, 0.56, 0.50, 0.46],
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_ss', 'v2_time_wave0'): [0.52, 0.48, 0.58, 0.48, 0.56, 0.50, 0.56, 0.58, 0.48, 0.56, 0.58, 0.48, 0.50, 0.44, 0.54, 0.52, 0.50, 0.54, 0.54, 0.48, 0.52, 0.50, 0.58, 0.44, 0.62, 0.52, 0.64, 0.56, 0.54, 0.44],
+
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc
+AF1 75.56/2.32 [0.5] 75.95/2.04 [30], F 83.74/2.26, P 82.6/ 5.7, R 85.4/ 5.6 for v2_time_wave0
+AF1 75.66/2.12 [0.5] 75.91/2.00 [30], F 83.81/2.37, P 82.8/ 6.2, R 85.4/ 5.7 for v2_time_wave1
+
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc', 'v2_time_wave0'): [0.64, 0.60, 0.64, 0.64, 0.62, 0.48, 0.68, 0.54, 0.48, 0.60, 0.56, 0.70, 0.58, 0.64, 0.58, 0.62, 0.56, 0.64, 0.54, 0.50, 0.56, 0.60, 0.60, 0.50, 0.56, 0.74, 0.58, 0.56, 0.52, 0.66],
+    os.path.join('20210606_augment_ablation_6seeds_5cv_e1_n2_train_mass_kc', 'v2_time_wave1'): [0.60, 0.52, 0.56, 0.58, 0.60, 0.58, 0.62, 0.58, 0.46, 0.70, 0.56, 0.60, 0.60, 0.54, 0.56, 0.60, 0.54, 0.56, 0.48, 0.56, 0.62, 0.56, 0.60, 0.58, 0.60, 0.68, 0.64, 0.50, 0.52, 0.58],
+
