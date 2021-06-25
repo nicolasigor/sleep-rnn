@@ -12,17 +12,28 @@ def transform_predicted_proba_to_adjusted_proba(predicted_proba, optimal_thresho
     :param eps: for numerical stability. Defaults to 1e-8.
     :return: the vector of adjusted probabilities.
     """
-    # Prepare
-    original_dtype = predicted_proba.dtype
-    predicted_proba = predicted_proba.astype(np.float64)
-    predicted_proba = np.clip(predicted_proba, a_min=eps, a_max=(1.0 - eps))
-    # Compute
-    logit_proba = np.log(predicted_proba / (1.0 - predicted_proba))
-    bias_from_thr = -np.log(optimal_threshold / (1.0 - optimal_threshold))
-    new_logit_proba = logit_proba + bias_from_thr
-    adjusted_proba = 1.0 / (1.0 + np.exp(-new_logit_proba))
-    # Go back to original dtype
-    adjusted_proba = adjusted_proba.astype(original_dtype)
+
+    # Edge cases:
+    if optimal_threshold == 0:
+        # Then everything is above or at the threshold
+        # We simulate this by simply mapping 0 - 1 to 0.5 - 1
+        adjusted_proba = 0.5 * predicted_proba + 0.5
+    elif optimal_threshold == 1:
+        # Then everything is below or at the threshold
+        # We simulate this by simply mapping 0-1 to 0-0.5
+        adjusted_proba = 0.5 * predicted_proba
+    else:
+        # Prepare
+        original_dtype = predicted_proba.dtype
+        predicted_proba = predicted_proba.astype(np.float64)
+        predicted_proba = np.clip(predicted_proba, a_min=eps, a_max=(1.0 - eps))
+        # Compute
+        logit_proba = np.log(predicted_proba / (1.0 - predicted_proba))
+        bias_from_thr = -np.log(optimal_threshold / (1.0 - optimal_threshold))
+        new_logit_proba = logit_proba + bias_from_thr
+        adjusted_proba = 1.0 / (1.0 + np.exp(-new_logit_proba))
+        # Go back to original dtype
+        adjusted_proba = adjusted_proba.astype(original_dtype)
     return adjusted_proba
 
 
