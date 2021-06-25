@@ -4,6 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+
 from sleeprnn.data.dataset import Dataset
 from sleeprnn.data.dataset import KEY_EEG, KEY_MARKS, KEY_N2_PAGES, KEY_ALL_PAGES
 from sleeprnn.helpers.reader import load_dataset
@@ -144,6 +146,43 @@ class PredictedDataset(Dataset):
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
         for k, sub_id in enumerate(self.all_ids):
             self.data[sub_id][stamp_key] = stamps_list[k]
+
+    def get_subject_stamps_probabilities(
+            self,
+            subject_id,
+            pages_subset=None,
+            return_adjusted=True,
+            proba_prc=75,
+    ):
+        subject_stamps = self.get_subject_stamps(subject_id, pages_subset=pages_subset)
+        subject_proba = self.get_subject_probabilities(subject_id, return_adjusted=return_adjusted)
+        subject_stamp_proba = det_utils.get_event_probabilities(
+            subject_stamps, subject_proba,
+            downsampling_factor=self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR], proba_prc=proba_prc)
+        return subject_stamp_proba
+
+    def get_subset_stamps_probabilities(
+            self,
+            subject_ids,
+            pages_subset=None,
+            return_adjusted=True,
+            proba_prc=75,
+    ):
+        stamp_proba_list = []
+        for sub_id in subject_ids:
+            stamp_proba_list.append(self.get_subject_stamps_probabilities(
+                sub_id, pages_subset=pages_subset, return_adjusted=return_adjusted, proba_prc=proba_prc))
+        return stamp_proba_list
+
+    def get_stamps_probabilities(
+            self,
+            pages_subset=None,
+            return_adjusted=True,
+            proba_prc=75,
+    ):
+        stamp_proba_list = self.get_subset_stamps_probabilities(
+            self.all_ids, pages_subset=pages_subset, return_adjusted=return_adjusted, proba_prc=proba_prc)
+        return stamp_proba_list
 
     def get_subject_probabilities(self, subject_id, return_adjusted=False):
         """ Returns the subject's predicted probability vector.
