@@ -90,8 +90,25 @@ if __name__ == "__main__":
             # Channel id
             channel_id = " minus ".join(channel_found)
 
+            # Filter and resample
+            original_sampling_rate = fs
+            # Transform the original fs frequency with decimals to rounded version if necessary
+            signal = utils.resample_signal_linear(signal, fs_old=fs, fs_new=int(np.round(fs)))
+            fs = int(np.round(fs))
+            # Broad bandpass filter to signal
+            signal = utils.broad_filter(signal, fs, lowcut=0.1, highcut=35)
+            # Now resample to the required frequency
+            if fs != target_fs:
+                print('Resampling channel %s from %d Hz to required %d Hz' % (channel_id, fs, target_fs))
+                signal = utils.resample_signal(signal, fs_old=fs, fs_new=target_fs)
+                resample_method = 'scipy.signal.resample_poly'
+            else:
+                print('Signal channel %s already at required %d Hz' % (channel_id, target_fs))
+                resample_method = 'none'
+            fs = target_fs
+
             # Ensure first label starts at t = 0
-            valid_start_sample = stage_start_times[0] * fs
+            valid_start_sample = int(stage_start_times[0] * fs)
             signal = signal[valid_start_sample:]
             stage_start_times = stage_start_times - stage_start_times[0]
 
@@ -108,24 +125,6 @@ if __name__ == "__main__":
             valid_total_samples = int(valid_total_pages * epoch_samples)
             hypnogram = hypnogram[:valid_total_pages]
             signal = signal[:valid_total_samples]
-
-            original_sampling_rate = fs
-
-            # Transform the original fs frequency with decimals to rounded version if necessary
-            signal = utils.resample_signal_linear(signal, fs_old=fs, fs_new=int(np.round(fs)))
-            fs = int(np.round(fs))
-
-            # Broand bandpass filter to signal
-            signal = utils.broad_filter(signal, fs, lowcut=0.1, highcut=35)
-
-            # Now resample to the required frequency
-            if fs != target_fs:
-                print('Resampling channel %s from %d Hz to required %d Hz' % (channel_id, fs, target_fs))
-                signal = utils.resample_signal(signal, fs_old=fs, fs_new=target_fs)
-                resample_method = 'scipy.signal.resample_poly'
-            else:
-                print('Signal channel %s already at required %d Hz' % (channel_id, target_fs))
-                resample_method = 'none'
 
             # Save subject data
             subject_data_dict = {
