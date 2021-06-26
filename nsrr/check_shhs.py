@@ -7,7 +7,7 @@ sys.path.append("..")
 
 from nsrr import nsrr_utils
 
-NSRR_PATH = os.path.abspath("~/Projects/Sleep_Databases/NSRR_Databases")
+NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Databases")
 
 
 if __name__ == "__main__":
