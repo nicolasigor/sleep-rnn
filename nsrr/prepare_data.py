@@ -59,7 +59,7 @@ if __name__ == "__main__":
         save_dir = os.path.abspath(os.path.join(DATASETS_PATH, dataset_name, 'register_and_state'))
         os.makedirs(save_dir, exist_ok=True)
 
-        print("Reading %s" % dataset_name)
+        print("\nReading %s" % dataset_name)
         edf_folder = data_paths[dataset_name]['edf']
         annot_folder = data_paths[dataset_name]['annot']
         print("From paths:")

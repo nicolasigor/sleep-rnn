@@ -23,7 +23,7 @@ if __name__ == "__main__":
     }
 
     channel_priority_labels = [
-        ("EEG (sec)",),  # C3-A2
+        ("EEG(sec)",),  # C3-A2
         ("EEG",),  # C4-A1
         ("C3", "A2"),
         ("C3", "M2"),
@@ -46,6 +46,9 @@ if __name__ == "__main__":
 
     paths_dict = nsrr_utils.prepare_paths(edf_folder, annot_folder)
     subject_ids = list(paths_dict.keys())
+
+    # Reduced subset
+    subject_ids = subject_ids[:50]
 
     print("Retrieved subjects: %d" % len(subject_ids))
 
@@ -91,15 +94,6 @@ if __name__ == "__main__":
                 channel_fs_2 = ''
             channel_str = '%s-%s, fs %s-%s' % (channel_name_1, channel_name_2, channel_fs_1, channel_fs_2)
             channel_ids_list.append(channel_str)
-
-        # Retrieve signal and check length and ranges
-        signal, fs, channel_found = nsrr_utils.read_edf_channel(edf_path, channel_priority_labels)
-        hypnogram_duration = total_pages * epoch_length
-        signal_duration = signal.size / fs
-        if hypnogram_duration != signal_duration:
-            print("subject id %d total duration mismatch. hypno %s signal %s" % (
-                subject_id, hypnogram_duration, signal_duration))
-        all_std.append(signal.std())
 
     print("Epoch length:", np.unique(epoch_length_list))
     print("First start:", np.unique(first_label_start_list))
