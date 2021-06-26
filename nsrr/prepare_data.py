@@ -16,6 +16,8 @@ DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets')
 
 if __name__ == "__main__":
 
+    keep_only_n2 = True
+
     dataset_name_list = [
         'mros1',
         'shhs1',
@@ -49,6 +51,7 @@ if __name__ == "__main__":
     ]
 
     unknown_stage_label = "?"
+    n2_id = 'Stage 2 sleep|2'
     target_fs = 200  # Hz
 
     # ##################
@@ -70,7 +73,7 @@ if __name__ == "__main__":
 
         # ############
         # Debug
-        subject_ids = subject_ids[:3]
+        subject_ids = subject_ids[:10]
         # ############
 
         n_subjects = len(subject_ids)
@@ -125,6 +128,10 @@ if __name__ == "__main__":
             valid_total_samples = int(valid_total_pages * epoch_samples)
             hypnogram = hypnogram[:valid_total_pages]
             signal = signal[:valid_total_samples]
+
+            if keep_only_n2:
+                epoch_samples = int(epoch_length * fs)
+                signal, hypnogram = nsrr_utils.short_signal_to_n2(signal, hypnogram, epoch_samples, n2_id)
 
             # Save subject data
             subject_data_dict = {

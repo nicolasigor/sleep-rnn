@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import pyedflib
 
+from sleeprnn.data import utils
 
 def extract_id(fname, is_annotation):
     # Remove extension
@@ -108,3 +109,22 @@ def read_edf_channel(edf_path, channel_priority_list):
                 return None
             signal = signal - signal_2
     return signal, fs, channel_found
+
+
+def short_signal_to_n2(signal, hypnogram, epoch_samples, n2_name):
+    """
+    Returns a cropped signal where only N2 stages are returned, ensuring one page of real signal
+    at each border. This means that some non-N2 stages are kept, but they are a small portion.
+    """
+    n2_pages = np.where(hypnogram == n2_name)[0]
+    valid_pages = np.concatenate([n2_pages - 1, n2_pages, n2_pages + 1])
+    valid_pages = np.clip(valid_pages, a_min=0, a_max=(hypnogram.size - 1))
+    valid_pages = np.unique(valid_pages)  # it is ensured to have context at each side of n2 pages
+
+    # Now simplify
+    hypnogram = hypnogram[valid_pages]
+
+    signal = utils.extract_pages(signal, valid_pages, epoch_samples)
+    signal = signal.flatten()
+
+    return signal, hypnogram
