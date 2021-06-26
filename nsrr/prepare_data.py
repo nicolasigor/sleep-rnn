@@ -11,7 +11,7 @@ from nsrr import nsrr_utils
 from sleeprnn.data import utils
 
 NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Databases")
-DATASETS_PATH = os.path.join(project_root, 'datasets')
+DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets')
 
 
 if __name__ == "__main__":
