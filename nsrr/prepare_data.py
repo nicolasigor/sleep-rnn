@@ -36,7 +36,7 @@ if __name__ == "__main__":
     }
 
     channel_priority_labels = [
-        ("EEG (sec)",),  # C3-A2
+        ("EEG(sec)",),  # C3-A2
         ("EEG",),  # C4-A1
         ("C3", "A2"),
         ("C3", "M2"),

@@ -48,7 +48,7 @@ if __name__ == "__main__":
     subject_ids = list(paths_dict.keys())
 
     # Reduced subset
-    subject_ids = subject_ids[:50]
+    # subject_ids = subject_ids[:50]
 
     print("Retrieved subjects: %d" % len(subject_ids))
 
