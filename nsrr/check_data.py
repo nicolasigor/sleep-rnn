@@ -12,26 +12,30 @@ NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Database
 
 if __name__ == "__main__":
     data_paths = {
-        'shhs': {
+        'shhs1': {
             'edf': os.path.join(NSRR_PATH, "shhs/polysomnography/edfs/shhs1"),
             'annot': os.path.join(NSRR_PATH, "shhs/polysomnography/annotations-events-nsrr/shhs1")
         },
-        'mros': {
+        'mros1': {
             'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
             'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
         },
     }
 
     channel_priority_labels = [
-        ("EEG (sec)",),
-        ("EEG",),
+        ("EEG (sec)",),  # C3-A2
+        ("EEG",),  # C4-A1
         ("C3", "A2"),
         ("C3", "M2"),
+        ("C3-A2",),
+        ("C3-M2",),
         ("C4", "A1"),
         ("C4", "M1"),
+        ("C4-A1",),
+        ("C4-M1",),
     ]
 
-    dataset_name = 'shhs'
+    dataset_name = 'shhs1'
 
     print("Check %s" % dataset_name)
     edf_folder = data_paths[dataset_name]['edf']
@@ -73,7 +77,7 @@ if __name__ == "__main__":
                 channel_found = chn_pair
                 break
         if channel_found is None:
-            print("Subject %s without valid channels. Full list:", channel_names)
+            print("Subject %s without valid channels. Full list:" % subject_id, channel_names)
         else:
             channel_loc_1 = channel_names.index(channel_found[0])
             channel_name_1 = channel_names[channel_loc_1]
