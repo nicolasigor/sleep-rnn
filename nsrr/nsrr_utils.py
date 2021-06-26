@@ -83,3 +83,28 @@ def get_edf_info(edf_path):
             fs = file.samplefrequency(channel_to_extract)
             fs_list.append(fs)
     return channel_names, fs_list
+
+
+def read_edf_channel(edf_path, channel_priority_list):
+    with pyedflib.EdfReader(edf_path) as file:
+        channel_names = file.getSignalLabels()
+
+        channel_found = None
+        for chn_pair in channel_priority_list:
+            if np.all([chn in channel_names for chn in chn_pair]):
+                channel_found = chn_pair
+                break
+        if channel_found is None:
+            return None
+
+        channel_to_extract = channel_names.index(channel_found[0])
+        signal = file.readSignal(channel_to_extract)
+        fs = file.samplefrequency(channel_to_extract)
+        if len(channel_found) == 2:
+            channel_to_extract = channel_names.index(channel_found[1])
+            signal_2 = file.readSignal(channel_to_extract)
+            fs_2 = file.samplefrequency(channel_to_extract)
+            if fs != fs_2:
+                return None
+            signal = signal - signal_2
+    return signal, fs, channel_found

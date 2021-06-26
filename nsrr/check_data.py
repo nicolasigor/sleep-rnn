@@ -52,7 +52,7 @@ if __name__ == "__main__":
     epoch_length_list = []
     first_label_start_list = []
     channel_ids_list = []
-
+    all_std = []
     for subject_id in subject_ids:
         edf_path = paths_dict[subject_id]['edf']
         annot_path = paths_dict[subject_id]['annot']
@@ -92,6 +92,18 @@ if __name__ == "__main__":
             channel_str = '%s-%s, fs %s-%s' % (channel_name_1, channel_name_2, channel_fs_1, channel_fs_2)
             channel_ids_list.append(channel_str)
 
+        # Retrieve signal and check length and ranges
+        signal, fs, channel_found = nsrr_utils.read_edf_channel(edf_path, channel_priority_labels)
+        hypnogram_duration = total_pages * epoch_length
+        signal_duration = signal.size / fs
+        if hypnogram_duration != signal_duration:
+            print("subject id %d total duration mismatch. hypno %s signal %s" % (
+                subject_id, hypnogram_duration, signal_duration))
+        all_std.append(signal.std())
+
     print("Epoch length:", np.unique(epoch_length_list))
     print("First start:", np.unique(first_label_start_list))
     print("Valid channels available:", np.unique(channel_ids_list))
+    print("STD of signals: min %s, mean %s, median %s, max %s" % (
+        np.min(all_std), np.mean(all_std), np.median(all_std), np.max(all_std)
+    ))
