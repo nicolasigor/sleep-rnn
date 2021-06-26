@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
         # ############
         # Debug
-        subject_ids = subject_ids[:10]
+        # subject_ids = subject_ids[:10]
         # ############
 
         n_subjects = len(subject_ids)
