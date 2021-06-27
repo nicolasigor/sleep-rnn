@@ -47,11 +47,16 @@ def prepare_paths(edf_folder, annot_folder):
     return paths_dict
 
 
-def read_hypnogram(annot_path):
+def read_hypnogram(annot_path, verbose=False, assumed_epoch_length_if_missing=30):
     tree = ET.parse(annot_path)
     root = tree.getroot()
     scored_events = root.find('ScoredEvents')
-    epoch_length = float(root.find("EpochLength").text)
+    epoch_length_text = root.find("EpochLength").text
+    if epoch_length_text is None:
+        print("Missing epoch length, assuming %s [s]" % assumed_epoch_length_if_missing) if verbose else None
+        epoch_length = assumed_epoch_length_if_missing
+    else:
+        epoch_length = float()
     # print(ET.tostring(root, encoding='utf8').decode('utf8'))
     stage_labels = []
     stage_stamps = []
