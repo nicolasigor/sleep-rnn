@@ -98,18 +98,23 @@ if __name__ == "__main__":
 
             # Filter and resample
             original_sampling_rate = fs
+
             # Transform the original fs frequency with decimals to rounded version if necessary
-            signal = utils.resample_signal_linear(signal, fs_old=fs, fs_new=int(np.round(fs)))
-            fs = int(np.round(fs))
+            fs_round = int(np.round(fs))
+            if np.abs(fs_round - fs) > 1e-8:
+                print("Linear interpolation from %s Hz to %s Hz" % (fs, fs_round))
+                signal = utils.resample_signal_linear(signal, fs_old=fs, fs_new=fs_round)
+            fs = fs_round
+
             # Broad bandpass filter to signal
             signal = utils.broad_filter(signal, fs, lowcut=0.1, highcut=35)
             # Now resample to the required frequency
             if fs != target_fs:
-                print('Resampling channel %s from %d Hz to required %d Hz' % (channel_id, fs, target_fs))
+                print('Resampling channel %s from %s Hz to required %s Hz' % (channel_id, fs, target_fs))
                 signal = utils.resample_signal(signal, fs_old=fs, fs_new=target_fs)
                 resample_method = 'scipy.signal.resample_poly'
             else:
-                print('Signal channel %s already at required %d Hz' % (channel_id, target_fs))
+                print('Signal channel %s already at required %s Hz' % (channel_id, target_fs))
                 resample_method = 'none'
             fs = target_fs
 
