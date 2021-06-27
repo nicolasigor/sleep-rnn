@@ -21,7 +21,7 @@ if __name__ == "__main__":
     dataset_name_list = [
         'chat1',
     ]
-    reduced_number_of_subjects = 5
+    reduced_number_of_subjects = None
 
     # ##################
     # AUXILIARY VARIABLES
