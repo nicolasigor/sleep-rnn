@@ -56,7 +56,7 @@ def read_hypnogram(annot_path, verbose=False, assumed_epoch_length_if_missing=30
         print("Missing epoch length, assuming %s [s]" % assumed_epoch_length_if_missing) if verbose else None
         epoch_length = assumed_epoch_length_if_missing
     else:
-        epoch_length = float()
+        epoch_length = float(epoch_length_text)
     # print(ET.tostring(root, encoding='utf8').decode('utf8'))
     stage_labels = []
     stage_stamps = []

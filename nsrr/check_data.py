@@ -52,7 +52,7 @@ if __name__ == "__main__":
     subject_ids = list(paths_dict.keys())
 
     # Reduced subset
-    subject_ids = subject_ids[:100]
+    # subject_ids = subject_ids[:100]
 
     print("Retrieved subjects: %d" % len(subject_ids))
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         annot_path = paths_dict[subject_id]['annot']
 
         # Hypnogram info
-        stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(annot_path, verbose=True)
+        stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(annot_path, verbose=False)
         epoch_length_list.append(epoch_length)
         first_label_start_list.append(stage_start_times[0])
 
