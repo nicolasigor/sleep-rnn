@@ -8,50 +8,23 @@ project_root = ".."
 sys.path.append(project_root)
 
 from nsrr import nsrr_utils
+from nsrr.nsrr_utils import NSRR_DATA_PATHS, CHANNEL_PRIORITY_LABELS
 from sleeprnn.data import utils
 
-NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Databases")
+
 DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets')
 
 
 if __name__ == "__main__":
 
     keep_only_n2 = True
-
     dataset_name_list = [
         'chat1',
     ]
+    reduced_number_of_subjects = 5
 
     # ##################
     # AUXILIARY VARIABLES
-
-    data_paths = {
-        'shhs1': {
-            'edf': os.path.join(NSRR_PATH, "shhs/polysomnography/edfs/shhs1"),
-            'annot': os.path.join(NSRR_PATH, "shhs/polysomnography/annotations-events-nsrr/shhs1"),
-        },
-        'mros1': {
-            'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
-            'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
-        },
-        'chat1': {
-            'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
-            'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
-        },
-    }
-
-    channel_priority_labels = [
-        ("EEG(sec)",),  # C3-A2
-        ("EEG",),  # C4-A1
-        ("C3", "A2"),
-        ("C3", "M2"),
-        ("C3-A2",),
-        ("C3-M2",),
-        ("C4", "A1"),
-        ("C4", "M1"),
-        ("C4-A1",),
-        ("C4-M1",),
-    ]
 
     unknown_stage_label = "?"
     n2_id = 'Stage 2 sleep|2'
@@ -66,18 +39,17 @@ if __name__ == "__main__":
         os.makedirs(save_dir, exist_ok=True)
 
         print("\nReading %s" % dataset_name)
-        edf_folder = data_paths[dataset_name]['edf']
-        annot_folder = data_paths[dataset_name]['annot']
+        edf_folder = NSRR_DATA_PATHS[dataset_name]['edf']
+        annot_folder = NSRR_DATA_PATHS[dataset_name]['annot']
         print("From paths:")
         print(edf_folder)
         print(annot_folder)
         paths_dict = nsrr_utils.prepare_paths(edf_folder, annot_folder)
         subject_ids = list(paths_dict.keys())
 
-        # ############
-        # Debug
-        subject_ids = subject_ids[:10]
-        # ############
+        if reduced_number_of_subjects is not None:
+            # Reduced subset
+            subject_ids = subject_ids[:reduced_number_of_subjects]
 
         n_subjects = len(subject_ids)
         print("Retrieved subjects: %d" % n_subjects)
@@ -91,7 +63,7 @@ if __name__ == "__main__":
             stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(
                 paths_dict[subject_id]['annot'])
             signal, fs, channel_found = nsrr_utils.read_edf_channel(
-                paths_dict[subject_id]['edf'], channel_priority_labels)
+                paths_dict[subject_id]['edf'], CHANNEL_PRIORITY_LABELS)
 
             # Channel id
             channel_id = " minus ".join(channel_found)

@@ -6,6 +6,38 @@ import pyedflib
 
 from sleeprnn.data import utils
 
+
+NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Databases")
+
+NSRR_DATA_PATHS = {
+    'shhs1': {
+        'edf': os.path.join(NSRR_PATH, "shhs/polysomnography/edfs/shhs1"),
+        'annot': os.path.join(NSRR_PATH, "shhs/polysomnography/annotations-events-nsrr/shhs1"),
+    },
+    'mros1': {
+        'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
+        'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
+    },
+    'chat1': {
+        'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
+        'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
+    },
+}
+
+CHANNEL_PRIORITY_LABELS = [
+    ("EEG(sec)",),  # C3-A2 in SHHS
+    ("EEG",),  # C4-A1 in SHHS
+    ("C3", "A2"),
+    ("C3", "M2"),
+    ("C3-A2",),
+    ("C3-M2",),
+    ("C4", "A1"),
+    ("C4", "M1"),
+    ("C4-A1",),
+    ("C4-M1",),
+]
+
+
 def extract_id(fname, is_annotation):
     # Remove extension
     fname = ".".join(fname.split(".")[:-1])
@@ -91,6 +123,23 @@ def get_edf_info(edf_path):
     return channel_names, fs_list
 
 
+def read_signal_from_file(file, channel_name):
+    units_to_factor_map = {
+        'V': 1e6,
+        'mV': 1e3,
+        'uV': 1.0,
+    }
+    channel_names = file.getSignalLabels()
+    channel_to_extract = channel_names.index(channel_name)
+
+    signal = file.readSignal(channel_to_extract)
+    units = file.getPhysicalDimension(channel_to_extract)
+    factor = units_to_factor_map[units]
+    signal = signal * factor
+    fs = file.samplefrequency(channel_to_extract)
+    return signal, fs
+
+
 def read_edf_channel(edf_path, channel_priority_list):
     with pyedflib.EdfReader(edf_path) as file:
         channel_names = file.getSignalLabels()
@@ -103,13 +152,9 @@ def read_edf_channel(edf_path, channel_priority_list):
         if channel_found is None:
             return None
 
-        channel_to_extract = channel_names.index(channel_found[0])
-        signal = file.readSignal(channel_to_extract)
-        fs = file.samplefrequency(channel_to_extract)
+        signal, fs = read_signal_from_file(file, channel_found[0])
         if len(channel_found) == 2:
-            channel_to_extract = channel_names.index(channel_found[1])
-            signal_2 = file.readSignal(channel_to_extract)
-            fs_2 = file.samplefrequency(channel_to_extract)
+            signal_2, fs_2 = read_signal_from_file(file, channel_found[1])
             if fs != fs_2:
                 return None
             signal = signal - signal_2

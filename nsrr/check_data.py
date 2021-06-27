@@ -6,44 +6,20 @@ import numpy as np
 sys.path.append("..")
 
 from nsrr import nsrr_utils
-
-NSRR_PATH = os.path.abspath("/home/ntapia/Projects/Sleep_Databases/NSRR_Databases")
+from nsrr.nsrr_utils import NSRR_DATA_PATHS, CHANNEL_PRIORITY_LABELS
 
 
 if __name__ == "__main__":
-    data_paths = {
-        'shhs1': {
-            'edf': os.path.join(NSRR_PATH, "shhs/polysomnography/edfs/shhs1"),
-            'annot': os.path.join(NSRR_PATH, "shhs/polysomnography/annotations-events-nsrr/shhs1")
-        },
-        'mros1': {
-            'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
-            'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
-        },
-        'chat1': {
-            'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
-            'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
-        },
-    }
-
-    channel_priority_labels = [
-        ("EEG(sec)",),  # C3-A2
-        ("EEG",),  # C4-A1
-        ("C3", "A2"),
-        ("C3", "M2"),
-        ("C3-A2",),
-        ("C3-M2",),
-        ("C4", "A1"),
-        ("C4", "M1"),
-        ("C4-A1",),
-        ("C4-M1",),
-    ]
 
     dataset_name = 'chat1'
+    verbose_missing_epoch = False
+    reduced_number_of_subjects = None
+
+    # ################################################################
 
     print("Check %s" % dataset_name)
-    edf_folder = data_paths[dataset_name]['edf']
-    annot_folder = data_paths[dataset_name]['annot']
+    edf_folder = NSRR_DATA_PATHS[dataset_name]['edf']
+    annot_folder = NSRR_DATA_PATHS[dataset_name]['annot']
     print("Paths:")
     print(edf_folder)
     print(annot_folder)
@@ -51,8 +27,9 @@ if __name__ == "__main__":
     paths_dict = nsrr_utils.prepare_paths(edf_folder, annot_folder)
     subject_ids = list(paths_dict.keys())
 
-    # Reduced subset
-    # subject_ids = subject_ids[:100]
+    if reduced_number_of_subjects is not None:
+        # Reduced subset
+        subject_ids = subject_ids[:reduced_number_of_subjects]
 
     print("Retrieved subjects: %d" % len(subject_ids))
 
@@ -64,7 +41,8 @@ if __name__ == "__main__":
         annot_path = paths_dict[subject_id]['annot']
 
         # Hypnogram info
-        stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(annot_path, verbose=False)
+        stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(
+            annot_path, verbose=verbose_missing_epoch)
         epoch_length_list.append(epoch_length)
         first_label_start_list.append(stage_start_times[0])
 
@@ -78,7 +56,7 @@ if __name__ == "__main__":
         # Signal info
         channel_names, fs_list = nsrr_utils.get_edf_info(edf_path)
         channel_found = None
-        for chn_pair in channel_priority_labels:
+        for chn_pair in CHANNEL_PRIORITY_LABELS:
             if np.all([chn in channel_names for chn in chn_pair]):
                 channel_found = chn_pair
                 break
