@@ -19,8 +19,7 @@ if __name__ == "__main__":
     keep_only_n2 = True
 
     dataset_name_list = [
-        'mros1',
-        'shhs1',
+        'chat1',
     ]
 
     # ##################
@@ -34,6 +33,10 @@ if __name__ == "__main__":
         'mros1': {
             'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
             'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
+        },
+        'chat1': {
+            'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
+            'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
         },
     }
 
@@ -73,7 +76,7 @@ if __name__ == "__main__":
 
         # ############
         # Debug
-        # subject_ids = subject_ids[:10]
+        subject_ids = subject_ids[:10]
         # ############
 
         n_subjects = len(subject_ids)
