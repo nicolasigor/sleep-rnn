@@ -569,6 +569,17 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210621_thesis_whole_5cv_e3_n2_train_cap_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.50, 0.44, 0.50, 0.50],
     os.path.join('20210621_thesis_whole_5cv_e3_n2_train_cap_ss', 'v2_time_subjectsize100.0'): [0.44, 0.48, 0.54, 0.46, 0.46],
     
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize075.0'): [0.44, 0.46, 0.48, 0.46, 0.46],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize050.0'): [0.38, 0.48, 0.50, 0.48, 0.48],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize025.0'): [0.54, 0.50, 0.42, 0.60, 0.48],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize012.5'): [0.54, 0.52, 0.50, 0.52, 0.56],
+
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize080'): [0.44, 0.46, 0.50, 0.48, 0.52],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize040'): [0.50, 0.46, 0.50, 0.48, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize020'): [0.38, 0.46, 0.44, 0.50, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize010'): [0.44, 0.46, 0.48, 0.58, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize005'): [0.54, 0.56, 0.58, 0.56, 0.52],
+    
 }
 
 

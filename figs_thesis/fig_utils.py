@@ -326,7 +326,7 @@ def compute_iou_histogram(nonzero_iou_subject_list, average_mode, iou_hist_bins)
 #     return freq_estimated
 
 
-def get_frequency_by_fft(x, fs, pad_to_duration=10, f_min=5, f_max=30, apply_hann_window=False):
+def get_fft_spectrum(x, fs, pad_to_duration=10, f_min=1, f_max=30, apply_hann_window=False):
     x_base = np.zeros(fs * pad_to_duration)
     if apply_hann_window:
         x = x * np.hanning(x.size)
@@ -339,6 +339,12 @@ def get_frequency_by_fft(x, fs, pad_to_duration=10, f_min=5, f_max=30, apply_han
     f = np.fft.rfftfreq(x.size, d=1. / fs)
     y = y[(f >= f_min) & (f <= f_max)]
     f = f[(f >= f_min) & (f <= f_max)]
+    return f, y
+
+
+def get_frequency_by_fft(x, fs, pad_to_duration=10, f_min=5, f_max=30, apply_hann_window=False):
+    f, y = get_fft_spectrum(
+        x, fs, pad_to_duration=pad_to_duration, f_min=f_min, f_max=f_max, apply_hann_window=apply_hann_window)
     freq_fft = f[np.argmax(y)]
     return freq_fft
 

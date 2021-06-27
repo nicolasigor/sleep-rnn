@@ -1,0 +1,50 @@
+Result of FULL DATASET. Macro training/fitting.
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210621_thesis_whole_5cv_e1_n2_train_cap_ss
+AF1 77.71/0.88 [0.5] 77.97/0.72 [0.44, 0.56, 0.46, 0.50, 0.46], F 88.20/0.37, P 87.5/ 6.1, R 89.5/ 5.9 for v2_cwt1d_subjectsize100.0
+AF1 77.83/0.52 [0.5] 77.87/0.47 [0.48, 0.48, 0.44, 0.50, 0.46], F 88.05/0.34, P 87.2/ 6.3, R 89.5/ 5.9 for v2_time_subjectsize100.0
+
+    os.path.join('20210621_thesis_whole_5cv_e1_n2_train_cap_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46],
+    os.path.join('20210621_thesis_whole_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46],
+    
+    
+    
+Fraction of subjects: training only on % of subjects from train/val sets. Macro training/fitting.
+
+Ref100%: 
+AF1 77.83/0.52 [0.5] 77.87/0.47 [0.48, 0.48, 0.44, 0.50, 0.46], F 88.05/0.34, P 87.2/ 6.3, R 89.5/ 5.9 for v2_time_subjectsize100.0
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss
+AF1 77.06/0.94 [0.5] 77.27/0.77 [0.44, 0.46, 0.48, 0.46, 0.46], F 87.60/0.48, P 87.1/ 6.4, R 88.9/ 6.6 for v2_time_subjectsize075.0
+AF1 75.98/0.66 [0.5] 76.35/0.50 [0.38, 0.48, 0.50, 0.48, 0.48], F 87.01/0.54, P 85.8/ 6.7, R 89.0/ 6.8 for v2_time_subjectsize050.0
+AF1 74.53/0.76 [0.5] 74.33/0.21 [0.54, 0.50, 0.42, 0.60, 0.48], F 85.85/0.42, P 85.3/ 6.5, R 87.3/ 7.7 for v2_time_subjectsize025.0
+AF1 71.32/1.09 [0.5] 71.36/1.02 [0.54, 0.52, 0.50, 0.52, 0.56], F 83.77/0.69, P 82.6/ 7.9, R 86.3/ 9.2 for v2_time_subjectsize012.5
+
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize075.0'): [0.44, 0.46, 0.48, 0.46, 0.46],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize050.0'): [0.38, 0.48, 0.50, 0.48, 0.48],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize025.0'): [0.54, 0.50, 0.42, 0.60, 0.48],
+    os.path.join('20210625_thesis_macro_subjects_5cv_e1_n2_train_cap_ss', 'v2_time_subjectsize012.5'): [0.54, 0.52, 0.50, 0.52, 0.56],
+
+
+
+Fraction of signals: training only on first % of N2 pages from each subject of train/val sets. Micro training/fitting.
+
+Ref100%: 
+AF1 77.83/0.52 [0.5] 77.87/0.47 [0.48, 0.48, 0.44, 0.50, 0.46], F 88.05/0.34, P 87.2/ 6.3, R 89.5/ 5.9 for v2_time_subjectsize100.0
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-micro_average to ['test']-macro_average) for 20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss
+AF1 77.09/0.86 [0.5] 77.28/0.77 [0.44, 0.46, 0.50, 0.48, 0.52], F 87.64/0.59, P 88.6/ 6.1, R 87.4/ 6.8 for v2_time_signalsize080
+AF1 75.87/0.70 [0.5] 75.89/0.77 [0.50, 0.46, 0.50, 0.48, 0.50], F 86.80/0.42, P 87.3/ 6.3, R 87.1/ 6.9 for v2_time_signalsize040
+AF1 73.76/1.49 [0.5] 74.24/0.82 [0.38, 0.46, 0.44, 0.50, 0.50], F 85.59/0.48, P 85.2/ 7.1, R 86.9/ 7.4 for v2_time_signalsize020
+AF1 71.70/1.00 [0.5] 71.77/0.65 [0.44, 0.46, 0.48, 0.58, 0.50], F 84.11/0.51, P 83.4/ 7.6, R 85.9/ 8.2 for v2_time_signalsize010
+AF1 68.10/1.30 [0.5] 67.74/1.71 [0.54, 0.56, 0.58, 0.56, 0.52], F 81.74/1.13, P 81.0/ 7.6, R 83.8/10.0 for v2_time_signalsize005
+
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize080'): [0.44, 0.46, 0.50, 0.48, 0.52],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize040'): [0.50, 0.46, 0.50, 0.48, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize020'): [0.38, 0.46, 0.44, 0.50, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize010'): [0.44, 0.46, 0.48, 0.58, 0.50],
+    os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize005'): [0.54, 0.56, 0.58, 0.56, 0.52],
+
+
+
+
