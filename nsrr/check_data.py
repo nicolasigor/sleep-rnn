@@ -20,6 +20,10 @@ if __name__ == "__main__":
             'edf': os.path.join(NSRR_PATH, "mros/polysomnography/edfs/visit1"),
             'annot': os.path.join(NSRR_PATH, "mros/polysomnography/annotations-events-nsrr/visit1")
         },
+        'chat1': {
+            'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
+            'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
+        },
     }
 
     channel_priority_labels = [
@@ -35,7 +39,7 @@ if __name__ == "__main__":
         ("C4-M1",),
     ]
 
-    dataset_name = 'shhs1'
+    dataset_name = 'chat1'
 
     print("Check %s" % dataset_name)
     edf_folder = data_paths[dataset_name]['edf']
@@ -91,7 +95,7 @@ if __name__ == "__main__":
             else:
                 channel_name_2 = ''
                 channel_fs_2 = ''
-            channel_str = '%s-%s, fs %s-%s' % (channel_name_1, channel_name_2, channel_fs_1, channel_fs_2)
+            channel_str = '%s minus %s, fs %s minus %s' % (channel_name_1, channel_name_2, channel_fs_1, channel_fs_2)
             channel_ids_list.append(channel_str)
 
     print("Epoch length:", np.unique(epoch_length_list))
