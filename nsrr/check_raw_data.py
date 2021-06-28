@@ -11,9 +11,15 @@ from nsrr.nsrr_utils import NSRR_DATA_PATHS, CHANNEL_PRIORITY_LABELS
 
 if __name__ == "__main__":
 
-    dataset_name = 'chat1'
+    dataset_name = 'shhs1'
     verbose_missing_epoch = False
     reduced_number_of_subjects = None
+
+    channel_pairs_list = [
+        ("EEG(sec)",),  # C3-A2 in SHHS
+        ("EEG2",),  # C3-A2 in SHHS
+        ("EEG",),  # C4-A1 in SHHS
+    ]
 
     # ################################################################
 
@@ -56,7 +62,9 @@ if __name__ == "__main__":
         # Signal info
         channel_names, fs_list = nsrr_utils.get_edf_info(edf_path)
         channel_found = None
-        for chn_pair in CHANNEL_PRIORITY_LABELS:
+        if channel_pairs_list is None:
+            channel_pairs_list = CHANNEL_PRIORITY_LABELS
+        for chn_pair in channel_pairs_list:
             if np.all([chn in channel_names for chn in chn_pair]):
                 channel_found = chn_pair
                 break
