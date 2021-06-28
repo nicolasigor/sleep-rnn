@@ -12,7 +12,7 @@ from nsrr.nsrr_utils import NSRR_DATA_PATHS, CHANNEL_PRIORITY_LABELS
 from sleeprnn.data import utils
 
 
-DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets')
+DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
 
 
 if __name__ == "__main__":
