@@ -71,6 +71,9 @@ if __name__ == "__main__":
                     paths_dict[subject_id]['edf'], [('EEG(sec)',)])
                 signal_cardiac, fs_cardiac, _ = nsrr_utils.read_edf_channel(
                     paths_dict[subject_id]['edf'], [('ECG',)])
+                fs_cardiac = int(np.round(fs_cardiac))
+                fs_a = int(np.round(fs_a))
+                fs_b = int(np.round(fs_b))
                 if fs_cardiac != fs_a:
                     print("Resampling cardiac signal from %s Hz to %s Hz" % (fs_cardiac, fs_a))
                     signal_cardiac = utils.resample_signal(signal_cardiac, fs_old=fs_cardiac, fs_new=fs_a)
