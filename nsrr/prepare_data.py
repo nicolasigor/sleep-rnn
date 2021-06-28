@@ -69,9 +69,12 @@ if __name__ == "__main__":
 
             if 'shhs' in dataset_name:
                 print("ECG correlation computation")
-                signal_a, fs_a, channel_found_a = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['EEG'])
-                signal_b, fs_b, channel_found_b = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['EEG(sec)'])
-                signal_cardiac, fs_cardiac, _ = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['ECG'])
+                signal_a, fs_a, channel_found_a = nsrr_utils.read_edf_channel(
+                    paths_dict[subject_id]['edf'], [('EEG',)])
+                signal_b, fs_b, channel_found_b = nsrr_utils.read_edf_channel(
+                    paths_dict[subject_id]['edf'], [('EEG(sec)',)])
+                signal_cardiac, fs_cardiac, _ = nsrr_utils.read_edf_channel(
+                    paths_dict[subject_id]['edf'], [('ECG',)])
                 if fs_cardiac != fs_a:
                     print("Resampling cardiac signal from %s Hz to %s Hz" % (fs_cardiac, fs_a))
                     signal_cardiac = utils.resample_signal(signal_cardiac, fs_old=fs_cardiac, fs_new=fs_a)
