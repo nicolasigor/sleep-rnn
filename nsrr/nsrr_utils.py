@@ -27,6 +27,10 @@ NSRR_DATA_PATHS = {
 CHANNEL_PRIORITY_LABELS = [
     ("EEG",),  # C4-A1 in SHHS
     ("EEG(sec)",),  # C3-A2 in SHHS
+    ("EEG2",),
+    ("EEG 2",),
+    ("EEG(SEC)",),
+    ("EEG sec",),
     ("C3", "A2"),
     ("C3", "M2"),
     ("C3-A2",),

@@ -15,12 +15,6 @@ if __name__ == "__main__":
     verbose_missing_epoch = False
     reduced_number_of_subjects = None
 
-    channel_pairs_list = [
-        ("EEG(sec)",),  # C3-A2 in SHHS
-        ("EEG2",),  # C3-A2 in SHHS
-        ("EEG",),  # C4-A1 in SHHS
-    ]
-
     # ################################################################
 
     print("Check %s" % dataset_name)

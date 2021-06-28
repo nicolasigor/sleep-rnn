@@ -64,13 +64,27 @@ if __name__ == "__main__":
                 paths_dict[subject_id]['annot'])
 
             if 'shhs' in dataset_name:
+                # SHHS specific processing
+                first_eeg_names = [
+                    ("EEG",)  # C4-A1 in SHHS
+                ]
+                second_eeg_names = [
+                    ("EEG(sec)",),  # C3-A2 in SHHS
+                    ("EEG2",),
+                    ("EEG 2",),
+                    ("EEG(SEC)",),
+                    ("EEG sec",)
+                ]
+                cardiac_names = [
+                    ('ECG',)
+                ]
                 print("ECG correlation computation")
                 signal_a, fs_a, channel_found_a = nsrr_utils.read_edf_channel(
-                    paths_dict[subject_id]['edf'], [('EEG',)])
+                    paths_dict[subject_id]['edf'], first_eeg_names)
                 signal_b, fs_b, channel_found_b = nsrr_utils.read_edf_channel(
-                    paths_dict[subject_id]['edf'], [('EEG(sec)',)])
+                    paths_dict[subject_id]['edf'], second_eeg_names)
                 signal_cardiac, fs_cardiac, _ = nsrr_utils.read_edf_channel(
-                    paths_dict[subject_id]['edf'], [('ECG',)])
+                    paths_dict[subject_id]['edf'], cardiac_names)
                 fs_cardiac = int(np.round(fs_cardiac))
                 fs_a = int(np.round(fs_a))
                 fs_b = int(np.round(fs_b))
