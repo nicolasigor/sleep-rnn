@@ -15,10 +15,6 @@ from sleeprnn.data import utils
 DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
 
 
-
-
-
-
 if __name__ == "__main__":
 
     keep_only_n2 = True
@@ -89,9 +85,16 @@ if __name__ == "__main__":
                 # measure correlation
                 corr_a = np.abs(np.corrcoef(tmp_signal_a, tmp_signal_cardiac)[0, 1])
                 corr_b = np.abs(np.corrcoef(tmp_signal_b, tmp_signal_cardiac)[0, 1])
-                print("EEG correlation %1.4f, EEG(sec) correlation %1.4f" % (corr_a, corr_b))
-                # Pending selecting according to correlation factor
-                signal, fs, channel_found = signal_a, fs_a, channel_found_a
+                print("Correlations -- EEG: %1.4f -- EEG(sec): %1.4f" % (corr_a, corr_b))
+                std_a = tmp_signal_a.std()
+                std_b = tmp_signal_b.std()
+                if (corr_b < corr_a) and (std_b > 5):
+                    signal, fs, channel_found = signal_b, fs_b, channel_found_b
+                elif (std_a > 5):
+                    signal, fs, channel_found = signal_a, fs_a, channel_found_a
+                else:
+                    raise ValueError("Both std less than 5")
+                print("%s selected." % channel_found[0])
             else:
                 signal, fs, channel_found = nsrr_utils.read_edf_channel(
                     paths_dict[subject_id]['edf'], CHANNEL_PRIORITY_LABELS)
