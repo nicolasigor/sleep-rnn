@@ -15,11 +15,15 @@ from sleeprnn.data import utils
 DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
 
 
+
+
+
+
 if __name__ == "__main__":
 
     keep_only_n2 = True
     dataset_name_list = [
-        'chat1',
+        'shhs1',
     ]
     reduced_number_of_subjects = None
 
@@ -62,8 +66,32 @@ if __name__ == "__main__":
             # Read data
             stage_labels, stage_start_times, epoch_length = nsrr_utils.read_hypnogram(
                 paths_dict[subject_id]['annot'])
-            signal, fs, channel_found = nsrr_utils.read_edf_channel(
-                paths_dict[subject_id]['edf'], CHANNEL_PRIORITY_LABELS)
+
+            if 'shhs' in dataset_name:
+                print("ECG correlation computation")
+                signal_a, fs_a, channel_found_a = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['EEG'])
+                signal_b, fs_b, channel_found_b = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['EEG(sec)'])
+                signal_cardiac, fs_cardiac, _ = nsrr_utils.read_edf_channel(paths_dict[subject_id]['edf'], ['ECG'])
+                if fs_cardiac != fs_a:
+                    print("Resampling cardiac signal from %s Hz to %s Hz" % (fs_cardiac, fs_a))
+                    signal_cardiac = utils.resample_signal(signal_cardiac, fs_old=fs_cardiac, fs_new=fs_a)
+                # generate short signals (N2 only)
+                tmp_epoch_samples = int(epoch_length * fs_a)
+                valid_starts = stage_start_times[stage_labels == n2_id]
+                valid_pages = (valid_starts / epoch_length).astype(np.int32)
+                last_sample_valid = int((valid_pages[-1] + 1) * tmp_epoch_samples)
+                tmp_signal_a = signal_a[:last_sample_valid].reshape(-1, tmp_epoch_samples)[valid_pages].flatten()
+                tmp_signal_b = signal_b[:last_sample_valid].reshape(-1, tmp_epoch_samples)[valid_pages].flatten()
+                tmp_signal_cardiac = signal_cardiac[:last_sample_valid].reshape(-1, tmp_epoch_samples)[valid_pages].flatten()
+                # measure correlation
+                corr_a = np.abs(np.corrcoef(tmp_signal_a, tmp_signal_cardiac)[0, 1])
+                corr_b = np.abs(np.corrcoef(tmp_signal_b, tmp_signal_cardiac)[0, 1])
+                print("EEG correlation %1.4f, EEG(sec) correlation %1.4f" % (corr_a, corr_b))
+                # Pending selecting according to correlation factor
+                signal, fs, channel_found = signal_a, fs_a, channel_found_a
+            else:
+                signal, fs, channel_found = nsrr_utils.read_edf_channel(
+                    paths_dict[subject_id]['edf'], CHANNEL_PRIORITY_LABELS)
 
             # Channel id
             channel_id = " minus ".join(channel_found)
