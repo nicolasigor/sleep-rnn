@@ -11,12 +11,11 @@ DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
 
 if __name__ == "__main__":
 
-    keep_only_n2 = True
     dataset_name_list = [
         'chat1',
     ]
 
-    top_k = 20
+    top_k = 40
     epoch_samples = int(200 * 30)
     for dataset_name in dataset_name_list:
         print("Check %s" % dataset_name)
