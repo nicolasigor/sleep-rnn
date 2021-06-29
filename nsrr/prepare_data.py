@@ -3,6 +3,7 @@ import sys
 import time
 
 import numpy as np
+from scipy.signal import correlate
 
 project_root = ".."
 sys.path.append(project_root)
@@ -13,6 +14,20 @@ from sleeprnn.data import utils
 
 
 DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
+
+
+def get_maximum_correlation_by_alignment(x, y):
+    if x.size != y.size:
+        raise ValueError("Signals of different sizes")
+    x_std = x.std()
+    y_std = y.std()
+    if x_std == 0 or y_std == 0:
+        return 2
+    x = (x - x.mean()) / x_std
+    y = (y - y.mean()) / y_std
+    possible_corrcoefs = correlate(x, y, mode="same") / x.size
+    max_corrcoef = np.max(np.abs(possible_corrcoefs))
+    return max_corrcoef
 
 
 if __name__ == "__main__":
@@ -100,8 +115,8 @@ if __name__ == "__main__":
                 tmp_signal_b = signal_b[:last_sample_valid].reshape(-1, tmp_epoch_samples)[valid_pages].flatten()
                 tmp_signal_cardiac = signal_cardiac[:last_sample_valid].reshape(-1, tmp_epoch_samples)[valid_pages].flatten()
                 # measure correlation
-                corr_a = np.abs(np.corrcoef(tmp_signal_a, tmp_signal_cardiac)[0, 1])
-                corr_b = np.abs(np.corrcoef(tmp_signal_b, tmp_signal_cardiac)[0, 1])
+                corr_a = get_maximum_correlation_by_alignment(tmp_signal_a, tmp_signal_cardiac)
+                corr_b = get_maximum_correlation_by_alignment(tmp_signal_b, tmp_signal_cardiac)
                 print("Correlations -- EEG: %1.4f -- EEG(sec): %1.4f" % (corr_a, corr_b))
                 std_a = tmp_signal_a.std()
                 std_b = tmp_signal_b.std()
