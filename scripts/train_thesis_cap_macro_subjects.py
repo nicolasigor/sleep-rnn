@@ -49,7 +49,7 @@ if __name__ == '__main__':
     ]
 
     # Experiment
-    train_sizes_list = [75]
+    train_sizes_list = [75, 50, 25, 12.5]
 
     # Default parameters with magnitudes in microvolts (uv)
     da_unif_noise_intens_uv = pkeys.DEFAULT_AUG_INDEP_UNIFORM_NOISE_INTENSITY_MICROVOLTS
