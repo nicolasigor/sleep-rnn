@@ -22,6 +22,18 @@ NSRR_DATA_PATHS = {
         'edf': os.path.join(NSRR_PATH, "chat/polysomnography/edfs/visit1"),
         'annot': os.path.join(NSRR_PATH, "chat/polysomnography/annotations-events-nsrr/visit1")
     },
+    'ccshs': {
+        'edf': os.path.join(NSRR_PATH, "ccshs/polysomnography/edfs"),
+        'annot': os.path.join(NSRR_PATH, "ccshs/polysomnography/annotations-events-nsrr")
+    },
+    'cfs': {
+        'edf': os.path.join(NSRR_PATH, "cfs/polysomnography/edfs"),
+        'annot': os.path.join(NSRR_PATH, "cfs/polysomnography/annotations-events-nsrr")
+    },
+    'sof': {
+        'edf': os.path.join(NSRR_PATH, "sof/polysomnography/edfs"),
+        'annot': os.path.join(NSRR_PATH, "sof/polysomnography/annotations-events-nsrr")
+    },
 }
 
 CHANNEL_PRIORITY_LABELS = [
