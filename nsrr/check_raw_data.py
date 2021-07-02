@@ -14,6 +14,7 @@ if __name__ == "__main__":
     dataset_name = 'shhs1'
     verbose_missing_epoch = False
     reduced_number_of_subjects = None
+    channel_pairs_list = None
 
     # ################################################################
 
