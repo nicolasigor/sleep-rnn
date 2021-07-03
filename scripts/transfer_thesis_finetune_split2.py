@@ -119,10 +119,14 @@ if __name__ == '__main__':
     task_mode = constants.N2_RECORD
     this_date = '20210703'  # datetime.datetime.now().strftime("%Y%m%d")
 
+    # n2_subsampling_factors_dict = {
+    #     constants.MODA_SS_NAME: [15.0, 30.0, 60.1, 100.0],
+    #     constants.MASS_SS_NAME: [6.2, 12.5, 25.0, 50.0, 100.0],
+    #     constants.INTA_SS_NAME: [11.4, 22.8, 45.5, 100.0],
+    # }
     n2_subsampling_factors_dict = {
-        constants.MODA_SS_NAME: [15.0, 30.0, 60.1, 100.0],
-        constants.MASS_SS_NAME: [6.2, 12.5, 25.0, 50.0, 100.0],
-        constants.INTA_SS_NAME: [11.4, 22.8, 45.5, 100.0],
+        constants.MODA_SS_NAME: [12.5, 25.0, 50.0, 100.0],
+        constants.MASS_SS_NAME: [12.5, 25.0, 50.0, 100.0],
     }
 
     target_configs = [
