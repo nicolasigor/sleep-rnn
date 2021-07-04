@@ -124,9 +124,12 @@ if __name__ == '__main__':
     #     constants.MASS_SS_NAME: [6.2, 12.5, 25.0, 50.0, 100.0],
     #     constants.INTA_SS_NAME: [11.4, 22.8, 45.5, 100.0],
     # }
+    # n2_subsampling_factors_dict = {
+    #     constants.MODA_SS_NAME: [12.5, 25.0, 50.0, 100.0],
+    #     constants.MASS_SS_NAME: [12.5, 25.0, 50.0, 100.0],
+    # }
     n2_subsampling_factors_dict = {
-        constants.MODA_SS_NAME: [12.5, 25.0, 50.0, 100.0],
-        constants.MASS_SS_NAME: [12.5, 25.0, 50.0, 100.0],
+        constants.MODA_SS_NAME: [10, 20, 40, 60, 100],
     }
 
     target_configs = [
