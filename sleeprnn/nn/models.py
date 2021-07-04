@@ -290,8 +290,8 @@ class WaveletBLSTM(BaseModel):
         batch_size = self.params[pkeys.BATCH_SIZE]
         iters_resolution = 10
         n_smallest = min(x_train_1.shape[0], x_train_2.shape[0])
-        iter_per_epoch = int(n_smallest / (batch_size / 2))
-        iter_per_epoch = int((iter_per_epoch // iters_resolution) * iters_resolution)
+        iter_per_epoch = n_smallest / (batch_size / 2)
+        iter_per_epoch = int(iters_resolution * max(np.round(iter_per_epoch / iters_resolution), 1))
 
         niters = self.params[pkeys.MAX_EPOCHS] * iter_per_epoch
         iters_lr_update = self.params[pkeys.EPOCHS_LR_UPDATE] * iter_per_epoch
