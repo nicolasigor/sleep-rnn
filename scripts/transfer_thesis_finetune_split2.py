@@ -133,9 +133,9 @@ if __name__ == '__main__':
         dict(
             dataset_name=constants.MODA_SS_NAME, which_expert=1, strategy='5cv', n_seeds=3,
             ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_moda_ss"),
-        dict(
-            dataset_name=constants.MASS_SS_NAME, which_expert=1, strategy='5cv', n_seeds=3,
-            ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_mass_ss"),
+        # dict(
+        #     dataset_name=constants.MASS_SS_NAME, which_expert=1, strategy='5cv', n_seeds=3,
+        #     ckpt_folder="20210529_thesis_indata_5cv_e1_n2_train_mass_ss"),
     ]
     source_configs = [
         # dict(
