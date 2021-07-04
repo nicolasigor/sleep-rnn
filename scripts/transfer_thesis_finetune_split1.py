@@ -129,7 +129,7 @@ if __name__ == '__main__':
     #     constants.MASS_SS_NAME: [12.5, 25.0, 50.0, 100.0],
     # }
     n2_subsampling_factors_dict = {
-        constants.MODA_SS_NAME: [10, 20, 40, 60, 100],
+        constants.MODA_SS_NAME: [10, 20, 40, 70, 100],
     }
 
     target_configs = [
