@@ -18,6 +18,18 @@ from sleeprnn.common.optimal_thresholds import OPTIMAL_THR_FOR_CKPT_DICT
 from sleeprnn.detection import metrics
 
 
+def get_subsampling_factor(grid_folder, subsampling_str_prefix, subsampling_str_is_percentage=True):
+    grid_folder = grid_folder.split("_")
+    data = ''
+    for s in grid_folder:
+        if subsampling_str_prefix in s:
+            data = s
+    data = float(data.split(subsampling_str_prefix)[-1])
+    if subsampling_str_is_percentage:
+        data = data / 100
+    return data
+
+
 def get_baseline_predictions(
         baseline_name,
         strategy,
@@ -125,6 +137,84 @@ def get_red_predictions_for_pink(
         # output is predictions_dict[fold_id][subset] -> [subject_id]
         pink_predictions_dict[perturbation_id] = predictions_dict
     return pink_predictions_dict
+
+
+def get_red_predictions_for_cap_whole(
+        model_version,
+        dataset,
+        expert,
+        task_mode=constants.N2_RECORD,
+        verbose=False,
+):
+    ckpt_folder = '20210621_thesis_whole_5cv_e%d_n2_train_cap_ss' % expert
+    available_grid_folders = os.listdir(os.path.join(
+        RESULTS_PATH, 'predictions_%s' % dataset.dataset_name, ckpt_folder))
+    available_grid_folders.sort()
+    available_grid_folders = [n for n in available_grid_folders if model_version in n]
+    grid_folder_complete = os.path.join(ckpt_folder, available_grid_folders[0])
+    print("Loading predictions from %s" % grid_folder_complete) if verbose else None
+    predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode)
+    # Ensure optimal threshold in predictions
+    opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
+    for k in predictions_dict.keys():
+        for set_name in predictions_dict[k].keys():
+            predictions_dict[k][set_name].set_probability_threshold(opt_thr_list[k])
+    # output is predictions_dict[fold_id][subset] -> [subject_id]
+    return predictions_dict
+
+
+def get_red_predictions_for_cap_sizes(
+        dataset,
+        n2_subsampling=False,
+        model_version=constants.V2_TIME,
+        expert=1,
+        task_mode=constants.N2_RECORD,
+        verbose=False,
+):
+    ckpt_folder_100 = '20210621_thesis_whole_5cv_e%d_n2_train_cap_ss' % expert
+    if n2_subsampling:
+        ckpt_folder = '20210625_thesis_micro_signals_5cv_e%d_n2_train_cap_ss' % expert
+        subsampling_str_prefix = 'signalsize'
+    else:
+        ckpt_folder = '20210625_thesis_macro_subjects_5cv_e%d_n2_train_cap_ss' % expert
+        subsampling_str_prefix = 'subjectsize'
+
+    grid_folder_complete_map = {}
+
+    # full size
+    available_grid_folders = os.listdir(os.path.join(
+        RESULTS_PATH, 'predictions_%s' % dataset.dataset_name, ckpt_folder_100))
+    available_grid_folders.sort()
+    available_grid_folders = [n for n in available_grid_folders if model_version in n]
+    grid_folder_complete = os.path.join(ckpt_folder_100, available_grid_folders[0])
+    grid_folder_complete_map['%1.1f' % 100] = grid_folder_complete
+
+    # fraction sizes
+    available_grid_folders = os.listdir(os.path.join(
+        RESULTS_PATH, 'predictions_%s' % dataset.dataset_name, ckpt_folder))
+    available_grid_folders.sort()
+    available_grid_folders = [n for n in available_grid_folders if model_version in n]
+    for grid_folder in available_grid_folders:
+        grid_folder_complete = os.path.join(ckpt_folder, grid_folder)
+        fraction = get_subsampling_factor(grid_folder, subsampling_str_prefix)
+        percentage = fraction * 100
+        hash_id = '%1.1f' % percentage
+        grid_folder_complete_map[hash_id] = grid_folder_complete
+
+    # Now loop through paths
+    cap_predictions_dict = {}
+    for size in grid_folder_complete_map.keys():
+        grid_folder_complete = grid_folder_complete_map[size]
+        print("Loading predictions from %s" % grid_folder_complete) if verbose else None
+        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode)
+        # Ensure optimal threshold in predictions
+        opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
+        for k in predictions_dict.keys():
+            for set_name in predictions_dict[k].keys():
+                predictions_dict[k][set_name].set_probability_threshold(opt_thr_list[k])
+        # output is predictions_dict[fold_id][subset] -> [subject_id]
+        cap_predictions_dict[size] = predictions_dict
+    return cap_predictions_dict
 
 
 def get_red_predictions(
