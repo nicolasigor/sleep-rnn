@@ -602,6 +602,15 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize10.0'): [0.46, 0.38, 0.38, 0.32, 0.46, 0.36, 0.24, 0.30, 0.40, 0.40, 0.38, 0.34, 0.32, 0.38, 0.42],
     os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize10.0'): [0.50, 0.32, 0.32, 0.46, 0.40, 0.34, 0.24, 0.36, 0.30, 0.42, 0.32, 0.40, 0.32, 0.28, 0.48],
     
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_mass_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e2_n2_train_mass_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46],
+    os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46],
+    
 }
 
 
