@@ -580,6 +580,28 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize010'): [0.44, 0.46, 0.48, 0.58, 0.50],
     os.path.join('20210625_thesis_micro_signals_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize005'): [0.54, 0.56, 0.58, 0.56, 0.52],
     
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_signalsize100.0'): [0.50, 0.52, 0.56, 0.46, 0.52, 0.44, 0.54, 0.54, 0.48, 0.56, 0.50, 0.52, 0.54, 0.52, 0.46],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize100.0'): [0.46, 0.52, 0.52, 0.52, 0.52, 0.50, 0.56, 0.50, 0.50, 0.48, 0.48, 0.52, 0.52, 0.54, 0.48],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_signalsize70.0'): [0.42, 0.40, 0.38, 0.36, 0.46, 0.38, 0.42, 0.46, 0.46, 0.32, 0.38, 0.40, 0.30, 0.38, 0.36],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize70.0'): [0.32, 0.44, 0.40, 0.42, 0.52, 0.38, 0.42, 0.36, 0.32, 0.50, 0.40, 0.48, 0.36, 0.22, 0.36],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize10.0'): [0.34, 0.38, 0.24, 0.40, 0.44, 0.44, 0.46, 0.28, 0.30, 0.32, 0.34, 0.30, 0.38, 0.34, 0.40],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_signalsize20.0'): [0.26, 0.38, 0.44, 0.30, 0.44, 0.46, 0.44, 0.26, 0.34, 0.42, 0.26, 0.34, 0.18, 0.16, 0.34],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_signalsize40.0'): [0.18, 0.28, 0.22, 0.34, 0.34, 0.32, 0.36, 0.44, 0.40, 0.44, 0.30, 0.30, 0.28, 0.24, 0.40],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize20.0'): [0.36, 0.50, 0.20, 0.30, 0.42, 0.34, 0.36, 0.32, 0.26, 0.26, 0.42, 0.32, 0.36, 0.30, 0.38],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_signalsize10.0'): [0.36, 0.34, 0.44, 0.34, 0.50, 0.44, 0.30, 0.36, 0.32, 0.32, 0.34, 0.54, 0.24, 0.24, 0.32],
+    os.path.join('20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize40.0'): [0.28, 0.42, 0.18, 0.40, 0.28, 0.30, 0.42, 0.18, 0.30, 0.24, 0.22, 0.14, 0.34, 0.26, 0.34],
+    
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize100.0'): [0.52, 0.50, 0.48, 0.52, 0.48, 0.48, 0.50, 0.50, 0.50, 0.46, 0.52, 0.48, 0.48, 0.48, 0.50],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize100.0'): [0.52, 0.50, 0.44, 0.52, 0.56, 0.46, 0.50, 0.50, 0.50, 0.50, 0.52, 0.46, 0.52, 0.46, 0.44],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize70.0'): [0.42, 0.38, 0.32, 0.40, 0.44, 0.38, 0.46, 0.44, 0.30, 0.40, 0.42, 0.42, 0.34, 0.36, 0.34],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize70.0'): [0.38, 0.32, 0.34, 0.50, 0.40, 0.38, 0.38, 0.36, 0.40, 0.40, 0.40, 0.36, 0.42, 0.42, 0.42],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize40.0'): [0.28, 0.40, 0.30, 0.40, 0.46, 0.38, 0.38, 0.44, 0.24, 0.28, 0.30, 0.22, 0.46, 0.28, 0.42],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize40.0'): [0.38, 0.38, 0.40, 0.36, 0.36, 0.28, 0.36, 0.44, 0.30, 0.34, 0.42, 0.30, 0.26, 0.24, 0.36],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize20.0'): [0.46, 0.38, 0.38, 0.30, 0.54, 0.40, 0.28, 0.42, 0.34, 0.30, 0.32, 0.40, 0.38, 0.40, 0.46],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize20.0'): [0.36, 0.28, 0.32, 0.40, 0.38, 0.38, 0.36, 0.38, 0.38, 0.32, 0.36, 0.26, 0.36, 0.26, 0.48],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_time_subjectsize100.0_signalsize10.0'): [0.46, 0.38, 0.38, 0.32, 0.46, 0.36, 0.24, 0.30, 0.40, 0.40, 0.38, 0.34, 0.32, 0.38, 0.42],
+    os.path.join('20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss', 'v2_cwt1d_subjectsize100.0_signalsize10.0'): [0.50, 0.32, 0.32, 0.46, 0.40, 0.34, 0.24, 0.36, 0.30, 0.42, 0.32, 0.40, 0.32, 0.28, 0.48],
+    
 }
 
 
