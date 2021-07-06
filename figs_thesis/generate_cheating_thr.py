@@ -34,7 +34,7 @@ if __name__ == "__main__":
         dict(dataset_name=constants.MODA_SS_NAME, expert=1, strategy='5cv', seeds=3),
         dict(dataset_name=constants.INTA_SS_NAME, expert=1, strategy='5cv', seeds=3),
     ]
-    thr_search_space = np.arange(0.1, 0.9 + 0.001, 0.02)
+    thr_search_space = np.arange(0.04, 0.96 + 0.001, 0.02)
     thr_search_space = np.round(thr_search_space, 2)
 
     table = {
@@ -73,7 +73,7 @@ if __name__ == "__main__":
                 for subject_id in fold_subjects:
                     if subject_id not in valid_subjects:
                         continue
-                    print("Starting subject %s (E.T. %1.4f s)" % (subject_id, time.time() - start_time))
+                    print("Starting subject %s" % (subject_id))
 
                     # Get events
                     events = dataset.get_subject_stamps(
@@ -92,6 +92,8 @@ if __name__ == "__main__":
                     # Get thr that generates max AF1 at this subject
                     max_idx = np.argmax(af1_list).item()
                     best_thr = thr_search_space[max_idx]
+                    best_af1 = af1_list[max_idx]
+                    print("Best AF1 %1.1f at thr %1.2f (E.T. %1.4f s)" % (100 * best_af1, best_thr, time.time() - start_time)
 
                     # Save in global table
                     table['dataset'].append(dataset_str)
