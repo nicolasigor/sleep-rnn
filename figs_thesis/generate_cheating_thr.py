@@ -93,7 +93,7 @@ if __name__ == "__main__":
                     max_idx = np.argmax(af1_list).item()
                     best_thr = thr_search_space[max_idx]
                     best_af1 = af1_list[max_idx]
-                    print("Best AF1 %1.1f at thr %1.2f (E.T. %1.4f s)" % (100 * best_af1, best_thr, time.time() - start_time)
+                    print("Best AF1 %1.1f at thr %1.2f (E.T. %1.4f s)" % (100 * best_af1, best_thr, time.time() - start_time))
 
                     # Save in global table
                     table['dataset'].append(dataset_str)
