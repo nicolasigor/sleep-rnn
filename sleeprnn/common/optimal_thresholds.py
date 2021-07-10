@@ -611,6 +611,17 @@ OPTIMAL_THR_FOR_CKPT_DICT = {
     os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_cwt1d_subjectsize100.0'): [0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46, 0.44, 0.56, 0.46, 0.50, 0.46],
     os.path.join('20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_inta_ss', 'v2_time_subjectsize100.0'): [0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46, 0.48, 0.48, 0.44, 0.50, 0.46],
     
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_time_signalsize100'): [0.54, 0.56, 0.56, 0.54, 0.52, 0.52, 0.52, 0.40, 0.50, 0.58, 0.50, 0.64, 0.56, 0.50, 0.48],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize100'): [0.50, 0.50, 0.48, 0.54, 0.58, 0.50, 0.46, 0.52, 0.50, 0.48, 0.54, 0.58, 0.54, 0.44, 0.50],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize070'): [0.38, 0.46, 0.56, 0.50, 0.52, 0.42, 0.48, 0.40, 0.40, 0.46, 0.44, 0.60, 0.38, 0.46, 0.38],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_time_signalsize070'): [0.40, 0.44, 0.48, 0.46, 0.34, 0.42, 0.50, 0.36, 0.40, 0.56, 0.52, 0.44, 0.42, 0.42, 0.30],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_time_signalsize040'): [0.36, 0.50, 0.50, 0.46, 0.40, 0.50, 0.50, 0.42, 0.46, 0.20, 0.36, 0.40, 0.50, 0.10, 0.48],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize040'): [0.18, 0.32, 0.42, 0.50, 0.44, 0.40, 0.40, 0.34, 0.48, 0.48, 0.52, 0.38, 0.44, 0.30, 0.50],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_time_signalsize020'): [0.26, 0.50, 0.18, 0.52, 0.32, 0.32, 0.52, 0.40, 0.44, 0.42, 0.44, 0.48, 0.42, 0.20, 0.24],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize020'): [0.32, 0.38, 0.50, 0.38, 0.40, 0.22, 0.42, 0.52, 0.46, 0.52, 0.46, 0.38, 0.54, 0.36, 0.22],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_cwt1d_signalsize010'): [0.38, 0.52, 0.24, 0.52, 0.38, 0.52, 0.54, 0.48, 0.48, 0.48, 0.48, 0.52, 0.46, 0.12, 0.48],
+    os.path.join('20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss', 'v2_time_signalsize010'): [0.38, 0.52, 0.22, 0.50, 0.26, 0.12, 0.46, 0.50, 0.46, 0.38, 0.36, 0.38, 0.32, 0.24, 0.34],
+    
 }
 
 
