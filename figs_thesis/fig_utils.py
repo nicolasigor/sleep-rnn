@@ -163,6 +163,70 @@ def get_red_predictions_for_cap_whole(
     return predictions_dict
 
 
+def get_red_predictions_for_moda_sizes(
+        model_version,
+        dataset,
+        source_dataset_name,
+        source_expert,
+        overwrite_thr_with_constant=False,
+        task_mode=constants.N2_RECORD,
+        verbose=False,
+):
+    sizes = [0, 10, 20, 40, 70, 100]
+    grid_folder_complete_map = {}
+    if source_dataset_name == constants.MODA_SS_NAME:
+        # then it is moda sizes from scratch
+        # there is no fraction 0, and fraction 100 is replaced by the
+        # in-dataset result
+        for size in sizes:
+            if size == 0:
+                continue
+            if size == 100:
+                ckpt_folder = '20210529_thesis_indata_5cv_e1_n2_train_moda_ss/%s' % model_version
+            else:
+                ckpt_folder = '20210706_thesis_micro_signals_5cv_e1_n2_train_moda_ss/%s_signalsize%03d' % (
+                    model_version, size)
+            grid_folder_complete_map[size] = ckpt_folder
+    elif source_dataset_name == constants.MASS_SS_NAME and source_expert == 1:
+        # this is fine-tuning from pretrained weights
+        # size = 0 is direct transfer
+        for size in sizes:
+            if size == 0:
+                ckpt_folder = '20210605_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_sourcestd_to_e1_n2_train_moda_ss/%s' % model_version
+            else:
+                ckpt_folder = '20210703_from_20210529_thesis_indata_5cv_e1_n2_train_mass_ss_desc_finetune_to_e1_n2_train_moda_ss/%s_signalsize%1.1f' % (
+                    model_version, size)
+            grid_folder_complete_map[size] = ckpt_folder
+    elif source_dataset_name == constants.CAP_SS_NAME and source_expert == 1:
+        for size in sizes:
+            if size == 0:
+                ckpt_folder = '20210705_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_sourcestd_to_e1_n2_train_moda_ss/%s_subjectsize100.0' % model_version
+            else:
+                ckpt_folder = '20210703_from_20210621_thesis_whole_5cv_e1_n2_train_cap_ss_desc_finetune_to_e1_n2_train_moda_ss/%s_subjectsize100.0_signalsize%1.1f' % (
+                    model_version, size)
+            grid_folder_complete_map[size] = ckpt_folder
+    else:
+        raise ValueError('Invalid source.')
+
+    # Now loop through paths
+    moda_predictions_dict = {}
+    for size in grid_folder_complete_map.keys():
+        grid_folder_complete = grid_folder_complete_map[size]
+        print("Loading predictions from %s" % grid_folder_complete) if verbose else None
+        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode)
+        # Ensure optimal threshold in predictions
+        opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
+        for k in predictions_dict.keys():
+            for set_name in predictions_dict[k].keys():
+                if overwrite_thr_with_constant and (size not in [0, 100]):
+                    predictions_dict[k][set_name].set_probability_threshold(0.5)
+                else:
+                    predictions_dict[k][set_name].set_probability_threshold(opt_thr_list[k])
+        # output is predictions_dict[fold_id][subset] -> [subject_id]
+        moda_predictions_dict[size] = predictions_dict
+    return moda_predictions_dict
+
+
 def get_red_predictions_for_cap_sizes(
         dataset,
         n2_subsampling=False,
