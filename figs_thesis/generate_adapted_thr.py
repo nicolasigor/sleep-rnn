@@ -20,7 +20,7 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == "__main__":
 
-    fname = 'adapted_thresholds.csv'
+    fname = 'adapted_thresholds_shuffle.csv'
 
     models = [constants.V2_TIME, constants.V2_CWT1D]
     print_dataset_names = {
@@ -30,15 +30,15 @@ if __name__ == "__main__":
         (constants.INTA_SS_NAME, 1): "INTA-UCH",
     }
     eval_configs = [
+        dict(dataset_name=constants.MODA_SS_NAME, expert=1, strategy='5cv', seeds=3),
         dict(dataset_name=constants.MASS_SS_NAME, expert=1, strategy='5cv', seeds=3),
         dict(dataset_name=constants.MASS_SS_NAME, expert=2, strategy='5cv', seeds=3),
-        dict(dataset_name=constants.MODA_SS_NAME, expert=1, strategy='5cv', seeds=3),
         dict(dataset_name=constants.INTA_SS_NAME, expert=1, strategy='5cv', seeds=3),
     ]
     thr_search_space = np.arange(0.04, 0.96 + 0.001, 0.02)
     thr_search_space = np.round(thr_search_space, 2)
 
-    minutes_list = [3, 5, 7.5, 10, 15, 20, 25, 30]
+    minutes_list = np.array([3, 5, 7.5, 10, 15, 20, 25, 30])
     min_events_to_fit = 2
 
     table = {
@@ -65,8 +65,10 @@ if __name__ == "__main__":
                    and (sub_id not in ['01-01-0012', '01-01-0022'])
             ]
             print("moda, using n=", len(valid_subjects))
+            valid_minutes_list = minutes_list[minutes_list <= 10]
         else:
             valid_subjects = dataset.all_ids
+            valid_minutes_list = minutes_list
 
         for model_version in models:
             print("\nProcessing model %s" % model_version)
@@ -81,6 +83,9 @@ if __name__ == "__main__":
                     print("Starting subject %s" % subject_id)
 
                     n2_pages = dataset.get_subject_pages(subject_id, pages_subset=constants.N2_RECORD)
+
+                    n2_pages = np.random.RandomState(seed=0).permutation(n2_pages)
+
                     # Get events
                     events = dataset.get_subject_stamps(
                         subject_id, which_expert=config['expert'], pages_subset=constants.N2_RECORD)
@@ -91,14 +96,16 @@ if __name__ == "__main__":
                         detections = tmp_dict[k][constants.TEST_SUBSET].get_subject_stamps(subject_id)
                         detections_at_thr_list.append(detections)
                     # Loop through minutes
-                    for minutes in minutes_list:
+                    for minutes in valid_minutes_list:
                         n_first_pages = int(minutes * 60 / dataset.page_duration)
                         first_n2_pages = n2_pages[:n_first_pages]
+                        first_n2_pages = np.sort(first_n2_pages)
                         print("Using %1.1f minutes (the first %d N2 pages)" % (minutes, n_first_pages))
                         # Filter events
                         first_events = utils.extract_pages_for_stamps(events, first_n2_pages, dataset.page_size)
                         if first_events.shape[0] < min_events_to_fit:
                             print("Too few events (%d). Skipped" % (first_events.shape[0]))
+                            continue
                         # Filter detections
                         first_detections_at_thr_list = [
                             utils.extract_pages_for_stamps(dets, first_n2_pages, dataset.page_size)
