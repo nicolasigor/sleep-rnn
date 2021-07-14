@@ -59,7 +59,7 @@ class FeederDataset(Dataset):
             n2_pages = ind_dict[KEY_N2_PAGES]
 
             # Random permutation with a fixed seed so that we can sample N2 pages from anywhere
-            print("Shuffling N2 pages before subsampling")
+            # print("Shuffling N2 pages before subsampling")
             n2_pages = np.random.RandomState(seed=0).permutation(n2_pages)
 
             n_pages_to_extract = int(np.ceil(self.n2_subsampling_factor * n2_pages.size))
