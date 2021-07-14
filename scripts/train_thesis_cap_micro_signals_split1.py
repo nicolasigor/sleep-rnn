@@ -32,10 +32,10 @@ RESULTS_PATH = os.path.join(project_root, 'results')
 
 if __name__ == '__main__':
     # ----- Experiment settings
-    this_date = '20210625'  # datetime.datetime.now().strftime("%Y%m%d")
+    this_date = '20210713'  # datetime.datetime.now().strftime("%Y%m%d")
     task_mode = constants.N2_RECORD
     description_str = 'experiments'
-    experiment_name_base = '%s_thesis_micro_signals' % this_date
+    experiment_name_base = '%s_thesis_micro_signals_shuffle' % this_date
 
     # Datasets
     dataset_configs = [
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     ]
 
     # Experiment
-    train_sizes_list = [80, 40, 20, 10, 5]
+    train_sizes_list = [40]
     val_avg_mode = constants.MICRO_AVERAGE
 
     # Default parameters with magnitudes in microvolts (uv)
