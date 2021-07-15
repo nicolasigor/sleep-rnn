@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # incomplete. Please do not use the corrected marks generated for an
     # incomplete manual session as the new labels.
 
-    subject_id = 3
+    subject_id = 7
 
     subject_name = NAMES[subject_id - 1]
     print('Processing %s' % subject_name)
