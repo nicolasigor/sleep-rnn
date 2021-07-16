@@ -192,7 +192,7 @@ if __name__ == '__main__':
                 # --- Predict
                 print("Starting prediction on %d subjects" % len(nsrr_subjects))
                 for subject_id in nsrr_subjects:
-                    x = nsrr.get_subject_signals(subject_id, normalize_clip=True, verbose=False)
+                    x = nsrr.get_subject_signal(subject_id, normalize_clip=True, verbose=False)
                     y = model.predict_proba_from_vector(x, with_augmented_page=True)
                     y_adjusted = det_utils.transform_predicted_proba_to_adjusted_proba(y, fold_opt_thr)
                     probabilities_by_subject[subject_id].append(y_adjusted)
