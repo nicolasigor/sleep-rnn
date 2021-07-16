@@ -115,7 +115,7 @@ if __name__ == '__main__':
     task_mode = constants.N2_RECORD
     this_date = '20210716'
     n_splits = 4
-    split_id = 0
+    split_id = 2
 
     # Prediction using the first 5 checkpoints of redv2-time trained on MODA
     # Predictions are adjusted before ensembling, so ensemble always has opt thr 0.5
