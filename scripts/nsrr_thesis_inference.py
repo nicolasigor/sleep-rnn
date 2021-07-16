@@ -173,44 +173,44 @@ if __name__ == '__main__':
             )
             save_dir = os.path.abspath(os.path.join(RESULTS_PATH, 'predictions_%s' % nsrr.dataset_name, base_dir))
 
-            # checks.ensure_directory(save_dir)
-            #
-            # # Inside this fold, loop through checkpoints to ensemble
-            # start_time = time.time()
-            # probabilities_by_subject = {s: [] for s in nsrr_subjects}
-            # for source_fold_id in range(n_folds):
-            #     print("Processing model from source fold %d. " % source_fold_id)
-            #     fold_opt_thr = optimal_thr_list[source_fold_id]
-            #     # Set appropriate global STD
-            #     nsrr.global_std = configs_std[get_hash_name(source_config)][source_fold_id]
-            #     # Retrieve appropriate model
-            #     source_path = os.path.join(RESULTS_PATH, grid_folder_complete, 'fold%d' % source_fold_id)
-            #     model = get_model(source_path)
-            #     page_size = model.get_page_size()
-            #     border_size = model.get_border_size()
-            #     total_border = page_size // 2 + border_size
-            #     # --- Predict
-            #     print("Starting prediction on %d subjects" % len(nsrr_subjects))
-            #     for subject_id in nsrr_subjects:
-            #         x = nsrr.get_suject_signals(subject_id, normalize_clip=True, verbose=False)
-            #         y = model.predict_proba_from_vector(x, with_augmented_page=True)
-            #         y_adjusted = det_utils.transform_predicted_proba_to_adjusted_proba(y, fold_opt_thr)
-            #         probabilities_by_subject[subject_id].append(y_adjusted)
-            #     print("E.T. %1.4f [s]" % (time.time() - start_time))
-            # # Ensemble
-            # ensemble_by_subject = {}
-            # ens_sizes = []
-            # for subject_id in nsrr_subjects:
-            #     subject_probas = probabilities_by_subject[subject_id]
-            #     ens_sizes.append(len(subject_probas))
-            #     subject_average = np.stack(subject_probas, axis=0).astype(np.float32).mean(axis=0).astype(np.float16)
-            #     ensemble_by_subject[subject_id] = subject_average
-            # ens_sizes = np.unique(ens_sizes)
-            # print("Check: Size of ensembles:", ens_sizes)
-            # # Save ensembles
-            # filename = os.path.join(save_dir, 'prediction_%s_%s.pkl' % (task_mode, constants.TEST_SUBSET))
-            # with open(filename, 'wb') as handle:
-            #     pickle.dump(ensemble_by_subject, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            checks.ensure_directory(save_dir)
+
+            # Inside this fold, loop through checkpoints to ensemble
+            start_time = time.time()
+            probabilities_by_subject = {s: [] for s in nsrr_subjects}
+            for source_fold_id in range(n_folds):
+                print("Processing model from source fold %d. " % source_fold_id)
+                fold_opt_thr = optimal_thr_list[source_fold_id]
+                # Set appropriate global STD
+                nsrr.global_std = configs_std[get_hash_name(source_config)][source_fold_id]
+                # Retrieve appropriate model
+                source_path = os.path.join(RESULTS_PATH, grid_folder_complete, 'fold%d' % source_fold_id)
+                model = get_model(source_path)
+                page_size = model.get_page_size()
+                border_size = model.get_border_size()
+                total_border = page_size // 2 + border_size
+                # --- Predict
+                print("Starting prediction on %d subjects" % len(nsrr_subjects))
+                for subject_id in nsrr_subjects:
+                    x = nsrr.get_suject_signals(subject_id, normalize_clip=True, verbose=False)
+                    y = model.predict_proba_from_vector(x, with_augmented_page=True)
+                    y_adjusted = det_utils.transform_predicted_proba_to_adjusted_proba(y, fold_opt_thr)
+                    probabilities_by_subject[subject_id].append(y_adjusted)
+                print("E.T. %1.4f [s]" % (time.time() - start_time))
+            # Ensemble
+            ensemble_by_subject = {}
+            ens_sizes = []
+            for subject_id in nsrr_subjects:
+                subject_probas = probabilities_by_subject[subject_id]
+                ens_sizes.append(len(subject_probas))
+                subject_average = np.stack(subject_probas, axis=0).astype(np.float32).mean(axis=0).astype(np.float16)
+                ensemble_by_subject[subject_id] = subject_average
+            ens_sizes = np.unique(ens_sizes)
+            print("Check: Size of ensembles:", ens_sizes)
+            # Save ensembles
+            filename = os.path.join(save_dir, 'prediction_%s_%s.pkl' % (task_mode, constants.TEST_SUBSET))
+            with open(filename, 'wb') as handle:
+                pickle.dump(ensemble_by_subject, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
             print('Ensembled predictions saved at %s' % save_dir)
             print('')
