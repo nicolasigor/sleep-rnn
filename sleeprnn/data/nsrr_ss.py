@@ -154,13 +154,17 @@ class NsrrSS(Dataset):
             eeg_dir = os.path.join(data_dir, PATH_REC_AND_STATE)
             meta_file = [f for f in os.listdir(data_dir) if 'metadata.csv' in f][0]
             meta_file = os.path.join(data_dir, meta_file)
-            print("Subdataset", data_dir)
+            print("\nSubdataset", data_dir)
             print("eeg", eeg_dir)
             print("metadata", meta_file)
             subject_ids = np.array(
                 [".".join(f.split(".")[:-1]) for f in os.listdir(eeg_dir) if 'npz' in f], dtype='<U40')
             print("Subjects:", len(subject_ids), subject_ids[:7])
 
+            # Only keep those subject ids that intersect with metafile subject ids
+            subject_ids_meta = pd.read_csv(meta_file)['subject_id'].values
+            subject_ids_common = list(set.intersection(set(subject_ids), set(subject_ids_meta)))
+            print("Subjects that are in meta", len(subject_ids_common), subject_ids_common[:7])
 
         # for subject_id in self.all_ids:
         #     path_eeg_state_file = os.path.join(self.dataset_dir, PATH_REC_AND_STATE, "cap_%s.npz" % subject_id)
