@@ -696,6 +696,7 @@ def apply_bandpass(signal, fs, lowcut, highcut, filter_duration_ref=6, wave_expa
 def broad_filter_moda(x, fs, lowcut=0.3, highcut=30, filter_order=10):
     """Returns filtered signal sampled at fs Hz, with a 0.3-30 Hz
     bandpass."""
+    print("Applying MODA bandpass filter")
     sos = butter(filter_order, lowcut, btype='highpass', fs=fs, output='sos')
     x = sosfiltfilt(sos, x)
     sos = butter(filter_order, highcut, btype='lowpass', fs=fs, output='sos')

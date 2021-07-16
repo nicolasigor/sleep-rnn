@@ -87,7 +87,7 @@ class NsrrSS(Dataset):
 
             subject_paths = data_paths[subdataset]['eeg_and_state']
             subject_ids = list(subject_paths.keys())
-            for i_subject, subject_id in enumerate(subject_ids[:5]):
+            for i_subject, subject_id in enumerate(subject_ids):
                 print('\nLoading ID %s' % subject_id)
 
                 subject_eeg_state_file = subject_paths[subject_id]
