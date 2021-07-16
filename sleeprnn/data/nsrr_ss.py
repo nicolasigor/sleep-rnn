@@ -19,6 +19,9 @@ PATH_NSRR_RELATIVE = 'nsrr'
 PATH_REC_AND_STATE = 'register_and_state'
 SUBDATASETS = ['shhs1', 'mros1', 'chat1', 'sof', 'cfs', 'ccshs']
 
+KEY_AGE = 'age'
+KEY_SEX = 'sex'
+
 
 class NsrrSS(Dataset):
     """This is a class to manipulate the NSRR data EEG dataset.
@@ -76,6 +79,7 @@ class NsrrSS(Dataset):
         save_dir = os.path.join(self.dataset_dir, 'pretty_files')
         os.makedirs(save_dir, exist_ok=True)
         start = time.time()
+        global_count = 0
         for i_dataset, subdataset in enumerate(data_paths.keys()):
             print("\nLoading subdataset %s" % subdataset)
             meta_df = pd.read_csv(data_paths[subdataset]['metadata'])
@@ -87,69 +91,44 @@ class NsrrSS(Dataset):
                 print('\nLoading ID %s' % subject_id)
 
                 subject_eeg_state_file = subject_paths[subject_id]
-                subject_meta = meta_dict[subject_id]
-                print(subject_eeg_state_file)
-                print(subject_meta)
+                subject_age = meta_dict[subject_id]['age']
+                subject_sex = meta_dict[subject_id]['sex']
 
+                signal, hypnogram_original = self._read_npz(subject_eeg_state_file)
 
-        #for i, subject_id in enumerate(data_paths.keys()):
-            # print('\nLoading ID %s' % subject_id)
-            # path_dict = data_paths[subject_id]
-            # # Read data
-            # signal, hypnogram_original = self._read_npz(path_dict[KEY_FILE_EEG_STATE])
-            # n2_pages = self._get_n2_pages(hypnogram_original)
-            # marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
-            # signal, n2_pages, marks_1, hypnogram_20s = self._short_signals(signal, n2_pages, marks_1)
-            #
-            # # ################
-            # # Remove weird pages from N2 labels
-            # weird_locs = np.where(np.abs(signal) > 300)[0]
-            # weird_pages = np.unique(np.floor(weird_locs / self.page_size)).astype(np.int32)
-            # if subject_id == '2-001':
-            #     weird_pages = np.concatenate([
-            #         weird_pages,
-            #         np.arange(0, 60 + 0.001),
-            #         np.arange(120, 130 + 0.001)
-            #     ])
-            #     weird_pages = np.unique(weird_pages).astype(np.int32)
-            # hypnogram_20s[weird_pages] = self.unknown_id
-            # n2_pages = np.where(hypnogram_20s == self.n2_id)[0]
-            # # ################
-            #
-            # total_pages = int(signal.size / self.page_size)
-            # all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
-            #
-            # # Marks from simple detectors S1 (abs) and S2 (rel), respectively
-            # marks_2 = self._read_marks_simple(path_dict['%s_2' % KEY_FILE_MARKS])
-            # marks_3 = self._read_marks_simple(path_dict['%s_3' % KEY_FILE_MARKS])
-            #
-            # print('N2 pages: %d' % n2_pages.shape[0])
-            # print('Whole-night pages: %d' % all_pages.shape[0])
-            # print('Marks SS from A7 with original paper params         : %d' % marks_1.shape[0])
-            # print('Marks SS from S1-abs with thr 10 uV and thr low 0.86: %d' % marks_2.shape[0])
-            # print('Marks SS from S2-rel with thr 2.9 and thr low 0.80  : %d' % marks_3.shape[0])
-            #
-            # # Save data
-            # ind_dict = {
-            #     KEY_EEG: signal.astype(np.float32),
-            #     KEY_N2_PAGES: n2_pages.astype(np.int16),
-            #     KEY_ALL_PAGES: all_pages.astype(np.int16),
-            #     KEY_HYPNOGRAM: hypnogram_20s,
-            #     '%s_1' % KEY_MARKS: marks_1.astype(np.int32),
-            #     '%s_2' % KEY_MARKS: marks_2.astype(np.int32),
-            #     '%s_3' % KEY_MARKS: marks_3.astype(np.int32),
-            # }
-            # ind_dict = {}
-            #
-            # # Save data to disk and only save in object the path
-            # fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
-            # np.savez(fname, **ind_dict)
-            #
-            # data[subject_id] = {'pretty_file_path': fname}
-            #
-            # print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
-            #     subject_id, i+1, n_data, time.time()-start))
-        # print('%d records have been read.' % n_data)
+                marks = np.zeros((0, 2), dtype=np.int32)  # Dummy
+
+                n2_pages_original = np.where(hypnogram_original == self.n2_id)[0]
+
+                total_pages = int(signal.size / self.page_size)
+                all_pages = np.arange(1, total_pages - 1, dtype=np.int16)
+
+                print('N2 pages: %d' % n2_pages_original.shape[0])
+                print('Whole-night pages: %d' % all_pages.shape[0])
+                print('Marks SS : %d' % marks.shape[0])
+                print("Age:", subject_age, "Sex:", subject_sex)
+
+                # Save data
+                ind_dict = {
+                    KEY_EEG: signal.astype(np.float32),
+                    KEY_N2_PAGES: n2_pages_original.astype(np.int16),
+                    KEY_ALL_PAGES: all_pages.astype(np.int16),
+                    KEY_HYPNOGRAM: hypnogram_original,
+                    '%s_1' % KEY_MARKS: marks.astype(np.int32),
+                    KEY_AGE: subject_age,
+                    KEY_SEX: subject_sex,
+                }
+
+                # Save data to disk and only save in object the path
+                fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
+                np.savez(fname, **ind_dict)
+
+                data[subject_id] = {'pretty_file_path': fname}
+
+                print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
+                    subject_id, i_subject+1, len(subject_ids), time.time()-start))
+                global_count += 1
+        print('%d records have been read.' % global_count)
         return data
 
     def read_subject_data(self, subject_id):
@@ -203,3 +182,28 @@ class NsrrSS(Dataset):
         self.all_ids = all_ids
         return data
 
+    def _read_npz(self, path_eeg_state_file):
+        # Keys in npz:
+        #     'dataset'
+        #     'subject_id'
+        #     'channel'
+        #     'signal'
+        #     'sampling_rate'
+        #     'hypnogram'
+        #     'epoch_duration'
+        #     'bandpass_filter'
+        #     'resampling_function'
+        #     'original_sampling_rate'
+
+        data = np.load(path_eeg_state_file)
+        signal = data['signal']
+        hypnogram = data['hypnogram']
+        # Filter signal
+        original_fs = data['sampling_rate']
+        signal = utils.broad_filter_moda(signal, original_fs)
+        # Now resample to the required frequency
+        if self.fs != original_fs:
+            print('Resampling from %d Hz to required %d Hz' % (original_fs, self.fs))
+            signal = utils.resample_signal(signal, fs_old=original_fs, fs_new=self.fs)
+        signal = signal.astype(np.float32)
+        return signal, hypnogram

@@ -9,7 +9,7 @@ import os
 
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.signal import resample_poly, butter, filtfilt, firwin, lfilter, freqz
+from scipy.signal import resample_poly, butter, filtfilt, firwin, lfilter, freqz, sosfiltfilt
 from scipy.stats import iqr
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -691,3 +691,13 @@ def apply_bandpass(signal, fs, lowcut, highcut, filter_duration_ref=6, wave_expa
         new_signal = apply_lowpass(
             new_signal, fs, highcut, filter_duration_ref, wave_expansion_factor)
     return new_signal
+
+
+def broad_filter_moda(x, fs, lowcut=0.3, highcut=30, filter_order=10):
+    """Returns filtered signal sampled at fs Hz, with a 0.3-30 Hz
+    bandpass."""
+    sos = butter(filter_order, lowcut, btype='highpass', fs=fs, output='sos')
+    x = sosfiltfilt(sos, x)
+    sos = butter(filter_order, highcut, btype='lowpass', fs=fs, output='sos')
+    x = sosfiltfilt(sos, x)
+    return x
