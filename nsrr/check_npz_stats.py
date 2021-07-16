@@ -12,7 +12,12 @@ DATASETS_PATH = os.path.join(project_root, 'resources', 'datasets', 'nsrr')
 if __name__ == "__main__":
 
     dataset_name_list = [
+        'shhs1',
+        'mros1',
         'chat1',
+        'sof',
+        'cfs',
+        'ccshs'
     ]
 
     # Keys in dataset:
@@ -43,6 +48,7 @@ if __name__ == "__main__":
         all_original_fs = []
         all_channel = []
         duration_in_seconds = 0
+        stage_labels = []
         for f in all_files:
             data_dict = np.load(f)
 
@@ -56,10 +62,12 @@ if __name__ == "__main__":
 
             # check N2 duration
             hypnogram = data_dict['hypnogram']
+            stage_labels.append(np.unique(hypnogram))
             epoch_duration = data_dict['epoch_duration']
             n2_pages = (hypnogram == n2_id).sum()
             n2_duration = epoch_duration * n2_pages
             duration_in_seconds += n2_duration
+        stage_labels = np.unique(np.concatenate(stage_labels))
 
         print("\nReport:")
         print("Subjects %d" % len(all_files))
@@ -77,3 +85,5 @@ if __name__ == "__main__":
         values, counts = np.unique(all_channel, return_counts=True)
         for v, c in zip(values, counts):
             print("%s: %d" % (v, c))
+
+        print('\nSleep stage labels found:', stage_labels)
