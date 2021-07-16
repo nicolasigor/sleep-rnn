@@ -179,7 +179,7 @@ class NsrrSS(Dataset):
             subject_ids_common = list(set.intersection(set(subject_ids), set(subject_ids_meta)))
             subdataset_paths = {
                 'metadata': meta_file,
-                'eeg_and_state': {s: 's.npz' for s in subject_ids_common}
+                'eeg_and_state': {s: ('%s.npz' % s) for s in subject_ids_common}
             }
             data_paths[subdataset] = subdataset_paths
             # Collect IDs
