@@ -28,7 +28,7 @@ if __name__ == '__main__':
         'age': [],
         'female': []
     }
-    for subject_id in nsrr.all_ids:
+    for i_sub, subject_id in enumerate(nsrr.all_ids):
         subdataset_id = subject_id[:4]
         subject_data = nsrr.read_subject_data(subject_id)
 
@@ -39,6 +39,7 @@ if __name__ == '__main__':
         table['n2_hours'].append(n2_hours)
         table['age'].append(subject_data['age'])
         table['female'].append(int(subject_data['sex'] == 'f'))
+        print("Progress %d / %d" % (i_sub + 1, len(nsrr.all_ids)))
 
     table = pd.DataFrame.from_dict(table)
 
