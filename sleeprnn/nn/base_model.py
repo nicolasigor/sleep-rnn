@@ -15,7 +15,7 @@ from sleeprnn.common import pkeys
 from sleeprnn.common import constants
 from sleeprnn.detection.feeder_dataset import FeederDataset
 from sleeprnn.detection.predicted_dataset import PredictedDataset
-from sleeprnn.data.utils import pages2seq, extract_pages_from_centers
+from sleeprnn.data.utils import pages2seq, extract_pages_from_centers, extract_pages
 from sleeprnn.nn import feeding
 
 PATH_THIS_DIR = os.path.dirname(__file__)
@@ -272,6 +272,34 @@ class BaseModel(object):
             probabilities_dict=probabilities_dict,
             params=self.params.copy())
         return prediction
+
+    def predict_proba_from_vector(self, x, with_augmented_page=False):
+        """Vector is 1D and assumed to be normalized."""
+        page_size = self.params[pkeys.PAGE_DURATION] * self.params[pkeys.FS]
+        border_size = int(np.round(self.params[pkeys.BORDER_DURATION] * self.params[pkeys.FS]))
+
+        # Compute border to be added
+        if with_augmented_page:
+            total_border = page_size // 2 + border_size
+        else:
+            total_border = border_size
+
+        original_samples = x.size
+        samples_needed = int(np.ceil(original_samples / page_size) * page_size)
+        x_padded = np.zeros(samples_needed, dtype=x.dtype)
+        x_padded[:original_samples] = x
+        n_pages = int(x_padded.size / page_size)
+        pages = np.arange(n_pages)
+        x_batched = extract_pages(x_padded, pages, page_size, border_size=total_border)
+        x_batched = x_batched.astype(np.float32)
+
+        y_batched = self.predict_proba(x_batched, with_augmented_page=with_augmented_page)
+
+        y = pages2seq(y_batched, pages)
+
+        original_samples_downsampled = original_samples // self.params[pkeys.TOTAL_DOWNSAMPLING_FACTOR]
+        y = y[:original_samples_downsampled]
+        return y
 
     def predict_proba(self, x, with_augmented_page=False):
         """Predicts the class probabilities over the data x."""
