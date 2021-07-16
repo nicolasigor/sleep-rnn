@@ -136,7 +136,7 @@ if __name__ == '__main__':
     print("Inference by folds:")
     nsrr_fold_ids = np.sort(list(nsrr_folds.keys()))
     for fold_id in nsrr_fold_ids:
-        print("Fold %d: %d subjects" % (fold_id, nsrr_folds[fold_id]))
+        print("Fold %d: %d subjects" % (fold_id, len(nsrr_folds[fold_id])))
     # Check uniqueness
     all_subjects_check = np.concatenate([nsrr_folds[fold_id] for fold_id in nsrr_fold_ids])
     print("Check: Unique subjects: %d" % np.unique(all_subjects_check).size)
