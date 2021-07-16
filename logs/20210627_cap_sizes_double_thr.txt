@@ -47,4 +47,20 @@ AF1 68.10/1.30 [0.5] 67.74/1.71 [0.54, 0.56, 0.58, 0.56, 0.52], F 81.74/1.13, P 
 
 
 
+Fraction of signals shuffle: [los resultados son basicamente iguales]
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-micro_average to ['test']-macro_average) for 20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss
+AF1 76.99/0.98 [0.5] 77.09/1.02 [0.46, 0.50, 0.46, 0.50, 0.54], F 87.41/0.65, P 88.4/ 6.2, R 87.2/ 7.0 for v2_time_signalsize080
+AF1 75.69/1.12 [0.5] 75.75/1.10 [0.46, 0.50, 0.52, 0.48, 0.54], F 86.63/0.83, P 87.0/ 6.5, R 87.0/ 7.4 for v2_time_signalsize040
+AF1 74.30/0.90 [0.5] 74.38/1.06 [0.46, 0.54, 0.52, 0.46, 0.56], F 85.50/0.87, P 86.1/ 6.5, R 85.8/ 8.2 for v2_time_signalsize020
+AF1 71.96/1.72 [0.5] 72.05/1.55 [0.44, 0.44, 0.54, 0.50, 0.54], F 84.11/0.72, P 84.9/ 6.5, R 84.3/ 8.7 for v2_time_signalsize010
+AF1 67.75/2.07 [0.5] 67.79/1.93 [0.54, 0.52, 0.44, 0.52, 0.46], F 81.19/1.17, P 80.5/ 7.5, R 83.3/10.7 for v2_time_signalsize005
+
+    os.path.join('20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize080'): [0.46, 0.50, 0.46, 0.50, 0.54],
+    os.path.join('20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize040'): [0.46, 0.50, 0.52, 0.48, 0.54],
+    os.path.join('20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize020'): [0.46, 0.54, 0.52, 0.46, 0.56],
+    os.path.join('20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize010'): [0.44, 0.44, 0.54, 0.50, 0.54],
+    os.path.join('20210713_thesis_micro_signals_shuffle_5cv_e1_n2_train_cap_ss', 'v2_time_signalsize005'): [0.54, 0.52, 0.44, 0.52, 0.46],
+    
+
 
