@@ -169,7 +169,7 @@ class NsrrSS(Dataset):
             data_paths[subdataset] = subdataset_paths
             # Collect IDs
             all_ids.append(np.array(subject_ids_common, dtype='<U40'))
-        all_ids = np.concatenate(all_ids).sort()
+        all_ids = np.sort(np.concatenate(all_ids))
         # Replace all_ids dummy
         self.all_ids = all_ids
 
@@ -181,7 +181,7 @@ class NsrrSS(Dataset):
         with open(self.ckpt_file, 'rb') as handle:
             data = pickle.load(handle)
         all_ids = list(data.keys())
-        all_ids = np.array(all_ids, dtype='<U40').sort()
+        all_ids = np.sort(np.array(all_ids, dtype='<U40'))
         # Replace all_ids dummy
         self.all_ids = all_ids
         return data
