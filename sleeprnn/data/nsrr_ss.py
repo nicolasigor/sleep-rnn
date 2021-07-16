@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import time
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -65,6 +66,8 @@ class NsrrSS(Dataset):
         self.global_std = None
         if verbose:
             print('Global STD:', self.global_std)
+        if verbose:
+            print('Dataset %s with %d patients.' % (self.dataset_name, len(self.all_ids)))
 
     def _load_from_source(self):
         """Loads the data from files and transforms it appropriately."""
@@ -74,7 +77,7 @@ class NsrrSS(Dataset):
         os.makedirs(save_dir, exist_ok=True)
         n_data = len(data_paths)
         start = time.time()
-        for i, subject_id in enumerate(data_paths.keys()):
+        #for i, subject_id in enumerate(data_paths.keys()):
             # print('\nLoading ID %s' % subject_id)
             # path_dict = data_paths[subject_id]
             # # Read data
@@ -121,16 +124,16 @@ class NsrrSS(Dataset):
             #     '%s_2' % KEY_MARKS: marks_2.astype(np.int32),
             #     '%s_3' % KEY_MARKS: marks_3.astype(np.int32),
             # }
-            ind_dict = {}
-
-            # Save data to disk and only save in object the path
-            fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
-            np.savez(fname, **ind_dict)
-
-            data[subject_id] = {'pretty_file_path': fname}
-
-            print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
-                subject_id, i+1, n_data, time.time()-start))
+            # ind_dict = {}
+            #
+            # # Save data to disk and only save in object the path
+            # fname = os.path.join(save_dir, 'subject_%s.npz' % subject_id)
+            # np.savez(fname, **ind_dict)
+            #
+            # data[subject_id] = {'pretty_file_path': fname}
+            #
+            # print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
+            #     subject_id, i+1, n_data, time.time()-start))
         print('%d records have been read.' % n_data)
         return data
 
@@ -148,51 +151,40 @@ class NsrrSS(Dataset):
         """Returns a list of dicts containing paths to load the database."""
         # Build list of paths
         data_paths = {}
-
+        all_ids = []
         for subdataset in SUBDATASETS:
             data_dir = os.path.join(self.dataset_dir, subdataset)
             eeg_dir = os.path.join(data_dir, PATH_REC_AND_STATE)
             meta_file = [f for f in os.listdir(data_dir) if 'metadata.csv' in f][0]
             meta_file = os.path.join(data_dir, meta_file)
-            print("\nSubdataset", data_dir)
-            print("eeg", eeg_dir)
-            print("metadata", meta_file)
             subject_ids = np.array(
                 [".".join(f.split(".")[:-1]) for f in os.listdir(eeg_dir) if 'npz' in f], dtype='<U40')
-            print("Subjects:", len(subject_ids), subject_ids[:7])
-
             # Only keep those subject ids that intersect with metafile subject ids
             subject_ids_meta = pd.read_csv(meta_file)['subject_id'].values
             subject_ids_common = list(set.intersection(set(subject_ids), set(subject_ids_meta)))
-            print("Subjects that are in meta", len(subject_ids_common), subject_ids_common[:7])
+            subdataset_paths = {
+                'metadata': meta_file,
+                'eeg_and_state': {s: 's.npz' for s in subject_ids_common}
+            }
+            data_paths[subdataset] = subdataset_paths
+            # Collect IDs
+            all_ids.append(np.array(subject_ids_common, dtype='<U40'))
+        all_ids = np.concatenate(all_ids).sort()
+        # Replace all_ids dummy
+        self.all_ids = all_ids
 
-        # for subject_id in self.all_ids:
-        #     path_eeg_state_file = os.path.join(self.dataset_dir, PATH_REC_AND_STATE, "cap_%s.npz" % subject_id)
-        #     path_marks_1_file = os.path.join(
-        #         self.dataset_dir, PATH_MARKS,
-        #         'EventDetection_s%s_absSigPow(1.25)_relSigPow(1.6)_sigCov(1.3)_sigCorr(0.69).txt' % subject_id)
-        #     path_marks_2_file = os.path.join(
-        #         self.dataset_dir, '%s_s1_abs' % PATH_MARKS,
-        #         'SimpleDetectionAbsolute_s%s_thr10-0.86_fs200.txt' % subject_id)
-        #     path_marks_3_file = os.path.join(
-        #         self.dataset_dir, '%s_s2_rel' % PATH_MARKS,
-        #         'SimpleDetectionRelative_s%s_thr2.9-0.80_fs200.txt' % subject_id)
-        #     # Save paths
-        #     ind_dict = {
-        #         KEY_FILE_EEG_STATE: path_eeg_state_file,
-        #         '%s_1' % KEY_FILE_MARKS: path_marks_1_file,
-        #         '%s_2' % KEY_FILE_MARKS: path_marks_2_file,
-        #         '%s_3' % KEY_FILE_MARKS: path_marks_3_file,
-        #     }
-        #     # Check paths
-        #     for key in ind_dict:
-        #         if not os.path.isfile(ind_dict[key]):
-        #             print(
-        #                 'File not found: %s' % ind_dict[key])
-        #     data_paths[subject_id] = ind_dict
-        # print('%d records in %s dataset.' % (len(data_paths), self.dataset_name))
-        # print('Subject IDs: %s' % self.all_ids)
+        print('%d records in %s dataset.' % (len(self.all_ids), self.dataset_name))
         return data_paths
+
+    def _load_from_checkpoint(self):
+        """Loads the pickle file containing the loaded data."""
+        with open(self.ckpt_file, 'rb') as handle:
+            data = pickle.load(handle)
+        all_ids = list(data.keys())
+        all_ids = np.array(all_ids, dtype='<U40').sort()
+        # Replace all_ids dummy
+        self.all_ids = all_ids
+        return data
 
     def _read_npz(self, path_eeg_state_file):
         data = np.load(path_eeg_state_file)
