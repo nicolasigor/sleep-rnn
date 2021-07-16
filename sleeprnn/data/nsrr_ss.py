@@ -75,8 +75,23 @@ class NsrrSS(Dataset):
         data = {}
         save_dir = os.path.join(self.dataset_dir, 'pretty_files')
         os.makedirs(save_dir, exist_ok=True)
-        n_data = len(data_paths)
         start = time.time()
+        for i_dataset, subdataset in enumerate(data_paths.keys()):
+            print("\nLoading subdataset %s" % subdataset)
+            meta_df = pd.read_csv(data_paths[subdataset]['metadata'])
+            meta_dict = meta_df.set_index('subject_id').to_dict(orient='index')
+
+            subject_paths = data_paths[subdataset]['eeg_and_state']
+            subject_ids = list(subject_paths.keys())
+            for i_subject, subject_id in enumerate(subject_ids[:5]):
+                print('\nLoading ID %s' % subject_id)
+
+                subject_eeg_state_file = subject_paths[subject_id]
+                subject_meta = meta_dict[subject_id]
+                print(subject_eeg_state_file)
+                print(subject_meta)
+
+
         #for i, subject_id in enumerate(data_paths.keys()):
             # print('\nLoading ID %s' % subject_id)
             # path_dict = data_paths[subject_id]
@@ -134,7 +149,7 @@ class NsrrSS(Dataset):
             #
             # print('Loaded ID %s (%02d/%02d ready). Time elapsed: %1.4f [s]' % (
             #     subject_id, i+1, n_data, time.time()-start))
-        print('%d records have been read.' % n_data)
+        # print('%d records have been read.' % n_data)
         return data
 
     def read_subject_data(self, subject_id):
@@ -186,65 +201,3 @@ class NsrrSS(Dataset):
         self.all_ids = all_ids
         return data
 
-    def _read_npz(self, path_eeg_state_file):
-        data = np.load(path_eeg_state_file)
-        hypnogram = data['hypnogram']
-        signal = data['signal']
-        # Signal is already filtered to 0.1-35 and sampled to 200Hz
-        original_fs = data['sampling_rate']
-        # Now resample to the required frequency
-        if self.fs != original_fs:
-            print('Resampling from %d Hz to required %d Hz' % (original_fs, self.fs))
-            signal = utils.resample_signal(signal, fs_old=original_fs, fs_new=self.fs)
-        signal = signal.astype(np.float32)
-        return signal, hypnogram
-
-    def _get_n2_pages(self, hypnogram_original):
-        signal_total_duration = len(hypnogram_original) * self.original_page_duration
-        # Extract N2 pages
-        n2_pages_original = np.where(hypnogram_original == self.n2_id)[0]
-        onsets_original = n2_pages_original * self.original_page_duration
-        offsets_original = (n2_pages_original + 1) * self.original_page_duration
-        total_pages = int(np.ceil(signal_total_duration / self.page_duration))
-        n2_pages_onehot = np.zeros(total_pages, dtype=np.int16)
-        for i in range(total_pages):
-            onset_new_page = i * self.page_duration
-            offset_new_page = (i + 1) * self.page_duration
-            for j in range(n2_pages_original.size):
-                intersection = (onset_new_page < offsets_original[j]) and (onsets_original[j] < offset_new_page)
-                if intersection:
-                    n2_pages_onehot[i] = 1
-                    break
-        n2_pages = np.where(n2_pages_onehot == 1)[0]
-        # Drop first, last and second to last page of the whole registers
-        # if they where selected.
-        last_page = total_pages - 1
-        n2_pages = n2_pages[
-            (n2_pages != 0)
-            & (n2_pages != last_page)
-            & (n2_pages != last_page - 1)]
-        n2_pages = n2_pages.astype(np.int16)
-        return n2_pages
-
-    def _short_signals(self, signal, n2_pages, marks):
-        valid_pages = np.concatenate([n2_pages - 1, n2_pages, n2_pages + 1])
-        valid_pages = np.clip(valid_pages, a_min=0, a_max=None)
-        valid_pages = np.unique(valid_pages)  # it is ensured to have context at each side of n2 pages
-
-        # Hypnogram of 20s pages with only N2 labels (everything else is invalid stage)
-        n_pages_original = int(signal.size / self.page_size)
-        hypnogram = np.array([self.unknown_id] * n_pages_original, dtype='<U2')
-        hypnogram[n2_pages] = self.n2_id
-
-        # Now simplify
-        hypnogram = hypnogram[valid_pages]
-        n2_pages = np.where(hypnogram == self.n2_id)[0]
-
-        marks = utils.stamp2seq(marks, 0, signal.size - 1)
-        marks = utils.extract_pages(marks, valid_pages, self.page_size)
-        marks = marks.flatten()
-        marks = utils.seq2stamp(marks)
-
-        signal = utils.extract_pages(signal, valid_pages, self.page_size)
-        signal = signal.flatten()
-        return signal, n2_pages, marks, hypnogram
