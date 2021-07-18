@@ -89,7 +89,7 @@ def get_model(train_path):
     weight_ckpt_path = os.path.join(train_path, 'model', 'ckpt')
     print('Restoring weights from %s' % weight_ckpt_path)
 
-    loaded_model = WaveletBLSTM(params=params, logdir=os.path.join(RESULTS_PATH, 'tmp'))
+    loaded_model = WaveletBLSTM(params=params, logdir=os.path.join(RESULTS_PATH, 'tmp2'))
     loaded_model.load_checkpoint(weight_ckpt_path)
 
     return loaded_model
