@@ -139,6 +139,21 @@ class NsrrSS(Dataset):
         for key in ind_dict.files:
             loaded_ind_dict[key] = ind_dict[key]
 
+        # ################
+        # Exclude some N2 pages
+        signal = loaded_ind_dict[KEY_EEG]
+        weird_locs = np.where(np.abs(signal) > 300)[0]
+        page_size = int(self.original_page_duration * self.fs)
+        weird_pages = np.unique(np.floor(weird_locs / page_size)).astype(np.int32)
+        # Overwrite labels
+        hypnogram = loaded_ind_dict[KEY_HYPNOGRAM]
+        hypnogram[weird_pages] = self.unknown_id
+        n2_pages = np.where(hypnogram == self.n2_id)[0]
+        # Save new data
+        loaded_ind_dict[KEY_HYPNOGRAM] = hypnogram
+        loaded_ind_dict[KEY_N2_PAGES] = n2_pages
+        # ################
+
         return loaded_ind_dict
 
     def _get_file_paths(self):
