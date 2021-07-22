@@ -141,8 +141,10 @@ class NsrrSS(Dataset):
 
         # ################
         # Exclude some N2 pages
+        artifact_amplitude_criterion = 200  # uV
+
         signal = loaded_ind_dict[KEY_EEG]
-        weird_locs = np.where(np.abs(signal) > 300)[0]
+        weird_locs = np.where(np.abs(signal) > artifact_amplitude_criterion)[0]
         page_size = int(self.original_page_duration * self.fs)
         weird_pages = np.unique(np.floor(weird_locs / page_size)).astype(np.int32)
         # Overwrite labels

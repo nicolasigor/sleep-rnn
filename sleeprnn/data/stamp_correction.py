@@ -35,7 +35,7 @@ def combine_close_stamps(marks, fs, min_separation):
     return combined_marks
 
 
-def filter_duration_stamps(marks, fs, min_duration, max_duration):
+def filter_duration_stamps(marks, fs, min_duration, max_duration, repair_long=True):
     """Removes marks that are too short or strangely long. Marks longer than
     max_duration but not strangely long are cropped to keep the central
     max_duration duration. Durations are assumed to be in seconds.
@@ -59,19 +59,24 @@ def filter_duration_stamps(marks, fs, min_duration, max_duration):
             durations = durations[feasible_idx]
 
         if max_duration is not None:
-            # Remove weird annotations (extremely long)
-            feasible_idx = np.where(durations <= 2*max_duration)[0]
-            marks = marks[feasible_idx, :]
-            durations = durations[feasible_idx]
 
-            # For annotations with durations longer than max_duration,
-            # keep the central seconds
-            excess = durations - max_duration
-            excess = np.clip(excess, 0, None)
-            half_remove = ((fs * excess + 1) / 2).astype(np.int32)
-            half_remove_array = np.stack([half_remove, -half_remove], axis=1)
-            marks = marks + half_remove_array
-            # marks[:, 0] = marks[:, 0] + half_remove
-            # marks[:, 1] = marks[:, 1] - half_remove
+            if repair_long:
+                # Remove weird annotations (extremely long)
+                feasible_idx = np.where(durations <= 2*max_duration)[0]
+                marks = marks[feasible_idx, :]
+                durations = durations[feasible_idx]
 
+                # For annotations with durations longer than max_duration,
+                # keep the central seconds
+                excess = durations - max_duration
+                excess = np.clip(excess, 0, None)
+                half_remove = ((fs * excess + 1) / 2).astype(np.int32)
+                half_remove_array = np.stack([half_remove, -half_remove], axis=1)
+                marks = marks + half_remove_array
+                # marks[:, 0] = marks[:, 0] + half_remove
+                # marks[:, 1] = marks[:, 1] - half_remove
+            else:
+                # No repairing, simply remove
+                feasible_idx = np.where(durations <= max_duration)[0]
+                marks = marks[feasible_idx, :]
     return marks
