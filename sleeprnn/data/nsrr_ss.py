@@ -196,7 +196,7 @@ class NsrrSS(Dataset):
             n2_pages[i]
             for i in range(n2_pages.size)
             if valid[i] == 0
-        ])
+        ], dtype=np.int32)
 
         # Overwrite labels
         hypnogram = loaded_ind_dict[KEY_HYPNOGRAM]
