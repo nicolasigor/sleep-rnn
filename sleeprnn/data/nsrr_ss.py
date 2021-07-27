@@ -139,14 +139,65 @@ class NsrrSS(Dataset):
         for key in ind_dict.files:
             loaded_ind_dict[key] = ind_dict[key]
 
+        n2_pages = loaded_ind_dict[KEY_N2_PAGES]
+        if n2_pages.size == 0:
+            return loaded_ind_dict
+
         # ################
         # Exclude some N2 pages
-        artifact_amplitude_criterion = 200  # uV
+        mass_amplitude_criterion = 200  # uV
+        moda_standard_deviation_min = 5.0895143
+        moda_standard_deviation_max = 37.46395
+        moda_power_law_scale_min = 1.2271685614053935
+        moda_power_law_scale_max = 86.08213710727028
+        moda_power_law_exponent_min = -2.193588429779783
+        moda_power_law_exponent_max = -0.6201407594801163
+        moda_power_law_max_ratio_max = 7.724136167325558
 
+        # Page wise signals
         signal = loaded_ind_dict[KEY_EEG]
-        weird_locs = np.where(np.abs(signal) > artifact_amplitude_criterion)[0]
-        page_size = int(self.original_page_duration * self.fs)
-        weird_pages = np.unique(np.floor(weird_locs / page_size)).astype(np.int32)
+        sub_signal = signal.reshape(-1, self.fs * self.original_page_duration)[n2_pages]  # [n_pages, n_samples]
+
+        # Amplitude criteria
+        pages_amplitude = np.max(np.abs(sub_signal), axis=1)  # (n_pages,)
+        valid_1 = (pages_amplitude <= mass_amplitude_criterion).astype(np.int32)  # (n_pages,)
+
+        # Standard dev
+        pages_std = sub_signal.std(axis=1)  # (n_pages,)
+        valid_2 = (pages_std >= moda_standard_deviation_min) * (pages_std <= moda_standard_deviation_max)
+        valid_2 = valid_2.astype(np.int32)  # (n_pages,)
+
+        # Spectrum
+        freq, pages_spectrum = utils.compute_pagewise_fft(sub_signal, self.fs, window_duration=2)
+        pages_scales, pages_exponents = utils.compute_pagewise_powerlaw(freq, pages_spectrum)  # (n_pages,)
+
+        valid_3 = (pages_scales >= moda_power_law_scale_min) * (pages_scales <= moda_power_law_scale_max)
+        valid_3 = valid_3.astype(np.int32)  # (n_pages,)
+
+        valid_4 = (pages_exponents >= moda_power_law_exponent_min) * (pages_exponents <= moda_power_law_exponent_max)
+        valid_4 = valid_4.astype(np.int32)  # (n_pages,)
+
+        # Deviation from power law fit
+        f_min = 4
+        f_max = 30
+        valid_locs = np.where((freq >= f_min) & (freq <= f_max))[0]
+        dev_f = freq[valid_locs]
+        dev_x = pages_spectrum[:, valid_locs]
+        dev_x_law = [fit_s * (dev_f ** fit_e) for fit_s, fit_e in zip(pages_scales, pages_exponents)]
+        dev_x_law = np.stack(dev_x_law, axis=0)
+        ratio = dev_x / dev_x_law  # n_pages, n_freqs
+        max_ratio = np.max(ratio, axis=1)  # to detect weird peaks, shape (n_pages,)
+
+        valid_5 = (max_ratio <= moda_power_law_max_ratio_max).astype(np.int32)  # (n_pages,)
+
+        # All validations must occur
+        valid = valid_1 * valid_2 * valid_3 * valid_4 * valid_5
+        weird_pages = np.array([
+            n2_pages[i]
+            for i in range(n2_pages.size)
+            if valid[i] == 0
+        ])
+
         # Overwrite labels
         hypnogram = loaded_ind_dict[KEY_HYPNOGRAM]
         hypnogram[weird_pages] = self.unknown_id

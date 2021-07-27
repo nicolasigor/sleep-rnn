@@ -13,9 +13,11 @@ RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
 
 from sleeprnn.data import utils
 from sleeprnn.helpers import reader
-from sleeprnn.common import constants, viz
+from sleeprnn.common import constants, viz, pkeys
 from sleeprnn.common.optimal_thresholds import OPTIMAL_THR_FOR_CKPT_DICT
 from sleeprnn.detection import metrics
+from sleeprnn.detection.feeder_dataset import FeederDataset
+from sleeprnn.detection.predicted_dataset import PredictedDataset
 
 
 def get_subsampling_factor(grid_folder, subsampling_str_prefix, subsampling_str_is_percentage=True):
@@ -556,3 +558,69 @@ def get_filtered_signal_for_event(x, fs, event_name):
         return utils.apply_lowpass(x, fs, cutoff=8)
     else:
         raise ValueError()
+
+
+class PredictedNSRR(object):
+    def __init__(
+            self,
+            experiment_folder='20210716_from_20210529_thesis_indata_5cv_e1_n2_train_moda_ss_ensemble_to_e1_n2_train_nsrr_ss',
+            grid_folder='v2_time',
+            page_duration=30,
+            min_separation=0.3,
+            min_duration=0.3,
+            max_duration=3.0,
+            repair_long_detections=False,
+    ):
+        self.experiment_folder = experiment_folder
+        self.grid_folder = grid_folder
+        self.subject_to_fold_map = self._hash_predictions()
+        self.all_ids = np.sort(list(self.subject_to_fold_map.keys()))
+        self.post_params = {
+            pkeys.PAGE_DURATION: page_duration,
+            pkeys.SS_MIN_SEPARATION: min_separation,
+            pkeys.SS_MIN_DURATION: min_duration,
+            pkeys.SS_MAX_DURATION: max_duration,
+            pkeys.REPAIR_LONG_DETECTIONS: repair_long_detections,
+        }
+
+    def get_predictions(self, fold_ids_list, dataset, threshold=0.5):
+        proba_dict = {}
+        for fold_id in fold_ids_list:
+            t_proba_dict = self.get_fold_probabilities(fold_id)
+            proba_dict.update(t_proba_dict)
+        subject_ids = list(proba_dict.keys())
+        subject_ids.sort()
+        feed_d = FeederDataset(dataset, subject_ids, constants.N2_RECORD, which_expert=1)
+        feed_d.unknown_id = dataset.unknown_id
+        feed_d.n2_id = dataset.n2_id
+        feed_d.original_page_duration = dataset.original_page_duration
+        prediction = PredictedDataset(
+            dataset=feed_d,
+            probabilities_dict=proba_dict,
+            params=self.post_params.copy(), skip_setting_threshold=True)
+        prediction.set_probability_threshold(threshold)
+        return prediction
+
+    def get_subject_fold(self, subject_id):
+        return self.subject_to_fold_map[subject_id]
+
+    def get_fold_probabilities(self, fold_id):
+        pred_path = os.path.join(RESULTS_PATH, 'predictions_nsrr_ss', self.experiment_folder, self.grid_folder)
+        fold_path = os.path.join(pred_path, 'fold%d' % fold_id, 'prediction_n2_test.pkl')
+        with open(fold_path, 'rb') as handle:
+            proba_dict = pickle.load(handle)
+        return proba_dict
+
+    def _hash_predictions(self):
+        pred_path = os.path.join(RESULTS_PATH, 'predictions_nsrr_ss', self.experiment_folder, self.grid_folder)
+        folds = os.listdir(pred_path)
+        folds = [int(f.split("fold")[-1]) for f in folds]
+        folds = np.sort(folds)
+
+        subject_to_fold_map = {}
+        for fold_id in folds:
+            proba_dict = self.get_fold_probabilities(fold_id)
+            fold_subjects = list(proba_dict.keys())
+            for subject_id in fold_subjects:
+                subject_to_fold_map[subject_id] = fold_id
+        return subject_to_fold_map

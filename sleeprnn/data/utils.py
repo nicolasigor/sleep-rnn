@@ -702,3 +702,39 @@ def broad_filter_moda(x, fs, lowcut=0.3, highcut=30, filter_order=10):
     sos = butter(filter_order, highcut, btype='lowpass', fs=fs, output='sos')
     x = sosfiltfilt(sos, x)
     return x
+
+
+def compute_pagewise_fft(x, fs, window_duration=2):
+    # Input x is [n_pages, n_samples]
+    n_pages, n_samples = x.shape
+    window_size = int(fs * window_duration)
+    x = x.reshape(n_pages, -1, window_size)
+    window_shape = np.hanning(window_size).reshape(1, 1, -1)
+    x = x * window_shape
+    y = np.fft.rfft(x, axis=2) / window_size
+    y = np.abs(y).mean(axis=1)
+    f = np.fft.rfftfreq(window_size, d=1. / fs)
+    return f, y
+
+
+def compute_pagewise_powerlaw(f, y, broad_band=(4, 30), sigma_band=(10, 17)):
+    # Input y is [n_pages, n_freqs]
+    locs_to_use = np.where(
+        ((f >= broad_band[0]) & (f < sigma_band[0])) | ((f > sigma_band[1]) & (f <= broad_band[1]))
+    )[0]
+    x_data = f[locs_to_use]
+    y_data = y[:, locs_to_use]
+    log_x = np.log(x_data)
+    log_y = np.log(y_data)
+    scale_l = []
+    exponent_l = []
+    for page_log_y in log_y:
+        polycoefs = np.polynomial.Polynomial.fit(log_x, page_log_y, deg=1).convert().coef
+        scale = np.exp(polycoefs[0])
+        exponent = polycoefs[1]
+        # power = scale * (freq ** exponent)
+        scale_l.append(scale)
+        exponent_l.append(exponent)
+    scale_l = np.array(scale_l)
+    exponent_l = np.array(exponent_l)
+    return scale_l, exponent_l
