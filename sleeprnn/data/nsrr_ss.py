@@ -153,6 +153,7 @@ class NsrrSS(Dataset):
         moda_power_law_exponent_min = -1.8909820062793914
         moda_power_law_exponent_max = -0.6304845212942357
         moda_power_law_max_ratio_max = 8.041562207454062
+        moda_power_law_r2_min = 0.6995619824694014
 
         # Page wise signals
         signal = loaded_ind_dict[KEY_EEG]
@@ -169,7 +170,8 @@ class NsrrSS(Dataset):
 
         # Spectrum
         freq, pages_spectrum = utils.compute_pagewise_fft(sub_signal, self.fs, window_duration=2)
-        pages_scales, pages_exponents = utils.compute_pagewise_powerlaw(freq, pages_spectrum)  # (n_pages,)
+        pages_scales, pages_exponents = utils.compute_pagewise_powerlaw(
+            freq, pages_spectrum, broad_band=(2, 30), sigma_band=(10, 17))  # (n_pages,)
 
         valid_3 = (pages_scales >= moda_power_law_scale_min) * (pages_scales <= moda_power_law_scale_max)
         valid_3 = valid_3.astype(np.int32)  # (n_pages,)
@@ -177,7 +179,7 @@ class NsrrSS(Dataset):
         valid_4 = (pages_exponents >= moda_power_law_exponent_min) * (pages_exponents <= moda_power_law_exponent_max)
         valid_4 = valid_4.astype(np.int32)  # (n_pages,)
 
-        # Deviation from power law fit
+        # Deviation from power law fit: Max ratio
         f_min = 2
         f_max = 30
         valid_locs = np.where((freq >= f_min) & (freq <= f_max))[0]
@@ -190,8 +192,19 @@ class NsrrSS(Dataset):
 
         valid_5 = (max_ratio <= moda_power_law_max_ratio_max).astype(np.int32)  # (n_pages,)
 
+        # Deviation from power law fit: Coefficient R2
+        # for r2, we remove sigma
+        valid_locs = np.where((dev_f < 10) | (dev_f > 17))[0]
+        log_dev_x = np.log(dev_x[:, valid_locs])
+        log_dev_x_law = np.log(dev_x_law[:, valid_locs])
+        squared_data = np.sum((log_dev_x - log_dev_x.mean(axis=1).reshape(-1, 1)) ** 2, axis=1)
+        squared_residuals = np.sum((log_dev_x - log_dev_x_law) ** 2, axis=1)
+        r2 = 1 - squared_residuals / squared_data  # (n_pages,)
+
+        valid_6 = (r2 >= moda_power_law_r2_min).astype(np.int32)  # (n_pages,)
+
         # All validations must occur
-        valid = valid_1 * valid_2 * valid_3 * valid_4 * valid_5
+        valid = valid_1 * valid_2 * valid_3 * valid_4 * valid_5 * valid_6
         weird_pages = np.array([
             n2_pages[i]
             for i in range(n2_pages.size)
