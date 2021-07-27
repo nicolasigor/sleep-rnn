@@ -717,7 +717,7 @@ def compute_pagewise_fft(x, fs, window_duration=2):
     return f, y
 
 
-def compute_pagewise_powerlaw(f, y, broad_band=(4, 30), sigma_band=(10, 17)):
+def compute_pagewise_powerlaw(f, y, broad_band=(2, 30), sigma_band=(10, 17)):
     # Input y is [n_pages, n_freqs]
     locs_to_use = np.where(
         ((f >= broad_band[0]) & (f < sigma_band[0])) | ((f > sigma_band[1]) & (f <= broad_band[1]))

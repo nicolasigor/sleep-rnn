@@ -131,7 +131,7 @@ class NsrrSS(Dataset):
         print('%d records have been read.' % global_count)
         return data
 
-    def read_subject_data(self, subject_id):
+    def read_subject_data(self, subject_id, exclusion_of_pages=True):
         path_dict = self.data[subject_id]
         ind_dict = np.load(path_dict['pretty_file_path'])
 
@@ -140,7 +140,7 @@ class NsrrSS(Dataset):
             loaded_ind_dict[key] = ind_dict[key]
 
         n2_pages = loaded_ind_dict[KEY_N2_PAGES]
-        if n2_pages.size == 0:
+        if n2_pages.size == 0 or (not exclusion_of_pages):
             return loaded_ind_dict
 
         # ################
@@ -148,11 +148,11 @@ class NsrrSS(Dataset):
         mass_amplitude_criterion = 200  # uV
         moda_standard_deviation_min = 5.0895143
         moda_standard_deviation_max = 37.46395
-        moda_power_law_scale_min = 1.2271685614053935
-        moda_power_law_scale_max = 86.08213710727028
-        moda_power_law_exponent_min = -2.193588429779783
-        moda_power_law_exponent_max = -0.6201407594801163
-        moda_power_law_max_ratio_max = 7.724136167325558
+        moda_power_law_scale_min = 1.2120386356729853
+        moda_power_law_scale_max = 34.88810450777444
+        moda_power_law_exponent_min = -1.8909820062793914
+        moda_power_law_exponent_max = -0.6304845212942357
+        moda_power_law_max_ratio_max = 8.041562207454062
 
         # Page wise signals
         signal = loaded_ind_dict[KEY_EEG]
@@ -178,7 +178,7 @@ class NsrrSS(Dataset):
         valid_4 = valid_4.astype(np.int32)  # (n_pages,)
 
         # Deviation from power law fit
-        f_min = 4
+        f_min = 2
         f_max = 30
         valid_locs = np.where((freq >= f_min) & (freq <= f_max))[0]
         dev_f = freq[valid_locs]
