@@ -598,6 +598,7 @@ class PredictedNSRR(object):
             dataset=feed_d,
             probabilities_dict=proba_dict,
             params=self.post_params.copy(), skip_setting_threshold=True)
+        prediction.set_parent_dataset(dataset)
         prediction.set_probability_threshold(threshold)
         return prediction
 
