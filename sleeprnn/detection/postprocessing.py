@@ -83,19 +83,46 @@ def kcomplex_stamp_split(
 
 
 def get_amplitude_spindle(x, fs, distance_in_seconds=0.04):
+    no_peaks_found = False
+
     distance = int(fs * distance_in_seconds)
     peaks_max, _ = find_peaks(x, distance=distance)
     peaks_min, _ = find_peaks(-x, distance=distance)
-    peaks = np.sort(np.concatenate([peaks_max, peaks_min]))
-    peak_values = x[peaks]
-    peak_to_peak_diff = np.abs(np.diff(peak_values))
-    max_pp = np.max(peak_to_peak_diff)
+    if len(peaks_max) == 0 or len(peaks_min) == 0:
+        print("Second attempt to find peaks")
+        # First try to fix
+        distance = distance // 2
+        peaks_max, _ = find_peaks(x, distance=distance)
+        peaks_min, _ = find_peaks(-x, distance=distance)
+        if len(peaks_max) == 0 or len(peaks_min) == 0:
+            print("Third attempt to find peaks")
+            # Second try to fix
+            distance = distance // 2
+            peaks_max, _ = find_peaks(x, distance=distance)
+            peaks_min, _ = find_peaks(-x, distance=distance)
+            if len(peaks_max) == 0 or len(peaks_min) == 0:
+                print("SKIPPED: Segment without peaks. Found %d peaks max and %d peaks min" % (
+                        len(peaks_max), len(peaks_min)))
+                no_peaks_found = True
+    if no_peaks_found:
+        max_pp = 1e6
+    else:
+        peaks = np.sort(np.concatenate([peaks_max, peaks_min]))
+        peak_values = x[peaks]
+        peak_to_peak_diff = np.abs(np.diff(peak_values))
+        max_pp = np.max(peak_to_peak_diff)
     return max_pp
 
 
 def spindle_amplitude_filtering(signal, stamps, fs, max_amplitude, lowcut=9.5, highcut=16.5):
     filt_signal = apply_bandpass(signal, fs, lowcut=lowcut, highcut=highcut)
     signal_events = [filt_signal[e[0]:e[1] + 1] for e in stamps]
-    amplitudes = np.array([get_amplitude_spindle(s, fs) for s in signal_events])
+
+    amplitudes = []
+    for s in signal_events:
+        amp = get_amplitude_spindle(s, fs)
+        amplitudes.append(amp)
+    amplitudes = np.array(amplitudes)
+
     valid_locs = np.where(amplitudes <= max_amplitude)[0]
     return stamps[valid_locs]
