@@ -142,6 +142,19 @@ class PredictedDataset(Dataset):
                 new_stamps_list.append(stamps)
             stamps_list = new_stamps_list
 
+        # NSRR Amplitude removal
+        if 'nsrr' in self.parent_dataset.dataset_name:
+            max_amplitude = 134.12087769782073  # uV, from MODA spindles
+            new_stamps_list = []
+            for k, sub_id in enumerate(self.all_ids):
+                # Load signal
+                sub_data = self.parent_dataset.read_subject_data(sub_id, exclusion_of_pages=False)
+                signal = sub_data['signal']
+                stamps = stamps_list[k]
+                stamps = postprocessing.spindle_amplitude_filtering(signal, stamps, self.fs, max_amplitude)
+                new_stamps_list.append(stamps)
+            stamps_list = new_stamps_list
+
         # Now save model stamps
         stamp_key = '%s_%d' % (KEY_MARKS, 1)
         for k, sub_id in enumerate(self.all_ids):

@@ -5,7 +5,7 @@ from __future__ import print_function
 import numpy as np
 from scipy.signal import find_peaks
 
-from sleeprnn.data.utils import filter_iir_lowpass
+from sleeprnn.data.utils import filter_iir_lowpass, apply_bandpass
 
 
 def kcomplex_stamp_split(
@@ -80,3 +80,22 @@ def kcomplex_stamp_split(
     else:
         new_stamps = np.zeros((0, 2)).astype(np.int32)
     return new_stamps
+
+
+def get_amplitude_spindle(x, fs, distance_in_seconds=0.04):
+    distance = int(fs * distance_in_seconds)
+    peaks_max, _ = find_peaks(x, distance=distance)
+    peaks_min, _ = find_peaks(-x, distance=distance)
+    peaks = np.sort(np.concatenate([peaks_max, peaks_min]))
+    peak_values = x[peaks]
+    peak_to_peak_diff = np.abs(np.diff(peak_values))
+    max_pp = np.max(peak_to_peak_diff)
+    return max_pp
+
+
+def spindle_amplitude_filtering(signal, stamps, fs, max_amplitude, lowcut=9.5, highcut=16.5):
+    filt_signal = apply_bandpass(signal, fs, lowcut=lowcut, highcut=highcut)
+    signal_events = [filt_signal[e[0]:e[1] + 1] for e in stamps]
+    amplitudes = np.array([get_amplitude_spindle(s, fs) for s in signal_events])
+    valid_locs = np.where(amplitudes <= max_amplitude)[0]
+    return stamps[valid_locs]
