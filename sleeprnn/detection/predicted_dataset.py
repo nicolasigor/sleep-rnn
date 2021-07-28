@@ -152,7 +152,9 @@ class PredictedDataset(Dataset):
                 signal = sub_data['signal']
                 stamps = stamps_list[k]
                 if stamps.size > 0:
-                    stamps = postprocessing.spindle_amplitude_filtering(signal, stamps, self.fs, max_amplitude)
+                    stamps, no_peaks_found = postprocessing.spindle_amplitude_filtering(signal, stamps, self.fs, max_amplitude)
+                    if no_peaks_found:
+                        print("Found error 'no peaks found' in subject %s" % sub_id)
                 new_stamps_list.append(stamps)
             stamps_list = new_stamps_list
 

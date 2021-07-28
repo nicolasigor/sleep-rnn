@@ -119,10 +119,18 @@ def spindle_amplitude_filtering(signal, stamps, fs, max_amplitude, lowcut=9.5, h
     signal_events = [filt_signal[e[0]:e[1] + 1] for e in stamps]
 
     amplitudes = []
-    for s in signal_events:
+    for i in range(len(signal_events)):
+        s = signal_events[i]
         amp = get_amplitude_spindle(s, fs)
+        if amp > 1e5:
+            print("Anomaly mark is", stamps[i])
         amplitudes.append(amp)
     amplitudes = np.array(amplitudes)
 
+    if np.any(amplitudes > 1e5):
+        no_peaks_found = True
+    else:
+        no_peaks_found = False
+
     valid_locs = np.where(amplitudes <= max_amplitude)[0]
-    return stamps[valid_locs]
+    return stamps[valid_locs], no_peaks_found

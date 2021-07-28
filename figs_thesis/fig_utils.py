@@ -588,17 +588,20 @@ class PredictedNSRR(object):
         for fold_id in fold_ids_list:
             t_proba_dict = self.get_fold_probabilities(fold_id)
             proba_dict.update(t_proba_dict)
+            # print("Loaded fold %d" % fold_id)
         subject_ids = list(proba_dict.keys())
         subject_ids.sort()
         feed_d = FeederDataset(dataset, subject_ids, constants.N2_RECORD, which_expert=1)
         feed_d.unknown_id = dataset.unknown_id
         feed_d.n2_id = dataset.n2_id
         feed_d.original_page_duration = dataset.original_page_duration
+        # print("Generating PredictedDataset object")
         prediction = PredictedDataset(
             dataset=feed_d,
             probabilities_dict=proba_dict,
             params=self.post_params.copy(), skip_setting_threshold=True)
         prediction.set_parent_dataset(dataset)
+        # print("Applying threshold")
         prediction.set_probability_threshold(threshold)
         return prediction
 

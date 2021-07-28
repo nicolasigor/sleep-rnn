@@ -214,6 +214,10 @@ class NsrrSS(Dataset):
         # Overwrite labels
         hypnogram = loaded_ind_dict[KEY_HYPNOGRAM]
         hypnogram[weird_pages] = self.unknown_id
+        # first and last pages cannot be used otherwise context is lacking (for quality detection and filtering stuff)
+        hypnogram[0] = self.unknown_id
+        hypnogram[-1] = self.unknown_id
+
         n2_pages = np.where(hypnogram == self.n2_id)[0]
         # Save new data
         loaded_ind_dict[KEY_HYPNOGRAM] = hypnogram
