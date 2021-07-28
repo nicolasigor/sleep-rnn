@@ -151,7 +151,8 @@ class PredictedDataset(Dataset):
                 sub_data = self.parent_dataset.read_subject_data(sub_id, exclusion_of_pages=False)
                 signal = sub_data['signal']
                 stamps = stamps_list[k]
-                stamps = postprocessing.spindle_amplitude_filtering(signal, stamps, self.fs, max_amplitude)
+                if stamps.size > 0:
+                    stamps = postprocessing.spindle_amplitude_filtering(signal, stamps, self.fs, max_amplitude)
                 new_stamps_list.append(stamps)
             stamps_list = new_stamps_list
 
