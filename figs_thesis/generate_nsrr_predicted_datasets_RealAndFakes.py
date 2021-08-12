@@ -39,6 +39,15 @@ if __name__ == "__main__":
         end_fold = (part + 1) * size_of_parts
         part_folds = fold_ids[start_fold:end_fold]
 
+        # Real
+        predictions = nsrr_preds.get_predictions(part_folds, nsrr)
+        predictions.delete_parent_dataset()
+
+        file_path = os.path.join(save_dir, 'prediction_part%d.pkl' % part)
+        with open(file_path, 'wb') as handle:
+            pickle.dump(predictions, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Fake
         # Lower threshold to allow fake spindles
         predictions = nsrr_preds.get_predictions(part_folds, nsrr, threshold=0.25)
         predictions.delete_parent_dataset()

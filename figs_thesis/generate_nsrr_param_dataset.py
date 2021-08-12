@@ -12,7 +12,7 @@ import scipy
 from tqdm import tqdm
 
 from sleeprnn.helpers.reader import load_dataset
-from sleeprnn.common import constants, viz
+from sleeprnn.common import constants, viz, pkeys
 from sleeprnn.data import utils
 from figs_thesis import fig_utils
 
@@ -26,7 +26,7 @@ RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
 
 
 if __name__ == "__main__":
-    nsrr = load_dataset(constants.NSRR_SS_NAME, load_checkpoint=True)
+    nsrr = load_dataset(constants.NSRR_SS_NAME, load_checkpoint=True, params={pkeys.PAGE_DURATION: 30})
 
     # Load predictions
     parts_to_load = np.arange(12)

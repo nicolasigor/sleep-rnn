@@ -9,7 +9,7 @@ sys.path.append(PROJECT_ROOT)
 import numpy as np
 
 from sleeprnn.helpers.reader import load_dataset
-from sleeprnn.common import constants
+from sleeprnn.common import constants, pkeys
 from figs_thesis import fig_utils
 
 RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
@@ -17,7 +17,7 @@ RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
 
 if __name__ == "__main__":
     nsrr_preds = fig_utils.PredictedNSRR()
-    nsrr = load_dataset(constants.NSRR_SS_NAME, load_checkpoint=True)
+    nsrr = load_dataset(constants.NSRR_SS_NAME, load_checkpoint=True, params={pkeys.PAGE_DURATION: 30})
 
     save_dir = os.path.abspath(os.path.join(
         RESULTS_PATH,
