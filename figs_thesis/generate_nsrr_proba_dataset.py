@@ -217,14 +217,39 @@ if __name__ == "__main__":
             # Covariance and correlation between sigma band and broad band
             cov_l = []
             corr_l = []
+            window_size = int(0.3 * nsrr.fs)
+            step_size = int(0.1 * nsrr.fs)
             for s, filt_s in zip(signal_raw_events, signal_events):
-                s = s - s.mean()
-                filt_s = filt_s - filt_s.mean()
+                duration_real = s.size
+                duration_adjusted = np.clip(duration_real // step_size, a_min=window_size, a_max=None)
+                n_windows = 1 + (duration_adjusted - window_size) // step_size
+                s_stack = []
+                filt_s_stack = []
+                for i_win in range(n_windows):
+                    start_win = i_win * step_size
+                    end_win = start_win + window_size
+                    s_stack.append(s[start_win:end_win])
+                    filt_s_stack.append(filt_s[start_win:end_win])
+                s_stack = np.stack(s_stack, axis=0)
+                filt_s_stack = np.stack(filt_s_stack, axis=0)
+                # remove mean
+                s_stack = s_stack - s_stack.mean(axis=1).reshape(-1, 1)
+                filt_s_stack = filt_s_stack - filt_s_stack.mean(axis=1).reshape(-1, 1)
+                # variance and covariance
+                var_s = (s_stack ** 2).mean(axis=1)
+                var_f = (filt_s_stack ** 2).mean(axis=1)
+                cov_sf = np.mean(s_stack * filt_s_stack, axis=1)
+                # compute final stats
+                cov = cov_sf.mean()
+                corr = np.mean(cov_sf / np.sqrt(var_s * var_f))
+
+                # s = s - s.mean()
+                # filt_s = filt_s - filt_s.mean()
                 # covariance
-                cov = np.mean(s * filt_s)
+                # cov = np.mean(s * filt_s)
                 cov_l.append(cov)
                 # correlation
-                corr = np.corrcoef(s, filt_s)[0, 1]
+                # corr = np.corrcoef(s, filt_s)[0, 1]
                 corr_l.append(corr)
 
             cov_l = np.array(cov_l, dtype=np.float32)
