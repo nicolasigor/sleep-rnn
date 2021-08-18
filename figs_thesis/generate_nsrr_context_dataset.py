@@ -6,6 +6,7 @@ sys.path.append(PROJECT_ROOT)
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 RESULTS_PATH = os.path.join(PROJECT_ROOT, 'results')
 
@@ -53,6 +54,7 @@ if __name__ == "__main__":
     feat_columns.append('c20_rel_sigma_power_masked')
 
     # Generate context dataset
+    print("Starting generation of context table")
     noncontext_feats = [col for col in feat_columns if 'c10_' not in col and 'c20_' not in col]
     window_duration = 20
     fs = 200
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     table_context.update({
         'c%davg_%s' % (window_duration, key): [] for key in noncontext_feats
     })
-    for subject_id in subject_ids:
+    for subject_id in tqdm(subject_ids):
         subset = table_byevent_proba.loc[
             table_byevent_proba.subject_id == subject_id,
             ['center_sample', 'category'] + noncontext_feats
@@ -95,7 +97,6 @@ if __name__ == "__main__":
             for key in noncontext_feats:
                 table_context['c%davg_%s' % (window_duration, key)].append(mean_context[key])
     table_context = pd.DataFrame.from_dict(table_context)
-
     print("Saving checkpoint")
     table_context.to_csv(byevent_context_ckpt_path, index=False)
     print("Done.")
