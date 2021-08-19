@@ -84,7 +84,11 @@ class PostProcessor(object):
             min_separation = self.params[pkeys.KC_MIN_SEPARATION]
             min_duration = self.params[pkeys.KC_MIN_DURATION]
             max_duration = self.params[pkeys.KC_MAX_DURATION]
-        repair_long = self.params[pkeys.REPAIR_LONG_DETECTIONS]
+
+        if pkeys.REPAIR_LONG_DETECTIONS not in self.params:
+            repair_long = True  # default
+        else:
+            repair_long = self.params[pkeys.REPAIR_LONG_DETECTIONS]
 
         stamps = combine_close_stamps(stamps, fs_input, min_separation)
         stamps = filter_duration_stamps(stamps, fs_input, min_duration, max_duration, repair_long=repair_long)
