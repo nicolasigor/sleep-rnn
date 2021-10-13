@@ -143,7 +143,7 @@ class PredictedDataset(Dataset):
             stamps_list = new_stamps_list
 
         # NSRR Amplitude removal
-        if self.parent_dataset.dataset_name is not None:
+        if self.parent_dataset is not None:
             if 'nsrr' in self.parent_dataset.dataset_name:
                 max_amplitude = 134.12087769782073  # uV, from MODA spindles
                 new_stamps_list = []
