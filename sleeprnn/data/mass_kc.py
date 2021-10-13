@@ -68,7 +68,7 @@ class MassKC(Dataset):
         # KComplex characteristics
         self.min_kc_duration = 0.2  # Minimum duration of KC in seconds
 
-        valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
+        valid_ids = [i for i in range(1, 20)]  # if i not in IDS_INVALID]
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
 

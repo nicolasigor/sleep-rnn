@@ -71,7 +71,7 @@ class MassSS(Dataset):
         self.min_ss_duration = 0.3  # Minimum duration of SS in seconds
         self.max_ss_duration = 3  # Maximum duration of SS in seconds
 
-        valid_ids = [i for i in range(1, 20) if i not in IDS_INVALID]
+        valid_ids = [i for i in range(1, 20)]  # if i not in IDS_INVALID]
         self.test_ids = IDS_TEST
         self.train_ids = [i for i in valid_ids if i not in self.test_ids]
 
@@ -114,9 +114,13 @@ class MassSS(Dataset):
             signal, hypnogram, end_sample = self._fix_signal_and_states(signal, hypnogram, start_sample)
             all_pages, n2_pages = self._hypnogram_selections(hypnogram)
             marks_1 = self._read_marks(path_dict['%s_1' % KEY_FILE_MARKS])
-            marks_2 = self._read_marks(path_dict['%s_2' % KEY_FILE_MARKS])
             marks_1 = self._fix_marks(marks_1, start_sample, end_sample)
-            marks_2 = self._fix_marks(marks_2, start_sample, end_sample)
+
+            if path_dict['%s_2' % KEY_FILE_MARKS] is None:
+                marks_2 = np.zeros((0, 2), dtype=np.int32)
+            else:
+                marks_2 = self._read_marks(path_dict['%s_2' % KEY_FILE_MARKS])
+                marks_2 = self._fix_marks(marks_2, start_sample, end_sample)
 
             print('N2 pages: %d' % n2_pages.shape[0])
             print('Whole-night pages: %d' % all_pages.shape[0])
@@ -152,9 +156,12 @@ class MassSS(Dataset):
             path_marks_1_file = os.path.join(
                 self.dataset_dir, PATH_MARKS,
                 '01-02-%04d SpindleE1.edf' % subject_id)
-            path_marks_2_file = os.path.join(
-                self.dataset_dir, PATH_MARKS,
-                '01-02-%04d SpindleE2.edf' % subject_id)
+            if subject_id in IDS_INVALID:
+                path_marks_2_file = None
+            else:
+                path_marks_2_file = os.path.join(
+                    self.dataset_dir, PATH_MARKS,
+                    '01-02-%04d SpindleE2.edf' % subject_id)
             # Save paths
             ind_dict = {
                 KEY_FILE_EEG: path_eeg_file,
@@ -163,10 +170,10 @@ class MassSS(Dataset):
                 '%s_2' % KEY_FILE_MARKS: path_marks_2_file
             }
             # Check paths
-            for key in ind_dict:
-                if not os.path.isfile(ind_dict[key]):
-                    print(
-                        'File not found: %s' % ind_dict[key])
+            # for key in ind_dict:
+            #     if not os.path.isfile(ind_dict[key]):
+            #         print(
+            #             'File not found: %s' % ind_dict[key])
             data_paths[subject_id] = ind_dict
         print('%d records in %s dataset.' % (len(data_paths), self.dataset_name))
         print('Subject IDs: %s' % self.all_ids)
