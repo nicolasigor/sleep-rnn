@@ -1,0 +1,33 @@
+REF mass15 5-fold CV 15 partitions (test set size 3):
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210529_thesis_indata_5cv_e1_n2_train_mass_ss
+AF1 68.39/2.62 [0.5] 68.52/2.21 [...], F 80.82/2.08, P 79.7/ 8.6, R 83.6/ 8.7 for v2_time
+AF1 67.97/2.49 [0.5] 68.34/2.19 [...], F 80.84/2.00, P 79.6/ 8.8, R 83.8/ 8.8 for v2_cwt1d
+    
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20210529_thesis_indata_5cv_e1_n2_train_mass_kc
+AF1 75.85/1.64 [0.5] 76.15/1.32 [...], F 83.69/1.49, P 83.0/ 5.8, R 85.1/ 6.7 for v2_time
+AF1 75.74/1.58 [0.5] 76.08/1.18 [...], F 83.79/1.37, P 83.3/ 5.7, R 84.9/ 6.3 for v2_cwt1d
+
+
+SpindleU-Net (SS): F 80.3/2.3, P 78.8/3.4, R 83.0/3.3
+DKL-KC       (KC): F 78.0/2.0, P 77.0/5.0, R 80.0/5.0
+
+-------
+
+NEW mass19 5-fold CV 19 partitions (test set size 4):
+
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_ss
+AF1 68.12/2.37 [0.5] 68.21/2.16 [...], F 80.51/2.12, P 78.8/ 7.4, R 83.6/ 8.5 for v2_time
+AF1 67.42/2.39 [0.5] 67.51/2.39 [...], F 79.86/2.50, P 79.8/ 7.6, R 81.7/10.5 for v2_cwt1d
+
+    os.path.join('20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_ss', 'v2_time'): [0.58, 0.42, 0.52, 0.46, 0.46, 0.50, 0.44, 0.52, 0.50, 0.50, 0.50, 0.42, 0.50, 0.52, 0.48, 0.52, 0.46, 0.50, 0.50],
+    os.path.join('20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_ss', 'v2_cwt1d'): [0.56, 0.54, 0.44, 0.44, 0.54, 0.46, 0.54, 0.56, 0.50, 0.42, 0.48, 0.46, 0.50, 0.52, 0.46, 0.50, 0.40, 0.54, 0.52],
+    
+    
+Val AF1 report (iou >= 0.20, from ['train', 'val']-macro_average to ['test']-macro_average) for 20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_kc
+AF1 75.83/1.42 [0.5] 75.96/1.54 [...], F 83.58/1.69, P 82.9/ 6.1, R 85.0/ 6.3 for v2_time
+AF1 75.91/1.48 [0.5] 76.02/1.47 [...], F 83.79/1.67, P 83.5/ 5.8, R 84.7/ 6.5 for v2_cwt1d
+
+    os.path.join('20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_kc', 'v2_cwt1d'): [0.52, 0.44, 0.50, 0.60, 0.46, 0.52, 0.46, 0.48, 0.54, 0.46, 0.54, 0.50, 0.60, 0.60, 0.50, 0.44, 0.48, 0.50, 0.50],
+    os.path.join('20211013_thesis_indata_mass19_5cv_e1_n2_train_mass_kc', 'v2_time'): [0.50, 0.54, 0.50, 0.66, 0.54, 0.58, 0.46, 0.56, 0.50, 0.54, 0.54, 0.56, 0.50, 0.66, 0.54, 0.48, 0.48, 0.48, 0.58],
+
