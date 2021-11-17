@@ -410,16 +410,19 @@ def format_metric(mean_value, std_value, scale_by=100):
     return "$%1.1f\pm %1.1f$" % (scale_by * mean_value, scale_by * std_value)
 
 
-def linear_regression(durations_x, durations_y, min_dur, max_dur, ax, **kwargs):
+def linear_regression(durations_x, durations_y, min_dur, max_dur, ax, use_spanish=False, **kwargs):
     durations_x = durations_x.reshape(-1, 1)
     reg = LinearRegression().fit(durations_x, durations_y)
     # reg = HuberRegressor().fit(durations_x, durations_y)
     r2_score = reg.score(durations_x, durations_y)
     x_reg = np.array([min_dur, max_dur]).reshape(-1, 1)
     y_reg = reg.predict(x_reg)
+    r2_str = '$R^2$ = %1.2f' % r2_score
+    if use_spanish:
+        r2_str = r2_str.replace('.',',')
     ax.plot(
         x_reg, y_reg, linestyle='--', zorder=20,
-        color=viz.PALETTE['red'], linewidth=0.8, label='$R^2$ = %1.2f' % r2_score)
+        color=viz.PALETTE['red'], linewidth=0.8, label=r2_str)
     ax.legend(**kwargs)
     return r2_score
 
