@@ -22,6 +22,11 @@ from sleeprnn.common import constants, pkeys, viz
 
 RESULTS_PATH = os.path.join(project_root, 'results')
 
+# To change dots for commas
+import locale
+locale.setlocale(locale.LC_NUMERIC, "es_CL.utf8")
+plt.rcParams['axes.formatter.use_locale'] = True
+
 
 if __name__ == "__main__":
     ckpt_folder_prefix = '20210606_augment_ablation_6seeds_5cv_e1'
@@ -222,7 +227,7 @@ if __name__ == "__main__":
         ax.plot(
             recall, precision, color=grid_colors[grid_folder], linestyle='None', alpha=marker_alpha,
             markeredgewidth=0.0, marker='o', markersize=marker_size, label=plot_labels[grid_folder])
-        ax.set_ylabel('Precision (IoU>%1.1f)' % iou_threshold_report, fontsize=8)
+        ax.set_ylabel('Precision', fontsize=8)
         ax.set_title("Particiones (evento %s)" % event_id, fontsize=8, loc="left")
     ax = axes[1]
     for grid_folder in grid_folder_list:
@@ -449,7 +454,7 @@ if __name__ == "__main__":
         plotter.format_precision_recall_plot_simple(
             ax, axis_range=(0.5, 1.0), show_quadrants=False, show_grid=True)
         ax.tick_params(labelsize=8)
-        ax.set_xlabel("Recall (IoU>%1.1f)" % iou_threshold_report, fontsize=8)
+        ax.set_xlabel("Recall", fontsize=8)
     plt.tight_layout()
     axes[0].text(
         x=-0.01, y=1.15, fontsize=16, s=r"$\bf{A}$",
