@@ -15,13 +15,13 @@ from sleeprnn.common import pkeys, constants
 if __name__ == '__main__':
 
     datasets_name_list = [
-        # constants.NSRR_SS_NAME
+        # constants.NSRR_SS_NAME
         # constants.CAP_SS_NAME,
         # constants.PINK_NAME,
-        # constants.INTA_SS_NAME,
-        # constants.MODA_SS_NAME,
+        # constants.INTA_SS_NAME,
+        # constants.MODA_SS_NAME,
         constants.MASS_SS_NAME,
-        constants.MASS_KC_NAME,
+        # constants.MASS_KC_NAME,
     ]
     repair_inta = False
     params = {pkeys.FS: 200}
