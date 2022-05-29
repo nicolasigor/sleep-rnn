@@ -46,7 +46,9 @@ def read_predictions_crossval(
         RESULTS_PATH,
         'predictions_%s' % parent_dataset.dataset_name,
         ckpt_folder))
-    fold_ids, fold_prefix = parse_folds(predictions_path)
+    if verbose:
+        print('Prediction path:', predictions_path)
+    fold_ids, fold_prefix = parse_folds(predictions_path, verbose=verbose)
     predictions_dict = {}
     for k in fold_ids:
         ckpt_path = os.path.abspath(os.path.join(
@@ -76,8 +78,11 @@ def parse_prediction_files(ckpt_path):
     return path_dict
 
 
-def parse_folds(predictions_path):
+def parse_folds(predictions_path, verbose=False):
     folds = os.listdir(predictions_path)
+    folds = [s for s in folds if '.' not in s]
+    if verbose:
+        print('Folds found:', folds)
     if not folds[0][-1].isdigit():
         raise ValueError("Inside %s there are no numbered folders" % predictions_path)
     # Get available fold ids

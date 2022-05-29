@@ -272,7 +272,7 @@ def get_red_predictions_for_cap_sizes(
     for size in grid_folder_complete_map.keys():
         grid_folder_complete = grid_folder_complete_map[size]
         print("Loading predictions from %s" % grid_folder_complete) if verbose else None
-        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode)
+        predictions_dict = reader.read_predictions_crossval(grid_folder_complete, dataset, task_mode, verbose=verbose)
         # Ensure optimal threshold in predictions
         opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
         for k in predictions_dict.keys():
@@ -317,7 +317,7 @@ def get_red_predictions(
         )
     grid_folder_complete = os.path.join(ckpt_folder, model_version)
     print("Loading predictions from %s" % grid_folder_complete) if verbose else None
-    predictions_dict = reader.read_predictions_crossval(grid_folder_complete, target_dataset, task_mode)
+    predictions_dict = reader.read_predictions_crossval(grid_folder_complete, target_dataset, task_mode, verbose=verbose)
     # Ensure optimal threshold in predictions
     opt_thr_list = OPTIMAL_THR_FOR_CKPT_DICT[grid_folder_complete]
     for k in predictions_dict.keys():
