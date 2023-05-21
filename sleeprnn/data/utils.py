@@ -664,7 +664,7 @@ def overlapping_groups(overlap_matrix):
 def apply_lowpass(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
-    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hanning", fs=fs).astype(np.float32)
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hann", fs=fs).astype(np.float32)
     lp_kernel /= lp_kernel.sum()
     new_signal = filter_fir(lp_kernel, signal)
     return new_signal
@@ -673,7 +673,7 @@ def apply_lowpass(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_fact
 def apply_highpass(signal, fs, cutoff, filter_duration_ref=6, wave_expansion_factor=0.5):
     numtaps = fs * filter_duration_ref / (cutoff ** wave_expansion_factor)
     numtaps = int(2 * (numtaps // 2) + 1)  # ensure odd numtaps
-    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hanning", fs=fs).astype(np.float32)
+    lp_kernel = firwin(numtaps, cutoff=cutoff, window="hann", fs=fs).astype(np.float32)
     lp_kernel /= lp_kernel.sum()
     # HP = delta - LP
     hp_kernel = -lp_kernel
